@@ -122,7 +122,7 @@ export function Enhanced3DScene({ onDataReady }: Enhanced3DSceneProps) {
     const dataOrbs: THREE.Mesh[] = [];
     for (let i = 0; i < 5; i++) {
       const orbGeometry = new THREE.SphereGeometry(0.3, 16, 16);
-      const orbMaterial = new THREE.MeshBasicMaterial({
+      const orbMaterial = new THREE.MeshStandardMaterial({
         color: 0x00ff00,
         emissive: 0x002200,
         transparent: true,
