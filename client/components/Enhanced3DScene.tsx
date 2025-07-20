@@ -144,11 +144,10 @@ export function Enhanced3DScene({ onDataReady }: Enhanced3DSceneProps) {
     }
 
     // Holographic Logo (FeexSystems text)
-    const loader = new THREE.FontLoader();
     // Note: In a real implementation, you'd load a font file
     // For now, we'll create a simple geometric logo
     const logoGeometry = new THREE.BoxGeometry(2, 0.5, 0.1);
-    const logoMaterial = new THREE.MeshBasicMaterial({
+    const logoMaterial = new THREE.MeshStandardMaterial({
       color: 0xff6600,
       emissive: 0x331100,
       transparent: true,
