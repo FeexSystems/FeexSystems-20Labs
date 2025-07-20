@@ -81,7 +81,7 @@ export function Enhanced3DScene({ onDataReady }: Enhanced3DSceneProps) {
     // AI Core Model (simulated neural network)
     const aiCoreGroup = new THREE.Group();
     const nodeGeometry = new THREE.SphereGeometry(0.1, 16, 16);
-    const nodeMaterial = new THREE.MeshBasicMaterial({
+    const nodeMaterial = new THREE.MeshStandardMaterial({
       color: 0x00ffff,
       emissive: 0x003333,
     });
