@@ -57,11 +57,14 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        vr: {
-          blue: "hsl(var(--vr-blue))",
-          "blue-hover": "hsl(var(--vr-blue-hover))",
-          "header-bg": "hsl(var(--header-bg))",
+        deepmind: {
+          blue: "hsl(var(--deepmind-blue))",
+          "light-blue": "hsl(var(--deepmind-light-blue))",
+          gray: "hsl(var(--deepmind-gray))",
+          "light-gray": "hsl(var(--deepmind-light-gray))",
         },
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
       },
       borderRadius: {
         lg: "var(--radius)",
