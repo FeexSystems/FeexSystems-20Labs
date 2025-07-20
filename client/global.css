@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans:wght@300;400;500;600;700&family=Google+Sans+Text:wght@300;400;500;600&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -6,43 +6,59 @@
 
 @layer base {
   /**
-   * FeexSystems VR Theme - Dark Mode
-   * HSL format for tailwind compatibility
+   * DeepMind-inspired Professional Theme
+   * Clean, sophisticated design with subtle accents
    */
   :root {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 100%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
 
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
 
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
 
-    --primary: 200 100% 50%;
+    --primary: 214 84% 56%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 80%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 200 100% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 200 100% 50%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 214 84% 56%;
 
     --radius: 0.5rem;
 
-    --vr-blue: 200 100% 50%;
-    --vr-blue-hover: 200 100% 40%;
-    --header-bg: 0 0% 8%;
+    /* DeepMind-specific colors */
+    --deepmind-blue: 214 84% 56%;
+    --deepmind-light-blue: 214 84% 96%;
+    --deepmind-gray: 220 9% 46%;
+    --deepmind-light-gray: 220 9% 96%;
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(214, 84%, 56%) 0%,
+      hsl(214, 84%, 66%) 100%
+    );
+    --gradient-subtle: linear-gradient(
+      135deg,
+      hsl(220, 9%, 98%) 0%,
+      hsl(220, 9%, 96%) 100%
+    );
   }
 }
 
