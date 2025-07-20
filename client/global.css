@@ -49,9 +49,96 @@
 @layer base {
   * {
     @apply border-border;
+    font-family: "Inter", sans-serif;
   }
 
   body {
     @apply bg-background text-foreground;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  canvas {
+    display: block;
+  }
+}
+
+@layer components {
+  .vr-header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+
+  .vr-header .logo {
+    font-size: 24px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #ffffff;
+  }
+
+  .vr-header .info {
+    font-size: 14px;
+    color: #cccccc;
+  }
+
+  .vr-canvas {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .vr-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 2;
+    background: rgba(20, 20, 20, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+  }
+
+  .vr-overlay h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #ffffff;
+  }
+
+  .vr-overlay p {
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: #cccccc;
+  }
+
+  .vr-button {
+    background: hsl(var(--vr-blue));
+    color: #ffffff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .vr-button:hover {
+    background: hsl(var(--vr-blue-hover));
+  }
+
+  .vr-button:focus {
+    outline: 2px solid hsl(var(--vr-blue));
+    outline-offset: 2px;
   }
 }
