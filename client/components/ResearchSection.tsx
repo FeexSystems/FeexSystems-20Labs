@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { AINetworkScene } from "./AINetworkScene";
+import { DataFlowScene } from "./DataFlowScene";
 
 interface ResearchArea {
   id: string;
