@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Professional3DScene } from "./Professional3DScene";
+import { SolarSystemScene } from "./SolarSystemScene";
 
 export function ProfessionalHero() {
   const [isVisible, setIsVisible] = useState(false);
