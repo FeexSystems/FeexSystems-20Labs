@@ -22,6 +22,7 @@ export function ProfessionalNav({
 
   const navItems = [
     { id: "home", label: "Home" },
+    { id: "insights", label: "Intelligence" },
     { id: "research", label: "Research" },
     { id: "projects", label: "Projects" },
     { id: "about", label: "About" },
