@@ -76,6 +76,7 @@ export default function Index() {
 
       {/* Live Chatbot */}
       <LiveChatbot />
+      <InteractiveChatInterface />
     </div>
   );
 }
