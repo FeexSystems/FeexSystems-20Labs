@@ -202,10 +202,11 @@ export function SaaSNavigation({
 
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center space-x-4">
+            <ThemeToggle />
             <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Sign In
             </button>
-            <button className="px-6 py-2 bg-gradient-to-r from-mint-green to-mint-neon text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+            <button className="px-6 py-2 bg-gradient-to-r from-mint-green to-mint-neon text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 animate-pulse-green">
               Start Free Trial
             </button>
           </div>
