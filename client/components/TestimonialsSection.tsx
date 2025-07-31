@@ -150,7 +150,7 @@ export function TestimonialsSection() {
               <div>
                 <div className="flex items-center mb-6">
                   {[...Array(testimonials[activeTestimonial].rating)].map((_, i) => (
-                    <svg key={i} className="w-5 h-5 text-torch-yellow fill-current" viewBox="0 0 20 20">
+                    <svg key={i} className="w-5 h-5 text-mint-neon fill-current" viewBox="0 0 20 20">
                       <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
                     </svg>
                   ))}
@@ -176,7 +176,7 @@ export function TestimonialsSection() {
               {/* Metrics Card */}
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
                 <div className="text-center">
-                  <div className="text-5xl font-bold text-torch-orange mb-2">
+                  <div className="text-5xl font-bold text-mint-green mb-2">
                     {testimonials[activeTestimonial].metrics.improvement}
                   </div>
                   <div className="text-muted-foreground font-medium">
@@ -199,7 +199,7 @@ export function TestimonialsSection() {
                   onClick={() => setActiveTestimonial(index)}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     index === activeTestimonial
-                      ? "bg-torch-orange"
+                      ? "bg-mint-green"
                       : "bg-gray-300 hover:bg-gray-400"
                   }`}
                   aria-label={`View testimonial ${index + 1}`}
@@ -223,7 +223,7 @@ export function TestimonialsSection() {
             {trustIndicators.map((indicator, index) => (
               <div
                 key={index}
-                className="bg-white rounded-xl p-6 border border-gray-200 hover:border-torch-orange/30 hover:shadow-lg transition-all duration-300 text-center group"
+                className="bg-white rounded-xl p-6 border border-gray-200 hover:border-mint-green/30 hover:shadow-lg transition-all duration-300 text-center group"
               >
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                   {indicator.icon}
@@ -267,7 +267,7 @@ export function TestimonialsSection() {
         </div>
 
         {/* Statistics */}
-        <div className={`mt-20 bg-gradient-to-br from-torch-dark to-gray-900 rounded-3xl p-8 lg:p-12 text-white transition-all duration-1000 delay-900 ${
+        <div className={`mt-20 bg-gradient-to-br from-mint-dark to-gray-900 rounded-3xl p-8 lg:p-12 text-white transition-all duration-1000 delay-900 ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         }`}>
           <div className="text-center mb-12">
@@ -287,7 +287,7 @@ export function TestimonialsSection() {
               { value: "$2.5B", label: "Cost Savings Generated" }
             ].map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-4xl font-bold text-torch-orange mb-2">
+                <div className="text-4xl font-bold text-mint-green mb-2">
                   {stat.value}
                 </div>
                 <div className="text-gray-300">
