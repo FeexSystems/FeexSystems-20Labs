@@ -109,7 +109,7 @@ export function ActionableInsights() {
         >
           {/* Navigation */}
           <div className="flex justify-center mb-12">
-            <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+            <div className="glass-card rounded-full p-2">
               {insights.map((insight, index) => (
                 <button
                   key={index}
