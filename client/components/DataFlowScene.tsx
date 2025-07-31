@@ -57,10 +57,8 @@ export function DataFlowScene({
       
       // Server core
       const coreGeometry = new THREE.BoxGeometry(1, 1.5, 0.5);
-      const coreMaterial = new THREE.MeshLambertMaterial({ 
-        color: colors.primary,
-        emissive: colors.primary,
-        emissiveIntensity: 0.2
+      const coreMaterial = new THREE.MeshLambertMaterial({
+        color: colors.primary
       });
       const core = new THREE.Mesh(coreGeometry, coreMaterial);
       serverGroup.add(core);
