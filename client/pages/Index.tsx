@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { ProfessionalNav } from "../components/ProfessionalNav";
-import { ProfessionalHero } from "../components/ProfessionalHero";
+import { EnhancedHero } from "../components/EnhancedHero";
+import { ActionableInsights } from "../components/ActionableInsights";
 import { ResearchSection } from "../components/ResearchSection";
 import { ProfessionalProjects } from "../components/ProfessionalProjects";
 import { AboutSection } from "../components/AboutSection";
