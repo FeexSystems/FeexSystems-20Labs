@@ -1,7 +1,9 @@
 import { useState } from "react";
 
 export function PricingSection() {
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "annually">("monthly");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "annually">(
+    "monthly",
+  );
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
 
   const plans = [
@@ -17,14 +19,11 @@ export function PricingSection() {
         "Basic dashboard",
         "Email support",
         "API access",
-        "Basic integrations"
+        "Basic integrations",
       ],
-      limitations: [
-        "Limited to 1GB storage",
-        "Basic analytics only"
-      ],
+      limitations: ["Limited to 1GB storage", "Basic analytics only"],
       popular: false,
-      color: "gray"
+      color: "gray",
     },
     {
       id: "professional",
@@ -41,11 +40,11 @@ export function PricingSection() {
         "All integrations",
         "Custom workflows",
         "Advanced security features",
-        "SSO integration"
+        "SSO integration",
       ],
       limitations: [],
       popular: true,
-      color: "mint-green"
+      color: "mint-green",
     },
     {
       id: "enterprise",
@@ -63,30 +62,35 @@ export function PricingSection() {
         "Advanced AI training",
         "Compliance certifications",
         "On-premise deployment",
-        "Custom SLA"
+        "Custom SLA",
       ],
       limitations: [],
       popular: false,
-      color: "deepmind-blue"
-    }
+      color: "deepmind-blue",
+    },
   ];
 
-  const getPrice = (plan: typeof plans[0]) => {
+  const getPrice = (plan: (typeof plans)[0]) => {
     return billingCycle === "monthly" ? plan.monthlyPrice : plan.annualPrice;
   };
 
-  const getSavings = (plan: typeof plans[0]) => {
+  const getSavings = (plan: (typeof plans)[0]) => {
     if (billingCycle === "annually") {
       const monthlyCost = plan.monthlyPrice * 12;
       const annualCost = plan.annualPrice * 12;
-      const savings = Math.round(((monthlyCost - annualCost) / monthlyCost) * 100);
+      const savings = Math.round(
+        ((monthlyCost - annualCost) / monthlyCost) * 100,
+      );
       return savings;
     }
     return 0;
   };
 
   return (
-    <section id="pricing" className="py-24 bg-gradient-to-br from-mint-dark to-gray-900 text-white overflow-hidden">
+    <section
+      id="pricing"
+      className="py-24 bg-gradient-to-br from-mint-dark to-gray-900 text-white overflow-hidden"
+    >
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-16">
@@ -96,10 +100,14 @@ export function PricingSection() {
           </div>
           <h2 className="text-4xl md:text-6xl font-bold mb-6">
             Choose the perfect plan for
-            <span className="text-transparent bg-clip-text bg-gradient-torch"> your business</span>
+            <span className="text-transparent bg-clip-text bg-gradient-torch">
+              {" "}
+              your business
+            </span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-12">
-            Start free and scale as you grow. All plans include our core AI features with no hidden fees.
+            Start free and scale as you grow. All plans include our core AI
+            features with no hidden fees.
           </p>
 
           {/* Billing Toggle */}
@@ -158,11 +166,15 @@ export function PricingSection() {
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                 <p className="text-gray-400 mb-6">{plan.description}</p>
-                
+
                 <div className="mb-6">
                   <div className="flex items-baseline justify-center">
-                    <span className="text-5xl font-bold">${getPrice(plan)}</span>
-                    <span className="text-gray-400 ml-2">/{billingCycle === "monthly" ? "month" : "month"}</span>
+                    <span className="text-5xl font-bold">
+                      ${getPrice(plan)}
+                    </span>
+                    <span className="text-gray-400 ml-2">
+                      /{billingCycle === "monthly" ? "month" : "month"}
+                    </span>
                   </div>
                   {billingCycle === "annually" && (
                     <div className="text-sm text-success mt-2">
@@ -188,19 +200,35 @@ export function PricingSection() {
                 {plan.features.map((feature, index) => (
                   <div key={index} className="flex items-start space-x-3">
                     <div className="w-5 h-5 bg-success rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     </div>
                     <span className="text-gray-300 text-sm">{feature}</span>
                   </div>
                 ))}
-                
+
                 {plan.limitations.map((limitation, index) => (
                   <div key={index} className="flex items-start space-x-3">
                     <div className="w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     </div>
                     <span className="text-gray-500 text-sm">{limitation}</span>
@@ -216,8 +244,9 @@ export function PricingSection() {
           <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
             <h3 className="text-2xl font-bold mb-4">Need a custom solution?</h3>
             <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              We offer custom enterprise plans with dedicated support, advanced security features, 
-              and tailored integrations for your specific needs.
+              We offer custom enterprise plans with dedicated support, advanced
+              security features, and tailored integrations for your specific
+              needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="px-6 py-3 bg-gradient-torch text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
@@ -232,27 +261,36 @@ export function PricingSection() {
 
         {/* FAQ Section */}
         <div className="mt-20">
-          <h3 className="text-2xl font-bold text-center mb-12">Frequently Asked Questions</h3>
+          <h3 className="text-2xl font-bold text-center mb-12">
+            Frequently Asked Questions
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {[
               {
                 question: "Can I change plans anytime?",
-                answer: "Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately."
+                answer:
+                  "Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.",
               },
               {
                 question: "Is there a free trial?",
-                answer: "Yes, all plans include a 14-day free trial with full access to features."
+                answer:
+                  "Yes, all plans include a 14-day free trial with full access to features.",
               },
               {
                 question: "What payment methods do you accept?",
-                answer: "We accept all major credit cards, PayPal, and wire transfers for enterprise plans."
+                answer:
+                  "We accept all major credit cards, PayPal, and wire transfers for enterprise plans.",
               },
               {
                 question: "Do you offer refunds?",
-                answer: "Yes, we offer a 30-day money-back guarantee for all annual plans."
-              }
+                answer:
+                  "Yes, we offer a 30-day money-back guarantee for all annual plans.",
+              },
             ].map((faq, index) => (
-              <div key={index} className="bg-white/5 rounded-xl p-6 border border-white/10">
+              <div
+                key={index}
+                className="bg-white/5 rounded-xl p-6 border border-white/10"
+              >
                 <h4 className="font-semibold mb-3">{faq.question}</h4>
                 <p className="text-gray-300 text-sm">{faq.answer}</p>
               </div>

@@ -102,17 +102,20 @@ export function SaaSFooter() {
                 <p className="text-sm text-gray-400">AI SaaS Platform</p>
               </div>
             </div>
-            
+
             <p className="text-gray-300 mb-6 leading-relaxed">
-              Empowering businesses with intelligent AI solutions for automation, 
-              security, and data-driven decision making. Transform your operations 
-              with our comprehensive platform.
+              Empowering businesses with intelligent AI solutions for
+              automation, security, and data-driven decision making. Transform
+              your operations with our comprehensive platform.
             </p>
 
             {/* Newsletter Signup */}
             <div className="mb-6">
               <h4 className="font-semibold mb-3">Stay updated</h4>
-              <form onSubmit={handleNewsletterSubmit} className="flex space-x-2">
+              <form
+                onSubmit={handleNewsletterSubmit}
+                className="flex space-x-2"
+              >
                 <input
                   type="email"
                   value={email}
@@ -197,7 +200,9 @@ export function SaaSFooter() {
             </div>
 
             <div className="mt-6 md:mt-0 text-center md:text-right">
-              <div className="text-2xl font-bold text-mint-green mb-1">99.9%</div>
+              <div className="text-2xl font-bold text-mint-green mb-1">
+                99.9%
+              </div>
               <div className="text-sm text-gray-400">Uptime SLA</div>
             </div>
           </div>
@@ -251,13 +256,22 @@ export function SaaSFooter() {
                 © 2025 FeexSystems. All rights reserved.
               </p>
               <div className="flex space-x-6 text-sm">
-                <a href="#privacy" className="text-gray-400 hover:text-white transition-colors">
+                <a
+                  href="#privacy"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
                   Privacy Policy
                 </a>
-                <a href="#terms" className="text-gray-400 hover:text-white transition-colors">
+                <a
+                  href="#terms"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
                   Terms of Service
                 </a>
-                <a href="#cookies" className="text-gray-400 hover:text-white transition-colors">
+                <a
+                  href="#cookies"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
                   Cookie Policy
                 </a>
               </div>

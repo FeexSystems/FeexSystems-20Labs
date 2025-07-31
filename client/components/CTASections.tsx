@@ -26,19 +26,33 @@ export function CTASections() {
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
           <h2 className="text-4xl md:text-6xl font-bold mb-6">
             Ready to transform your
-            <span className="text-transparent bg-clip-text bg-gradient-torch"> business with AI?</span>
+            <span className="text-transparent bg-clip-text bg-gradient-torch">
+              {" "}
+              business with AI?
+            </span>
           </h2>
           <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto">
-            Join thousands of companies already using FeexSystems to automate workflows, 
-            enhance security, and drive growth. Start your free trial today.
+            Join thousands of companies already using FeexSystems to automate
+            workflows, enhance security, and drive growth. Start your free trial
+            today.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <button className="group px-8 py-4 bg-gradient-torch text-white font-semibold rounded-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
               <span className="flex items-center justify-center">
                 Start Free Trial
-                <svg className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                <svg
+                  className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
                 </svg>
               </span>
             </button>
@@ -49,11 +63,15 @@ export function CTASections() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
-              <div className="text-3xl font-bold text-mint-green mb-2">14 Days</div>
+              <div className="text-3xl font-bold text-mint-green mb-2">
+                14 Days
+              </div>
               <div className="text-gray-300">Free Trial</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-mint-neon mb-2">No Setup</div>
+              <div className="text-3xl font-bold text-mint-neon mb-2">
+                No Setup
+              </div>
               <div className="text-gray-300">Fees Required</div>
             </div>
             <div>
@@ -71,10 +89,14 @@ export function CTASections() {
             Stay ahead of the AI revolution
           </h3>
           <p className="text-lg text-white/90 mb-8">
-            Get weekly insights on AI trends, product updates, and exclusive content from our experts.
+            Get weekly insights on AI trends, product updates, and exclusive
+            content from our experts.
           </p>
 
-          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+          <form
+            onSubmit={handleNewsletterSubmit}
+            className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
+          >
             <input
               type="email"
               value={email}
@@ -108,8 +130,8 @@ export function CTASections() {
                   See FeexSystems in action
                 </h3>
                 <p className="text-lg text-muted-foreground mb-8">
-                  Book a personalized demo with our team and discover how FeexSystems 
-                  can transform your specific use case.
+                  Book a personalized demo with our team and discover how
+                  FeexSystems can transform your specific use case.
                 </p>
 
                 <div className="space-y-4 mb-8">
@@ -117,12 +139,20 @@ export function CTASections() {
                     "Personalized product walkthrough",
                     "Custom use case discussion",
                     "Integration planning session",
-                    "ROI analysis and pricing"
+                    "ROI analysis and pricing",
                   ].map((item, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <div className="w-5 h-5 bg-success rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                       </div>
                       <span className="text-foreground">{item}</span>
@@ -139,8 +169,16 @@ export function CTASections() {
                 <div className="aspect-video bg-gradient-to-br from-mint-green/10 to-mint-neon/10 rounded-2xl p-8 flex items-center justify-center border border-mint-green/20">
                   <div className="text-center">
                     <div className="w-20 h-20 bg-mint-green/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-10 h-10 text-mint-green" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                      <svg
+                        className="w-10 h-10 text-mint-green"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     </div>
                     <p className="text-muted-foreground font-medium">
@@ -171,24 +209,27 @@ export function CTASections() {
               {
                 icon: "📚",
                 title: "Documentation",
-                description: "Comprehensive guides, API references, and tutorials",
+                description:
+                  "Comprehensive guides, API references, and tutorials",
                 action: "Browse Docs",
-                color: "deepmind-blue"
+                color: "deepmind-blue",
               },
               {
                 icon: "🎓",
                 title: "Learning Center",
-                description: "Video tutorials, webinars, and certification courses",
+                description:
+                  "Video tutorials, webinars, and certification courses",
                 action: "Start Learning",
-                color: "mint-green"
+                color: "mint-green",
               },
               {
                 icon: "💬",
                 title: "Community",
-                description: "Connect with developers, share ideas, and get help",
+                description:
+                  "Connect with developers, share ideas, and get help",
                 action: "Join Community",
-                color: "success"
-              }
+                color: "success",
+              },
             ].map((resource, index) => (
               <div
                 key={index}
@@ -203,7 +244,9 @@ export function CTASections() {
                 <p className="text-muted-foreground mb-6">
                   {resource.description}
                 </p>
-                <button className={`w-full py-3 px-6 bg-${resource.color}/10 text-${resource.color} font-semibold rounded-lg hover:bg-${resource.color}/20 transition-colors`}>
+                <button
+                  className={`w-full py-3 px-6 bg-${resource.color}/10 text-${resource.color} font-semibold rounded-lg hover:bg-${resource.color}/20 transition-colors`}
+                >
                   {resource.action}
                 </button>
               </div>
@@ -225,8 +268,8 @@ export function CTASections() {
                 Ready to get started?
               </h3>
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Join the AI revolution and transform your business today. 
-                No credit card required, cancel anytime.
+                Join the AI revolution and transform your business today. No
+                credit card required, cancel anytime.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
