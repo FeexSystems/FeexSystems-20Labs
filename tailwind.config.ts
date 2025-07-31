@@ -63,12 +63,12 @@ export default {
           gray: "hsl(var(--deepmind-gray))",
           "light-gray": "hsl(var(--deepmind-light-gray))",
         },
-        torch: {
-          orange: "hsl(var(--torch-orange))",
-          yellow: "hsl(var(--torch-yellow))",
-          "light-orange": "hsl(var(--torch-light-orange))",
-          dark: "hsl(var(--torch-dark))",
-          accent: "hsl(var(--torch-accent))",
+        mint: {
+          green: "hsl(var(--mint-green))",
+          neon: "hsl(var(--mint-neon))",
+          light: "hsl(var(--mint-light))",
+          dark: "hsl(var(--mint-dark))",
+          accent: "hsl(var(--mint-accent))",
         },
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
