@@ -121,7 +121,7 @@ export function CTASections() {
       </section>
 
       {/* Demo CTA */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-mint-dark">
         <div className="max-w-6xl mx-auto px-6">
           <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-8 lg:p-12 border border-gray-200 shadow-xl">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
