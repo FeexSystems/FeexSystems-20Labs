@@ -65,11 +65,11 @@ export function EnhancedHero() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <button className="px-8 py-4 bg-mint-green hover:bg-mint-green/90 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
-              Explore Our Intelligence
+            <button className="px-8 py-4 bg-gradient-to-r from-mint-green to-mint-neon text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl animate-glow">
+              <span className="mono-medium">Explore Our Intelligence</span>
             </button>
-            <button className="px-8 py-4 bg-white hover:bg-gray-50 text-mint-dark font-semibold border border-gray-200 rounded-lg transition-all duration-300">
-              View Case Studies
+            <button className="px-8 py-4 glass-card text-foreground font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 interactive-card">
+              <span className="mono-medium">View Case Studies</span>
             </button>
           </div>
 
