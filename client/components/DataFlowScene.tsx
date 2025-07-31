@@ -235,7 +235,7 @@ export function DataFlowScene({
         
         // Animate status lights
         server.children.slice(1).forEach((light, lightIndex) => {
-          const lightMaterial = (light as THREE.Mesh).material as THREE.MeshBasicMaterial;
+          const lightMaterial = (light as THREE.Mesh).material as THREE.MeshStandardMaterial;
           lightMaterial.emissiveIntensity = 0.5 + Math.sin(time * 3 + lightIndex) * 0.3;
         });
 
