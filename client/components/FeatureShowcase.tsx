@@ -154,7 +154,7 @@ export function FeatureShowcase() {
           </div>
 
           {/* Active Feature Display */}
-          <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-2xl border border-gray-100">
+          <div className="glass-card p-8 lg:p-12 interactive-card">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Content */}
               <div>
