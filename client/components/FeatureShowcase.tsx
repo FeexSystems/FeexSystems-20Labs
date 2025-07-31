@@ -43,7 +43,7 @@ export function FeatureShowcase() {
         "Custom ML model training"
       ],
       image: "https://cdn.builder.io/o/assets%2Fd861c8115257469c9c2c0c03f0272845%2F829ecb38245545d78ffe1d8294c0db86?alt=media&token=7d184244-f3a0-4645-aa56-0a5be870d6b5&apiKey=d861c8115257469c9c2c0c03f0272845",
-      color: "torch-orange"
+      color: "mint-green"
     },
     {
       id: "devops-automation",
@@ -56,7 +56,7 @@ export function FeatureShowcase() {
         "Auto-scaling infrastructure",
         "Zero-downtime deployments"
       ],
-      color: "torch-yellow"
+      color: "mint-neon"
     },
     {
       id: "security-shield",
@@ -102,8 +102,8 @@ export function FeatureShowcase() {
         <div className={`text-center mb-20 transition-all duration-1000 ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         }`}>
-          <div className="inline-flex items-center px-4 py-2 bg-torch-light-orange rounded-full text-torch-orange font-medium mb-6">
-            <span className="w-2 h-2 bg-torch-orange rounded-full mr-2 animate-pulse"></span>
+          <div className="inline-flex items-center px-4 py-2 bg-mint-light rounded-full text-mint-green font-medium mb-6">
+            <span className="w-2 h-2 bg-mint-green rounded-full mr-2 animate-pulse"></span>
             Platform Features
           </div>
           <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
@@ -232,7 +232,7 @@ export function FeatureShowcase() {
             {integrations.map((integration, index) => (
               <div
                 key={integration.name}
-                className={`bg-white rounded-xl p-6 border border-gray-200 hover:border-torch-orange/30 hover:shadow-lg transition-all duration-300 transform hover:scale-105 ${
+                className={`bg-white rounded-xl p-6 border border-gray-200 hover:border-mint-green/30 hover:shadow-lg transition-all duration-300 transform hover:scale-105 ${
                   integration.connected ? 'ring-2 ring-success/20' : ''
                 }`}
               >
