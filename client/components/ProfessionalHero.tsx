@@ -26,7 +26,7 @@ export function ProfessionalHero() {
           }`}
         >
           {/* Badge */}
-          <div className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-sm text-muted-foreground mb-8 shadow-sm">
+          <div className="inline-flex items-center px-4 py-2 glass-card rounded-full text-sm text-foreground mb-8">
             <div className="w-2 h-2 bg-success rounded-full mr-2 animate-pulse"></div>
             Advancing AI Research and Development
           </div>
