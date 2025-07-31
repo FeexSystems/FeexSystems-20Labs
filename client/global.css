@@ -365,15 +365,69 @@
     animation: glow 2s ease-in-out infinite;
   }
 
+  @keyframes pulse-green {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes glassmorphism-float {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    25% {
+      transform: translateY(-5px) rotate(1deg);
+    }
+    50% {
+      transform: translateY(-8px) rotate(0deg);
+    }
+    75% {
+      transform: translateY(-3px) rotate(-1deg);
+    }
+  }
+
+  .animate-pulse-green {
+    animation: pulse-green 2s ease-in-out infinite;
+  }
+
+  .animate-glassmorphism-float {
+    animation: glassmorphism-float 4s ease-in-out infinite;
+  }
+
   .animate-shimmer {
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.2),
+      rgba(151, 236, 164, 0.3),
       transparent
     );
     background-size: 200px 100%;
     animation: shimmer 2s infinite;
+  }
+
+  /* Matrix rain effect for backgrounds */
+  .matrix-bg {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .matrix-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      linear-gradient(90deg, transparent 50%, rgba(151, 236, 164, 0.03) 50%),
+      linear-gradient(180deg, transparent 50%, rgba(151, 236, 164, 0.03) 50%);
+    background-size: 20px 20px;
+    pointer-events: none;
   }
 
   .research-paper {
