@@ -256,7 +256,7 @@ export function CTASections() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-mint-dark">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <div className="bg-gradient-to-br from-mint-light via-white to-mint-light rounded-3xl p-8 lg:p-12 relative overflow-hidden">
             {/* Decorative elements */}
