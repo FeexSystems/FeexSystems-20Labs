@@ -428,7 +428,7 @@ export function SolarSystemScene({
 
       {/* Planet Information Overlay */}
       {currentFocus && (
-        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg z-10">
+        <div className="absolute top-4 right-4 glass-card p-4 z-10">
           <h3 className="font-semibold text-lg text-foreground mb-2">
             {currentFocus}
           </h3>
