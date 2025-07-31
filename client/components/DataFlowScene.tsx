@@ -286,7 +286,7 @@ export function DataFlowScene({
         }
         
         // Pulse opacity
-        const material = fragment.children[0].material as THREE.MeshBasicMaterial;
+        const material = (fragment.children[0] as THREE.Mesh).material as THREE.MeshBasicMaterial;
         material.opacity = fragment.userData.originalOpacity + 
           Math.sin(time * 2 + fragment.position.x) * 0.2;
       });
