@@ -28,20 +28,52 @@ export function SaaSNavigation({
       id: "platform",
       label: "Platform",
       dropdown: [
-        { id: "intelligence", label: "AI Intelligence", description: "Advanced AI analytics and insights" },
-        { id: "research", label: "Research Lab", description: "Cutting-edge AI research" },
-        { id: "security", label: "Security Hub", description: "Cybersecurity solutions" },
-        { id: "devops", label: "DevOps Suite", description: "Automated infrastructure" },
+        {
+          id: "intelligence",
+          label: "AI Intelligence",
+          description: "Advanced AI analytics and insights",
+        },
+        {
+          id: "research",
+          label: "Research Lab",
+          description: "Cutting-edge AI research",
+        },
+        {
+          id: "security",
+          label: "Security Hub",
+          description: "Cybersecurity solutions",
+        },
+        {
+          id: "devops",
+          label: "DevOps Suite",
+          description: "Automated infrastructure",
+        },
       ],
     },
     {
       id: "solutions",
       label: "Solutions",
       dropdown: [
-        { id: "enterprise", label: "Enterprise", description: "For large organizations" },
-        { id: "startups", label: "Startups", description: "Scale your business" },
-        { id: "developers", label: "Developers", description: "Build with our APIs" },
-        { id: "consulting", label: "Consulting", description: "Expert guidance" },
+        {
+          id: "enterprise",
+          label: "Enterprise",
+          description: "For large organizations",
+        },
+        {
+          id: "startups",
+          label: "Startups",
+          description: "Scale your business",
+        },
+        {
+          id: "developers",
+          label: "Developers",
+          description: "Build with our APIs",
+        },
+        {
+          id: "consulting",
+          label: "Consulting",
+          description: "Expert guidance",
+        },
       ],
     },
     { id: "pricing", label: "Pricing" },
@@ -49,9 +81,17 @@ export function SaaSNavigation({
       id: "resources",
       label: "Resources",
       dropdown: [
-        { id: "documentation", label: "Documentation", description: "Technical guides" },
+        {
+          id: "documentation",
+          label: "Documentation",
+          description: "Technical guides",
+        },
         { id: "blog", label: "Blog", description: "Latest insights" },
-        { id: "case-studies", label: "Case Studies", description: "Success stories" },
+        {
+          id: "case-studies",
+          label: "Case Studies",
+          description: "Success stories",
+        },
         { id: "support", label: "Support", description: "Get help" },
       ],
     },
@@ -109,7 +149,9 @@ export function SaaSNavigation({
                       : "text-muted-foreground hover:text-foreground hover:bg-gray-50"
                   }`}
                   aria-current={activeSection === item.id ? "page" : undefined}
-                  aria-expanded={item.dropdown ? activeDropdown === item.id : undefined}
+                  aria-expanded={
+                    item.dropdown ? activeDropdown === item.id : undefined
+                  }
                 >
                   {item.label}
                   {item.dropdown && (
