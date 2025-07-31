@@ -84,7 +84,7 @@ export function EnhancedHero() {
                     : "scale-100 opacity-70"
                 }`}
               >
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-white/20 shadow-lg">
+                <div className="glass-card p-8">
                   <div
                     className={`text-4xl md:text-5xl font-bold mb-2 ${metric.color}`}
                   >
