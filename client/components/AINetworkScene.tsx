@@ -39,8 +39,8 @@ export function AINetworkScene({
     
     // Node geometry and materials
     const nodeGeometry = new THREE.SphereGeometry(0.05, 16, 16);
-    const activeMaterial = new THREE.MeshBasicMaterial({ 
-      color: color, 
+    const activeMaterial = new THREE.MeshStandardMaterial({
+      color: color,
       emissive: color,
       emissiveIntensity: 0.3
     });
