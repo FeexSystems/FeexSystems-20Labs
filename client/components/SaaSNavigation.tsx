@@ -73,7 +73,7 @@ export function SaaSNavigation({
       aria-label="Main navigation"
     >
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex justify-between flex-row flex-wrap">
           {/* Logo */}
           <div className="flex items-center space-x-3">
             <div className="relative group">
@@ -85,7 +85,7 @@ export function SaaSNavigation({
             <div>
               <h1 className="text-xl font-bold text-foreground">FeexSystems</h1>
               <p className="text-xs text-muted-foreground -mt-1">
-                AI SaaS Platform
+                AI IntelliSense Labs
               </p>
             </div>
           </div>
