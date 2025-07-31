@@ -38,9 +38,9 @@ export function EnhancedHero() {
           }`}
         >
           {/* Badge */}
-          <div className="inline-flex items-center px-6 py-3 bg-white/90 backdrop-blur-sm border border-mint-green/20 rounded-full text-sm font-medium text-mint-dark mb-8 shadow-lg">
-            <div className="w-2 h-2 bg-mint-green rounded-full mr-3 animate-pulse"></div>
-            Actionable AI Insights
+          <div className="inline-flex items-center px-6 py-3 glass-card text-sm font-medium text-foreground mb-8 animate-glassmorphism-float">
+            <div className="w-2 h-2 bg-mint-green rounded-full mr-3 animate-pulse-green"></div>
+            <span className="mono-medium">Actionable AI Insights</span>
           </div>
 
           {/* Main Headline */}
