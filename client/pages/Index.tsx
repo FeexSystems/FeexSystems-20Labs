@@ -26,10 +26,13 @@ export default function Index() {
         onSectionChange={handleSectionChange}
       />
 
-      {/* Hero Section */}
+      {/* Enhanced Hero Section */}
       <div id="home">
-        <ProfessionalHero />
+        <EnhancedHero />
       </div>
+
+      {/* Actionable Insights Section */}
+      <ActionableInsights />
 
       {/* Research Section */}
       <ResearchSection />
