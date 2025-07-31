@@ -265,15 +265,15 @@ export function TorchDataVisualization({
   ];
 
   return (
-    <div className="relative bg-torch-dark rounded-3xl p-8 lg:p-12 text-white overflow-hidden">
+    <div className="relative bg-mint-dark rounded-3xl p-8 lg:p-12 text-white overflow-hidden">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-torch-orange/10 to-torch-yellow/5 rounded-3xl"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-mint-green/10 to-mint-neon/5 rounded-3xl"></div>
 
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
         <div className="mb-8">
-          <div className="text-torch-orange font-medium mb-2">{subtitle}</div>
+          <div className="text-mint-green font-medium mb-2">{subtitle}</div>
           <h2 className="text-4xl lg:text-5xl font-bold leading-tight">
             {title}
           </h2>
@@ -304,8 +304,8 @@ export function TorchDataVisualization({
       </div>
 
       {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-torch-yellow/20 to-transparent rounded-full blur-xl"></div>
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-torch-orange/20 to-transparent rounded-full blur-xl"></div>
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-mint-neon/20 to-transparent rounded-full blur-xl"></div>
+      <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-mint-green/20 to-transparent rounded-full blur-xl"></div>
     </div>
   );
 }
