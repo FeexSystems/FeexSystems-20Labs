@@ -258,7 +258,7 @@ export function DataFlowScene({
         packet.position.copy(position);
         
         // Fade in/out at endpoints
-        const material = packet.material as THREE.MeshBasicMaterial;
+        const material = (packet as any).material as THREE.MeshBasicMaterial;
         const fadeDistance = 0.1;
         if (userData.progress < fadeDistance) {
           material.opacity = userData.progress / fadeDistance * 0.8;
