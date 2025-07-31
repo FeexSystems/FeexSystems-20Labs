@@ -79,10 +79,10 @@
       hsl(220, 9%, 96%) 100%
     );
 
-    /* Glassmorphism */
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    /* Glassmorphism - Dark theme only */
+    --glass-bg: rgba(0, 0, 0, 0.4);
+    --glass-border: rgba(151, 236, 164, 0.2);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   }
 
   /* Dark theme */
