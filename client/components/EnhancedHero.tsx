@@ -24,7 +24,7 @@ export function EnhancedHero() {
   ];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 via-white to-mint-light/30">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-mint-light/20 matrix-bg">
       {/* Animated Solar System Background */}
       <div className="absolute inset-0 opacity-20">
         <SolarSystemScene autoCamera={true} scale={0.2} speed={1.5} />
