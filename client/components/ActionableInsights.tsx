@@ -34,7 +34,7 @@ export function ActionableInsights() {
         { label: "Processing Speed", value: "50ms", trend: "-12ms" },
         { label: "Data Points", value: "2.4M", trend: "+340K" },
       ],
-      color: "torch-orange",
+      color: "mint-green",
     },
     {
       category: "DevOps Optimization",
@@ -46,7 +46,7 @@ export function ActionableInsights() {
         { label: "Uptime", value: "99.97%", trend: "+0.12%" },
         { label: "Deploy Speed", value: "3.2min", trend: "-45%" },
       ],
-      color: "torch-yellow",
+      color: "mint-neon",
     },
     {
       category: "Security Intelligence",
@@ -74,8 +74,8 @@ export function ActionableInsights() {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <div className="inline-flex items-center px-4 py-2 bg-torch-light-orange rounded-full text-torch-orange font-medium mb-6">
-            <span className="w-2 h-2 bg-torch-orange rounded-full mr-2"></span>
+          <div className="inline-flex items-center px-4 py-2 bg-mint-light rounded-full text-mint-green font-medium mb-6">
+            <span className="w-2 h-2 bg-mint-green rounded-full mr-2"></span>
             Actionable Intelligence
           </div>
           <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
