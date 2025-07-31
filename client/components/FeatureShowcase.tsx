@@ -141,10 +141,10 @@ export function FeatureShowcase() {
               <button
                 key={feature.id}
                 onClick={() => setActiveFeature(index)}
-                className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-300 interactive-card ${
                   activeFeature === index
-                    ? `bg-${feature.color} text-white shadow-lg transform scale-105`
-                    : "bg-white text-muted-foreground hover:text-foreground hover:bg-gray-50 border border-gray-200"
+                    ? "bg-mint-green text-white shadow-lg transform scale-105 animate-glow"
+                    : "glass-card text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <span className="text-2xl mr-3">{feature.icon}</span>
