@@ -51,7 +51,7 @@ export function ProfessionalHero() {
             <button className="deepmind-button px-8 py-3 text-base font-medium rounded-lg">
               Explore Our Research
             </button>
-            <button className="px-8 py-3 text-base font-medium border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors">
+            <button className="px-8 py-3 text-base font-medium glass-card text-foreground hover:bg-mint-green/20 transition-colors">
               View Projects
             </button>
           </div>
