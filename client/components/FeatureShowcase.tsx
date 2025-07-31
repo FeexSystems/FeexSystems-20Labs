@@ -269,8 +269,8 @@ export function FeatureShowcase() {
             {integrations.map((integration, index) => (
               <div
                 key={integration.name}
-                className={`bg-white rounded-xl p-6 border border-gray-200 hover:border-mint-green/30 hover:shadow-lg transition-all duration-300 transform hover:scale-105 ${
-                  integration.connected ? "ring-2 ring-success/20" : ""
+                className={`glass-card p-6 transition-all duration-300 transform hover:scale-105 interactive-card ${
+                  integration.connected ? "ring-2 ring-mint-green/30 animate-glow" : ""
                 }`}
               >
                 <div className="text-center">
