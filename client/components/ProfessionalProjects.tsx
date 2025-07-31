@@ -147,7 +147,7 @@ export function ProfessionalProjects() {
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 selectedCategory === category
                   ? "bg-deepmind-blue text-white"
-                  : "bg-white text-muted-foreground hover:bg-gray-100 border border-gray-200"
+                  : "glass-card text-muted-foreground hover:text-foreground"
               }`}
             >
               {category === "all" ? "All Projects" : category}
