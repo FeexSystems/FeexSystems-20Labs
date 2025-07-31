@@ -233,7 +233,7 @@ export function CTASections() {
             ].map((resource, index) => (
               <div
                 key={index}
-                className="bg-white rounded-2xl p-8 border border-gray-200 hover:border-mint-green/30 hover:shadow-lg transition-all duration-300 group"
+                className="glass-card p-8 hover:border-mint-green/30 hover:shadow-lg transition-all duration-300 group interactive-card"
               >
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                   {resource.icon}
