@@ -139,7 +139,7 @@ export function PricingSection() {
               onMouseLeave={() => setHoveredPlan(null)}
               className={`relative bg-white/5 backdrop-blur-sm rounded-3xl p-8 border transition-all duration-500 ${
                 plan.popular
-                  ? "border-torch-orange shadow-2xl shadow-torch-orange/20 scale-105"
+                  ? "border-mint-green shadow-2xl shadow-mint-green/20 scale-105"
                   : "border-white/10 hover:border-white/20"
               } ${
                 hoveredPlan === plan.id ? "transform scale-105 shadow-2xl" : ""
