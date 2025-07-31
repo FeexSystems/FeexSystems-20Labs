@@ -162,9 +162,10 @@ export function SolarSystemScene({
 
     // Create sun
     const sunGeometry = new THREE.SphereGeometry(2 * scale, 32, 32);
-    const sunMaterial = new THREE.MeshBasicMaterial({
+    const sunMaterial = new THREE.MeshStandardMaterial({
       color: 0xffff00,
       emissive: 0xffaa00,
+      emissiveIntensity: 0.8,
     });
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     scene.add(sun);
