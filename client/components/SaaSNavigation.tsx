@@ -117,7 +117,7 @@ export function SaaSNavigation({
           {/* Logo */}
           <div className="flex items-center space-x-3">
             <div className="relative group">
-              <div className="w-10 h-10 bg-gradient-to-br from-torch-orange to-torch-yellow rounded-xl flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110">
+              <div className="w-10 h-10 bg-gradient-to-br from-mint-green to-mint-neon rounded-xl flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110">
                 <span className="text-white font-bold text-lg">F</span>
               </div>
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-white animate-pulse"></div>
@@ -145,7 +145,7 @@ export function SaaSNavigation({
                   }}
                   className={`flex items-center px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg ${
                     activeSection === item.id
-                      ? "text-torch-orange bg-torch-light-orange"
+                      ? "text-mint-green bg-mint-light"
                       : "text-muted-foreground hover:text-foreground hover:bg-gray-50"
                   }`}
                   aria-current={activeSection === item.id ? "page" : undefined}
@@ -204,7 +204,7 @@ export function SaaSNavigation({
             <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Sign In
             </button>
-            <button className="px-6 py-2 bg-gradient-to-r from-torch-orange to-torch-yellow text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+            <button className="px-6 py-2 bg-gradient-to-r from-mint-green to-mint-neon text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
               Start Free Trial
             </button>
           </div>
@@ -282,7 +282,7 @@ export function SaaSNavigation({
                 <button className="w-full px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-gray-50 rounded-lg transition-colors">
                   Sign In
                 </button>
-                <button className="w-full px-4 py-2 bg-gradient-to-r from-torch-orange to-torch-yellow text-white font-semibold rounded-lg">
+                <button className="w-full px-4 py-2 bg-gradient-to-r from-mint-green to-mint-neon text-white font-semibold rounded-lg">
                   Start Free Trial
                 </button>
               </div>
