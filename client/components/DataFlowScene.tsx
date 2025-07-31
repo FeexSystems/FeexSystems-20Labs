@@ -186,7 +186,7 @@ export function DataFlowScene({
     // Dashboard metrics (simple geometric representations)
     for (let i = 0; i < 9; i++) {
       const metricGeometry = new THREE.BoxGeometry(0.2, Math.random() * 0.8 + 0.2, 0.1);
-      const metricMaterial = new THREE.MeshBasicMaterial({
+      const metricMaterial = new THREE.MeshStandardMaterial({
         color: colors.accent,
         emissive: colors.accent,
         emissiveIntensity: 0.3
