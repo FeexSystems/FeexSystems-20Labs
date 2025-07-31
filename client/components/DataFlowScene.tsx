@@ -66,7 +66,7 @@ export function DataFlowScene({
       // Server lights (status indicators)
       for (let i = 0; i < 3; i++) {
         const lightGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-        const lightMaterial = new THREE.MeshBasicMaterial({ 
+        const lightMaterial = new THREE.MeshStandardMaterial({
           color: index === 2 ? colors.accent : colors.secondary,
           emissive: index === 2 ? colors.accent : colors.secondary,
           emissiveIntensity: 0.5
