@@ -76,7 +76,7 @@ export function SaaSFooter() {
     { name: "LinkedIn", icon: "💼", href: "#linkedin" },
     { name: "GitHub", icon: "🐙", href: "#github" },
     { name: "YouTube", icon: "📺", href: "#youtube" },
-    { name: "Discord", icon: "💬", href: "#discord" },
+    { name: "Discord", icon: "���", href: "#discord" },
   ];
 
   const certifications = [
@@ -87,7 +87,7 @@ export function SaaSFooter() {
   ];
 
   return (
-    <footer className="bg-torch-dark text-white">
+    <footer className="bg-mint-dark text-white">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-8 lg:gap-12">
@@ -118,13 +118,13 @@ export function SaaSFooter() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-torch-orange"
+                  className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-mint-green"
                   required
                 />
                 <button
                   type="submit"
                   disabled={isSubscribed}
-                  className="px-4 py-2 bg-torch-orange hover:bg-torch-orange/90 rounded-lg transition-colors disabled:opacity-50"
+                  className="px-4 py-2 bg-mint-green hover:bg-mint-green/90 rounded-lg transition-colors disabled:opacity-50"
                 >
                   {isSubscribed ? "✓" : "→"}
                 </button>
@@ -197,7 +197,7 @@ export function SaaSFooter() {
             </div>
 
             <div className="mt-6 md:mt-0 text-center md:text-right">
-              <div className="text-2xl font-bold text-torch-orange mb-1">99.9%</div>
+              <div className="text-2xl font-bold text-mint-green mb-1">99.9%</div>
               <div className="text-sm text-gray-400">Uptime SLA</div>
             </div>
           </div>
@@ -212,7 +212,7 @@ export function SaaSFooter() {
               <p className="text-sm text-gray-400 mb-4">
                 14 days, no credit card required
               </p>
-              <button className="w-full px-4 py-2 bg-torch-orange hover:bg-torch-orange/90 rounded-lg transition-colors">
+              <button className="w-full px-4 py-2 bg-mint-green hover:bg-mint-green/90 rounded-lg transition-colors">
                 Get Started
               </button>
             </div>
