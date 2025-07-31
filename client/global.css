@@ -374,16 +374,7 @@
     animation: glassmorphism-float 4s ease-in-out infinite;
   }
 
-  .animate-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(151, 236, 164, 0.3),
-      transparent
-    );
-    background-size: 200px 100%;
-    animation: shimmer 2s infinite;
-  }
+
 
   /* Matrix rain effect for backgrounds */
   .matrix-bg {
