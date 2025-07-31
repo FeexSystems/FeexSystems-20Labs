@@ -108,7 +108,7 @@ export function PricingSection() {
               onClick={() => setBillingCycle("monthly")}
               className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
                 billingCycle === "monthly"
-                  ? "bg-torch-orange text-white shadow-lg"
+                  ? "bg-mint-green text-white shadow-lg"
                   : "text-gray-300 hover:text-white"
               }`}
             >
