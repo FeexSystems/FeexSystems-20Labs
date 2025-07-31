@@ -48,12 +48,12 @@
     --success: 142 71% 45%;
     --warning: 38 92% 50%;
 
-    /* Torch-inspired accent colors */
-    --torch-orange: 35 91% 60%;
-    --torch-yellow: 45 93% 58%;
-    --torch-light-orange: 35 91% 95%;
-    --torch-dark: 220 13% 10%;
-    --torch-accent: 35 91% 60%;
+    /* Mint neon green Robinhood-inspired accent colors */
+    --mint-green: 151 83% 55%;
+    --mint-neon: 140 100% 60%;
+    --mint-light: 151 83% 96%;
+    --mint-dark: 214 13% 8%;
+    --mint-accent: 151 83% 55%;
 
     /* Enhanced gradients */
     --gradient-primary: linear-gradient(
@@ -61,15 +61,15 @@
       hsl(214, 84%, 56%) 0%,
       hsl(214, 84%, 66%) 100%
     );
-    --gradient-torch: linear-gradient(
+    --gradient-mint: linear-gradient(
       135deg,
-      hsl(35, 91%, 60%) 0%,
-      hsl(45, 93%, 58%) 100%
+      hsl(151, 83%, 55%) 0%,
+      hsl(140, 100%, 60%) 100%
     );
     --gradient-data: linear-gradient(
       135deg,
       hsl(214, 84%, 56%) 0%,
-      hsl(35, 91%, 60%) 100%
+      hsl(151, 83%, 55%) 100%
     );
     --gradient-subtle: linear-gradient(
       135deg,
@@ -224,10 +224,10 @@
 
   @keyframes glow {
     0%, 100% {
-      box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+      box-shadow: 0 0 20px rgba(0, 255, 127, 0.3);
     }
     50% {
-      box-shadow: 0 0 30px rgba(245, 158, 11, 0.6);
+      box-shadow: 0 0 30px rgba(0, 255, 127, 0.6);
     }
   }
 
