@@ -47,7 +47,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-                sidebar: {
+        sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
           primary: "hsl(var(--sidebar-primary))",
@@ -57,7 +57,7 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-                deepmind: {
+        deepmind: {
           blue: "hsl(var(--deepmind-blue))",
           "light-blue": "hsl(var(--deepmind-light-blue))",
           gray: "hsl(var(--deepmind-gray))",

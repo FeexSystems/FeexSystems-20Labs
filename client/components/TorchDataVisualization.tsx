@@ -268,7 +268,7 @@ export function TorchDataVisualization({
     <div className="relative bg-torch-dark rounded-3xl p-8 lg:p-12 text-white overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-torch-orange/10 to-torch-yellow/5 rounded-3xl"></div>
-      
+
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}

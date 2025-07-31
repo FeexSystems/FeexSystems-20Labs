@@ -228,10 +228,7 @@ export function SolarSystemScene({
         opacity: 0.1,
         side: THREE.BackSide,
       });
-      const atmosphere = new THREE.Mesh(
-        atmosphereGeometry,
-        atmosphereMaterial,
-      );
+      const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
       atmosphere.position.copy(planet.position);
       planetGroup.add(atmosphere);
 
@@ -271,11 +268,11 @@ export function SolarSystemScene({
           moon.castShadow = true;
           moon.receiveShadow = true;
           moonGroup.add(moon);
-          
+
           // Position moon group at planet position
           moonGroup.position.copy(planet.position);
           planetGroup.add(moonGroup);
-          
+
           // Store moon data for animation
           (moonGroup as any).moonData = moonInfo;
         });
@@ -327,8 +324,10 @@ export function SolarSystemScene({
         planetGroup.position.set(x, 0, z);
 
         // Rotate planet on its axis
-        const planet = planetGroup.children.find((child) =>
-          child instanceof THREE.Mesh && child.geometry instanceof THREE.SphereGeometry
+        const planet = planetGroup.children.find(
+          (child) =>
+            child instanceof THREE.Mesh &&
+            child.geometry instanceof THREE.SphereGeometry,
         );
         if (planet) {
           planet.rotation.y += deltaTime * 2;
@@ -339,16 +338,18 @@ export function SolarSystemScene({
           if ((child as any).moonData) {
             const moonGroup = child as THREE.Group;
             const moonData = (moonGroup as any).moonData;
-            
+
             if (!moonGroup.userData.angle) {
               moonGroup.userData.angle = Math.random() * Math.PI * 2;
             }
-            
+
             moonGroup.userData.angle += deltaTime * moonData.speed * 0.2;
-            
-            const moonX = Math.cos(moonGroup.userData.angle) * moonData.distance * scale;
-            const moonZ = Math.sin(moonGroup.userData.angle) * moonData.distance * scale;
-            
+
+            const moonX =
+              Math.cos(moonGroup.userData.angle) * moonData.distance * scale;
+            const moonZ =
+              Math.sin(moonGroup.userData.angle) * moonData.distance * scale;
+
             const moon = moonGroup.children[0];
             if (moon) {
               moon.position.set(moonX, 0, moonZ);
@@ -372,8 +373,10 @@ export function SolarSystemScene({
           cameraAngle += deltaTime * 0.2;
         }
 
-        camera.position.x = cameraTarget.x + Math.cos(cameraAngle) * cameraRadius;
-        camera.position.z = cameraTarget.z + Math.sin(cameraAngle) * cameraRadius;
+        camera.position.x =
+          cameraTarget.x + Math.cos(cameraAngle) * cameraRadius;
+        camera.position.z =
+          cameraTarget.z + Math.sin(cameraAngle) * cameraRadius;
         camera.position.y = cameraTarget.y + Math.sin(cameraAngle * 0.5) * 20;
         camera.lookAt(cameraTarget);
       }
@@ -422,7 +425,7 @@ export function SolarSystemScene({
         role="application"
         aria-label="Interactive Solar System"
       />
-      
+
       {/* Planet Information Overlay */}
       {currentFocus && (
         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg z-10">
@@ -430,12 +433,27 @@ export function SolarSystemScene({
             {currentFocus}
           </h3>
           <div className="text-sm text-muted-foreground space-y-1">
-            {planetData.find(p => p.name === currentFocus) && (
+            {planetData.find((p) => p.name === currentFocus) && (
               <>
-                <p>Distance: {planetData.find(p => p.name === currentFocus)?.distance} AU</p>
-                <p>Orbital Speed: {planetData.find(p => p.name === currentFocus)?.speed.toFixed(2)}x</p>
-                {planetData.find(p => p.name === currentFocus)?.moons && (
-                  <p>Moons: {planetData.find(p => p.name === currentFocus)?.moons?.length}</p>
+                <p>
+                  Distance:{" "}
+                  {planetData.find((p) => p.name === currentFocus)?.distance} AU
+                </p>
+                <p>
+                  Orbital Speed:{" "}
+                  {planetData
+                    .find((p) => p.name === currentFocus)
+                    ?.speed.toFixed(2)}
+                  x
+                </p>
+                {planetData.find((p) => p.name === currentFocus)?.moons && (
+                  <p>
+                    Moons:{" "}
+                    {
+                      planetData.find((p) => p.name === currentFocus)?.moons
+                        ?.length
+                    }
+                  </p>
                 )}
               </>
             )}
@@ -445,16 +463,22 @@ export function SolarSystemScene({
 
       {/* Controls Overlay */}
       <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg z-10">
-        <h4 className="font-medium text-sm text-foreground mb-2">Solar System Explorer</h4>
+        <h4 className="font-medium text-sm text-foreground mb-2">
+          Solar System Explorer
+        </h4>
         <div className="flex flex-wrap gap-2">
           {planetData.slice(0, 4).map((planet) => (
             <button
               key={planet.name}
-              onClick={() => setCurrentFocus(currentFocus === planet.name ? null : planet.name)}
+              onClick={() =>
+                setCurrentFocus(
+                  currentFocus === planet.name ? null : planet.name,
+                )
+              }
               className={`px-2 py-1 text-xs rounded ${
                 currentFocus === planet.name
-                  ? 'bg-deepmind-blue text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? "bg-deepmind-blue text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               {planet.name}
