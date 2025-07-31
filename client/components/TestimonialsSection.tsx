@@ -122,7 +122,7 @@ export function TestimonialsSection() {
   ];
 
   return (
-    <section id="testimonials" className="py-24 bg-white">
+    <section id="testimonials" className="py-24 bg-mint-dark">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div
