@@ -112,9 +112,9 @@ export function FeatureShowcase() {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <div className="inline-flex items-center px-4 py-2 bg-mint-light rounded-full text-mint-green font-medium mb-6">
-            <span className="w-2 h-2 bg-mint-green rounded-full mr-2 animate-pulse"></span>
-            Platform Features
+          <div className="inline-flex items-center px-4 py-2 glass-card text-mint-green font-medium mb-6 animate-glassmorphism-float">
+            <span className="w-2 h-2 bg-mint-green rounded-full mr-2 animate-pulse-green"></span>
+            <span className="mono-medium">Platform Features</span>
           </div>
           <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
             Everything you need to
