@@ -195,7 +195,7 @@ export function TestimonialsSection() {
               </div>
 
               {/* Metrics Card */}
-              <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
+              <div className="glass-card p-8">
                 <div className="text-center">
                   <div className="text-5xl font-bold text-mint-green mb-2">
                     {testimonials[activeTestimonial].metrics.improvement}
