@@ -86,7 +86,7 @@ export function PricingSection() {
   };
 
   return (
-    <section id="pricing" className="py-24 bg-gradient-to-br from-torch-dark to-gray-900 text-white overflow-hidden">
+    <section id="pricing" className="py-24 bg-gradient-to-br from-mint-dark to-gray-900 text-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-16">
