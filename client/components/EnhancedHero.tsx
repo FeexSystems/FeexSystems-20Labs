@@ -108,15 +108,15 @@ export function EnhancedHero() {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/20">
+          <div className="glass-card p-8 interactive-card animate-glassmorphism-float">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-mint-dark">
+              <h3 className="text-xl font-semibold text-foreground mono-medium">
                 Real-Time Analytics Dashboard
               </h3>
               <div className="flex space-x-2">
-                <div className="w-3 h-3 bg-mint-green rounded-full animate-pulse"></div>
-                <div className="w-3 h-3 bg-mint-neon rounded-full animate-pulse delay-100"></div>
-                <div className="w-3 h-3 bg-deepmind-blue rounded-full animate-pulse delay-200"></div>
+                <div className="w-3 h-3 bg-mint-green rounded-full animate-pulse-green"></div>
+                <div className="w-3 h-3 bg-mint-neon rounded-full animate-pulse-green delay-100"></div>
+                <div className="w-3 h-3 bg-deepmind-blue rounded-full animate-pulse-green delay-200"></div>
               </div>
             </div>
 
