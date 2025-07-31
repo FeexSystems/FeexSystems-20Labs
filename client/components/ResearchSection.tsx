@@ -74,7 +74,7 @@ export function ResearchSection() {
   const activeResearch = researchAreas.find((area) => area.id === activeArea);
 
   return (
-    <section className="py-20 bg-white" id="research">
+    <section className="py-20 bg-mint-dark" id="research">
       <div className="max-w-7xl mx-auto px-6">
         {/* Section Header */}
         <div className="text-center mb-16">
