@@ -462,7 +462,7 @@ export function SolarSystemScene({
       )}
 
       {/* Controls Overlay */}
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg z-10">
+      <div className="absolute bottom-4 left-4 glass-card p-4 z-10">
         <h4 className="font-medium text-sm text-foreground mb-2">
           Solar System Explorer
         </h4>
