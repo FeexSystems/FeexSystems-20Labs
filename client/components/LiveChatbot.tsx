@@ -237,7 +237,7 @@ export function LiveChatbot() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[32rem] bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 flex flex-col overflow-hidden">
+        <div className="fixed bottom-24 right-6 w-96 h-[32rem] glass-card z-50 flex flex-col overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-torch p-4 text-white">
             <div className="flex items-center space-x-3">
