@@ -56,7 +56,7 @@ export function CTASections() {
                 </svg>
               </span>
             </button>
-            <button className="px-8 py-4 border-2 border-white/20 text-white font-semibold rounded-xl hover:bg-white/10 transition-all duration-300">
+            <button className="px-8 py-4 glass-card text-foreground font-semibold rounded-xl hover:bg-mint-green/20 transition-all duration-300">
               Schedule Demo
             </button>
           </div>
