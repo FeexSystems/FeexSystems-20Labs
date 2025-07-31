@@ -11,34 +11,34 @@
    * Clean, sophisticated design with subtle accents
    */
   :root {
-    /* Light theme (default) */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 9%;
+    /* Dark theme as default */
+    --background: 214 13% 8%;
+    --foreground: 0 0% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    --card: 214 13% 10%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover: 214 13% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 214 84% 56%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 151 83% 55%;
+    --primary-foreground: 0 0% 9%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 214 13% 15%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 214 13% 15%;
+    --muted-foreground: 215.4 16.3% 65%;
 
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 151 83% 55%;
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 214 84% 56%;
+    --border: 214 13% 20%;
+    --input: 214 13% 20%;
+    --ring: 151 83% 55%;
 
     --radius: 0.5rem;
 
