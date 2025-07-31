@@ -167,7 +167,7 @@ export function LiveChatbot() {
                   <div
                     className={`p-3 rounded-2xl ${
                       message.sender === "user"
-                        ? "bg-torch-orange text-white"
+                        ? "bg-mint-green text-white"
                         : "bg-gray-100 text-foreground"
                     }`}
                   >
@@ -219,13 +219,13 @@ export function LiveChatbot() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Type your message..."
-                className="flex-1 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-torch-orange focus:border-transparent"
+                className="flex-1 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-mint-green focus:border-transparent"
                 disabled={isTyping}
               />
               <button
                 onClick={() => handleSend()}
                 disabled={isTyping || !input.trim()}
-                className="p-3 bg-torch-orange text-white rounded-xl hover:bg-torch-orange/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-3 bg-mint-green text-white rounded-xl hover:bg-mint-green/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
