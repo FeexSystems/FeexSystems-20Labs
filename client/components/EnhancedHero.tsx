@@ -18,13 +18,13 @@ export function EnhancedHero() {
   }, []);
 
   const metrics = [
-    { value: "99.9%", label: "System Accuracy", color: "text-torch-orange" },
-    { value: "50ms", label: "Response Time", color: "text-torch-yellow" },
+    { value: "99.9%", label: "System Accuracy", color: "text-mint-green" },
+    { value: "50ms", label: "Response Time", color: "text-mint-neon" },
     { value: "1M+", label: "Data Points", color: "text-deepmind-blue" },
   ];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 via-white to-torch-light-orange/30">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 via-white to-mint-light/30">
       {/* Animated Solar System Background */}
       <div className="absolute inset-0 opacity-20">
         <SolarSystemScene autoCamera={true} scale={0.2} speed={1.5} />
@@ -38,8 +38,8 @@ export function EnhancedHero() {
           }`}
         >
           {/* Badge */}
-          <div className="inline-flex items-center px-6 py-3 bg-white/90 backdrop-blur-sm border border-torch-orange/20 rounded-full text-sm font-medium text-torch-dark mb-8 shadow-lg">
-            <div className="w-2 h-2 bg-torch-orange rounded-full mr-3 animate-pulse"></div>
+          <div className="inline-flex items-center px-6 py-3 bg-white/90 backdrop-blur-sm border border-mint-green/20 rounded-full text-sm font-medium text-mint-dark mb-8 shadow-lg">
+            <div className="w-2 h-2 bg-mint-green rounded-full mr-3 animate-pulse"></div>
             Actionable AI Insights
           </div>
 
@@ -65,10 +65,10 @@ export function EnhancedHero() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <button className="px-8 py-4 bg-torch-orange hover:bg-torch-orange/90 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+            <button className="px-8 py-4 bg-mint-green hover:bg-mint-green/90 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
               Explore Our Intelligence
             </button>
-            <button className="px-8 py-4 bg-white hover:bg-gray-50 text-torch-dark font-semibold border border-gray-200 rounded-lg transition-all duration-300">
+            <button className="px-8 py-4 bg-white hover:bg-gray-50 text-mint-dark font-semibold border border-gray-200 rounded-lg transition-all duration-300">
               View Case Studies
             </button>
           </div>
@@ -110,12 +110,12 @@ export function EnhancedHero() {
         >
           <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/20">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-torch-dark">
+              <h3 className="text-xl font-semibold text-mint-dark">
                 Real-Time Analytics Dashboard
               </h3>
               <div className="flex space-x-2">
-                <div className="w-3 h-3 bg-torch-orange rounded-full animate-pulse"></div>
-                <div className="w-3 h-3 bg-torch-yellow rounded-full animate-pulse delay-100"></div>
+                <div className="w-3 h-3 bg-mint-green rounded-full animate-pulse"></div>
+                <div className="w-3 h-3 bg-mint-neon rounded-full animate-pulse delay-100"></div>
                 <div className="w-3 h-3 bg-deepmind-blue rounded-full animate-pulse delay-200"></div>
               </div>
             </div>
@@ -149,14 +149,14 @@ export function EnhancedHero() {
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-torch-orange/50 rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-torch-orange rounded-full mt-2 animate-pulse"></div>
+        <div className="w-6 h-10 border-2 border-mint-green/50 rounded-full flex justify-center">
+          <div className="w-1 h-3 bg-mint-green rounded-full mt-2 animate-pulse"></div>
         </div>
       </div>
 
       {/* Background Decorations */}
-      <div className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-br from-torch-yellow/10 to-torch-orange/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-tr from-deepmind-blue/5 to-torch-orange/10 rounded-full blur-3xl"></div>
+      <div className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-br from-mint-neon/10 to-mint-green/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-tr from-deepmind-blue/5 to-mint-green/10 rounded-full blur-3xl"></div>
     </section>
   );
 }
