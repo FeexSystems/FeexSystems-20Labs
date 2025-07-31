@@ -241,7 +241,7 @@ export function LiveChatbot() {
           {/* Header */}
           <div className="bg-gradient-torch p-4 text-white">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-mint-green/20 rounded-full flex items-center justify-center">
                 <span className="text-xl">🤖</span>
               </div>
               <div>
