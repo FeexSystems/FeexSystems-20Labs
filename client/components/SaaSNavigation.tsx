@@ -244,7 +244,7 @@ export function SaaSNavigation({
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-xl">
+          <div className="lg:hidden absolute top-full left-0 right-0 glass border-t border-white/10 shadow-xl">
             <div className="px-6 py-4 space-y-2">
               {navItems.map((item) => (
                 <div key={item.id}>
