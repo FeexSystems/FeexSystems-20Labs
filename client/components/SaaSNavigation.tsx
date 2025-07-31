@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface SaaSNavigationProps {
   activeSection: string;
