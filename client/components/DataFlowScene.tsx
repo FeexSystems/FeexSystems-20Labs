@@ -299,7 +299,7 @@ export function DataFlowScene({
           Math.sin(time * 1.5 + index) * 0.3;
         metric.scale.y = height;
         
-        const material = (metric as THREE.Mesh).material as THREE.MeshBasicMaterial;
+        const material = (metric as THREE.Mesh).material as THREE.MeshStandardMaterial;
         material.emissiveIntensity = 0.3 + Math.sin(time * 2 + index) * 0.2;
       });
 
