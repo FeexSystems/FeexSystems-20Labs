@@ -8,6 +8,7 @@ import { TestimonialsSection } from "../components/TestimonialsSection";
 import { CTASections } from "../components/CTASections";
 import { SaaSFooter } from "../components/SaaSFooter";
 import { LiveChatbot } from "../components/LiveChatbot";
+import { InteractiveChatInterface } from "../components/InteractiveChatInterface";
 
 export default function Index() {
   const [activeSection, setActiveSection] = useState("home");
