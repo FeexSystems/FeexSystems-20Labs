@@ -126,7 +126,7 @@ export function DataFlowScene({
           path: [start, end]
         };
         
-        dataFlows.push(packet);
+        dataFlows.push(packet as any);
         scene.add(packet);
       }
     });
