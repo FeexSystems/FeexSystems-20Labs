@@ -143,6 +143,7 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   canvas {
@@ -165,6 +166,20 @@
     font-family: "Google Sans Text", sans-serif;
     line-height: 1.6;
   }
+
+  /* Monospace elements using JetBrains Mono as Cement Mono alternative */
+  code,
+  pre,
+  .mono {
+    font-family: "JetBrains Mono", "Courier New", monospace;
+    font-weight: 400;
+  }
+
+  .mono-thin { font-weight: 100; }
+  .mono-light { font-weight: 200; }
+  .mono-regular { font-weight: 400; }
+  .mono-medium { font-weight: 500; }
+  .mono-bold { font-weight: 700; }
 }
 
 @layer base {
