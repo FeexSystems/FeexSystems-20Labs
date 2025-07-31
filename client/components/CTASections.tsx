@@ -108,7 +108,7 @@ export function CTASections() {
             <button
               type="submit"
               disabled={isSubscribed}
-              className="px-6 py-3 bg-white text-mint-green font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
+              className="px-6 py-3 bg-mint-dark text-mint-green font-semibold rounded-lg hover:bg-mint-green hover:text-white transition-colors disabled:opacity-50"
             >
               {isSubscribed ? "✓ Subscribed!" : "Subscribe"}
             </button>
