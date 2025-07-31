@@ -114,8 +114,6 @@ export function DataFlowScene({
         const packetGeometry = new THREE.SphereGeometry(0.08, 8, 8);
         const packetMaterial = new THREE.MeshBasicMaterial({
           color: colors.primary,
-          emissive: colors.primary,
-          emissiveIntensity: 0.3,
           transparent: true,
           opacity: 0.8
         });
