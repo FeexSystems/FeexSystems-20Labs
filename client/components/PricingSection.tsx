@@ -45,7 +45,7 @@ export function PricingSection() {
       ],
       limitations: [],
       popular: true,
-      color: "torch-orange"
+      color: "mint-green"
     },
     {
       id: "enterprise",
