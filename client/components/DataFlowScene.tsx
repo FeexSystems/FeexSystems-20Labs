@@ -231,7 +231,7 @@ export function DataFlowScene({
         // Pulse server cores
         const core = server.children[0] as THREE.Mesh;
         const material = core.material as THREE.MeshLambertMaterial;
-        material.emissiveIntensity = 0.2 + activity * 0.3;
+        // Note: MeshLambertMaterial doesn't have emissiveIntensity, skip this effect
         
         // Animate status lights
         server.children.slice(1).forEach((light, lightIndex) => {
