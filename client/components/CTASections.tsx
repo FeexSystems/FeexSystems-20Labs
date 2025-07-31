@@ -16,11 +16,11 @@ export function CTASections() {
   return (
     <>
       {/* Main CTA Section */}
-      <section className="py-24 bg-gradient-to-br from-torch-dark via-gray-900 to-torch-dark text-white overflow-hidden relative">
+      <section className="py-24 bg-gradient-to-br from-mint-dark via-gray-900 to-mint-dark text-white overflow-hidden relative">
         {/* Animated background */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-torch-orange/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-torch-yellow/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-20 left-20 w-72 h-72 bg-mint-green/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-mint-neon/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
@@ -49,11 +49,11 @@ export function CTASections() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
-              <div className="text-3xl font-bold text-torch-orange mb-2">14 Days</div>
+              <div className="text-3xl font-bold text-mint-green mb-2">14 Days</div>
               <div className="text-gray-300">Free Trial</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-torch-yellow mb-2">No Setup</div>
+              <div className="text-3xl font-bold text-mint-neon mb-2">No Setup</div>
               <div className="text-gray-300">Fees Required</div>
             </div>
             <div>
@@ -65,7 +65,7 @@ export function CTASections() {
       </section>
 
       {/* Newsletter CTA */}
-      <section className="py-16 bg-gradient-to-r from-torch-orange to-torch-yellow">
+      <section className="py-16 bg-gradient-to-r from-mint-green to-mint-neon">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h3 className="text-3xl font-bold text-white mb-4">
             Stay ahead of the AI revolution
@@ -86,7 +86,7 @@ export function CTASections() {
             <button
               type="submit"
               disabled={isSubscribed}
-              className="px-6 py-3 bg-white text-torch-orange font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
+              className="px-6 py-3 bg-white text-mint-green font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
             >
               {isSubscribed ? "✓ Subscribed!" : "Subscribe"}
             </button>
@@ -136,10 +136,10 @@ export function CTASections() {
               </div>
 
               <div className="relative">
-                <div className="aspect-video bg-gradient-to-br from-torch-orange/10 to-torch-yellow/10 rounded-2xl p-8 flex items-center justify-center border border-torch-orange/20">
+                <div className="aspect-video bg-gradient-to-br from-mint-green/10 to-mint-neon/10 rounded-2xl p-8 flex items-center justify-center border border-mint-green/20">
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-torch-orange/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-10 h-10 text-torch-orange" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="w-20 h-20 bg-mint-green/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-10 h-10 text-mint-green" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                       </svg>
                     </div>
@@ -180,7 +180,7 @@ export function CTASections() {
                 title: "Learning Center",
                 description: "Video tutorials, webinars, and certification courses",
                 action: "Start Learning",
-                color: "torch-orange"
+                color: "mint-green"
               },
               {
                 icon: "💬",
@@ -192,7 +192,7 @@ export function CTASections() {
             ].map((resource, index) => (
               <div
                 key={index}
-                className="bg-white rounded-2xl p-8 border border-gray-200 hover:border-torch-orange/30 hover:shadow-lg transition-all duration-300 group"
+                className="bg-white rounded-2xl p-8 border border-gray-200 hover:border-mint-green/30 hover:shadow-lg transition-all duration-300 group"
               >
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                   {resource.icon}
@@ -215,10 +215,10 @@ export function CTASections() {
       {/* Final CTA */}
       <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className="bg-gradient-to-br from-torch-light-orange via-white to-torch-light-orange rounded-3xl p-8 lg:p-12 relative overflow-hidden">
+          <div className="bg-gradient-to-br from-mint-light via-white to-mint-light rounded-3xl p-8 lg:p-12 relative overflow-hidden">
             {/* Decorative elements */}
-            <div className="absolute top-0 left-0 w-32 h-32 bg-torch-orange/10 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-0 right-0 w-48 h-48 bg-torch-yellow/10 rounded-full blur-3xl"></div>
+            <div className="absolute top-0 left-0 w-32 h-32 bg-mint-green/10 rounded-full blur-2xl"></div>
+            <div className="absolute bottom-0 right-0 w-48 h-48 bg-mint-neon/10 rounded-full blur-3xl"></div>
 
             <div className="relative z-10">
               <h3 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">
