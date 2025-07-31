@@ -9,13 +9,9 @@ export function ProfessionalHero() {
   }, []);
 
   return (
-        <section className="deepmind-hero relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="deepmind-hero relative min-h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 opacity-30">
-        <SolarSystemScene
-          autoCamera={true}
-          scale={0.3}
-          speed={2}
-        />
+        <SolarSystemScene autoCamera={true} scale={0.3} speed={2} />
       </div>
 
       {/* Main Content */}

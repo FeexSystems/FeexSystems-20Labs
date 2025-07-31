@@ -143,7 +143,7 @@ export function ResearchSection() {
               </div>
             </div>
 
-                        {/* Visual */}
+            {/* Visual */}
             <div className="deepmind-card p-0 overflow-hidden">
               <div className="aspect-square rounded-lg overflow-hidden mb-6">
                 {activeArea === "ai" && (
@@ -154,11 +154,7 @@ export function ResearchSection() {
                   />
                 )}
                 {activeArea === "devops" && (
-                  <DataFlowScene
-                    speed={1.5}
-                    complexity={1.2}
-                    theme="devops"
-                  />
+                  <DataFlowScene speed={1.5} complexity={1.2} theme="devops" />
                 )}
                 {activeArea === "security" && (
                   <DataFlowScene

@@ -143,7 +143,9 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
   }
 
   /* Force dark theme globally */
@@ -180,11 +182,21 @@
     font-weight: 400;
   }
 
-  .mono-thin { font-weight: 100; }
-  .mono-light { font-weight: 200; }
-  .mono-regular { font-weight: 400; }
-  .mono-medium { font-weight: 500; }
-  .mono-bold { font-weight: 700; }
+  .mono-thin {
+    font-weight: 100;
+  }
+  .mono-light {
+    font-weight: 200;
+  }
+  .mono-regular {
+    font-weight: 400;
+  }
+  .mono-medium {
+    font-weight: 500;
+  }
+  .mono-bold {
+    font-weight: 700;
+  }
 }
 
 @layer base {
@@ -234,8 +246,6 @@
     overflow: hidden;
   }
 
-
-
   .deepmind-hero {
     background: var(--gradient-subtle);
     position: relative;
@@ -255,7 +265,7 @@
   }
 
   .deepmind-button::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -264,7 +274,9 @@
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    transition: width 0.3s, height 0.3s;
+    transition:
+      width 0.3s,
+      height 0.3s;
   }
 
   .deepmind-button:hover::before {
@@ -335,8 +347,6 @@
     }
   }
 
-
-
   .animate-float {
     animation: float 3s ease-in-out infinite;
   }
@@ -346,7 +356,8 @@
   }
 
   @keyframes pulse-green {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 1;
       transform: scale(1);
     }
@@ -357,7 +368,8 @@
   }
 
   @keyframes glassmorphism-float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0px) rotate(0deg);
     }
     25% {
@@ -379,8 +391,6 @@
     animation: glassmorphism-float 4s ease-in-out infinite;
   }
 
-
-
   /* Matrix rain effect for backgrounds */
   .matrix-bg {
     position: relative;
@@ -388,7 +398,7 @@
   }
 
   .matrix-bg::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;

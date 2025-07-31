@@ -270,7 +270,9 @@ export function FeatureShowcase() {
               <div
                 key={integration.name}
                 className={`glass-card p-6 transition-all duration-300 transform hover:scale-105 interactive-card ${
-                  integration.connected ? "ring-2 ring-mint-green/30 animate-glow" : ""
+                  integration.connected
+                    ? "ring-2 ring-mint-green/30 animate-glow"
+                    : ""
                 }`}
               >
                 <div className="text-center">
