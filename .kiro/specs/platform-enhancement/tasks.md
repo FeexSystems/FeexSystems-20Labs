@@ -46,6 +46,9 @@
 
 
 
+
+
+
     - Create GET /api/users/profile endpoint for user data retrieval
     - Implement PUT /api/users/profile endpoint for profile updates
     - Add profile image upload functionality with file validation
