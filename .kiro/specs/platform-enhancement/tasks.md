@@ -42,6 +42,10 @@
   - [-] 2.3 Create user registration and login API endpoints
 
 
+
+
+
+
     - Implement POST /api/auth/register endpoint with email verification
     - Build POST /api/auth/login endpoint with rate limiting
     - Create POST /api/auth/refresh-token endpoint
