@@ -2,9 +2,9 @@ import { PrismaClient, User } from '@prisma/client';
 import { JWTService, AuthError, TokenBlacklistService } from '../auth';
 import { UserService } from './user.service';
 import { SessionService } from './session.service';
-import { 
-  RegisterUserInput, 
-  LoginUserInput, 
+import {
+  RegisterUserInput,
+  LoginUserInput,
   RefreshTokenInput,
   PasswordResetRequestInput,
   PasswordResetInput,
@@ -185,10 +185,10 @@ export class AuthService {
    */
   async sendEmailVerification(userId: string, email: string): Promise<void> {
     const token = JWTService.generateEmailVerificationToken(userId, email);
-    
+
     // In a real application, you would send this via email service
     console.log(`Email verification token for ${email}: ${token}`);
-    
+
     // TODO: Implement actual email sending
     // await emailService.sendEmailVerification(email, token);
   }
@@ -199,7 +199,7 @@ export class AuthService {
   async verifyEmail(input: EmailVerificationInput): Promise<void> {
     try {
       const payload = JWTService.verifyEmailVerificationToken(input.token);
-      
+
       // Verify user exists and email matches
       const user = await this.userService.findUserById(payload.userId);
       if (!user || user.email !== payload.email) {
@@ -227,10 +227,10 @@ export class AuthService {
     }
 
     const token = JWTService.generatePasswordResetToken(user.id, user.email);
-    
+
     // In a real application, you would send this via email service
     console.log(`Password reset token for ${user.email}: ${token}`);
-    
+
     // TODO: Implement actual email sending
     // await emailService.sendPasswordReset(user.email, token);
   }
@@ -241,7 +241,7 @@ export class AuthService {
   async resetPassword(input: PasswordResetInput): Promise<void> {
     try {
       const payload = JWTService.verifyPasswordResetToken(input.token);
-      
+
       // Verify user exists and email matches
       const user = await this.userService.findUserById(payload.userId);
       if (!user || user.email !== payload.email) {
@@ -302,7 +302,7 @@ export class AuthService {
    * Update user profile (authenticated)
    */
   async updateProfile(
-    userId: string, 
+    userId: string,
     updateData: Partial<{ firstName: string; lastName: string; email: string }>
   ): Promise<Omit<User, 'passwordHash'>> {
     // If email is being changed, check if it's already taken
@@ -364,7 +364,7 @@ export class AuthService {
   async validateToken(token: string): Promise<{ valid: boolean; payload?: any; error?: string }> {
     try {
       const payload = JWTService.verifyAccessToken(token);
-      
+
       // Check if token is blacklisted
       if (TokenBlacklistService.isBlacklisted(token)) {
         return { valid: false, error: 'Token has been revoked' };
@@ -378,9 +378,9 @@ export class AuthService {
 
       return { valid: true, payload };
     } catch (error) {
-      return { 
-        valid: false, 
-        error: error instanceof AuthError ? error.message : 'Invalid token' 
+      return {
+        valid: false,
+        error: error instanceof AuthError ? error.message : 'Invalid token'
       };
     }
   }
