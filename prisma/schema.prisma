@@ -1,0 +1,284 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  firstName     String    @map("first_name")
+  lastName      String    @map("last_name")
+  role          UserRole  @default(USER)
+  emailVerified Boolean   @default(false) @map("email_verified")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  lastLoginAt   DateTime? @map("last_login_at")
+
+  // Relations
+  sessions      Session[]
+  refreshTokens RefreshToken[]
+  subscriptions Subscription[]
+  aiRequests    AIRequest[]
+  repositories  Repository[]
+  securityScans SecurityScan[]
+  teamMembers   TeamMember[]
+  usageMetrics  UsageMetrics[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model Subscription {
+  id                   String            @id @default(cuid())
+  userId               String            @map("user_id")
+  planId               String            @map("plan_id")
+  status               SubscriptionStatus
+  currentPeriodStart   DateTime          @map("current_period_start")
+  currentPeriodEnd     DateTime          @map("current_period_end")
+  cancelAtPeriodEnd    Boolean           @default(false) @map("cancel_at_period_end")
+  stripeSubscriptionId String?           @unique @map("stripe_subscription_id")
+  createdAt            DateTime          @default(now()) @map("created_at")
+  updatedAt            DateTime          @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model AIRequest {
+  id             String        @id @default(cuid())
+  userId         String        @map("user_id")
+  serviceId      String        @map("service_id")
+  inputData      Json          @map("input_data")
+  outputData     Json?         @map("output_data")
+  metadata       Json?
+  status         RequestStatus @default(PENDING)
+  processingTime Int?          @map("processing_time")
+  tokensUsed     Int?          @map("tokens_used")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  completedAt    DateTime?     @map("completed_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_requests")
+}
+
+model Repository {
+  id                   String       @id @default(cuid())
+  userId               String       @map("user_id")
+  provider             GitProvider
+  repoUrl              String       @map("repo_url")
+  branch               String       @default("main")
+  accessTokenEncrypted String?      @map("access_token_encrypted")
+  webhookUrl           String?      @map("webhook_url")
+  createdAt            DateTime     @default(now()) @map("created_at")
+  updatedAt            DateTime     @updatedAt @map("updated_at")
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pipelines   Pipeline[]
+  deployments Deployment[]
+
+  @@map("repositories")
+}
+
+model Pipeline {
+  id           String          @id @default(cuid())
+  repositoryId String          @map("repository_id")
+  name         String
+  stages       Json
+  triggers     Json
+  environment  Json
+  status       PipelineStatus  @default(ACTIVE)
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+
+  repository  Repository   @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  deployments Deployment[]
+
+  @@map("pipelines")
+}
+
+model Deployment {
+  id           String           @id @default(cuid())
+  repositoryId String           @map("repository_id")
+  pipelineId   String?          @map("pipeline_id")
+  commit       String
+  status       DeploymentStatus @default(PENDING)
+  logs         Json?
+  startedAt    DateTime         @default(now()) @map("started_at")
+  completedAt  DateTime?        @map("completed_at")
+
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  pipeline   Pipeline?  @relation(fields: [pipelineId], references: [id], onDelete: SetNull)
+
+  @@map("deployments")
+}
+
+model SecurityScan {
+  id          String         @id @default(cuid())
+  userId      String         @map("user_id")
+  targetData  Json           @map("target_data")
+  scanType    SecurityScanType @map("scan_type")
+  status      ScanStatus     @default(QUEUED)
+  results     Json?
+  scheduledAt DateTime?      @map("scheduled_at")
+  startedAt   DateTime?      @map("started_at")
+  completedAt DateTime?      @map("completed_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("security_scans")
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  members    TeamMember[]
+  workspaces Workspace[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id     String   @id @default(cuid())
+  teamId String   @map("team_id")
+  userId String   @map("user_id")
+  role   TeamRole @default(MEMBER)
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+model Workspace {
+  id          String   @id @default(cuid())
+  teamId      String   @map("team_id")
+  name        String
+  description String?
+  settings    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("workspaces")
+}
+
+model UsageMetrics {
+  id                String   @id @default(cuid())
+  userId            String   @map("user_id")
+  period            String
+  aiRequestsCount   Int      @default(0) @map("ai_requests_count")
+  deploymentCount   Int      @default(0) @map("deployment_count")
+  securityScansCount Int     @default(0) @map("security_scans_count")
+  storageUsed       BigInt   @default(0) @map("storage_used")
+  bandwidthUsed     BigInt   @default(0) @map("bandwidth_used")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, period])
+  @@map("usage_metrics")
+}
+
+// Enums
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  UNPAID
+  INCOMPLETE
+}
+
+enum RequestStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum GitProvider {
+  GITHUB
+  GITLAB
+  BITBUCKET
+}
+
+enum PipelineStatus {
+  ACTIVE
+  PAUSED
+  DISABLED
+}
+
+enum DeploymentStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+  CANCELED
+}
+
+enum SecurityScanType {
+  VULNERABILITY
+  PENETRATION
+  COMPLIANCE
+}
+
+enum ScanStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}

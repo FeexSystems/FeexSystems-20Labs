@@ -24,3 +24,41 @@ dist-ssr
 *.sw?
 
 .config/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads
+uploads/
+temp/
+
+# Docker
+.dockerignore
+
+# Prisma
+prisma/migrations/dev.db*
+
+# Redis
+dump.rdb
+
+# Logs
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
