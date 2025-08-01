@@ -129,6 +129,133 @@ async function main() {
 
   console.log('✅ Created sample usage metrics');
 
+  // Create subscription plans
+  const freePlan = await prisma.plan.upsert({
+    where: { stripePriceId: 'price_free_tier' },
+    update: {},
+    create: {
+      name: 'Free',
+      description: 'Perfect for getting started with basic features',
+      stripePriceId: 'price_free_tier',
+      stripeProductId: 'prod_free_tier',
+      price: 0,
+      currency: 'usd',
+      interval: 'month',
+      intervalCount: 1,
+      trialPeriodDays: null,
+      features: {
+        aiRequestsPerMonth: 10,
+        deploymentsPerMonth: 2,
+        securityScansPerMonth: 1,
+        storageGB: 1,
+        teamMembers: 1,
+        support: 'community',
+        customDomains: false,
+        advancedAnalytics: false,
+      },
+      isActive: true,
+      sortOrder: 1,
+    },
+  });
+
+  const starterPlan = await prisma.plan.upsert({
+    where: { stripePriceId: 'price_starter_monthly' },
+    update: {},
+    create: {
+      name: 'Starter',
+      description: 'Great for small teams and growing projects',
+      stripePriceId: 'price_starter_monthly',
+      stripeProductId: 'prod_starter',
+      price: 2900, // $29.00
+      currency: 'usd',
+      interval: 'month',
+      intervalCount: 1,
+      trialPeriodDays: 14,
+      features: {
+        aiRequestsPerMonth: 100,
+        deploymentsPerMonth: 10,
+        securityScansPerMonth: 5,
+        storageGB: 10,
+        teamMembers: 5,
+        support: 'email',
+        customDomains: true,
+        advancedAnalytics: false,
+      },
+      isActive: true,
+      sortOrder: 2,
+    },
+  });
+
+  const professionalPlan = await prisma.plan.upsert({
+    where: { stripePriceId: 'price_professional_monthly' },
+    update: {},
+    create: {
+      name: 'Professional',
+      description: 'Perfect for professional teams and advanced workflows',
+      stripePriceId: 'price_professional_monthly',
+      stripeProductId: 'prod_professional',
+      price: 9900, // $99.00
+      currency: 'usd',
+      interval: 'month',
+      intervalCount: 1,
+      trialPeriodDays: 14,
+      features: {
+        aiRequestsPerMonth: 500,
+        deploymentsPerMonth: 50,
+        securityScansPerMonth: 25,
+        storageGB: 100,
+        teamMembers: 25,
+        support: 'priority',
+        customDomains: true,
+        advancedAnalytics: true,
+        apiAccess: true,
+        webhooks: true,
+      },
+      isActive: true,
+      sortOrder: 3,
+    },
+  });
+
+  const enterprisePlan = await prisma.plan.upsert({
+    where: { stripePriceId: 'price_enterprise_monthly' },
+    update: {},
+    create: {
+      name: 'Enterprise',
+      description: 'For large organizations with custom requirements',
+      stripePriceId: 'price_enterprise_monthly',
+      stripeProductId: 'prod_enterprise',
+      price: 29900, // $299.00
+      currency: 'usd',
+      interval: 'month',
+      intervalCount: 1,
+      trialPeriodDays: 30,
+      features: {
+        aiRequestsPerMonth: -1, // Unlimited
+        deploymentsPerMonth: -1, // Unlimited
+        securityScansPerMonth: -1, // Unlimited
+        storageGB: 1000,
+        teamMembers: -1, // Unlimited
+        support: 'dedicated',
+        customDomains: true,
+        advancedAnalytics: true,
+        apiAccess: true,
+        webhooks: true,
+        sso: true,
+        customIntegrations: true,
+        onPremise: true,
+      },
+      isActive: true,
+      sortOrder: 4,
+    },
+  });
+
+  console.log('✅ Created subscription plans:', {
+    free: freePlan.name,
+    starter: starterPlan.name,
+    professional: professionalPlan.name,
+    enterprise: enterprisePlan.name,
+  });
+
   console.log('🎉 Database seeding completed successfully!');
 }
 

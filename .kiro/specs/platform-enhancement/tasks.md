@@ -16,6 +16,8 @@
 
 
 
+
+
   - [x] 2.1 Create user data models and database schema
 
 
@@ -24,7 +26,9 @@
     - Create user validation schemas using Zod
     - _Requirements: 1.1, 1.2_
 
-  - [-] 2.2 Build JWT authentication service
+  - [x] 2.2 Build JWT authentication service
+
+
 
 
 
@@ -35,7 +39,9 @@
     - _Requirements: 1.3, 1.4_
 
 
-  - [ ] 2.3 Create user registration and login API endpoints
+  - [-] 2.3 Create user registration and login API endpoints
+
+
     - Implement POST /api/auth/register endpoint with email verification
     - Build POST /api/auth/login endpoint with rate limiting
     - Create POST /api/auth/refresh-token endpoint
@@ -53,8 +59,15 @@
     - _Requirements: 1.4, 1.5_
 
 
+
 - [ ] 3. Develop subscription and billing management system
-  - [ ] 3.1 Create subscription data models and Stripe integration
+
+
+  - [x] 3.1 Create subscription data models and Stripe integration
+
+
+
+
 
     - Define Subscription, Plan, and Usage models in database schema
     - Integrate Stripe SDK for payment processing
