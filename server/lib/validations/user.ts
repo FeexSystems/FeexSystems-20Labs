@@ -23,6 +23,7 @@ export const updateUserProfileSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long').optional(),
   lastName: z.string().min(1, 'Last name is required').max(50, 'Last name is too long').optional(),
   email: z.string().email('Invalid email address').optional(),
+  profileImageUrl: z.string().url('Invalid image URL').nullable().optional(),
 });
 
 export const createUserSchema = z.object({

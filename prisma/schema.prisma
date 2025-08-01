@@ -11,16 +11,17 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  passwordHash  String    @map("password_hash")
-  firstName     String    @map("first_name")
-  lastName      String    @map("last_name")
-  role          UserRole  @default(USER)
-  emailVerified Boolean   @default(false) @map("email_verified")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  lastLoginAt   DateTime? @map("last_login_at")
+  id               String    @id @default(cuid())
+  email            String    @unique
+  passwordHash     String    @map("password_hash")
+  firstName        String    @map("first_name")
+  lastName         String    @map("last_name")
+  profileImageUrl  String?   @map("profile_image_url")
+  role             UserRole  @default(USER)
+  emailVerified    Boolean   @default(false) @map("email_verified")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  lastLoginAt      DateTime? @map("last_login_at")
 
   // Relations
   sessions      Session[]
@@ -31,6 +32,7 @@ model User {
   securityScans SecurityScan[]
   teamMembers   TeamMember[]
   usageMetrics  UsageMetrics[]
+  activityLogs  ActivityLog[]
 
   @@map("users")
 }
@@ -259,6 +261,23 @@ model StripeWebhookEvent {
   processedAt   DateTime? @map("processed_at")
 
   @@map("stripe_webhook_events")
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  action     String
+  resource   String
+  resourceId String   @map("resource_id")
+  metadata   Json?
+  timestamp  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+  @@index([action])
+  @@index([resource])
+  @@map("activity_logs")
 }
 
 // Enums

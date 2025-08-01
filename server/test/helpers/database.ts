@@ -27,31 +27,48 @@ export async function createTestDatabase(): Promise<PrismaClient> {
   return testPrisma;
 }
 
-export async function cleanupTestDatabase(prisma: PrismaClient): Promise<void> {
-  // Clean up all test data
-  await prisma.refreshToken.deleteMany();
-  await prisma.session.deleteMany();
-  await prisma.aIRequest.deleteMany();
-  await prisma.deployment.deleteMany();
-  await prisma.pipeline.deleteMany();
-  await prisma.repository.deleteMany();
-  await prisma.securityScan.deleteMany();
-  await prisma.subscription.deleteMany();
-  await prisma.user.deleteMany();
+export async function cleanupTestDatabase(prisma?: PrismaClient): Promise<void> {
+  const client = prisma || testPrisma;
+  if (!client) return;
+
+  // Clean up all test data in correct order (respecting foreign key constraints)
+  await client.activityLog.deleteMany();
+  await client.refreshToken.deleteMany();
+  await client.session.deleteMany();
+  await client.aIRequest.deleteMany();
+  await client.deployment.deleteMany();
+  await client.pipeline.deleteMany();
+  await client.repository.deleteMany();
+  await client.securityScan.deleteMany();
+  await client.usageMetrics.deleteMany();
+  await client.teamMember.deleteMany();
+  await client.workspace.deleteMany();
+  await client.team.deleteMany();
+  await client.subscription.deleteMany();
+  await client.plan.deleteMany();
+  await client.stripeWebhookEvent.deleteMany();
+  await client.user.deleteMany();
   
-  await prisma.$disconnect();
-  testPrisma = null;
+  if (!prisma) {
+    await client.$disconnect();
+    testPrisma = null;
+  }
 }
 
-export async function createTestUser(prisma: PrismaClient, userData?: Partial<{
+export async function createTestUser(userData?: Partial<{
   email: string;
   password: string;
   firstName: string;
   lastName: string;
   emailVerified: boolean;
-}>) {
+}>, prisma?: PrismaClient) {
+  const client = prisma || testPrisma;
+  if (!client) {
+    throw new Error('Database client not available. Call setupTestDatabase first.');
+  }
+
   const { AuthService } = await import('../../lib/services/auth.service');
-  const authService = new AuthService(prisma);
+  const authService = new AuthService(client);
 
   const defaultUserData = {
     email: 'test@example.com',
@@ -61,7 +78,8 @@ export async function createTestUser(prisma: PrismaClient, userData?: Partial<{
     ...userData,
   };
 
-  return authService.register(defaultUserData);
+  const result = await authService.register(defaultUserData);
+  return result.user;
 }
 
 export async function createTestUsers(prisma: PrismaClient, count: number = 3) {
@@ -78,3 +96,10 @@ export async function createTestUsers(prisma: PrismaClient, count: number = 3) {
   
   return users;
 }
+
+// Convenience functions for the new test structure
+export async function setupTestDatabase(): Promise<PrismaClient> {
+  return createTestDatabase();
+}
+
+export { createTestDatabase as getTestDatabase };

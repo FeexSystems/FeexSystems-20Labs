@@ -6,6 +6,7 @@ import { handleChat } from "./routes/chat";
 import { handleHealthCheck, handleReadinessCheck, handleLivenessCheck } from "./routes/health";
 import subscriptionRoutes from "./routes/subscriptions";
 import authRoutes from "./routes/auth";
+import userRoutes from "./routes/users";
 import { connectDatabase } from "./lib/database";
 import { createRedisClient } from "./lib/redis";
 
@@ -22,6 +23,9 @@ export function createServer() {
   }));
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  
+  // Serve uploaded files
+  app.use('/uploads', express.static('uploads'));
 
   // Health check endpoints (should be first)
   app.get("/health", handleHealthCheck);
@@ -42,6 +46,9 @@ export function createServer() {
   
   // Authentication routes
   app.use("/api/auth", authRoutes);
+  
+  // User routes
+  app.use("/api/users", userRoutes);
   
   // Subscription routes
   app.use("/api/subscriptions", subscriptionRoutes);

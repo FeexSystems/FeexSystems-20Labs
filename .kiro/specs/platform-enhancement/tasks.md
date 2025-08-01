@@ -12,12 +12,6 @@
 
 - [-] 2. Implement core authentication and user management system
 
-
-
-
-
-
-
   - [x] 2.1 Create user data models and database schema
 
 
@@ -27,11 +21,6 @@
     - _Requirements: 1.1, 1.2_
 
   - [x] 2.2 Build JWT authentication service
-
-
-
-
-
     - Implement JWT token generation and validation utilities
     - Create authentication middleware for protected routes
     - Build refresh token rotation mechanism
@@ -39,11 +28,7 @@
     - _Requirements: 1.3, 1.4_
 
 
-  - [-] 2.3 Create user registration and login API endpoints
-
-
-
-
+  - [x] 2.3 Create user registration and login API endpoints
 
 
     - Implement POST /api/auth/register endpoint with email verification
@@ -53,8 +38,14 @@
     - Write integration tests for authentication endpoints
     - _Requirements: 1.1, 1.2, 1.3_
 
+-
 
   - [ ] 2.4 Build user profile management features
+
+
+
+
+
     - Create GET /api/users/profile endpoint for user data retrieval
     - Implement PUT /api/users/profile endpoint for profile updates
     - Add profile image upload functionality with file validation
@@ -62,12 +53,31 @@
     - Write tests for profile management endpoints
     - _Requirements: 1.4, 1.5_
 
+-
+
+
+
+
+-
+
 
 
 - [ ] 3. Develop subscription and billing management system
 
+-
 
-  - [x] 3.1 Create subscription data models and Stripe integration
+
+
+
+
+
+-
+
+
+  - [ ] 3.1 Create subscription data models and Stripe integration
+
+
+
 
 
 
