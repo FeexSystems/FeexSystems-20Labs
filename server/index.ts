@@ -5,6 +5,7 @@ import { handleDemo } from "./routes/demo";
 import { handleChat } from "./routes/chat";
 import { handleHealthCheck, handleReadinessCheck, handleLivenessCheck } from "./routes/health";
 import subscriptionRoutes from "./routes/subscriptions";
+import authRoutes from "./routes/auth";
 import { connectDatabase } from "./lib/database";
 import { createRedisClient } from "./lib/redis";
 
@@ -38,6 +39,9 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
   app.post("/api/chat", handleChat);
+  
+  // Authentication routes
+  app.use("/api/auth", authRoutes);
   
   // Subscription routes
   app.use("/api/subscriptions", subscriptionRoutes);
