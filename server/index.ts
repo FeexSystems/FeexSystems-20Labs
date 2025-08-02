@@ -10,6 +10,7 @@ import userRoutes from "./routes/users";
 import usageRoutes from "./routes/usage";
 import billingRoutes from "./routes/billing";
 import aiRoutes from "./routes/ai";
+import devopsRoutes from "./routes/devops";
 import { connectDatabase } from "./lib/database";
 import { createRedisClient } from "./lib/redis";
 import { aiService } from "./lib/services/ai.service";
@@ -65,6 +66,9 @@ export function createServer() {
   
   // AI routes
   app.use("/api/ai", aiRoutes);
+  
+  // DevOps routes
+  app.use("/api/devops", devopsRoutes);
 
   // 404 handler for API routes
   app.use("/api/*", (_req, res) => {
@@ -86,6 +90,9 @@ export function createServer() {
 
   return app;
 }
+
+// Create app instance for testing
+export const app = createServer();
 
 // Initialize infrastructure connections
 export async function initializeInfrastructure() {

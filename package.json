@@ -46,7 +46,8 @@
     "jsonwebtoken": "^9.0.2",
     "dotenv": "^16.3.1",
     "stripe": "^14.21.0",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "dockerode": "^4.0.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -55,6 +56,7 @@
     "@types/ioredis": "^5.0.0",
     "@types/stripe": "^8.0.417",
     "@types/multer": "^1.4.11",
+    "@types/dockerode": "^3.3.31",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
