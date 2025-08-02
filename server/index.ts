@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { createServer as createHttpServer } from "http";
 import { handleDemo } from "./routes/demo";
 import { handleChat } from "./routes/chat";
 import { handleHealthCheck, handleReadinessCheck, handleLivenessCheck } from "./routes/health";
@@ -14,6 +15,7 @@ import devopsRoutes from "./routes/devops";
 import { connectDatabase } from "./lib/database";
 import { createRedisClient } from "./lib/redis";
 import { aiService } from "./lib/services/ai.service";
+import { initializeDeploymentWebSocket } from "./lib/services/deployment-websocket.service";
 
 // Load environment variables
 dotenv.config();
@@ -113,4 +115,31 @@ export async function initializeInfrastructure() {
     console.error('❌ Infrastructure initialization failed:', error);
     throw error;
   }
+}
+
+// Start server with WebSocket support
+export async function startServer() {
+  const port = process.env.PORT || 3001;
+  
+  // Initialize infrastructure first
+  await initializeInfrastructure();
+  
+  // Create HTTP server
+  const httpServer = createHttpServer(app);
+  
+  // Initialize WebSocket services
+  initializeDeploymentWebSocket(httpServer);
+  
+  // Start listening
+  httpServer.listen(port, () => {
+    console.log(`🚀 Server running on port ${port}`);
+    console.log(`📡 WebSocket endpoints available at ws://localhost:${port}/socket.io/deployments`);
+  });
+  
+  return httpServer;
+}
+
+// Start server if this file is run directly
+if (require.main === module) {
+  startServer().catch(console.error);
 }

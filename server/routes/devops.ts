@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authMiddleware } from '../lib/middleware/auth.middleware';
 import { repositoryService } from '../lib/services/repository.service';
 import { pipelineService } from '../lib/services/pipeline.service';
+import { deploymentTrackingService } from '../lib/services/deployment-tracking.service';
 import { GitProviderFactory } from '../lib/services/git-providers/index';
 import {
   gitProviderSchema,
@@ -641,6 +642,333 @@ router.post('/pipelines/:id/execute', authMiddleware, async (req, res) => {
         error: {
           type: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to execute pipeline',
+        },
+      });
+    }
+  }
+});
+
+/**
+ * GET /api/devops/deployments/:id
+ * Get deployment details
+ */
+router.get('/deployments/:id', authMiddleware, async (req, res) => {
+  try {
+    const deploymentId = req.params.id;
+    const userId = req.user!.id;
+    
+    const deployment = await deploymentTrackingService.getDeployment(deploymentId, userId);
+    
+    res.json({
+      success: true,
+      data: { deployment },
+    });
+  } catch (error) {
+    console.error('Error getting deployment:', error);
+    
+    if (error instanceof Error && error.message.includes('not found')) {
+      res.status(404).json({
+        success: false,
+        error: {
+          type: 'NOT_FOUND',
+          message: error.message,
+        },
+      });
+    } else if (error instanceof Error && error.message.includes('Access denied')) {
+      res.status(403).json({
+        success: false,
+        error: {
+          type: 'AUTHORIZATION_ERROR',
+          message: error.message,
+        },
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to get deployment',
+        },
+      });
+    }
+  }
+});
+
+/**
+ * GET /api/devops/repositories/:repositoryId/deployments
+ * Get deployments for a repository
+ */
+router.get('/repositories/:repositoryId/deployments', authMiddleware, async (req, res) => {
+  try {
+    const repositoryId = req.params.repositoryId;
+    const userId = req.user!.id;
+    const query = deploymentQuerySchema.parse(req.query);
+    
+    const result = await deploymentTrackingService.getRepositoryDeployments(
+      repositoryId,
+      userId,
+      {
+        status: query.status,
+        limit: query.limit,
+        offset: query.offset,
+        startDate: query.startDate ? new Date(query.startDate) : undefined,
+        endDate: query.endDate ? new Date(query.endDate) : undefined,
+      }
+    );
+    
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error('Error getting repository deployments:', error);
+    
+    if (error instanceof Error && error.message.includes('not found')) {
+      res.status(404).json({
+        success: false,
+        error: {
+          type: 'NOT_FOUND',
+          message: error.message,
+        },
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to get repository deployments',
+        },
+      });
+    }
+  }
+});
+
+/**
+ * GET /api/devops/deployments/:id/logs
+ * Get deployment logs
+ */
+router.get('/deployments/:id/logs', authMiddleware, async (req, res) => {
+  try {
+    const deploymentId = req.params.id;
+    const userId = req.user!.id;
+    const { level, stage, limit, offset } = req.query;
+    
+    const result = await deploymentTrackingService.getDeploymentLogs(
+      deploymentId,
+      userId,
+      {
+        level: level as any,
+        stage: stage as string,
+        limit: limit ? parseInt(limit as string) : undefined,
+        offset: offset ? parseInt(offset as string) : undefined,
+      }
+    );
+    
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error('Error getting deployment logs:', error);
+    
+    if (error instanceof Error && error.message.includes('not found')) {
+      res.status(404).json({
+        success: false,
+        error: {
+          type: 'NOT_FOUND',
+          message: error.message,
+        },
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to get deployment logs',
+        },
+      });
+    }
+  }
+});
+
+/**
+ * POST /api/devops/deployments/:id/cancel
+ * Cancel a running deployment
+ */
+router.post('/deployments/:id/cancel', authMiddleware, async (req, res) => {
+  try {
+    const deploymentId = req.params.id;
+    const userId = req.user!.id;
+    const { reason } = req.body;
+    
+    await deploymentTrackingService.cancelDeployment(deploymentId, userId, reason);
+    
+    res.json({
+      success: true,
+      data: {
+        message: 'Deployment canceled successfully',
+      },
+    });
+  } catch (error) {
+    console.error('Error canceling deployment:', error);
+    
+    if (error instanceof Error && error.message.includes('not found')) {
+      res.status(404).json({
+        success: false,
+        error: {
+          type: 'NOT_FOUND',
+          message: error.message,
+        },
+      });
+    } else if (error instanceof Error && error.message.includes('Can only cancel')) {
+      res.status(400).json({
+        success: false,
+        error: {
+          type: 'VALIDATION_ERROR',
+          message: error.message,
+        },
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to cancel deployment',
+        },
+      });
+    }
+  }
+});
+
+/**
+ * POST /api/devops/deployments/:id/rollback
+ * Rollback a deployment
+ */
+router.post('/deployments/:id/rollback', authMiddleware, async (req, res) => {
+  try {
+    const deploymentId = req.params.id;
+    const userId = req.user!.id;
+    const { targetCommit, targetDeploymentId, reason, skipValidation } = req.body;
+    
+    const rollbackDeployment = await deploymentTrackingService.rollbackDeployment(
+      deploymentId,
+      userId,
+      { targetCommit, targetDeploymentId, reason, skipValidation }
+    );
+    
+    res.status(201).json({
+      success: true,
+      data: {
+        deployment: rollbackDeployment,
+        message: 'Rollback deployment created successfully',
+      },
+    });
+  } catch (error) {
+    console.error('Error rolling back deployment:', error);
+    
+    if (error instanceof Error && error.message.includes('not found')) {
+      res.status(404).json({
+        success: false,
+        error: {
+          type: 'NOT_FOUND',
+          message: error.message,
+        },
+      });
+    } else if (error instanceof Error && error.message.includes('Can only rollback')) {
+      res.status(400).json({
+        success: false,
+        error: {
+          type: 'VALIDATION_ERROR',
+          message: error.message,
+        },
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to rollback deployment',
+        },
+      });
+    }
+  }
+});
+
+/**
+ * GET /api/devops/deployments/:id/recovery
+ * Get deployment recovery options
+ */
+router.get('/deployments/:id/recovery', authMiddleware, async (req, res) => {
+  try {
+    const deploymentId = req.params.id;
+    const userId = req.user!.id;
+    
+    const recoveryOptions = await deploymentTrackingService.getRecoveryOptions(deploymentId, userId);
+    
+    res.json({
+      success: true,
+      data: recoveryOptions,
+    });
+  } catch (error) {
+    console.error('Error getting recovery options:', error);
+    
+    if (error instanceof Error && error.message.includes('not found')) {
+      res.status(404).json({
+        success: false,
+        error: {
+          type: 'NOT_FOUND',
+          message: error.message,
+        },
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to get recovery options',
+        },
+      });
+    }
+  }
+});
+
+/**
+ * GET /api/devops/repositories/:repositoryId/analytics
+ * Get deployment analytics for a repository
+ */
+router.get('/repositories/:repositoryId/analytics', authMiddleware, async (req, res) => {
+  try {
+    const repositoryId = req.params.repositoryId;
+    const userId = req.user!.id;
+    const { period } = req.query;
+    
+    const analytics = await deploymentTrackingService.getDeploymentAnalytics(
+      repositoryId,
+      userId,
+      period as 'day' | 'week' | 'month' | 'year'
+    );
+    
+    res.json({
+      success: true,
+      data: { analytics },
+    });
+  } catch (error) {
+    console.error('Error getting deployment analytics:', error);
+    
+    if (error instanceof Error && error.message.includes('not found')) {
+      res.status(404).json({
+        success: false,
+        error: {
+          type: 'NOT_FOUND',
+          message: error.message,
+        },
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to get deployment analytics',
         },
       });
     }
