@@ -2,6 +2,13 @@
 export * from './user.service';
 export * from './session.service';
 export * from './auth.service';
+export * from './ai.service';
+export * from './ai-registry.service';
+export * from './ai-request.service';
+export * from './ai-queue.service';
+export * from './ai-provider.service';
+export * from './ai-analytics.service';
+export * from './ai-websocket.service';
 
 // Service factory for dependency injection
 import { PrismaClient } from '@prisma/client';

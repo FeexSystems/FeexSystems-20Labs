@@ -170,6 +170,37 @@ export class StripeService {
   }
 
   /**
+   * Create an invoice item
+   */
+  async createInvoiceItem(params: {
+    customer: string;
+    amount: number;
+    currency: string;
+    description: string;
+    metadata?: Record<string, string>;
+  }): Promise<Stripe.InvoiceItem> {
+    return await this.stripe.invoiceItems.create(params);
+  }
+
+  /**
+   * Create an invoice
+   */
+  async createInvoice(params: {
+    customer: string;
+    description?: string;
+    metadata?: Record<string, string>;
+  }): Promise<Stripe.Invoice> {
+    return await this.stripe.invoices.create(params);
+  }
+
+  /**
+   * Finalize an invoice
+   */
+  async finalizeInvoice(invoiceId: string): Promise<Stripe.Invoice> {
+    return await this.stripe.invoices.finalizeInvoice(invoiceId);
+  }
+
+  /**
    * Sync plans from Stripe to database
    */
   async syncPlansFromStripe(): Promise<void> {

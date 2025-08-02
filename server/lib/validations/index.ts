@@ -4,6 +4,9 @@ export * from './user';
 // Authentication validation schemas
 export * from './auth';
 
+// Subscription validation schemas
+export * from './subscription';
+
 // Common validation utilities
 import { z } from 'zod';
 

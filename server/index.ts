@@ -7,8 +7,12 @@ import { handleHealthCheck, handleReadinessCheck, handleLivenessCheck } from "./
 import subscriptionRoutes from "./routes/subscriptions";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
+import usageRoutes from "./routes/usage";
+import billingRoutes from "./routes/billing";
+import aiRoutes from "./routes/ai";
 import { connectDatabase } from "./lib/database";
 import { createRedisClient } from "./lib/redis";
+import { aiService } from "./lib/services/ai.service";
 
 // Load environment variables
 dotenv.config();
@@ -52,6 +56,15 @@ export function createServer() {
   
   // Subscription routes
   app.use("/api/subscriptions", subscriptionRoutes);
+  
+  // Usage routes
+  app.use("/api/usage", usageRoutes);
+  
+  // Billing routes
+  app.use("/api/billing", billingRoutes);
+  
+  // AI routes
+  app.use("/api/ai", aiRoutes);
 
   // 404 handler for API routes
   app.use("/api/*", (_req, res) => {
@@ -84,6 +97,9 @@ export async function initializeInfrastructure() {
     
     // Initialize Redis
     createRedisClient();
+    
+    // Initialize AI service
+    await aiService.initialize();
     
     console.log('✅ Infrastructure initialized successfully');
   } catch (error) {
