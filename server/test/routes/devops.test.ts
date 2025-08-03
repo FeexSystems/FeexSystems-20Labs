@@ -929,4 +929,274 @@ describe('DevOps Routes', () => {
       expect(response.body.error.type).toBe('WEBHOOK_ERROR');
     });
   });
+
+  // Deployment tracking and monitoring tests
+  describe('Deployment Tracking and Monitoring', () => {
+    let testRepository: any;
+    let testPipeline: any;
+    let testDeployment: any;
+
+    beforeEach(async () => {
+      // Create test repository
+      testRepository = await prisma.repository.create({
+        data: {
+          userId: testUser.id,
+          provider: 'GITHUB',
+          repoUrl: 'https://github.com/test/repo',
+          branch: 'main',
+          accessTokenEncrypted: 'encrypted-token',
+        },
+      });
+
+      // Create test pipeline
+      testPipeline = await prisma.pipeline.create({
+        data: {
+          repositoryId: testRepository.id,
+          name: 'Test Pipeline',
+          stages: [
+            {
+              id: 'build',
+              name: 'Build',
+              type: 'build',
+              commands: ['npm install'],
+            },
+          ],
+          triggers: [
+            {
+              id: 'push-main',
+              type: 'push',
+              branches: ['main'],
+            },
+          ],
+          environment: {},
+          status: 'ACTIVE',
+        },
+      });
+
+      // Create test deployment
+      testDeployment = await prisma.deployment.create({
+        data: {
+          repositoryId: testRepository.id,
+          pipelineId: testPipeline.id,
+          commit: 'abc123def456',
+          status: 'PENDING',
+          logs: [],
+        },
+      });
+    });
+
+    describe('GET /api/devops/deployments/:id/status', () => {
+      it('should get real-time deployment status', async () => {
+        const response = await request(app)
+          .get(`/api/devops/deployments/${testDeployment.id}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.deploymentId).toBe(testDeployment.id);
+        expect(response.body.data.status).toBeDefined();
+        expect(response.body.data.logs).toBeDefined();
+      });
+
+      it('should return 404 for non-existent deployment', async () => {
+        const response = await request(app)
+          .get('/api/devops/deployments/non-existent/status')
+          .set('Authorization', `Bearer ${authToken}`)
+          .expect(404);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.type).toBe('NOT_FOUND');
+      });
+
+      it('should require authentication', async () => {
+        await request(app)
+          .get(`/api/devops/deployments/${testDeployment.id}/status`)
+          .expect(401);
+      });
+    });
+
+    describe('POST /api/devops/deployments/:id/retry', () => {
+      beforeEach(async () => {
+        // Update deployment to failed status for retry testing
+        await prisma.deployment.update({
+          where: { id: testDeployment.id },
+          data: { status: 'FAILED', completedAt: new Date() },
+        });
+      });
+
+      it('should retry failed deployment', async () => {
+        const response = await request(app)
+          .post(`/api/devops/deployments/${testDeployment.id}/retry`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .expect(201);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.deployment).toBeDefined();
+        expect(response.body.data.message).toBe('Deployment retry initiated successfully');
+      });
+
+      it('should return 400 for non-failed deployment', async () => {
+        // Update deployment to success status
+        await prisma.deployment.update({
+          where: { id: testDeployment.id },
+          data: { status: 'SUCCESS' },
+        });
+
+        const response = await request(app)
+          .post(`/api/devops/deployments/${testDeployment.id}/retry`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.type).toBe('VALIDATION_ERROR');
+        expect(response.body.error.message).toBe('Can only retry failed deployments');
+      });
+
+      it('should return 400 for deployment without pipeline', async () => {
+        // Update deployment to remove pipeline
+        await prisma.deployment.update({
+          where: { id: testDeployment.id },
+          data: { pipelineId: null },
+        });
+
+        const response = await request(app)
+          .post(`/api/devops/deployments/${testDeployment.id}/retry`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.message).toBe('Cannot retry deployment without associated pipeline');
+      });
+
+      it('should require authentication', async () => {
+        await request(app)
+          .post(`/api/devops/deployments/${testDeployment.id}/retry`)
+          .expect(401);
+      });
+    });
+
+    describe('GET /api/devops/analytics/overview', () => {
+      it('should get overall deployment analytics', async () => {
+        const response = await request(app)
+          .get('/api/devops/analytics/overview')
+          .set('Authorization', `Bearer ${authToken}`)
+          .query({ period: 'month' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.overview).toBeDefined();
+        expect(response.body.data.overview.totalRepositories).toBeGreaterThanOrEqual(1);
+        expect(response.body.data.overview.totalDeployments).toBeGreaterThanOrEqual(0);
+        expect(response.body.data.repositoryAnalytics).toBeDefined();
+        expect(response.body.data.period).toBe('month');
+      });
+
+      it('should aggregate metrics across repositories', async () => {
+        const response = await request(app)
+          .get('/api/devops/analytics/overview')
+          .set('Authorization', `Bearer ${authToken}`)
+          .expect(200);
+
+        const overview = response.body.data.overview;
+        expect(overview.successRate).toBeGreaterThanOrEqual(0);
+        expect(overview.successRate).toBeLessThanOrEqual(100);
+        expect(overview.deploymentsByStatus).toBeDefined();
+      });
+
+      it('should require authentication', async () => {
+        await request(app)
+          .get('/api/devops/analytics/overview')
+          .expect(401);
+      });
+    });
+
+    describe('GET /api/devops/analytics/health', () => {
+      it('should get deployment health metrics', async () => {
+        const response = await request(app)
+          .get('/api/devops/analytics/health')
+          .set('Authorization', `Bearer ${authToken}`)
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.healthMetrics).toBeDefined();
+        expect(response.body.data.healthMetrics.activeDeployments).toBeGreaterThanOrEqual(0);
+        expect(response.body.data.healthMetrics.queuedDeployments).toBeGreaterThanOrEqual(0);
+        expect(response.body.data.healthMetrics.failureRate).toBeGreaterThanOrEqual(0);
+        expect(response.body.data.healthMetrics.averageDeploymentTime).toBeGreaterThanOrEqual(0);
+        expect(response.body.data.healthMetrics.recentFailures).toBeDefined();
+      });
+
+      it('should require authentication', async () => {
+        await request(app)
+          .get('/api/devops/analytics/health')
+          .expect(401);
+      });
+    });
+
+    describe('GET /api/devops/analytics/trends', () => {
+      it('should get deployment performance trends', async () => {
+        const response = await request(app)
+          .get('/api/devops/analytics/trends')
+          .set('Authorization', `Bearer ${authToken}`)
+          .query({ days: '7' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.trends).toBeDefined();
+        expect(response.body.data.trends.deploymentFrequency).toBeDefined();
+        expect(response.body.data.trends.performanceMetrics).toBeDefined();
+        expect(response.body.data.trends.topFailureReasons).toBeDefined();
+      });
+
+      it('should accept custom days parameter', async () => {
+        const response = await request(app)
+          .get('/api/devops/analytics/trends')
+          .set('Authorization', `Bearer ${authToken}`)
+          .query({ days: '14' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.trends).toBeDefined();
+      });
+
+      it('should require authentication', async () => {
+        await request(app)
+          .get('/api/devops/analytics/trends')
+          .expect(401);
+      });
+    });
+
+    describe('GET /api/devops/repositories/:repositoryId/analytics', () => {
+      it('should get deployment analytics for repository', async () => {
+        const response = await request(app)
+          .get(`/api/devops/repositories/${testRepository.id}/analytics`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .query({ period: 'month' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.analytics).toBeDefined();
+        expect(response.body.data.analytics.repositoryId).toBe(testRepository.id);
+        expect(response.body.data.analytics.period).toBe('month');
+        expect(response.body.data.analytics.metrics).toBeDefined();
+        expect(response.body.data.analytics.trends).toBeDefined();
+      });
+
+      it('should return 404 for non-existent repository', async () => {
+        const response = await request(app)
+          .get('/api/devops/repositories/non-existent/analytics')
+          .set('Authorization', `Bearer ${authToken}`)
+          .expect(404);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.type).toBe('NOT_FOUND');
+      });
+
+      it('should require authentication', async () => {
+        await request(app)
+          .get(`/api/devops/repositories/${testRepository.id}/analytics`)
+          .expect(401);
+      });
+    });
+  });
 });

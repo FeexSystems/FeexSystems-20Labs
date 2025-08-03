@@ -502,6 +502,221 @@ export class DeploymentTrackingService extends EventEmitter {
   }
 
   /**
+   * Get deployment health metrics for monitoring
+   */
+  async getDeploymentHealthMetrics(userId: string): Promise<{
+    activeDeployments: number;
+    queuedDeployments: number;
+    failureRate: number;
+    averageDeploymentTime: number;
+    recentFailures: Array<{
+      deploymentId: string;
+      repositoryId: string;
+      error: string;
+      timestamp: Date;
+    }>;
+  }> {
+    const repositories = await repositoryService.getUserRepositories(userId);
+    const repositoryIds = repositories.map(repo => repo.id);
+
+    // Get active and queued deployments
+    const activeDeployments = await prisma.deployment.count({
+      where: {
+        repositoryId: { in: repositoryIds },
+        status: { in: ['PENDING', 'RUNNING'] },
+      },
+    });
+
+    const queuedDeployments = await prisma.deployment.count({
+      where: {
+        repositoryId: { in: repositoryIds },
+        status: 'PENDING',
+      },
+    });
+
+    // Calculate failure rate for the last 24 hours
+    const last24Hours = new Date();
+    last24Hours.setHours(last24Hours.getHours() - 24);
+
+    const recentDeployments = await prisma.deployment.findMany({
+      where: {
+        repositoryId: { in: repositoryIds },
+        startedAt: { gte: last24Hours },
+        status: { in: ['SUCCESS', 'FAILED'] },
+      },
+    });
+
+    const failedDeployments = recentDeployments.filter(d => d.status === 'FAILED');
+    const failureRate = recentDeployments.length > 0
+      ? (failedDeployments.length / recentDeployments.length) * 100
+      : 0;
+
+    // Calculate average deployment time
+    const completedDeployments = recentDeployments.filter(d => d.completedAt);
+    const averageDeploymentTime = completedDeployments.length > 0
+      ? completedDeployments.reduce((sum, d) => {
+          const duration = d.completedAt!.getTime() - d.startedAt.getTime();
+          return sum + duration;
+        }, 0) / completedDeployments.length
+      : 0;
+
+    // Get recent failures with error details
+    const recentFailures = await prisma.deployment.findMany({
+      where: {
+        repositoryId: { in: repositoryIds },
+        status: 'FAILED',
+        startedAt: { gte: last24Hours },
+      },
+      orderBy: { startedAt: 'desc' },
+      take: 5,
+    });
+
+    const recentFailuresWithErrors = recentFailures.map(deployment => {
+      const logs = (deployment.logs as any[]) || [];
+      const errorLog = logs.find(log => log.level === 'error');
+      
+      return {
+        deploymentId: deployment.id,
+        repositoryId: deployment.repositoryId,
+        error: errorLog?.message || 'Unknown error',
+        timestamp: deployment.startedAt,
+      };
+    });
+
+    return {
+      activeDeployments,
+      queuedDeployments,
+      failureRate,
+      averageDeploymentTime,
+      recentFailures: recentFailuresWithErrors,
+    };
+  }
+
+  /**
+   * Get deployment performance trends
+   */
+  async getDeploymentTrends(
+    userId: string,
+    days: number = 30
+  ): Promise<{
+    deploymentFrequency: Array<{
+      date: string;
+      count: number;
+      successCount: number;
+      failureCount: number;
+    }>;
+    performanceMetrics: Array<{
+      date: string;
+      averageTime: number;
+      successRate: number;
+    }>;
+    topFailureReasons: Array<{
+      reason: string;
+      count: number;
+      percentage: number;
+    }>;
+  }> {
+    const repositories = await repositoryService.getUserRepositories(userId);
+    const repositoryIds = repositories.map(repo => repo.id);
+
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const deployments = await prisma.deployment.findMany({
+      where: {
+        repositoryId: { in: repositoryIds },
+        startedAt: { gte: startDate },
+      },
+      orderBy: { startedAt: 'asc' },
+    });
+
+    // Group deployments by day
+    const deploymentsByDay = this.groupDeploymentsByDay(deployments, startDate, new Date());
+
+    // Calculate performance metrics by day
+    const performanceMetrics = deploymentsByDay.map(dayData => {
+      const dayDeployments = deployments.filter(d => 
+        d.startedAt.toISOString().split('T')[0] === dayData.date
+      );
+
+      const completedDeployments = dayDeployments.filter(d => d.completedAt);
+      const averageTime = completedDeployments.length > 0
+        ? completedDeployments.reduce((sum, d) => {
+            const duration = d.completedAt!.getTime() - d.startedAt.getTime();
+            return sum + duration;
+          }, 0) / completedDeployments.length
+        : 0;
+
+      const successRate = dayDeployments.length > 0
+        ? (dayData.successCount / dayDeployments.length) * 100
+        : 0;
+
+      return {
+        date: dayData.date,
+        averageTime,
+        successRate,
+      };
+    });
+
+    // Analyze failure reasons
+    const failedDeployments = deployments.filter(d => d.status === 'FAILED');
+    const failureReasons = new Map<string, number>();
+
+    failedDeployments.forEach(deployment => {
+      const logs = (deployment.logs as any[]) || [];
+      const errorLog = logs.find(log => log.level === 'error');
+      const reason = this.categorizeFailureReason(errorLog?.message || 'Unknown error');
+      
+      failureReasons.set(reason, (failureReasons.get(reason) || 0) + 1);
+    });
+
+    const totalFailures = failedDeployments.length;
+    const topFailureReasons = Array.from(failureReasons.entries())
+      .map(([reason, count]) => ({
+        reason,
+        count,
+        percentage: totalFailures > 0 ? (count / totalFailures) * 100 : 0,
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    return {
+      deploymentFrequency: deploymentsByDay,
+      performanceMetrics,
+      topFailureReasons,
+    };
+  }
+
+  /**
+   * Categorize failure reasons for analytics
+   */
+  private categorizeFailureReason(errorMessage: string): string {
+    const message = errorMessage.toLowerCase();
+    
+    if (message.includes('timeout') || message.includes('timed out')) {
+      return 'Timeout';
+    } else if (message.includes('network') || message.includes('connection')) {
+      return 'Network Error';
+    } else if (message.includes('permission') || message.includes('unauthorized')) {
+      return 'Permission Error';
+    } else if (message.includes('build') || message.includes('compile')) {
+      return 'Build Error';
+    } else if (message.includes('test') || message.includes('failed test')) {
+      return 'Test Failure';
+    } else if (message.includes('dependency') || message.includes('package')) {
+      return 'Dependency Error';
+    } else if (message.includes('memory') || message.includes('out of memory')) {
+      return 'Memory Error';
+    } else if (message.includes('disk') || message.includes('space')) {
+      return 'Disk Space Error';
+    } else if (message.includes('docker') || message.includes('container')) {
+      return 'Container Error';
+    } else {
+      return 'Other';
+    }
+  }
+
+  /**
    * Cancel a running deployment
    */
   async cancelDeployment(deploymentId: string, userId: string, reason?: string): Promise<void> {

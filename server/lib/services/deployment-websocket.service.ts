@@ -426,6 +426,66 @@ export class DeploymentWebSocketService {
       failedStages: stageFailedLogs.length,
     };
   }
+
+  /**
+   * Broadcast system health metrics to all connected users
+   */
+  async broadcastHealthMetrics(): Promise<void> {
+    const connectedUserIds = Array.from(this.connectedUsers.keys());
+    
+    for (const userId of connectedUserIds) {
+      try {
+        const healthMetrics = await deploymentTrackingService.getDeploymentHealthMetrics(userId);
+        
+        await this.notifyUser(userId, 'deployment:health', {
+          deploymentId: '', // Not specific to a deployment
+          status: 'health_update',
+          timestamp: new Date(),
+          metadata: { healthMetrics },
+        } as any);
+      } catch (error) {
+        console.error(`Error broadcasting health metrics to user ${userId}:`, error);
+      }
+    }
+  }
+
+  /**
+   * Start periodic health metrics broadcasting
+   */
+  startHealthMetricsBroadcast(intervalMs: number = 30000): void {
+    setInterval(() => {
+      this.broadcastHealthMetrics().catch(error => {
+        console.error('Error in health metrics broadcast:', error);
+      });
+    }, intervalMs);
+  }
+
+  /**
+   * Send deployment alert to user
+   */
+  async sendDeploymentAlert(
+    userId: string,
+    alert: {
+      type: 'failure' | 'success' | 'timeout' | 'rollback';
+      deploymentId: string;
+      repositoryId: string;
+      message: string;
+      severity: 'low' | 'medium' | 'high' | 'critical';
+      metadata?: any;
+    }
+  ): Promise<void> {
+    await this.notifyUser(userId, 'deployment:alert', {
+      deploymentId: alert.deploymentId,
+      status: alert.type,
+      timestamp: new Date(),
+      metadata: {
+        alert: {
+          ...alert,
+          timestamp: new Date(),
+        },
+      },
+    } as any);
+  }
 }
 
 export let deploymentWebSocketService: DeploymentWebSocketService;

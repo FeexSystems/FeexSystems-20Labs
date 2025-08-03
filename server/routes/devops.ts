@@ -976,6 +976,258 @@ router.get('/repositories/:repositoryId/analytics', authMiddleware, async (req, 
 });
 
 /**
+ * GET /api/devops/deployments/:id/status
+ * Get real-time deployment status
+ */
+router.get('/deployments/:id/status', authMiddleware, async (req, res) => {
+  try {
+    const deploymentId = req.params.id;
+    const userId = req.user!.id;
+    
+    // Verify user has access to this deployment
+    await deploymentTrackingService.getDeployment(deploymentId, userId);
+    
+    const cachedStatus = deploymentTrackingService.getDeploymentStatusFromCache(deploymentId);
+    
+    res.json({
+      success: true,
+      data: {
+        deploymentId,
+        status: cachedStatus?.status || 'unknown',
+        lastUpdated: cachedStatus?.updatedAt || null,
+        logs: cachedStatus?.logs || [],
+      },
+    });
+  } catch (error) {
+    console.error('Error getting deployment status:', error);
+    
+    if (error instanceof Error && error.message.includes('not found')) {
+      res.status(404).json({
+        success: false,
+        error: {
+          type: 'NOT_FOUND',
+          message: error.message,
+        },
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to get deployment status',
+        },
+      });
+    }
+  }
+});
+
+/**
+ * POST /api/devops/deployments/:id/retry
+ * Retry a failed deployment
+ */
+router.post('/deployments/:id/retry', authMiddleware, async (req, res) => {
+  try {
+    const deploymentId = req.params.id;
+    const userId = req.user!.id;
+    
+    const deployment = await deploymentTrackingService.getDeployment(deploymentId, userId);
+    
+    if (deployment.status !== 'failed') {
+      return res.status(400).json({
+        success: false,
+        error: {
+          type: 'VALIDATION_ERROR',
+          message: 'Can only retry failed deployments',
+        },
+      });
+    }
+    
+    if (!deployment.pipelineId) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          type: 'VALIDATION_ERROR',
+          message: 'Cannot retry deployment without associated pipeline',
+        },
+      });
+    }
+    
+    // Execute the pipeline again with the same commit
+    const newDeployment = await pipelineService.executePipeline(
+      deployment.pipelineId,
+      userId,
+      deployment.commit
+    );
+    
+    res.status(201).json({
+      success: true,
+      data: {
+        deployment: newDeployment,
+        message: 'Deployment retry initiated successfully',
+      },
+    });
+  } catch (error) {
+    console.error('Error retrying deployment:', error);
+    
+    if (error instanceof Error && error.message.includes('not found')) {
+      res.status(404).json({
+        success: false,
+        error: {
+          type: 'NOT_FOUND',
+          message: error.message,
+        },
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to retry deployment',
+        },
+      });
+    }
+  }
+});
+
+/**
+ * GET /api/devops/analytics/overview
+ * Get overall deployment analytics across all repositories
+ */
+router.get('/analytics/overview', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    const { period = 'month' } = req.query;
+    
+    const repositories = await repositoryService.getUserRepositories(userId);
+    
+    // Get analytics for all repositories
+    const analyticsPromises = repositories.map(repo =>
+      deploymentTrackingService.getDeploymentAnalytics(
+        repo.id,
+        userId,
+        period as 'day' | 'week' | 'month' | 'year'
+      )
+    );
+    
+    const allAnalytics = await Promise.all(analyticsPromises);
+    
+    // Aggregate metrics across all repositories
+    const aggregatedMetrics = allAnalytics.reduce(
+      (acc, analytics) => {
+        acc.totalDeployments += analytics.metrics.totalDeployments;
+        acc.successfulDeployments += analytics.metrics.successfulDeployments;
+        acc.failedDeployments += analytics.metrics.failedDeployments;
+        acc.totalDeploymentTime += analytics.metrics.averageDeploymentTime * analytics.metrics.totalDeployments;
+        
+        // Merge deployment status counts
+        Object.entries(analytics.metrics.deploymentsByStatus).forEach(([status, count]) => {
+          acc.deploymentsByStatus[status] = (acc.deploymentsByStatus[status] || 0) + count;
+        });
+        
+        return acc;
+      },
+      {
+        totalDeployments: 0,
+        successfulDeployments: 0,
+        failedDeployments: 0,
+        totalDeploymentTime: 0,
+        deploymentsByStatus: {} as Record<string, number>,
+      }
+    );
+    
+    const averageDeploymentTime = aggregatedMetrics.totalDeployments > 0
+      ? aggregatedMetrics.totalDeploymentTime / aggregatedMetrics.totalDeployments
+      : 0;
+    
+    const successRate = aggregatedMetrics.totalDeployments > 0
+      ? (aggregatedMetrics.successfulDeployments / aggregatedMetrics.totalDeployments) * 100
+      : 0;
+    
+    res.json({
+      success: true,
+      data: {
+        overview: {
+          totalRepositories: repositories.length,
+          totalDeployments: aggregatedMetrics.totalDeployments,
+          successfulDeployments: aggregatedMetrics.successfulDeployments,
+          failedDeployments: aggregatedMetrics.failedDeployments,
+          averageDeploymentTime,
+          successRate,
+          deploymentsByStatus: aggregatedMetrics.deploymentsByStatus,
+        },
+        repositoryAnalytics: allAnalytics,
+        period,
+      },
+    });
+  } catch (error) {
+    console.error('Error getting deployment overview:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        type: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to get deployment overview',
+      },
+    });
+  }
+});
+
+/**
+ * GET /api/devops/analytics/health
+ * Get deployment health metrics for monitoring
+ */
+router.get('/analytics/health', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    
+    const healthMetrics = await deploymentTrackingService.getDeploymentHealthMetrics(userId);
+    
+    res.json({
+      success: true,
+      data: { healthMetrics },
+    });
+  } catch (error) {
+    console.error('Error getting deployment health metrics:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        type: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to get deployment health metrics',
+      },
+    });
+  }
+});
+
+/**
+ * GET /api/devops/analytics/trends
+ * Get deployment performance trends
+ */
+router.get('/analytics/trends', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    const { days = '30' } = req.query;
+    
+    const trends = await deploymentTrackingService.getDeploymentTrends(
+      userId,
+      parseInt(days as string)
+    );
+    
+    res.json({
+      success: true,
+      data: { trends },
+    });
+  } catch (error) {
+    console.error('Error getting deployment trends:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        type: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to get deployment trends',
+      },
+    });
+  }
+});
+
+/**
  * POST /api/devops/webhooks/:provider
  * Handle incoming webhooks from git providers
  */
