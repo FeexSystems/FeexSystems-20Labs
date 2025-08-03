@@ -9,6 +9,12 @@ export * from './ai-queue.service';
 export * from './ai-provider.service';
 export * from './ai-analytics.service';
 export * from './ai-websocket.service';
+export * from './security.service';
+export * from './security-scanner-registry.service';
+export * from './security-scan-request.service';
+export * from './security-scan-queue.service';
+export * from './security-scan-processor.service';
+export * from './cve-database.service';
 
 // Service factory for dependency injection
 import { PrismaClient } from '@prisma/client';

@@ -1,0 +1,40 @@
+{
+	"folders": [
+		{
+			"path": "../../../.cursor"
+		},
+		{
+			"path": "../../../.git"
+		},
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../client"
+		},
+		{
+			"path": "../../../docker"
+		},
+		{
+			"path": "../../../netlify"
+		},
+		{
+			"path": "../../../prisma"
+		},
+		{
+			"path": "../../../public"
+		},
+		{
+			"path": "../../../scripts"
+		},
+		{
+			"path": "../../../server"
+		},
+		{
+			"path": "../../../shared"
+		},
+		{
+			"path": "../../../uploads"
+		}
+	]
+}

@@ -9,7 +9,15 @@
 	],
 	"settings": {
 		"kiroAgent.trustedCommands": [
-			""
+			"",
+			"npm install node-cron @types/node-cron",
+			"where yarn",
+			"npm test -- --testPathPattern=\"security\" --run",
+			"npx vitest --run --testPathPattern=\"security\"",
+			"node test-security-endpoints.js",
+			"npm test -- --run server/lib/services/__tests__/vulnerability-reporting.service.test.ts",
+			"npm test server/lib/services/__tests__/vulnerability-reporting.service.test.ts",
+			"mkdir -p server/test/services"
 		]
 	}
 }

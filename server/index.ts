@@ -12,9 +12,12 @@ import usageRoutes from "./routes/usage";
 import billingRoutes from "./routes/billing";
 import aiRoutes from "./routes/ai";
 import devopsRoutes from "./routes/devops";
+import securityRoutes from "./routes/security";
 import { connectDatabase } from "./lib/database";
 import { createRedisClient } from "./lib/redis";
 import { aiService } from "./lib/services/ai.service";
+import { securityService } from "./lib/services/security.service";
+import { securityCronService } from "./lib/services/security-cron.service";
 import { initializeDeploymentWebSocket } from "./lib/services/deployment-websocket.service";
 
 // Load environment variables
@@ -71,6 +74,9 @@ export function createServer() {
   
   // DevOps routes
   app.use("/api/devops", devopsRoutes);
+  
+  // Security routes
+  app.use("/api/security", securityRoutes);
 
   // 404 handler for API routes
   app.use("/api/*", (_req, res) => {
@@ -109,6 +115,12 @@ export async function initializeInfrastructure() {
     
     // Initialize AI service
     await aiService.initialize();
+    
+    // Initialize Security service
+    await securityService.initialize();
+    
+    // Initialize Security Cron service
+    await securityCronService.initialize();
     
     console.log('✅ Infrastructure initialized successfully');
   } catch (error) {

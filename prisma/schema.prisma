@@ -28,9 +28,10 @@ model User {
   refreshTokens RefreshToken[]
   subscriptions Subscription[]
   aiRequests    AIRequest[]
-  repositories  Repository[]
-  securityScans SecurityScan[]
-  teamMembers   TeamMember[]
+  repositories          Repository[]
+  securityScans         SecurityScan[]
+  recurringSecurityScans RecurringSecurityScan[]
+  teamMembers           TeamMember[]
   usageMetrics  UsageMetrics[]
   activityLogs  ActivityLog[]
 
@@ -190,6 +191,25 @@ model SecurityScan {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("security_scans")
+}
+
+model RecurringSecurityScan {
+  id             String           @id @default(cuid())
+  userId         String           @map("user_id")
+  targetData     Json             @map("target_data")
+  scanType       SecurityScanType @map("scan_type")
+  cronExpression String           @map("cron_expression")
+  configuration  Json?
+  isActive       Boolean          @default(true) @map("is_active")
+  lastRunAt      DateTime?        @map("last_run_at")
+  nextRunAt      DateTime?        @map("next_run_at")
+  runCount       Int              @default(0) @map("run_count")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("recurring_security_scans")
 }
 
 model Team {
