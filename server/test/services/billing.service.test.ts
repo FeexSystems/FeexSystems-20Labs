@@ -1,23 +1,25 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+// Mock dependencies
+import { vi } from 'vitest';
+
+vi.mock('../../lib/services/usage.service.js');
+vi.mock('../../lib/services/subscription.service.js');
+vi.mock('../../lib/services/stripe.service.js');
+vi.mock('@prisma/client');
+
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { billingService } from '../../lib/services/billing.service.js';
 import { usageService } from '../../lib/services/usage.service.js';
 import { subscriptionService } from '../../lib/services/subscription.service.js';
 import { stripeService } from '../../lib/services/stripe.service.js';
+import { PrismaClient } from '@prisma/client';
+import { mockDeep, mockReset } from 'vitest-mock-extended';
 
-// Mock dependencies
-vi.mock('@prisma/client');
-vi.mock('../../lib/services/usage.service.js');
-vi.mock('../../lib/services/subscription.service.js');
-vi.mock('../../lib/services/stripe.service.js');
+const mockPrisma = mockDeep<PrismaClient>();
+beforeEach(() => {
+  mockReset(mockPrisma);
+  vi.mocked(PrismaClient).mockImplementation(() => mockPrisma as any);
+});
 
-const mockPrisma = {
-  subscription: {
-    findMany: vi.fn(),
-  },
-} as any;
-
-vi.mocked(PrismaClient).mockImplementation(() => mockPrisma);
 
 describe('BillingService', () => {
   beforeEach(() => {

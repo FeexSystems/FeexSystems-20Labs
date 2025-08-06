@@ -1,5 +1,6 @@
 #!/usr/bin/env tsx
 
+import 'dotenv/config';
 import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import path from 'path';

@@ -7,7 +7,7 @@ import { UserService } from '../lib/services/user.service';
 import { ActivityLogService } from '../lib/services/activity-log.service';
 import { prisma } from '../lib/database';
 import { 
-  authenticate, 
+  authMiddleware as authenticate,
   rateLimit, 
   rateLimitConfigs, 
   validateRequest 

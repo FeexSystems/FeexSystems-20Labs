@@ -1,23 +1,22 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { PrismaClient } from '@prisma/client';
-import { usageService } from '../../lib/services/usage.service.js';
-import { subscriptionService } from '../../lib/services/subscription.service.js';
+import { vi } from 'vitest';
 
-// Mock Prisma
+// Mock Prisma and other services
 vi.mock('@prisma/client');
 vi.mock('../../lib/services/subscription.service.js');
 
-const mockPrisma = {
-  usageMetrics: {
-    findUnique: vi.fn(),
-    upsert: vi.fn(),
-    findMany: vi.fn(),
-    aggregate: vi.fn(),
-  },
-} as any;
 
-// Mock the PrismaClient constructor
-vi.mocked(PrismaClient).mockImplementation(() => mockPrisma);
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { PrismaClient } from '@prisma/client';
+import { usageService } from '../../lib/services/usage.service.js';
+import { subscriptionService } from '../../lib/services/subscription.service.js';
+import { mockDeep, mockReset } from 'vitest-mock-extended';
+
+const mockPrisma = mockDeep<PrismaClient>();
+beforeEach(() => {
+  mockReset(mockPrisma);
+  vi.mocked(PrismaClient).mockImplementation(() => mockPrisma as any);
+});
+
 
 describe('UsageService', () => {
   beforeEach(() => {

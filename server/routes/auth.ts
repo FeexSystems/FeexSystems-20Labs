@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { AuthService } from '../lib/services/auth.service';
 import { prisma } from '../lib/database';
 import { 
-  authenticate, 
+  authMiddleware as authenticate,
   rateLimit, 
   rateLimitConfigs, 
   validateRequest 

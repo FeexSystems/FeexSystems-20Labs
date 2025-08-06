@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import Stripe from 'stripe';
 import { PrismaClient } from '@prisma/client';
 

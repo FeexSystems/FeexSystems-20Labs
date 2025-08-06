@@ -11,7 +11,7 @@ export interface RateLimitOptions {
 /**
  * Rate limiting middleware based on subscription tiers
  */
-export function rateLimitBySubscription(options: RateLimitOptions) {
+export function rateLimitMiddleware(options: RateLimitOptions) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Get user ID from authenticated request

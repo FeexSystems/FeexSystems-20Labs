@@ -29,7 +29,7 @@ declare global {
 /**
  * Authentication middleware - verifies JWT token
  */
-export const authenticate = async (
+export const authMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -489,3 +489,5 @@ export const rateLimitConfigs = {
     message: 'AI service rate limit exceeded, please wait before making more requests',
   },
 };
+
+export const requireAuth = authMiddleware;
