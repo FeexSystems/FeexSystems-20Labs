@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 import {
-  rateLimitBySubscription,
+  rateLimitMiddleware as rateLimitBySubscription,
   incrementUsageAfterSuccess,
   checkStorageLimit,
   incrementStorageAfterUpload,

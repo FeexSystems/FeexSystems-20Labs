@@ -6,36 +6,38 @@ import jwt from 'jsonwebtoken';
 const app = createServer();
 const prisma = new PrismaClient();
 
+import { vi } from 'vitest';
+
 // Mock the security service
-jest.mock('../../lib/services/security.service', () => ({
+vi.mock('../../lib/services/security.service', () => ({
   securityService: {
-    initialize: jest.fn(),
-    submitScan: jest.fn(),
-    getUserScans: jest.fn(),
-    getScanResults: jest.fn(),
-    getScanStatus: jest.fn(),
-    cancelScan: jest.fn(),
-    getAvailableScanners: jest.fn(),
-    getScannersByScanType: jest.fn(),
-    getUserStats: jest.fn(),
-    searchCVEs: jest.fn(),
-    getCVE: jest.fn(),
-    getRecentCVEs: jest.fn(),
-    testScanner: jest.fn(),
-    getQueueStats: jest.fn(),
-    getSystemStats: jest.fn(),
-    getHealthStatus: jest.fn(),
-    updateScanner: jest.fn()
+    initialize: vi.fn(),
+    submitScan: vi.fn(),
+    getUserScans: vi.fn(),
+    getScanResults: vi.fn(),
+    getScanStatus: vi.fn(),
+    cancelScan: vi.fn(),
+    getAvailableScanners: vi.fn(),
+    getScannersByScanType: vi.fn(),
+    getUserStats: vi.fn(),
+    searchCVEs: vi.fn(),
+    getCVE: vi.fn(),
+    getRecentCVEs: vi.fn(),
+    testScanner: vi.fn(),
+    getQueueStats: vi.fn(),
+    getSystemStats: vi.fn(),
+    getHealthStatus: vi.fn(),
+    updateScanner: vi.fn()
   }
 }));
 
 // Mock the cron service
-jest.mock('../../lib/services/security-cron.service', () => ({
+vi.mock('../../lib/services/security-cron.service', () => ({
   securityCronService: {
-    initialize: jest.fn(),
-    createRecurringScan: jest.fn(),
-    stopRecurringScan: jest.fn(),
-    getStatus: jest.fn()
+    initialize: vi.fn(),
+    createRecurringScan: vi.fn(),
+    stopRecurringScan: vi.fn(),
+    getStatus: vi.fn()
   }
 }));
 

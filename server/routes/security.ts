@@ -1924,5 +1924,5 @@ router.post('/remediation/report', async (req, res) => {
     });
   }
 });
-expor
-t default router;
+
+export default router;
