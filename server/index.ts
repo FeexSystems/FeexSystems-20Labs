@@ -13,6 +13,8 @@ import billingRoutes from "./routes/billing";
 import aiRoutes from "./routes/ai";
 import devopsRoutes from "./routes/devops";
 import securityRoutes from "./routes/security";
+import teamRoutes from "./routes/teams";
+import adminRoutes from "./routes/admin";
 import { connectDatabase } from "./lib/database";
 import { createRedisClient } from "./lib/redis";
 import { aiService } from "./lib/services/ai.service";
@@ -80,6 +82,12 @@ export function createServer() {
   
   // Security routes
   app.use("/api/security", securityRoutes);
+  
+  // Team routes
+  app.use("/api/teams", teamRoutes);
+  
+  // Admin routes
+  app.use("/api/admin", adminRoutes);
 
   // 404 handler for API routes
   app.use("/api/*", (_req, res) => {
