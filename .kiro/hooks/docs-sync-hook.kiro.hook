@@ -1,0 +1,42 @@
+{
+  "name": "Documentation Sync Hook",
+  "description": "Automatically updates documentation when source files change",
+  "trigger": {
+    "type": "file_change",
+    "patterns": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "**/package.json",
+      "**/prisma/schema.prisma",
+      "**/docker-compose.yml",
+      "**/Dockerfile*",
+      "**/*.config.js",
+      "**/*.config.ts",
+      "**/tsconfig.json",
+      "**/vite.config.ts",
+      "**/tailwind.config.ts",
+      "**/postcss.config.js",
+      "**/vitest.config.ts",
+      "**/*.md"
+    ],
+    "exclude": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.git/**",
+      "**/coverage/**",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx"
+    ]
+  },
+  "action": {
+    "type": "agent_request",
+    "request": "A source file has been modified: {{file_path}}. Please review the changes and update the relevant documentation. Check if there are README files in the server/lib/services/ directory that need updates, or if the main project documentation needs to be updated. Focus on:\n\n1. API endpoint changes (update API documentation)\n2. New features or services (update feature documentation)\n3. Configuration changes (update setup/deployment docs)\n4. Database schema changes (update data model docs)\n5. New dependencies or build changes (update development docs)\n\nPlease update the appropriate documentation files to reflect any significant changes in functionality, APIs, or project structure."
+  },
+  "enabled": true,
+  "debounce": 2000
+}

@@ -2,11 +2,19 @@ import express from 'express';
 import { z } from 'zod';
 import { authMiddleware } from '../lib/middleware/auth.middleware';
 import { rateLimitMiddleware } from '../lib/middleware/rate-limit.middleware';
-import { PrismaClient } from '@prisma/client';
-import { createActivityLog } from '../lib/services/activity-log.service';
+import { PrismaClient, TeamRole, ResourceType } from '@prisma/client';
+import { TeamService } from '../lib/services/team.service';
+import { 
+  CreateTeamRequest,
+  InviteTeamMemberRequest,
+  UpdateMemberRoleRequest,
+  CreateWorkspaceRequest,
+  ShareResourceRequest
+} from '../../shared/api';
 
 const router = express.Router();
 const prisma = new PrismaClient();
+const teamService = new TeamService(prisma);
 
 // Apply authentication to all team routes
 router.use(authMiddleware);
@@ -15,16 +23,24 @@ router.use(authMiddleware);
 const createTeamSchema = z.object({
   name: z.string().min(1).max(100),
   description: z.string().optional(),
+  settings: z.record(z.any()).optional(),
 });
 
 const updateTeamSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   description: z.string().optional(),
+  settings: z.record(z.any()).optional(),
 });
 
 const inviteMemberSchema = z.object({
   email: z.string().email(),
-  role: z.enum(['OWNER', 'ADMIN', 'MEMBER', 'VIEWER']).default('MEMBER'),
+  role: z.nativeEnum(TeamRole).default(TeamRole.MEMBER),
+  permissions: z.record(z.any()).optional(),
+});
+
+const updateMemberRoleSchema = z.object({
+  role: z.nativeEnum(TeamRole),
+  permissions: z.record(z.any()).optional(),
 });
 
 const createWorkspaceSchema = z.object({
@@ -33,73 +49,59 @@ const createWorkspaceSchema = z.object({
   settings: z.record(z.any()).optional(),
 });
 
+const shareResourceSchema = z.object({
+  workspaceId: z.string().optional(),
+  resourceType: z.nativeEnum(ResourceType),
+  resourceId: z.string(),
+  permissions: z.record(z.any()),
+});
+
+const acceptInvitationSchema = z.object({
+  token: z.string(),
+});
+
+const activityQuerySchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(50),
+});
+
 /**
  * POST /api/teams
  * Create a new team
  */
 router.post('/', 
-  rateLimitMiddleware({ windowMs: 60 * 1000, max: 10 }),
+  rateLimitMiddleware({ action: 'ai_request' }),
   async (req, res) => {
     try {
       const validation = createTeamSchema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid request data',
-          details: validation.error.errors
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid request data',
+            code: 'VALIDATION_FAILED',
+            details: validation.error.errors
+          }
         });
       }
 
-      const { name, description } = validation.data;
       const userId = req.user!.id;
-
-      // Create team and add creator as owner
-      const team = await prisma.team.create({
-        data: {
-          name,
-          description,
-          members: {
-            create: {
-              userId,
-              role: 'OWNER'
-            }
-          }
-        },
-        include: {
-          members: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  email: true,
-                  firstName: true,
-                  lastName: true,
-                  profileImageUrl: true
-                }
-              }
-            }
-          }
-        }
-      });
-
-      // Log activity
-      await createActivityLog({
-        userId,
-        action: 'CREATE',
-        resource: 'TEAM',
-        resourceId: team.id,
-        metadata: { teamName: name }
-      });
+      const team = await teamService.createTeam(userId, validation.data);
 
       res.status(201).json({
         success: true,
-        data: team
+        team
       });
     } catch (error) {
       console.error('Error creating team:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to create team'
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to create team',
+          code: 'TEAM_CREATION_FAILED'
+        }
       });
     }
   }
@@ -112,54 +114,21 @@ router.post('/',
 router.get('/', async (req, res) => {
   try {
     const userId = req.user!.id;
-
-    const teams = await prisma.team.findMany({
-      where: {
-        members: {
-          some: {
-            userId
-          }
-        }
-      },
-      include: {
-        members: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                email: true,
-                firstName: true,
-                lastName: true,
-                profileImageUrl: true
-              }
-            }
-          }
-        },
-        workspaces: {
-          select: {
-            id: true,
-            name: true,
-            description: true
-          }
-        },
-        _count: {
-          select: {
-            members: true,
-            workspaces: true
-          }
-        }
-      }
-    });
+    const teams = await teamService.getUserTeams(userId);
 
     res.json({
       success: true,
-      data: teams
+      teams
     });
   } catch (error) {
     console.error('Error fetching teams:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch teams'
+      error: {
+        type: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch teams',
+        code: 'TEAMS_FETCH_FAILED'
+      }
     });
   }
 });
@@ -173,67 +142,44 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
     const userId = req.user!.id;
 
-    // Check if user is member of the team
-    const teamMember = await prisma.teamMember.findUnique({
-      where: {
-        teamId_userId: {
-          teamId: id,
-          userId
-        }
-      }
-    });
-
-    if (!teamMember) {
-      return res.status(403).json({
-        success: false,
-        error: 'Access denied. You are not a member of this team.'
-      });
-    }
-
-    const team = await prisma.team.findUnique({
-      where: { id },
-      include: {
-        members: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                email: true,
-                firstName: true,
-                lastName: true,
-                profileImageUrl: true
-              }
-            }
-          }
-        },
-        workspaces: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            createdAt: true,
-            updatedAt: true
-          }
-        }
-      }
-    });
+    const team = await teamService.getTeam(id, userId);
 
     if (!team) {
       return res.status(404).json({
         success: false,
-        error: 'Team not found'
+        error: {
+          type: 'NOT_FOUND_ERROR',
+          message: 'Team not found',
+          code: 'TEAM_NOT_FOUND'
+        }
       });
     }
 
     res.json({
       success: true,
-      data: team
+      team
     });
   } catch (error) {
     console.error('Error fetching team:', error);
+    
+    if (error instanceof Error && error.message.includes('Access denied')) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          type: 'AUTHORIZATION_ERROR',
+          message: error.message,
+          code: 'ACCESS_DENIED'
+        }
+      });
+    }
+
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch team'
+      error: {
+        type: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch team',
+        code: 'TEAM_FETCH_FAILED'
+      }
     });
   }
 });
@@ -243,7 +189,7 @@ router.get('/:id', async (req, res) => {
  * Update team details
  */
 router.put('/:id', 
-  rateLimitMiddleware({ windowMs: 60 * 1000, max: 10 }),
+  rateLimitMiddleware({ action: 'ai_request' }),
   async (req, res) => {
     try {
       const { id } = req.params;
@@ -253,71 +199,85 @@ router.put('/:id',
       if (!validation.success) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid request data',
-          details: validation.error.errors
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid request data',
+            code: 'VALIDATION_FAILED',
+            details: validation.error.errors
+          }
         });
       }
 
-      // Check if user is admin or owner of the team
-      const teamMember = await prisma.teamMember.findUnique({
-        where: {
-          teamId_userId: {
-            teamId: id,
-            userId
-          }
-        }
-      });
-
-      if (!teamMember || !['OWNER', 'ADMIN'].includes(teamMember.role)) {
-        return res.status(403).json({
-          success: false,
-          error: 'Access denied. Only team admins and owners can update team details.'
-        });
-      }
-
-      const { name, description } = validation.data;
-      
-      const updatedTeam = await prisma.team.update({
-        where: { id },
-        data: {
-          name,
-          description
-        },
-        include: {
-          members: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  email: true,
-                  firstName: true,
-                  lastName: true,
-                  profileImageUrl: true
-                }
-              }
-            }
-          }
-        }
-      });
-
-      // Log activity
-      await createActivityLog({
-        userId,
-        action: 'UPDATE',
-        resource: 'TEAM',
-        resourceId: id,
-        metadata: { teamName: updatedTeam.name }
-      });
+      const team = await teamService.updateTeam(id, userId, validation.data);
 
       res.json({
         success: true,
-        data: updatedTeam
+        team
       });
     } catch (error) {
       console.error('Error updating team:', error);
+      
+      if (error instanceof Error && error.message.includes('Access denied')) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            type: 'AUTHORIZATION_ERROR',
+            message: error.message,
+            code: 'ACCESS_DENIED'
+          }
+        });
+      }
+
       res.status(500).json({
         success: false,
-        error: 'Failed to update team'
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update team',
+          code: 'TEAM_UPDATE_FAILED'
+        }
+      });
+    }
+  }
+);
+
+/**
+ * DELETE /api/teams/:id
+ * Delete a team
+ */
+router.delete('/:id',
+  rateLimitMiddleware({ action: 'ai_request' }),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+
+      await teamService.deleteTeam(id, userId);
+
+      res.json({
+        success: true,
+        message: 'Team deleted successfully'
+      });
+    } catch (error) {
+      console.error('Error deleting team:', error);
+      
+      if (error instanceof Error && error.message.includes('Access denied')) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            type: 'AUTHORIZATION_ERROR',
+            message: error.message,
+            code: 'ACCESS_DENIED'
+          }
+        });
+      }
+
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to delete team',
+          code: 'TEAM_DELETE_FAILED'
+        }
       });
     }
   }
@@ -328,7 +288,7 @@ router.put('/:id',
  * Invite a member to the team
  */
 router.post('/:id/invite',
-  rateLimitMiddleware({ windowMs: 60 * 1000, max: 20 }),
+  rateLimitMiddleware({ action: 'ai_request' }),
   async (req, res) => {
     try {
       const { id } = req.params;
@@ -338,102 +298,185 @@ router.post('/:id/invite',
       if (!validation.success) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid request data',
-          details: validation.error.errors
-        });
-      }
-
-      // Check if user is admin or owner of the team
-      const teamMember = await prisma.teamMember.findUnique({
-        where: {
-          teamId_userId: {
-            teamId: id,
-            userId
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid request data',
+            code: 'VALIDATION_FAILED',
+            details: validation.error.errors
           }
-        }
-      });
-
-      if (!teamMember || !['OWNER', 'ADMIN'].includes(teamMember.role)) {
-        return res.status(403).json({
-          success: false,
-          error: 'Access denied. Only team admins and owners can invite members.'
         });
       }
 
-      const { email, role } = validation.data;
-
-      // Find user by email
-      const invitedUser = await prisma.user.findUnique({
-        where: { email }
-      });
-
-      if (!invitedUser) {
-        return res.status(404).json({
-          success: false,
-          error: 'User not found with this email address'
-        });
-      }
-
-      // Check if user is already a member
-      const existingMember = await prisma.teamMember.findUnique({
-        where: {
-          teamId_userId: {
-            teamId: id,
-            userId: invitedUser.id
-          }
-        }
-      });
-
-      if (existingMember) {
-        return res.status(400).json({
-          success: false,
-          error: 'User is already a member of this team'
-        });
-      }
-
-      // Add user to team
-      const newMember = await prisma.teamMember.create({
-        data: {
-          teamId: id,
-          userId: invitedUser.id,
-          role
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-              profileImageUrl: true
-            }
-          }
-        }
-      });
-
-      // Log activity
-      await createActivityLog({
-        userId,
-        action: 'INVITE',
-        resource: 'TEAM_MEMBER',
-        resourceId: newMember.id,
-        metadata: { 
-          teamId: id, 
-          invitedUserEmail: email,
-          role 
-        }
-      });
+      const invitation = await teamService.inviteTeamMember(id, userId, validation.data);
 
       res.status(201).json({
         success: true,
-        data: newMember,
-        message: 'Member invited successfully'
+        invitation
       });
     } catch (error) {
       console.error('Error inviting member:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Access denied')) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              type: 'AUTHORIZATION_ERROR',
+              message: error.message,
+              code: 'ACCESS_DENIED'
+            }
+          });
+        }
+        
+        if (error.message.includes('already a member') || error.message.includes('already sent')) {
+          return res.status(400).json({
+            success: false,
+            error: {
+              type: 'VALIDATION_ERROR',
+              message: error.message,
+              code: 'DUPLICATE_INVITATION'
+            }
+          });
+        }
+      }
+
       res.status(500).json({
         success: false,
-        error: 'Failed to invite member'
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to invite member',
+          code: 'INVITATION_FAILED'
+        }
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/teams/accept-invitation
+ * Accept a team invitation
+ */
+router.post('/accept-invitation',
+  rateLimitMiddleware({ action: 'ai_request' }),
+  async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const validation = acceptInvitationSchema.safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid request data',
+            code: 'VALIDATION_FAILED',
+            details: validation.error.errors
+          }
+        });
+      }
+
+      const result = await teamService.acceptInvitation(validation.data.token, userId);
+
+      res.json({
+        success: true,
+        teamMember: result.teamMember,
+        team: result.team
+      });
+    } catch (error) {
+      console.error('Error accepting invitation:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Invalid invitation') || 
+            error.message.includes('expired') || 
+            error.message.includes('processed')) {
+          return res.status(400).json({
+            success: false,
+            error: {
+              type: 'VALIDATION_ERROR',
+              message: error.message,
+              code: 'INVALID_INVITATION'
+            }
+          });
+        }
+      }
+
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to accept invitation',
+          code: 'INVITATION_ACCEPT_FAILED'
+        }
+      });
+    }
+  }
+);
+
+/**
+ * PUT /api/teams/:id/members/:memberId
+ * Update member role and permissions
+ */
+router.put('/:id/members/:memberId',
+  rateLimitMiddleware({ action: 'ai_request' }),
+  async (req, res) => {
+    try {
+      const { id: teamId, memberId } = req.params;
+      const userId = req.user!.id;
+      const validation = updateMemberRoleSchema.safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid request data',
+            code: 'VALIDATION_FAILED',
+            details: validation.error.errors
+          }
+        });
+      }
+
+      const member = await teamService.updateMemberRole(teamId, memberId, userId, validation.data);
+
+      res.json({
+        success: true,
+        member
+      });
+    } catch (error) {
+      console.error('Error updating member role:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Access denied') || 
+            error.message.includes('Cannot change')) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              type: 'AUTHORIZATION_ERROR',
+              message: error.message,
+              code: 'ACCESS_DENIED'
+            }
+          });
+        }
+        
+        if (error.message.includes('not found')) {
+          return res.status(404).json({
+            success: false,
+            error: {
+              type: 'NOT_FOUND_ERROR',
+              message: error.message,
+              code: 'MEMBER_NOT_FOUND'
+            }
+          });
+        }
+      }
+
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update member role',
+          code: 'MEMBER_UPDATE_FAILED'
+        }
       });
     }
   }
@@ -444,64 +487,13 @@ router.post('/:id/invite',
  * Remove a member from the team
  */
 router.delete('/:id/members/:memberId',
-  rateLimitMiddleware({ windowMs: 60 * 1000, max: 10 }),
+  rateLimitMiddleware({ action: 'ai_request' }),
   async (req, res) => {
     try {
       const { id: teamId, memberId } = req.params;
       const userId = req.user!.id;
 
-      // Check if user is admin or owner of the team
-      const teamMember = await prisma.teamMember.findUnique({
-        where: {
-          teamId_userId: {
-            teamId,
-            userId
-          }
-        }
-      });
-
-      if (!teamMember || !['OWNER', 'ADMIN'].includes(teamMember.role)) {
-        return res.status(403).json({
-          success: false,
-          error: 'Access denied. Only team admins and owners can remove members.'
-        });
-      }
-
-      // Check if trying to remove the last owner
-      if (memberId === userId) {
-        const ownerCount = await prisma.teamMember.count({
-          where: {
-            teamId,
-            role: 'OWNER'
-          }
-        });
-
-        if (ownerCount === 1) {
-          return res.status(400).json({
-            success: false,
-            error: 'Cannot remove the last owner from the team'
-          });
-        }
-      }
-
-      // Remove member
-      await prisma.teamMember.delete({
-        where: {
-          teamId_userId: {
-            teamId,
-            userId: memberId
-          }
-        }
-      });
-
-      // Log activity
-      await createActivityLog({
-        userId,
-        action: 'REMOVE',
-        resource: 'TEAM_MEMBER',
-        resourceId: memberId,
-        metadata: { teamId }
-      });
+      await teamService.removeMember(teamId, memberId, userId);
 
       res.json({
         success: true,
@@ -509,20 +501,90 @@ router.delete('/:id/members/:memberId',
       });
     } catch (error) {
       console.error('Error removing member:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Access denied') || 
+            error.message.includes('Cannot remove')) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              type: 'AUTHORIZATION_ERROR',
+              message: error.message,
+              code: 'ACCESS_DENIED'
+            }
+          });
+        }
+        
+        if (error.message.includes('not found')) {
+          return res.status(404).json({
+            success: false,
+            error: {
+              type: 'NOT_FOUND_ERROR',
+              message: error.message,
+              code: 'MEMBER_NOT_FOUND'
+            }
+          });
+        }
+      }
+
       res.status(500).json({
         success: false,
-        error: 'Failed to remove member'
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to remove member',
+          code: 'MEMBER_REMOVE_FAILED'
+        }
       });
     }
   }
 );
 
 /**
+ * GET /api/teams/:id/workspaces
+ * Get team workspaces
+ */
+router.get('/:id/workspaces', async (req, res) => {
+  try {
+    const { id: teamId } = req.params;
+    const userId = req.user!.id;
+
+    const workspaces = await teamService.getTeamWorkspaces(teamId, userId);
+
+    res.json({
+      success: true,
+      workspaces
+    });
+  } catch (error) {
+    console.error('Error fetching workspaces:', error);
+    
+    if (error instanceof Error && error.message.includes('not a member')) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          type: 'AUTHORIZATION_ERROR',
+          message: error.message,
+          code: 'ACCESS_DENIED'
+        }
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: {
+        type: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch workspaces',
+        code: 'WORKSPACES_FETCH_FAILED'
+      }
+    });
+  }
+});
+
+/**
  * POST /api/teams/:id/workspaces
  * Create a new workspace in the team
  */
 router.post('/:id/workspaces',
-  rateLimitMiddleware({ windowMs: 60 * 1000, max: 10 }),
+  rateLimitMiddleware({ action: 'ai_request' }),
   async (req, res) => {
     try {
       const { id: teamId } = req.params;
@@ -532,60 +594,349 @@ router.post('/:id/workspaces',
       if (!validation.success) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid request data',
-          details: validation.error.errors
-        });
-      }
-
-      // Check if user is member of the team
-      const teamMember = await prisma.teamMember.findUnique({
-        where: {
-          teamId_userId: {
-            teamId,
-            userId
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid request data',
+            code: 'VALIDATION_FAILED',
+            details: validation.error.errors
           }
-        }
-      });
-
-      if (!teamMember) {
-        return res.status(403).json({
-          success: false,
-          error: 'Access denied. You are not a member of this team.'
         });
       }
 
-      const { name, description, settings } = validation.data;
-
-      const workspace = await prisma.workspace.create({
-        data: {
-          teamId,
-          name,
-          description,
-          settings: settings || {}
-        }
-      });
-
-      // Log activity
-      await createActivityLog({
-        userId,
-        action: 'CREATE',
-        resource: 'WORKSPACE',
-        resourceId: workspace.id,
-        metadata: { 
-          teamId,
-          workspaceName: name 
-        }
-      });
+      const workspace = await teamService.createWorkspace(teamId, userId, validation.data);
 
       res.status(201).json({
         success: true,
-        data: workspace
+        workspace
       });
     } catch (error) {
       console.error('Error creating workspace:', error);
+      
+      if (error instanceof Error && error.message.includes('Access denied')) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            type: 'AUTHORIZATION_ERROR',
+            message: error.message,
+            code: 'ACCESS_DENIED'
+          }
+        });
+      }
+
       res.status(500).json({
         success: false,
-        error: 'Failed to create workspace'
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to create workspace',
+          code: 'WORKSPACE_CREATE_FAILED'
+        }
+      });
+    }
+  }
+);
+
+/**
+ * PUT /api/teams/workspaces/:workspaceId
+ * Update workspace details
+ */
+router.put('/workspaces/:workspaceId',
+  rateLimitMiddleware({ action: 'ai_request' }),
+  async (req, res) => {
+    try {
+      const { workspaceId } = req.params;
+      const userId = req.user!.id;
+      const validation = createWorkspaceSchema.partial().safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid request data',
+            code: 'VALIDATION_FAILED',
+            details: validation.error.errors
+          }
+        });
+      }
+
+      const workspace = await teamService.updateWorkspace(workspaceId, userId, validation.data);
+
+      res.json({
+        success: true,
+        workspace
+      });
+    } catch (error) {
+      console.error('Error updating workspace:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Access denied')) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              type: 'AUTHORIZATION_ERROR',
+              message: error.message,
+              code: 'ACCESS_DENIED'
+            }
+          });
+        }
+        
+        if (error.message.includes('not found')) {
+          return res.status(404).json({
+            success: false,
+            error: {
+              type: 'NOT_FOUND_ERROR',
+              message: error.message,
+              code: 'WORKSPACE_NOT_FOUND'
+            }
+          });
+        }
+      }
+
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update workspace',
+          code: 'WORKSPACE_UPDATE_FAILED'
+        }
+      });
+    }
+  }
+);
+
+/**
+ * DELETE /api/teams/workspaces/:workspaceId
+ * Delete a workspace
+ */
+router.delete('/workspaces/:workspaceId',
+  rateLimitMiddleware({ action: 'ai_request' }),
+  async (req, res) => {
+    try {
+      const { workspaceId } = req.params;
+      const userId = req.user!.id;
+
+      await teamService.deleteWorkspace(workspaceId, userId);
+
+      res.json({
+        success: true,
+        message: 'Workspace deleted successfully'
+      });
+    } catch (error) {
+      console.error('Error deleting workspace:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Access denied')) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              type: 'AUTHORIZATION_ERROR',
+              message: error.message,
+              code: 'ACCESS_DENIED'
+            }
+          });
+        }
+        
+        if (error.message.includes('not found')) {
+          return res.status(404).json({
+            success: false,
+            error: {
+              type: 'NOT_FOUND_ERROR',
+              message: error.message,
+              code: 'WORKSPACE_NOT_FOUND'
+            }
+          });
+        }
+      }
+
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to delete workspace',
+          code: 'WORKSPACE_DELETE_FAILED'
+        }
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/teams/:id/resources
+ * Share a resource with the team
+ */
+router.post('/:id/resources',
+  rateLimitMiddleware({ action: 'ai_request' }),
+  async (req, res) => {
+    try {
+      const { id: teamId } = req.params;
+      const userId = req.user!.id;
+      const validation = shareResourceSchema.safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid request data',
+            code: 'VALIDATION_FAILED',
+            details: validation.error.errors
+          }
+        });
+      }
+
+      const resourceShare = await teamService.shareResource(teamId, userId, validation.data);
+
+      res.status(201).json({
+        success: true,
+        resourceShare
+      });
+    } catch (error) {
+      console.error('Error sharing resource:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Access denied')) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              type: 'AUTHORIZATION_ERROR',
+              message: error.message,
+              code: 'ACCESS_DENIED'
+            }
+          });
+        }
+        
+        if (error.message.includes('not found') || error.message.includes('does not belong')) {
+          return res.status(404).json({
+            success: false,
+            error: {
+              type: 'NOT_FOUND_ERROR',
+              message: error.message,
+              code: 'RESOURCE_NOT_FOUND'
+            }
+          });
+        }
+      }
+
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to share resource',
+          code: 'RESOURCE_SHARE_FAILED'
+        }
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/teams/:id/resources
+ * Get team shared resources
+ */
+router.get('/:id/resources', async (req, res) => {
+  try {
+    const { id: teamId } = req.params;
+    const { workspaceId } = req.query;
+    const userId = req.user!.id;
+
+    const resources = await teamService.getTeamResources(
+      teamId, 
+      userId, 
+      workspaceId as string | undefined
+    );
+
+    res.json({
+      success: true,
+      resources
+    });
+  } catch (error) {
+    console.error('Error fetching team resources:', error);
+    
+    if (error instanceof Error && error.message.includes('not a member')) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          type: 'AUTHORIZATION_ERROR',
+          message: error.message,
+          code: 'ACCESS_DENIED'
+        }
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: {
+        type: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch team resources',
+        code: 'RESOURCES_FETCH_FAILED'
+      }
+    });
+  }
+});
+
+/**
+ * DELETE /api/teams/:id/resources/:resourceType/:resourceId
+ * Unshare a resource from the team
+ */
+router.delete('/:id/resources/:resourceType/:resourceId',
+  rateLimitMiddleware({ action: 'ai_request' }),
+  async (req, res) => {
+    try {
+      const { id: teamId, resourceType, resourceId } = req.params;
+      const userId = req.user!.id;
+
+      // Validate resourceType
+      if (!Object.values(ResourceType).includes(resourceType as ResourceType)) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid resource type',
+            code: 'INVALID_RESOURCE_TYPE'
+          }
+        });
+      }
+
+      await teamService.unshareResource(teamId, resourceType as ResourceType, resourceId, userId);
+
+      res.json({
+        success: true,
+        message: 'Resource unshared successfully'
+      });
+    } catch (error) {
+      console.error('Error unsharing resource:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Access denied')) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              type: 'AUTHORIZATION_ERROR',
+              message: error.message,
+              code: 'ACCESS_DENIED'
+            }
+          });
+        }
+        
+        if (error.message.includes('not found')) {
+          return res.status(404).json({
+            success: false,
+            error: {
+              type: 'NOT_FOUND_ERROR',
+              message: error.message,
+              code: 'RESOURCE_SHARE_NOT_FOUND'
+            }
+          });
+        }
+      }
+
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to unshare resource',
+          code: 'RESOURCE_UNSHARE_FAILED'
+        }
       });
     }
   }
@@ -599,64 +950,54 @@ router.get('/:id/activity', async (req, res) => {
   try {
     const { id: teamId } = req.params;
     const userId = req.user!.id;
-
-    // Check if user is member of the team
-    const teamMember = await prisma.teamMember.findUnique({
-      where: {
-        teamId_userId: {
-          teamId,
-          userId
-        }
-      }
-    });
-
-    if (!teamMember) {
-      return res.status(403).json({
+    const validation = activityQuerySchema.safeParse(req.query);
+    
+    if (!validation.success) {
+      return res.status(400).json({
         success: false,
-        error: 'Access denied. You are not a member of this team.'
+        error: {
+          type: 'VALIDATION_ERROR',
+          message: 'Invalid query parameters',
+          code: 'VALIDATION_FAILED',
+          details: validation.error.errors
+        }
       });
     }
 
-    // Get team member IDs
-    const teamMembers = await prisma.teamMember.findMany({
-      where: { teamId },
-      select: { userId: true }
-    });
-
-    const memberIds = teamMembers.map(m => m.userId);
-
-    // Get recent activity for team members
-    const activities = await prisma.activityLog.findMany({
-      where: {
-        userId: {
-          in: memberIds
-        }
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            profileImageUrl: true
-          }
-        }
-      },
-      orderBy: {
-        timestamp: 'desc'
-      },
-      take: 50
-    });
+    const { page, limit } = validation.data;
+    const result = await teamService.getTeamActivity(teamId, userId, page, limit);
 
     res.json({
       success: true,
-      data: activities
+      activities: result.activities,
+      pagination: {
+        page,
+        limit,
+        total: result.total,
+        totalPages: Math.ceil(result.total / limit)
+      }
     });
   } catch (error) {
     console.error('Error fetching team activity:', error);
+    
+    if (error instanceof Error && error.message.includes('Access denied')) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          type: 'AUTHORIZATION_ERROR',
+          message: error.message,
+          code: 'ACCESS_DENIED'
+        }
+      });
+    }
+
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch team activity'
+      error: {
+        type: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch team activity',
+        code: 'ACTIVITY_FETCH_FAILED'
+      }
     });
   }
 });

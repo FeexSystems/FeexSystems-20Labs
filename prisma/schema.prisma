@@ -216,21 +216,31 @@ model Team {
   id          String   @id @default(cuid())
   name        String
   description String?
+  ownerId     String   @map("owner_id")
+  settings    Json?    // Team-wide settings and preferences
+  isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  members    TeamMember[]
-  workspaces Workspace[]
+  members         TeamMember[]
+  workspaces      Workspace[]
+  invitations     TeamInvitation[]
+  resourceShares  ResourceShare[]
+  activityLogs    TeamActivityLog[]
 
   @@map("teams")
 }
 
 model TeamMember {
-  id     String   @id @default(cuid())
-  teamId String   @map("team_id")
-  userId String   @map("user_id")
-  role   TeamRole @default(MEMBER)
-  joinedAt DateTime @default(now()) @map("joined_at")
+  id          String     @id @default(cuid())
+  teamId      String     @map("team_id")
+  userId      String     @map("user_id")
+  role        TeamRole   @default(MEMBER)
+  permissions Json?      // Additional granular permissions
+  status      MemberStatus @default(ACTIVE)
+  joinedAt    DateTime   @default(now()) @map("joined_at")
+  invitedBy   String?    @map("invited_by")
+  lastActiveAt DateTime? @map("last_active_at")
 
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -239,18 +249,76 @@ model TeamMember {
   @@map("team_members")
 }
 
+model TeamInvitation {
+  id          String           @id @default(cuid())
+  teamId      String           @map("team_id")
+  email       String
+  role        TeamRole         @default(MEMBER)
+  permissions Json?            // Additional granular permissions
+  status      InvitationStatus @default(PENDING)
+  token       String           @unique
+  invitedBy   String           @map("invited_by")
+  expiresAt   DateTime         @map("expires_at")
+  acceptedAt  DateTime?        @map("accepted_at")
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, email])
+  @@map("team_invitations")
+}
+
 model Workspace {
   id          String   @id @default(cuid())
   teamId      String   @map("team_id")
   name        String
   description String?
-  settings    Json?
+  settings    Json?    // Workspace-specific settings
+  isActive    Boolean  @default(true) @map("is_active")
+  createdBy   String   @map("created_by")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  team           Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  resourceShares ResourceShare[]
 
   @@map("workspaces")
+}
+
+model ResourceShare {
+  id           String       @id @default(cuid())
+  teamId       String       @map("team_id")
+  workspaceId  String?      @map("workspace_id")
+  resourceType ResourceType @map("resource_type")
+  resourceId   String       @map("resource_id")
+  permissions  Json         // Specific permissions for this resource
+  sharedBy     String       @map("shared_by")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  team      Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, resourceType, resourceId])
+  @@map("resource_shares")
+}
+
+model TeamActivityLog {
+  id         String   @id @default(cuid())
+  teamId     String   @map("team_id")
+  userId     String   @map("user_id")
+  action     String
+  resource   String
+  resourceId String   @map("resource_id")
+  metadata   Json?
+  timestamp  DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId, timestamp])
+  @@index([action])
+  @@index([resource])
+  @@map("team_activity_logs")
 }
 
 model UsageMetrics {
@@ -363,4 +431,26 @@ enum TeamRole {
   ADMIN
   MEMBER
   VIEWER
+}
+
+enum MemberStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum ResourceType {
+  AI_REQUEST
+  REPOSITORY
+  PIPELINE
+  DEPLOYMENT
+  SECURITY_SCAN
+  WORKSPACE
 }

@@ -3,15 +3,15 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, LogIn } from "lucide-react";
+import { Shield, ArrowLeft } from "lucide-react";
 
-export function ProtectedRoute() {
+export function AdminRoute() {
   const { 
+    user, 
     isLoggedIn, 
+    isAdmin, 
     isLoading, 
-    isInitialized, 
-    error, 
-    clearError 
+    isInitialized 
   } = useAuthStore();
   const location = useLocation();
 
@@ -21,35 +21,7 @@ export function ProtectedRoute() {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <LoadingSpinner />
-          <p className="text-muted-foreground">Verifying authentication...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show authentication error if present
-  if (error && error.type === 'TOKEN_REFRESH_ERROR') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="max-w-md w-full space-y-4">
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              Your session has expired. Please log in again to continue.
-            </AlertDescription>
-          </Alert>
-          <div className="flex justify-center">
-            <Button 
-              onClick={() => {
-                clearError();
-                window.location.href = '/auth';
-              }}
-              variant="default"
-            >
-              <LogIn className="w-4 h-4 mr-2" />
-              Go to Login
-            </Button>
-          </div>
+          <p className="text-muted-foreground">Verifying admin access...</p>
         </div>
       </div>
     );
@@ -58,6 +30,31 @@ export function ProtectedRoute() {
   // Redirect to login if not authenticated
   if (!isLoggedIn()) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  // Show access denied if not admin
+  if (!isAdmin()) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="max-w-md w-full space-y-4">
+          <Alert>
+            <Shield className="h-4 w-4" />
+            <AlertDescription>
+              Access denied. Administrator privileges are required to view this page.
+            </AlertDescription>
+          </Alert>
+          <div className="flex justify-center">
+            <Button 
+              onClick={() => window.location.href = '/dashboard'}
+              variant="default"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return <Outlet />;
