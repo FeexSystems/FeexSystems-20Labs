@@ -334,3 +334,349 @@ export const getDefaultResourcePermissions = (role: TeamRole): ResourcePermissio
       };
   }
 };
+
+// Subscription and Billing Types
+export enum SubscriptionStatus {
+  ACTIVE = 'ACTIVE',
+  CANCELED = 'CANCELED',
+  PAST_DUE = 'PAST_DUE',
+  UNPAID = 'UNPAID',
+  INCOMPLETE = 'INCOMPLETE',
+  INCOMPLETE_EXPIRED = 'INCOMPLETE_EXPIRED',
+  TRIALING = 'TRIALING'
+}
+
+export enum PlanInterval {
+  MONTH = 'MONTH',
+  YEAR = 'YEAR'
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  interval: PlanInterval;
+  currency: string;
+  features: string[];
+  limits: {
+    aiRequests: number;
+    deployments: number;
+    securityScans: number;
+    teamMembers: number;
+    storage: number; // in GB
+  };
+  stripePriceId: string;
+  isPopular?: boolean;
+  isEnterprise?: boolean;
+}
+
+export interface Subscription {
+  id: string;
+  userId: string;
+  planId: string;
+  status: SubscriptionStatus;
+  currentPeriodStart: Date;
+  currentPeriodEnd: Date;
+  cancelAtPeriodEnd: boolean;
+  stripeSubscriptionId: string;
+  stripeCustomerId: string;
+  plan?: SubscriptionPlan;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UsageMetrics {
+  userId: string;
+  subscriptionId: string;
+  period: string;
+  aiRequestsUsed: number;
+  deploymentsUsed: number;
+  securityScansUsed: number;
+  storageUsed: number; // in GB
+  bandwidthUsed: number; // in GB
+  resetDate: Date;
+}
+
+export interface Invoice {
+  id: string;
+  subscriptionId: string;
+  stripeInvoiceId: string;
+  amount: number;
+  currency: string;
+  status: 'draft' | 'open' | 'paid' | 'uncollectible' | 'void';
+  invoiceUrl?: string;
+  invoicePdf?: string;
+  dueDate: Date;
+  paidAt?: Date;
+  createdAt: Date;
+}
+
+export interface PaymentMethod {
+  id: string;
+  userId: string;
+  stripePaymentMethodId: string;
+  type: 'card' | 'bank_account';
+  last4: string;
+  brand?: string;
+  expiryMonth?: number;
+  expiryYear?: number;
+  isDefault: boolean;
+  createdAt: Date;
+}
+
+// Request/Response types for Subscription API
+export interface GetSubscriptionPlansResponse {
+  plans: SubscriptionPlan[];
+  success: boolean;
+}
+
+export interface CreateSubscriptionRequest {
+  planId: string;
+  paymentMethodId: string;
+}
+
+export interface CreateSubscriptionResponse {
+  subscription: Subscription;
+  clientSecret?: string; // For 3D Secure authentication
+  success: boolean;
+}
+
+export interface UpdateSubscriptionRequest {
+  planId: string;
+}
+
+export interface UpdateSubscriptionResponse {
+  subscription: Subscription;
+  prorationAmount?: number;
+  success: boolean;
+}
+
+export interface CancelSubscriptionRequest {
+  cancelAtPeriodEnd: boolean;
+  reason?: string;
+}
+
+export interface CancelSubscriptionResponse {
+  subscription: Subscription;
+  success: boolean;
+}
+
+export interface GetUsageMetricsResponse {
+  usage: UsageMetrics;
+  limits: SubscriptionPlan['limits'];
+  success: boolean;
+}
+
+export interface GetInvoicesResponse {
+  invoices: Invoice[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  success: boolean;
+}
+
+export interface GetPaymentMethodsResponse {
+  paymentMethods: PaymentMethod[];
+  success: boolean;
+}
+
+export interface AddPaymentMethodRequest {
+  paymentMethodId: string;
+  setAsDefault?: boolean;
+}
+
+export interface AddPaymentMethodResponse {
+  paymentMethod: PaymentMethod;
+  success: boolean;
+}
+
+export interface UpdatePaymentMethodRequest {
+  paymentMethodId: string;
+  setAsDefault: boolean;
+}
+
+export interface UpdatePaymentMethodResponse {
+  paymentMethod: PaymentMethod;
+  success: boolean;
+}
+
+// AI Services Types
+export enum AIServiceCategory {
+  CHAT = 'CHAT',
+  ANALYSIS = 'ANALYSIS',
+  GENERATION = 'GENERATION',
+  PROCESSING = 'PROCESSING',
+  VISION = 'VISION',
+  AUDIO = 'AUDIO'
+}
+
+export enum AIRequestStatus {
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  CANCELLED = 'CANCELLED'
+}
+
+export enum AIRequestPriority {
+  LOW = 'LOW',
+  NORMAL = 'NORMAL',
+  HIGH = 'HIGH',
+  URGENT = 'URGENT'
+}
+
+export interface AIService {
+  id: string;
+  name: string;
+  description: string;
+  category: AIServiceCategory;
+  provider: string;
+  model: string;
+  pricing: {
+    inputTokenPrice: number;
+    outputTokenPrice: number;
+    currency: string;
+  };
+  limits: {
+    maxTokens: number;
+    maxRequests: number;
+    rateLimitPerMinute: number;
+  };
+  capabilities: string[];
+  isActive: boolean;
+  iconUrl?: string;
+  documentationUrl?: string;
+}
+
+export interface AIRequest {
+  id: string;
+  userId: string;
+  serviceId: string;
+  title?: string;
+  input: any;
+  parameters?: Record<string, any>;
+  priority: AIRequestPriority;
+  status: AIRequestStatus;
+  result?: any;
+  metadata?: {
+    processingTime?: number;
+    inputTokens?: number;
+    outputTokens?: number;
+    cost?: number;
+    model?: string;
+    citations?: string[];
+    confidence?: number;
+  };
+  error?: {
+    code: string;
+    message: string;
+    details?: any;
+  };
+  createdAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  service?: AIService;
+}
+
+export interface AIRequestTemplate {
+  id: string;
+  name: string;
+  description: string;
+  serviceId: string;
+  category: string;
+  input: any;
+  parameters: Record<string, any>;
+  isPublic: boolean;
+  createdBy: string;
+  usageCount: number;
+  createdAt: Date;
+}
+
+export interface AIUsageAnalytics {
+  userId: string;
+  period: string;
+  totalRequests: number;
+  successfulRequests: number;
+  failedRequests: number;
+  totalTokensUsed: number;
+  totalCost: number;
+  averageProcessingTime: number;
+  topServices: Array<{
+    serviceId: string;
+    serviceName: string;
+    requestCount: number;
+    tokenCount: number;
+    cost: number;
+  }>;
+  dailyUsage: Array<{
+    date: string;
+    requests: number;
+    tokens: number;
+    cost: number;
+  }>;
+}
+
+// Request/Response types for AI API
+export interface GetAIServicesResponse {
+  services: AIService[];
+  categories: AIServiceCategory[];
+  success: boolean;
+}
+
+export interface CreateAIRequestRequest {
+  serviceId: string;
+  title?: string;
+  input: any;
+  parameters?: Record<string, any>;
+  priority?: AIRequestPriority;
+}
+
+export interface CreateAIRequestResponse {
+  request: AIRequest;
+  success: boolean;
+}
+
+export interface GetAIRequestResponse {
+  request: AIRequest;
+  success: boolean;
+}
+
+export interface GetAIRequestsResponse {
+  requests: AIRequest[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  success: boolean;
+}
+
+export interface GetAIUsageAnalyticsResponse {
+  analytics: AIUsageAnalytics;
+  success: boolean;
+}
+
+export interface GetAITemplatesResponse {
+  templates: AIRequestTemplate[];
+  success: boolean;
+}
+
+export interface CreateAITemplateRequest {
+  name: string;
+  description: string;
+  serviceId: string;
+  category: string;
+  input: any;
+  parameters: Record<string, any>;
+  isPublic?: boolean;
+}
+
+export interface CreateAITemplateResponse {
+  template: AIRequestTemplate;
+  success: boolean;
+}

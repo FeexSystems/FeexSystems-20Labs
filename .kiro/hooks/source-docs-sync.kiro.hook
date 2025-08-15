@@ -1,0 +1,56 @@
+{
+  "enabled": true,
+  "name": "Source Code Documentation Sync",
+  "description": "Listens to all source file changes in the repository and automatically updates documentation in README or docs folder",
+  "version": "1",
+  "when": {
+    "type": "fileChanged",
+    "patterns": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.mjs",
+      "**/*.cjs",
+      "**/*.json",
+      "**/*.prisma",
+      "**/*.sql",
+      "**/*.sh",
+      "**/*.yml",
+      "**/*.yaml",
+      "**/*.toml",
+      "**/*.md",
+      "**/*.html",
+      "**/*.css",
+      "**/*.scss",
+      "**/*.less",
+      "Dockerfile*",
+      "docker-compose*",
+      "package.json",
+      "package-lock.json",
+      "tsconfig.json",
+      "vite.config.*",
+      "tailwind.config.*",
+      "postcss.config.*",
+      "vitest.config.*",
+      "netlify.toml",
+      ".env.example",
+      "components.json"
+    ],
+    "excludePatterns": [
+      "node_modules/**",
+      ".git/**",
+      "dist/**",
+      "build/**",
+      ".next/**",
+      "coverage/**",
+      "*.log",
+      "*.tmp",
+      "*.temp"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Source files have been modified in this TypeScript/React project. Please analyze the changes and update the project documentation to reflect any new functionality, architectural changes, or setup requirements.\n\nSpecific areas to focus on:\n\n1. **README.md Updates**: Update the main README with any new features, API changes, setup instructions, or architectural modifications\n\n2. **Documentation Folder**: If there's a /docs folder, update relevant documentation files there to reflect the changes\n\n3. **API Documentation**: Update any API documentation if server routes, endpoints, or data models have changed\n\n4. **Setup Instructions**: Update installation, development setup, or deployment instructions if dependencies, scripts, or configuration have changed\n\n5. **Architecture Documentation**: Update system architecture descriptions if new components, services, or integrations were added\n\n6. **Configuration Documentation**: Document any new environment variables, configuration options, or setup requirements\n\n7. **Feature Documentation**: Document new features, components, or functionality that users or developers need to know about\n\nPlease review the specific files that were changed and determine what documentation updates are needed to keep the project documentation current, accurate, and helpful for developers and users."
+  }
+}
