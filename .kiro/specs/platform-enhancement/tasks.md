@@ -209,7 +209,7 @@
     - Create plan upgrade/downgrade flows with prorated billing
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-  - [ ] 9.6 Develop AI services user interface
+  - [x] 9.6 Develop AI services user interface
     - Create AI service catalog with service descriptions and pricing
     - Build interactive request forms with parameter controls and validation
     - Implement real-time response display with streaming support

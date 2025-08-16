@@ -21,7 +21,7 @@ import {
 import { 
   AIServiceCategory, 
   type AIService 
-} from '@/../../shared/api';
+} from '../../../shared/api';
 
 interface AIServiceCatalogProps {
   services: AIService[];
