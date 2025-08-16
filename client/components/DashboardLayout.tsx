@@ -27,8 +27,11 @@ import {
   Home,
   CreditCard,
   Activity,
-  BarChart3
+  BarChart3,
+  FileText
 } from 'lucide-react';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { ConnectionStatusIndicator } from '@/components/realtime/RealtimeStatusIndicator';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -49,6 +52,9 @@ const adminNavigation = [
   { name: 'Admin Dashboard', href: '/admin', icon: BarChart3 },
   { name: 'User Management', href: '/admin/users', icon: Users },
   { name: 'System Health', href: '/admin/health', icon: Activity },
+  { name: 'Security Monitoring', href: '/admin/security', icon: Shield },
+  { name: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
+  { name: 'Audit Logs', href: '/admin/audit-logs', icon: FileText },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -221,18 +227,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div className="flex flex-1"></div>
             <div className="flex items-center gap-x-4 lg:gap-x-6">
+              {/* Connection Status */}
+              <ConnectionStatusIndicator />
+              
               {/* Notifications */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="relative"
-              >
-                <Bell className="w-5 h-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">
-                  3
-                </Badge>
-              </Button>
+              <NotificationBell />
 
               {/* User role badge */}
               <Badge variant={user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN' ? 'default' : 'secondary'}>

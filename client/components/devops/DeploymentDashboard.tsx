@@ -27,6 +27,9 @@ import {
 } from 'lucide-react';
 import { Deployment, DeploymentStatus } from '@/shared/api';
 import { useToast } from '@/hooks/use-toast';
+import { RealtimeStatusIndicator } from '@/components/realtime/RealtimeStatusIndicator';
+import { RealtimeProgress } from '@/components/realtime/RealtimeProgress';
+import { useDeploymentStatus } from '@/hooks/use-realtime-status';
 
 // Mock data - in real app this would come from API
 const mockDeployments: Deployment[] = [
@@ -323,9 +326,12 @@ export function DeploymentDashboard() {
                       <CardTitle className="text-lg">
                         {getRepoName(deployment.repository?.repoUrl || '')}
                       </CardTitle>
-                      <Badge variant={getStatusColor(deployment.status)}>
-                        {deployment.status}
-                      </Badge>
+                      <RealtimeStatusIndicator
+                        resourceId={deployment.id}
+                        resourceType="deployment"
+                        showProgress={deployment.status === DeploymentStatus.RUNNING}
+                        onClick={() => setSelectedDeployment(deployment)}
+                      />
                     </div>
                     
                     <CardDescription className="flex items-center gap-4 text-sm">
@@ -372,13 +378,15 @@ export function DeploymentDashboard() {
               
               <CardContent className="space-y-4">
                 {deployment.status === DeploymentStatus.RUNNING && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Progress</span>
-                      <span>{Math.round(getRunningProgress(deployment))}%</span>
-                    </div>
-                    <Progress value={getRunningProgress(deployment)} className="h-2" />
-                  </div>
+                  <RealtimeProgress
+                    resourceId={deployment.id}
+                    resourceType="deployment"
+                    title="Deployment Progress"
+                    showActions={true}
+                    onCancel={() => handleCancelDeployment(deployment.id)}
+                    onViewDetails={() => setSelectedDeployment(deployment)}
+                    className="border-0 shadow-none p-0"
+                  />
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">

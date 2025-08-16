@@ -13,6 +13,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AdminRoute } from "@/components/AdminRoute";
 import { useAuthStore } from "@/store/auth";
 import { AppInitializer } from "@/components/AppInitializer";
+import { RealtimeNotificationToast } from "@/components/realtime/RealtimeNotificationToast";
+import { NotificationToastContainer } from "@/components/notifications/NotificationToast";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -30,6 +32,9 @@ const ProfilePage = lazy(() => import("./pages/dashboard/profile"));
 const AdminDashboardPage = lazy(() => import("./pages/admin"));
 const AdminUsersPage = lazy(() => import("./pages/admin/users"));
 const AdminHealthPage = lazy(() => import("./pages/admin/health"));
+const AdminSecurityPage = lazy(() => import("./pages/admin/security"));
+const AdminSubscriptionsPage = lazy(() => import("./pages/admin/subscriptions"));
+const AdminAuditLogsPage = lazy(() => import("./pages/admin/audit-logs"));
 
 // Configure React Query client with better defaults
 const queryClient = new QueryClient({
@@ -98,9 +103,9 @@ const AppRouter = () => {
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/health" element={<AdminHealthPage />} />
-        <Route path="/admin/security" element={<AdminHealthPage />} />
-        <Route path="/admin/subscriptions" element={<AdminHealthPage />} />
-        <Route path="/admin/audit-logs" element={<AdminHealthPage />} />
+        <Route path="/admin/security" element={<AdminSecurityPage />} />
+        <Route path="/admin/subscriptions" element={<AdminSubscriptionsPage />} />
+        <Route path="/admin/audit-logs" element={<AdminAuditLogsPage />} />
       </Route>
 
       {/* Catch-all route */}
@@ -116,8 +121,10 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <NotificationToastContainer />
           <BrowserRouter>
             <AppInitializer>
+              <RealtimeNotificationToast />
               <Suspense fallback={<LoadingSpinner />}>
                 <AppRouter />
               </Suspense>

@@ -35,6 +35,7 @@ import {
   MoreHorizontal
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
+import { TeamActivityFeed } from "@/components/realtime/TeamActivityFeed";
 
 interface Team {
   id: string;
@@ -199,6 +200,18 @@ export default function TeamsPage() {
               </Button>
             </CardContent>
           </Card>
+        )}
+
+        {/* Team Activity Feed */}
+        {teams.length > 0 && (
+          <div className="mt-8">
+            <TeamActivityFeed
+              title="Recent Team Activity"
+              maxHeight="h-80"
+              showFilters={true}
+              limit={20}
+            />
+          </div>
         )}
       </div>
     </DashboardLayout>
