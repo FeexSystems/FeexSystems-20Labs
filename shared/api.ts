@@ -680,3 +680,419 @@ export interface CreateAITemplateResponse {
   template: AIRequestTemplate;
   success: boolean;
 }
+
+// DevOps Types
+export enum GitProvider {
+  GITHUB = 'GITHUB',
+  GITLAB = 'GITLAB',
+  BITBUCKET = 'BITBUCKET'
+}
+
+export enum PipelineStatus {
+  ACTIVE = 'ACTIVE',
+  PAUSED = 'PAUSED',
+  DISABLED = 'DISABLED'
+}
+
+export enum DeploymentStatus {
+  PENDING = 'PENDING',
+  RUNNING = 'RUNNING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  CANCELED = 'CANCELED'
+}
+
+export interface Repository {
+  id: string;
+  userId: string;
+  provider: GitProvider;
+  repoUrl: string;
+  branch: string;
+  accessTokenEncrypted?: string;
+  webhookUrl?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  pipelines?: Pipeline[];
+  deployments?: Deployment[];
+}
+
+export interface PipelineStage {
+  id: string;
+  name: string;
+  commands: string[];
+  environment?: Record<string, string>;
+  dependsOn?: string[];
+  timeout?: number;
+}
+
+export interface PipelineTrigger {
+  type: 'push' | 'pull_request' | 'schedule' | 'manual';
+  branches?: string[];
+  schedule?: string; // cron expression
+  conditions?: Record<string, any>;
+}
+
+export interface Pipeline {
+  id: string;
+  repositoryId: string;
+  name: string;
+  stages: PipelineStage[];
+  triggers: PipelineTrigger[];
+  environment: Record<string, string>;
+  status: PipelineStatus;
+  createdAt: Date;
+  updatedAt: Date;
+  repository?: Repository;
+  deployments?: Deployment[];
+}
+
+export interface DeploymentLog {
+  id: string;
+  timestamp: Date;
+  level: 'info' | 'warn' | 'error' | 'debug';
+  message: string;
+  stage?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface Deployment {
+  id: string;
+  repositoryId: string;
+  pipelineId?: string;
+  commit: string;
+  status: DeploymentStatus;
+  logs?: DeploymentLog[];
+  startedAt: Date;
+  completedAt?: Date;
+  repository?: Repository;
+  pipeline?: Pipeline;
+  duration?: number;
+  triggeredBy?: string;
+}
+
+export interface DeploymentAnalytics {
+  totalDeployments: number;
+  successfulDeployments: number;
+  failedDeployments: number;
+  averageDeploymentTime: number;
+  successRate: number;
+  deploymentsThisWeek: number;
+  deploymentsThisMonth: number;
+  recentDeployments: Deployment[];
+  deploymentTrends: Array<{
+    date: string;
+    successful: number;
+    failed: number;
+    averageTime: number;
+  }>;
+}
+
+// Request/Response types for DevOps API
+export interface ConnectRepositoryRequest {
+  provider: GitProvider;
+  repoUrl: string;
+  branch?: string;
+  accessToken: string;
+}
+
+export interface ConnectRepositoryResponse {
+  repository: Repository;
+  success: boolean;
+}
+
+export interface GetRepositoriesResponse {
+  repositories: Repository[];
+  success: boolean;
+}
+
+export interface CreatePipelineRequest {
+  repositoryId: string;
+  name: string;
+  stages: PipelineStage[];
+  triggers: PipelineTrigger[];
+  environment?: Record<string, string>;
+}
+
+export interface CreatePipelineResponse {
+  pipeline: Pipeline;
+  success: boolean;
+}
+
+export interface UpdatePipelineRequest {
+  name?: string;
+  stages?: PipelineStage[];
+  triggers?: PipelineTrigger[];
+  environment?: Record<string, string>;
+  status?: PipelineStatus;
+}
+
+export interface UpdatePipelineResponse {
+  pipeline: Pipeline;
+  success: boolean;
+}
+
+export interface GetPipelinesResponse {
+  pipelines: Pipeline[];
+  success: boolean;
+}
+
+export interface TriggerDeploymentRequest {
+  repositoryId: string;
+  pipelineId?: string;
+  commit?: string;
+  environment?: Record<string, string>;
+}
+
+export interface TriggerDeploymentResponse {
+  deployment: Deployment;
+  success: boolean;
+}
+
+export interface GetDeploymentsResponse {
+  deployments: Deployment[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  success: boolean;
+}
+
+export interface GetDeploymentResponse {
+  deployment: Deployment;
+  success: boolean;
+}
+
+export interface GetDeploymentAnalyticsResponse {
+  analytics: DeploymentAnalytics;
+  success: boolean;
+}
+
+// Security Scanning Types
+export enum SecurityScanType {
+  VULNERABILITY = 'VULNERABILITY',
+  PENETRATION = 'PENETRATION',
+  COMPLIANCE = 'COMPLIANCE'
+}
+
+export enum ScanStatus {
+  QUEUED = 'QUEUED',
+  RUNNING = 'RUNNING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  CANCELED = 'CANCELED'
+}
+
+export enum VulnerabilitySeverity {
+  CRITICAL = 'CRITICAL',
+  HIGH = 'HIGH',
+  MEDIUM = 'MEDIUM',
+  LOW = 'LOW',
+  INFO = 'INFO'
+}
+
+export enum ComplianceFramework {
+  OWASP_TOP_10 = 'OWASP_TOP_10',
+  PCI_DSS = 'PCI_DSS',
+  SOC_2 = 'SOC_2',
+  ISO_27001 = 'ISO_27001',
+  NIST = 'NIST',
+  GDPR = 'GDPR'
+}
+
+export interface ScanTarget {
+  type: 'url' | 'repository' | 'network' | 'file';
+  value: string;
+  metadata?: Record<string, any>;
+}
+
+export interface Vulnerability {
+  id: string;
+  cve?: string;
+  title: string;
+  description: string;
+  severity: VulnerabilitySeverity;
+  score?: number; // CVSS score
+  category: string;
+  affectedComponents: string[];
+  remediation: string;
+  references: string[];
+  discoveredAt: Date;
+  status: 'open' | 'in_progress' | 'resolved' | 'false_positive';
+  assignedTo?: string;
+  dueDate?: Date;
+  tags: string[];
+}
+
+export interface ComplianceCheck {
+  id: string;
+  framework: ComplianceFramework;
+  control: string;
+  description: string;
+  status: 'pass' | 'fail' | 'warning' | 'not_applicable';
+  evidence?: string;
+  remediation?: string;
+}
+
+export interface ScanResults {
+  summary: {
+    totalVulnerabilities: number;
+    criticalCount: number;
+    highCount: number;
+    mediumCount: number;
+    lowCount: number;
+    infoCount: number;
+    resolvedCount: number;
+    falsePositiveCount: number;
+  };
+  vulnerabilities: Vulnerability[];
+  complianceChecks?: ComplianceCheck[];
+  recommendations: string[];
+  scanDuration: number;
+  coverage: {
+    endpoints: number;
+    files: number;
+    lines?: number;
+  };
+}
+
+export interface SecurityScan {
+  id: string;
+  userId: string;
+  name: string;
+  target: ScanTarget;
+  scanType: SecurityScanType;
+  status: ScanStatus;
+  results?: ScanResults;
+  configuration?: {
+    framework?: ComplianceFramework;
+    depth?: 'shallow' | 'medium' | 'deep';
+    includePatterns?: string[];
+    excludePatterns?: string[];
+    customRules?: string[];
+  };
+  scheduledAt?: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  progress?: number;
+  logs?: Array<{
+    timestamp: Date;
+    level: 'info' | 'warn' | 'error';
+    message: string;
+  }>;
+}
+
+export interface RecurringScan {
+  id: string;
+  userId: string;
+  name: string;
+  target: ScanTarget;
+  scanType: SecurityScanType;
+  configuration: SecurityScan['configuration'];
+  schedule: {
+    frequency: 'daily' | 'weekly' | 'monthly';
+    time: string; // HH:MM format
+    dayOfWeek?: number; // 0-6 for weekly
+    dayOfMonth?: number; // 1-31 for monthly
+  };
+  isActive: boolean;
+  lastRunAt?: Date;
+  nextRunAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  scanHistory: SecurityScan[];
+}
+
+export interface SecurityAnalytics {
+  totalScans: number;
+  scansThisWeek: number;
+  scansThisMonth: number;
+  averageScanTime: number;
+  vulnerabilityTrends: Array<{
+    date: string;
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+    resolved: number;
+  }>;
+  topVulnerabilities: Array<{
+    title: string;
+    severity: VulnerabilitySeverity;
+    count: number;
+    trend: 'up' | 'down' | 'stable';
+  }>;
+  complianceScores: Array<{
+    framework: ComplianceFramework;
+    score: number;
+    trend: 'up' | 'down' | 'stable';
+  }>;
+  remediationMetrics: {
+    averageTimeToResolve: number;
+    resolvedThisWeek: number;
+    overdueTasks: number;
+  };
+}
+
+// Request/Response types for Security API
+export interface CreateSecurityScanRequest {
+  name: string;
+  target: ScanTarget;
+  scanType: SecurityScanType;
+  configuration?: SecurityScan['configuration'];
+  scheduledAt?: Date;
+}
+
+export interface CreateSecurityScanResponse {
+  scan: SecurityScan;
+  success: boolean;
+}
+
+export interface GetSecurityScansResponse {
+  scans: SecurityScan[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  success: boolean;
+}
+
+export interface GetSecurityScanResponse {
+  scan: SecurityScan;
+  success: boolean;
+}
+
+export interface UpdateVulnerabilityRequest {
+  status: Vulnerability['status'];
+  assignedTo?: string;
+  dueDate?: Date;
+  notes?: string;
+}
+
+export interface UpdateVulnerabilityResponse {
+  vulnerability: Vulnerability;
+  success: boolean;
+}
+
+export interface CreateRecurringScanRequest {
+  name: string;
+  target: ScanTarget;
+  scanType: SecurityScanType;
+  configuration?: SecurityScan['configuration'];
+  schedule: RecurringScan['schedule'];
+}
+
+export interface CreateRecurringScanResponse {
+  recurringScan: RecurringScan;
+  success: boolean;
+}
+
+export interface GetSecurityAnalyticsResponse {
+  analytics: SecurityAnalytics;
+  success: boolean;
+}
