@@ -83,7 +83,33 @@ cat backup.sql | docker-compose -f docker-compose.yml -p feexsystems-prod exec -
 -   [ ] Backup and restore procedures are tested.
 -   [ ] E2E tests have been run against a staging environment.
 
-## 8. Rollback
+## 8. Cloud-Specific Configuration
+
+While this guide is platform-agnostic, here are some considerations for deploying to major cloud providers.
+
+### AWS (Amazon Web Services)
+
+*   **Database:** Use Amazon RDS for a managed PostgreSQL instance. Set `DATABASE_URL` to the RDS endpoint.
+*   **Redis:** Use Amazon ElastiCache for a managed Redis instance. Set `REDIS_URL` to the ElastiCache endpoint.
+*   **Storage:** For file uploads, consider using Amazon S3 instead of local storage. This requires an S3 bucket and AWS SDK integration.
+*   **IAM Roles:** Assign an IAM role to your EC2 instance or ECS task with permissions for S3, RDS, and other required services.
+*   **Security Groups:** Configure security groups to allow traffic only on necessary ports (e.g., 80, 443) and from trusted sources.
+
+### Azure
+
+*   **Database:** Use Azure Database for PostgreSQL.
+*   **Redis:** Use Azure Cache for Redis.
+*   **Storage:** Use Azure Blob Storage for file uploads.
+*   **Managed Identity:** Use Managed Identities for Azure resources to securely access other Azure services without storing credentials in your code.
+
+### Google Cloud Platform (GCP)
+
+*   **Database:** Use Cloud SQL for PostgreSQL.
+*   **Redis:** Use Memorystore for Redis.
+*   **Storage:** Use Cloud Storage for file uploads.
+*   **Service Accounts:** Use service accounts with appropriate roles to securely access other Google Cloud services.
+
+## 9. Rollback
 
 To roll back to a previous version, you can use a specific Docker image tag if you are using a versioning strategy. If not, you would need to rebuild the previous version from source control and redeploy.
 
