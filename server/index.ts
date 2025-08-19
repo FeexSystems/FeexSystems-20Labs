@@ -2,6 +2,8 @@ import { errorHandler, notFoundHandler } from "./lib/middleware/error.middleware
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { validateEnv } from "./lib/config/validate-env";
+import { applyProductionSecurity } from "./lib/middleware/production-security";
 import { createServer as createHttpServer } from "http";
 import { initializeSentry, setupSentryErrorHandler } from "./lib/logging/sentry";
 import { handleDemo } from "./routes/demo";
@@ -24,17 +26,29 @@ import { securityService } from "./lib/services/security.service";
 import { securityCronService } from "./lib/services/security-cron.service";
 import { initializeDeploymentWebSocket } from "./lib/services/deployment-websocket.service";
 
+
 // Load environment variables
 dotenv.config();
+// Validate environment variables
+validateEnv();
 
 export function createServer() {
   const app = express();
 
-  // Middleware
-  app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    credentials: true
-  }));
+  // Sentry monitoring (production only)
+  if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+    initializeSentry(app);
+  }
+
+  // Security middleware for production
+  if (process.env.NODE_ENV === 'production') {
+    applyProductionSecurity(app);
+  } else {
+    app.use(cors({
+      origin: process.env.FRONTEND_URL || "http://localhost:3000",
+      credentials: true
+    }));
+  }
   app.set('json replacer', (key, value) =>
     typeof value === 'bigint' ? value.toString() : value
   );
@@ -63,9 +77,13 @@ export function createServer() {
   app.use("/api/teams", teamRoutes);
   app.use("/api/admin", adminRoutes);
 
+  // Sentry error handler (production only)
+  if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+    setupSentryErrorHandler(app);
+  }
+
   // Error handling middleware (should be after all routes)
   app.use(errorHandler);
-  
   // 404 handler (should be last)
   app.use(notFoundHandler);
 
