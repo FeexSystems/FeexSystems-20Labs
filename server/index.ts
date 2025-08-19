@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { createServer as createHttpServer } from "http";
+import { initializeSentry, setupSentryErrorHandler } from "./lib/logging/sentry";
 import { handleDemo } from "./routes/demo";
 import { handleChat } from "./routes/chat";
 import { handleHealthCheck, handleReadinessCheck, handleLivenessCheck } from "./routes/health";
