@@ -1,3 +1,4 @@
+import { errorHandler, notFoundHandler } from "./lib/middleware/error.middleware";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -47,6 +48,26 @@ export function createServer() {
   app.get("/health", handleHealthCheck);
   app.get("/health/ready", handleReadinessCheck);
   app.get("/health/live", handleLivenessCheck);
+
+  // API routes
+  app.use("/api/demo", handleDemo);
+  app.use("/api/chat", handleChat);
+  app.use("/api/auth", authRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/usage", usageRoutes);
+  app.use("/api/billing", billingRoutes);
+  app.use("/api/subscriptions", subscriptionRoutes);
+  app.use("/api/ai", aiRoutes);
+  app.use("/api/devops", devopsRoutes);
+  app.use("/api/security", securityRoutes);
+  app.use("/api/teams", teamRoutes);
+  app.use("/api/admin", adminRoutes);
+
+  // Error handling middleware (should be after all routes)
+  app.use(errorHandler);
+  
+  // 404 handler (should be last)
+  app.use(notFoundHandler);
 
   // API routes
   app.get("/api/ping", (_req, res) => {
