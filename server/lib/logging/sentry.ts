@@ -1,17 +1,32 @@
 import * as Sentry from '@sentry/node';
-import { ProfilingIntegration } from '@sentry/profiling-node';
 import { Express } from 'express';
 
-export const initializeSentry = (app: Express) => {
+export const initializeSentry = async (app: Express) => {
+  // Build default integrations
+  const integrations: any[] = [
+    new Sentry.Integrations.Http({ tracing: true }),
+    new Sentry.Integrations.Express({ app }),
+  ];
+
+  // Try to dynamically load the profiling integration. This prevents
+  // bundlers (like Vite) from statically importing the module during
+  // dev config resolution where the profiling package may not be present
+  // or may have different ESM/CJS shapes.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const profiling = await import('@sentry/profiling-node');
+    if (profiling && profiling.ProfilingIntegration) {
+      integrations.push(new profiling.ProfilingIntegration());
+    }
+  } catch (err) {
+    // Profiling integration optional — continue without it
+    // eslint-disable-next-line no-console
+    console.warn('Sentry profiling integration not available:', err?.message || err);
+  }
+
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
-    integrations: [
-      // Enable HTTP calls tracing
-      new Sentry.Integrations.Http({ tracing: true }),
-      // Enable Express.js middleware tracing
-      new Sentry.Integrations.Express({ app }),
-      new ProfilingIntegration(),
-    ],
+    integrations,
     // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring
     // We recommend adjusting this value in production
     tracesSampleRate: 1.0,

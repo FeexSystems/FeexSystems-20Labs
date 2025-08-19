@@ -1,7 +1,9 @@
 import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { createServer } from "./server";
+// Note: we must not import the server at top-level because it pulls in
+// server-only dependencies (Sentry, profiling) which can break Vite's
+// config bundling. We'll lazy-import it inside the dev-only plugin.
 import { visualizer } from 'rollup-plugin-visualizer';
 import { compression } from 'vite-plugin-compression2';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -81,10 +83,18 @@ function expressPlugin(): Plugin {
     name: "express-plugin",
     apply: "serve", // Only apply during development (serve mode)
     configureServer(server) {
-      const app = createServer();
-
-      // Add Express app as middleware to Vite dev server
-      server.middlewares.use(app);
+      // Lazy import the server factory so that Vite doesn't evaluate
+      // server-only code (Sentry, profiling) while bundling the config.
+      (async () => {
+        const mod = await import('./server');
+        const app = mod.createServer();
+        server.middlewares.use(app);
+      })().catch((err) => {
+        // If server import fails, log it but don't crash Vite.
+        // The dev server can still run without the express middleware.
+        // eslint-disable-next-line no-console
+        console.error('Failed to mount express middleware:', err);
+      });
     },
   };
 }
