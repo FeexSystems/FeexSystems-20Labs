@@ -18,7 +18,7 @@ import { RealtimeNotificationToast } from "@/components/realtime/RealtimeNotific
 import { NotificationToastContainer } from "@/components/notifications/NotificationToast";
 
 // Lazy load pages for better performance
-const Index = lazy(() => import("./pages/Index"));
+const Index = lazy(() => import("./pages/IndexTest"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AuthenticationPage = lazy(() => import("./pages/auth"));
 const DashboardPage = lazy(() => import("./pages/dashboard"));
