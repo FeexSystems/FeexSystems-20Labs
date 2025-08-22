@@ -1,5 +1,3 @@
-import "./global.css";
-
 const App = () => (
   <div style={{
     minHeight: '100vh',
