@@ -118,7 +118,7 @@ const AppRouter = () => {
 
 const App = () => (
   <div className="dark">
-    <ErrorBoundary>
+    <RouteErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
@@ -134,8 +134,8 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>
-    </ErrorBoundary>
+    </RouteErrorBoundary>
   </div>
 );
 
-createRoot(document.getElementById("root")!).render(<App />);
+export default App;
