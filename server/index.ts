@@ -203,6 +203,8 @@ export async function startServer() {
 }
 
 // Start server if this file is run directly
-if (require.main === module) {
-  startServer().catch(console.error);
-}
+// Note: This check is disabled for ES modules compatibility
+// The server is started via Vite dev server instead
+// if (import.meta.url === `file://${process.argv[1]}`) {
+//   startServer().catch(console.error);
+// }
