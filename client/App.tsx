@@ -124,12 +124,9 @@ const App = () => (
           <Sonner />
           <NotificationToastContainer />
           <BrowserRouter>
-            <AppInitializer>
-              <RealtimeNotificationToast />
-              <Suspense fallback={<LoadingSpinner />}>
-                <AppRouter />
-              </Suspense>
-            </AppInitializer>
+            <Suspense fallback={<LoadingSpinner />}>
+              <AppRouter />
+            </Suspense>
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>
