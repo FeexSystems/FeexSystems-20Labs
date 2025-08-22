@@ -8,14 +8,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy, useEffect } from "react";
 import { RouteErrorBoundary } from "@/components/ErrorBoundaries/RouteErrorBoundary";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { AdminRoute } from "@/components/AdminRoute";
-import { useAuthStore } from "@/store/auth";
-import { initializeSentry } from "@/lib/logging/sentry";
-import { configurePerformanceMonitoring } from "@/lib/monitoring/featureMonitoring";
-import { AppInitializer } from "@/components/AppInitializer";
-import { RealtimeNotificationToast } from "@/components/realtime/RealtimeNotificationToast";
-import { NotificationToastContainer } from "@/components/notifications/NotificationToast";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/IndexTest"));
