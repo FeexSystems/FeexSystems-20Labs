@@ -2,6 +2,7 @@ import { errorHandler, notFoundHandler } from "./lib/middleware/error.middleware
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
 import { validateEnv } from "./lib/config/validate-env";
 import { applyProductionSecurity } from "./lib/middleware/production-security";
 import { createServer as createHttpServer } from "http";
