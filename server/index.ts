@@ -114,51 +114,8 @@ export function createServer() {
     app.get('*', (_req, res) => {
       res.sendFile(path.resolve('dist/spa/index.html'));
     });
-  } else {
-    // Development fallback for non-API routes
-    app.get('*', (_req, res) => {
-      res.status(200).send(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>FeexSystems - Loading...</title>
-          <style>
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-              background: #0a0a0a;
-              color: #fff;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              height: 100vh;
-              margin: 0;
-            }
-            .loading { text-align: center; }
-            .spinner {
-              border: 2px solid #333;
-              border-top: 2px solid #00ff88;
-              border-radius: 50%;
-              width: 40px;
-              height: 40px;
-              animation: spin 1s linear infinite;
-              margin: 0 auto 20px;
-            }
-            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-          </style>
-        </head>
-        <body>
-          <div class="loading">
-            <div class="spinner"></div>
-            <p>FeexSystems is starting up...</p>
-            <p><small>Vite dev server should handle this route</small></p>
-          </div>
-        </body>
-        </html>
-      `);
-    });
   }
+  // In development, let Vite handle non-API routes
 
   // Global error handler
   app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
