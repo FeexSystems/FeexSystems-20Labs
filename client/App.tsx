@@ -57,63 +57,13 @@ const queryClient = new QueryClient({
   },
 });
 
-// Root component that handles authentication state
-const AppRouter = () => {
-  const { isLoggedIn, isInitialized } = useAuthStore();
-
-  // Show loading spinner while initializing
-  if (!isInitialized) {
-    return <LoadingSpinner />;
-  }
-
-  return (
-    <Routes>
-      {/* Public routes */}
-      <Route 
-        path="/" 
-        element={isLoggedIn() ? <Navigate to="/dashboard" replace /> : <Index />} 
-      />
-      <Route 
-        path="/auth" 
-        element={isLoggedIn() ? <Navigate to="/dashboard" replace /> : <AuthenticationPage />} 
-      />
-      <Route 
-        path="/auth/verify-email" 
-        element={<AuthenticationPage />} 
-      />
-      <Route 
-        path="/teams/accept-invitation" 
-        element={<AuthenticationPage />} 
-      />
-
-      {/* Protected user routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/dashboard/ai" element={<AIServicesPage />} />
-        <Route path="/dashboard/devops" element={<DevOpsPage />} />
-        <Route path="/dashboard/security" element={<SecurityPage />} />
-        <Route path="/dashboard/teams" element={<TeamsPage />} />
-        <Route path="/dashboard/billing" element={<BillingPage />} />
-        <Route path="/dashboard/analytics" element={<AnalyticsPage />} />
-        <Route path="/dashboard/settings" element={<SettingsPage />} />
-        <Route path="/dashboard/profile" element={<ProfilePage />} />
-      </Route>
-
-      {/* Admin routes */}
-      <Route element={<AdminRoute />}>
-        <Route path="/admin" element={<AdminDashboardPage />} />
-        <Route path="/admin/users" element={<AdminUsersPage />} />
-        <Route path="/admin/health" element={<AdminHealthPage />} />
-        <Route path="/admin/security" element={<AdminSecurityPage />} />
-        <Route path="/admin/subscriptions" element={<AdminSubscriptionsPage />} />
-        <Route path="/admin/audit-logs" element={<AdminAuditLogsPage />} />
-      </Route>
-
-      {/* Catch-all route */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-};
+// Simplified router for testing
+const AppRouter = () => (
+  <Routes>
+    <Route path="/" element={<Index />} />
+    <Route path="*" element={<Index />} />
+  </Routes>
+);
 
 const App = () => (
   <div className="dark">
