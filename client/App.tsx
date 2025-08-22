@@ -9,25 +9,8 @@ import { Suspense, lazy, useEffect } from "react";
 import { RouteErrorBoundary } from "@/components/ErrorBoundaries/RouteErrorBoundary";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
-// Lazy load pages for better performance
+// Simple test component
 const Index = lazy(() => import("./pages/IndexTest"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const AuthenticationPage = lazy(() => import("./pages/auth"));
-const DashboardPage = lazy(() => import("./pages/dashboard"));
-const AIServicesPage = lazy(() => import("./pages/dashboard/ai"));
-const DevOpsPage = lazy(() => import("./pages/dashboard/devops"));
-const SecurityPage = lazy(() => import("./pages/dashboard/security"));
-const TeamsPage = lazy(() => import("./pages/dashboard/teams"));
-const BillingPage = lazy(() => import("./pages/dashboard/billing"));
-const AnalyticsPage = lazy(() => import("./pages/dashboard/analytics"));
-const SettingsPage = lazy(() => import("./pages/dashboard/settings"));
-const ProfilePage = lazy(() => import("./pages/dashboard/profile"));
-const AdminDashboardPage = lazy(() => import("./pages/admin"));
-const AdminUsersPage = lazy(() => import("./pages/admin/users"));
-const AdminHealthPage = lazy(() => import("./pages/admin/health"));
-const AdminSecurityPage = lazy(() => import("./pages/admin/security"));
-const AdminSubscriptionsPage = lazy(() => import("./pages/admin/subscriptions"));
-const AdminAuditLogsPage = lazy(() => import("./pages/admin/audit-logs"));
 
 // Configure React Query client with better defaults
 const queryClient = new QueryClient({
