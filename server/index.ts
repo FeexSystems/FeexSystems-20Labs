@@ -82,68 +82,96 @@ export function createServer() {
     setupSentryErrorHandler(app);
   }
 
-  // Error handling middleware (should be after all routes)
-  app.use(errorHandler);
-  // 404 handler (should be last)
-  app.use(notFoundHandler);
-
-  // API routes
+  // API ping endpoint
   app.get("/api/ping", (_req, res) => {
-    res.json({ 
-      message: "Hello from FeexSystems Enhanced Platform!", 
+    res.json({
+      message: "Hello from FeexSystems Enhanced Platform!",
       timestamp: new Date().toISOString(),
       version: "2.0.0"
     });
   });
 
-  app.get("/api/demo", handleDemo);
-  app.post("/api/chat", handleChat);
-  
-  // Authentication routes
-  app.use("/api/auth", authRoutes);
-  
-  // User routes
-  app.use("/api/users", userRoutes);
-  
-  // Subscription routes
-  app.use("/api/subscriptions", subscriptionRoutes);
-  
-  // Usage routes
-  app.use("/api/usage", usageRoutes);
-  
-  // Billing routes
-  app.use("/api/billing", billingRoutes);
-  
-  // AI routes
-  app.use("/api/ai", aiRoutes);
-  
-  // DevOps routes
-  app.use("/api/devops", devopsRoutes);
-  
-  // Security routes
-  app.use("/api/security", securityRoutes);
-  
-  // Team routes
-  app.use("/api/teams", teamRoutes);
-  
-  // Admin routes
-  app.use("/api/admin", adminRoutes);
-
   // 404 handler for API routes
   app.use("/api/*", (_req, res) => {
-    res.status(404).json({ 
-      error: "API endpoint not found",
-      timestamp: new Date().toISOString()
+    res.status(404).json({
+      success: false,
+      error: {
+        type: "NOT_FOUND_ERROR",
+        message: "API endpoint not found",
+        code: "API_ENDPOINT_NOT_FOUND",
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      }
     });
   });
+
+  // Serve static files in production
+  if (process.env.NODE_ENV === 'production') {
+    app.use(express.static('dist/spa'));
+
+    // SPA fallback - serve index.html for all non-API routes
+    app.get('*', (_req, res) => {
+      res.sendFile(path.resolve('dist/spa/index.html'));
+    });
+  } else {
+    // Development fallback for non-API routes
+    app.get('*', (_req, res) => {
+      res.status(200).send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>FeexSystems - Loading...</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              background: #0a0a0a;
+              color: #fff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              height: 100vh;
+              margin: 0;
+            }
+            .loading { text-align: center; }
+            .spinner {
+              border: 2px solid #333;
+              border-top: 2px solid #00ff88;
+              border-radius: 50%;
+              width: 40px;
+              height: 40px;
+              animation: spin 1s linear infinite;
+              margin: 0 auto 20px;
+            }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          </style>
+        </head>
+        <body>
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>FeexSystems is starting up...</p>
+            <p><small>Vite dev server should handle this route</small></p>
+          </div>
+        </body>
+        </html>
+      `);
+    });
+  }
 
   // Global error handler
   app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error('Unhandled error:', error);
     res.status(500).json({
-      error: "Internal server error",
-      timestamp: new Date().toISOString(),
-      ...(process.env.NODE_ENV === 'development' && { details: error.message })
+      success: false,
+      error: {
+        type: "INTERNAL_SERVER_ERROR",
+        message: "Internal server error",
+        code: "INTERNAL_ERROR",
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        ...(process.env.NODE_ENV === 'development' && { details: error.message })
+      }
     });
   });
 
