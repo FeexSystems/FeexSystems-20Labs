@@ -34,8 +34,45 @@ model User {
   teamMembers           TeamMember[]
   usageMetrics  UsageMetrics[]
   activityLogs  ActivityLog[]
+  userEvents   UserEvent[]
 
   @@map("users")
+}
+
+enum EventType {
+  session_start
+  session_end
+  feature_used
+  error
+  conversion
+  subscription_changed
+}
+
+model UserEvent {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  eventType EventType @map("event_type")
+  eventData Json      @default("{}") @map("event_data")
+  timestamp DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([timestamp])
+  @@map("user_events")
+}
+
+model AnalyticsMetric {
+  id          String   @id @default(cuid())
+  metricName  String   @map("metric_name")
+  metricValue Float    @map("metric_value")
+  dimensions  Json     @default("{}")
+  timestamp   DateTime @default(now())
+
+  @@index([metricName])
+  @@index([timestamp])
+  @@map("analytics_metrics")
 }
 
 model Session {

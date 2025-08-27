@@ -33,7 +33,7 @@ export class AIServiceRegistry {
     });
 
     // Default services
-    const defaultServices: AIService[] = [
+  const defaultServices: AIService[] = [
       {
         id: 'chat-gpt-3.5',
         name: 'ChatGPT 3.5 Turbo',
@@ -76,6 +76,83 @@ export class AIServiceRegistry {
             type: 'string',
             required: false,
             description: 'System message to guide the AI behavior'
+          }
+        }
+      },
+      // --- New AI Features ---
+      {
+        id: 'text-summarization',
+        name: 'Text Summarization',
+        description: 'Summarize long-form content into concise summaries',
+        category: 'analysis',
+        pricing: {
+          type: 'per_request',
+          cost: 0.01,
+          currency: 'usd'
+        },
+        limits: {
+          maxRequestsPerHour: 50,
+          maxRequestsPerDay: 500,
+          maxRequestSize: 32 * 1024 // 32KB
+        },
+        isActive: true,
+        provider: 'openai',
+        parameters: {
+          summary_length: {
+            name: 'summary_length',
+            type: 'string',
+            required: false,
+            options: ['short', 'medium', 'long'],
+            default: 'medium',
+            description: 'Desired summary length'
+          }
+        }
+      },
+      {
+        id: 'sentiment-analysis',
+        name: 'Sentiment Analysis',
+        description: 'Analyze sentiment of text (positive, negative, neutral)',
+        category: 'analysis',
+        pricing: {
+          type: 'per_request',
+          cost: 0.005,
+          currency: 'usd'
+        },
+        limits: {
+          maxRequestsPerHour: 100,
+          maxRequestsPerDay: 1000,
+          maxRequestSize: 16 * 1024 // 16KB
+        },
+        isActive: true,
+        provider: 'openai',
+        parameters: {}
+      },
+      {
+        id: 'smart-tagging',
+        name: 'Smart Tagging',
+        description: 'Suggest relevant tags for content or uploads',
+        category: 'processing',
+        pricing: {
+          type: 'per_request',
+          cost: 0.008,
+          currency: 'usd'
+        },
+        limits: {
+          maxRequestsPerHour: 100,
+          maxRequestsPerDay: 1000,
+          maxRequestSize: 16 * 1024 // 16KB
+        },
+        isActive: true,
+        provider: 'openai',
+        parameters: {
+          max_tags: {
+            name: 'max_tags',
+            type: 'number',
+            required: false,
+            default: 5,
+            min: 1,
+            max: 20,
+            description: 'Maximum number of tags to suggest'
           }
         }
       },

@@ -1,7 +1,11 @@
+import { errorHandler, notFoundHandler } from "./lib/middleware/error.middleware";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { validateEnv } from "./lib/config/validate-env";
+import { applyProductionSecurity } from "./lib/middleware/production-security";
 import { createServer as createHttpServer } from "http";
+import { initializeSentry, setupSentryErrorHandler } from "./lib/logging/sentry";
 import { handleDemo } from "./routes/demo";
 import { handleChat } from "./routes/chat";
 import { handleHealthCheck, handleReadinessCheck, handleLivenessCheck } from "./routes/health";
@@ -22,17 +26,29 @@ import { securityService } from "./lib/services/security.service";
 import { securityCronService } from "./lib/services/security-cron.service";
 import { initializeDeploymentWebSocket } from "./lib/services/deployment-websocket.service";
 
+
 // Load environment variables
 dotenv.config();
+// Validate environment variables
+validateEnv();
 
 export function createServer() {
   const app = express();
 
-  // Middleware
-  app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    credentials: true
-  }));
+  // Sentry monitoring (production only)
+  if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+    initializeSentry(app);
+  }
+
+  // Security middleware for production
+  if (process.env.NODE_ENV === 'production') {
+    applyProductionSecurity(app);
+  } else {
+    app.use(cors({
+      origin: process.env.FRONTEND_URL || "http://localhost:3000",
+      credentials: true
+    }));
+  }
   app.set('json replacer', (key, value) =>
     typeof value === 'bigint' ? value.toString() : value
   );
@@ -46,6 +62,30 @@ export function createServer() {
   app.get("/health", handleHealthCheck);
   app.get("/health/ready", handleReadinessCheck);
   app.get("/health/live", handleLivenessCheck);
+
+  // API routes
+  app.use("/api/demo", handleDemo);
+  app.use("/api/chat", handleChat);
+  app.use("/api/auth", authRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/usage", usageRoutes);
+  app.use("/api/billing", billingRoutes);
+  app.use("/api/subscriptions", subscriptionRoutes);
+  app.use("/api/ai", aiRoutes);
+  app.use("/api/devops", devopsRoutes);
+  app.use("/api/security", securityRoutes);
+  app.use("/api/teams", teamRoutes);
+  app.use("/api/admin", adminRoutes);
+
+  // Sentry error handler (production only)
+  if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+    setupSentryErrorHandler(app);
+  }
+
+  // Error handling middleware (should be after all routes)
+  app.use(errorHandler);
+  // 404 handler (should be last)
+  app.use(notFoundHandler);
 
   // API routes
   app.get("/api/ping", (_req, res) => {

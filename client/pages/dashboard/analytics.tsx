@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -272,4 +273,10 @@ export default function AnalyticsPage() {
       </Tabs>
     </div>
   );
+=======
+import React from 'react';
+
+export default function AnalyticsPage() {
+  return <div>Analytics page (placeholder)</div>;
+>>>>>>> b3954afc5cccf7a40de2ec789da8a98349890435
 }
