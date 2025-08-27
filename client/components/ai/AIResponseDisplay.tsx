@@ -24,7 +24,7 @@ import {
   AIRequest, 
   AIRequestStatus,
   AIRequestPriority 
-} from '../../../shared/api';
+} from '@shared/api';
 
 interface AIResponseDisplayProps {
   request: AIRequest;

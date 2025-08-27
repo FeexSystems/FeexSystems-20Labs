@@ -29,7 +29,7 @@ import {
   AIRequestStatus,
   AIRequestPriority,
   AIServiceCategory 
-} from '../../../shared/api';
+} from '@shared/api';
 
 interface AIRequestHistoryProps {
   requests: AIRequest[];

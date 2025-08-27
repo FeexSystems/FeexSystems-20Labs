@@ -19,7 +19,7 @@ import {
   SubscriptionStatus, 
   type Subscription, 
   type SubscriptionPlan 
-} from '@/../../shared/api';
+} from '@shared/api';
 
 interface SubscriptionManagerProps {
   subscription: Subscription;

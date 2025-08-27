@@ -24,7 +24,7 @@ import {
   AIRequestPriority, 
   CreateAIRequestRequest,
   type AIRequest 
-} from '../../../shared/api';
+} from '@shared/api';
 
 interface AIRequestFormProps {
   service: AIService;

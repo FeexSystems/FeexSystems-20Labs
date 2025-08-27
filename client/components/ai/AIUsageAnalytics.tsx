@@ -13,7 +13,7 @@ import {
   Target,
   Calendar
 } from 'lucide-react';
-import { AIUsageAnalytics as AIUsageAnalyticsType } from '../../../shared/api';
+import { AIUsageAnalytics as AIUsageAnalyticsType } from '@shared/api';
 
 interface AIUsageAnalyticsProps {
   analytics: AIUsageAnalyticsType;

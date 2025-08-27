@@ -13,7 +13,7 @@ import {
 import { 
   type UsageMetrics, 
   type SubscriptionPlan 
-} from '@/../../shared/api';
+} from '@shared/api';
 
 interface UsageAlertsProps {
   usage: UsageMetrics;

@@ -14,7 +14,7 @@ import {
   Star,
   AlertCircle
 } from 'lucide-react';
-import { type PaymentMethod } from '@/../../shared/api';
+import { type PaymentMethod } from '@shared/api';
 
 interface PaymentMethodManagerProps {
   paymentMethods: PaymentMethod[];

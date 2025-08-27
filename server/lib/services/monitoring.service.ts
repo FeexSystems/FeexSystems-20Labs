@@ -66,4 +66,8 @@ export interface Alert {
   id: string;
   ruleId: string;
   ruleName: string;
-  severity: 
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  message: string;
+  timestamp: Date;
+  resolved: boolean;
+} 

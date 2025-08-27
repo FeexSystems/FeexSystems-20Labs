@@ -31,7 +31,7 @@ import {
   GetAIRequestsResponse,
   GetAIUsageAnalyticsResponse,
   GetAITemplatesResponse
-} from '../../../shared/api';
+} from '@shared/api';
 import { RealtimeStatusIndicator } from '@/components/realtime/RealtimeStatusIndicator';
 import { RealtimeProgress } from '@/components/realtime/RealtimeProgress';
 import { useAIRequestStatus } from '@/hooks/use-realtime-status';

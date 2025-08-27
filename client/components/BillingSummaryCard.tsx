@@ -14,7 +14,7 @@ import {
   type Subscription, 
   type UsageMetrics,
   SubscriptionStatus 
-} from '@/../../shared/api';
+} from '@shared/api';
 
 interface BillingSummaryCardProps {
   subscription: Subscription;

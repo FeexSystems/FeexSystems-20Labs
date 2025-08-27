@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, X } from 'lucide-react';
 import { PlanChangeDialog } from '@/components/PlanChangeDialog';
-import { type SubscriptionPlan, type Subscription } from '@/../../shared/api';
+import { type SubscriptionPlan, type Subscription } from '@shared/api';
 
 interface PlanComparisonProps {
   plans: SubscriptionPlan[];

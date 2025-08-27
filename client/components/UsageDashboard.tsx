@@ -12,7 +12,7 @@ import {
   Shield,
   HardDrive
 } from 'lucide-react';
-import { type UsageMetrics, type SubscriptionPlan } from '@/../../shared/api';
+import { type UsageMetrics, type SubscriptionPlan } from '@shared/api';
 
 interface UsageDashboardProps {
   usage: UsageMetrics;

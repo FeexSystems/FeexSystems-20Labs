@@ -16,7 +16,7 @@ import {
   type SubscriptionPlan, 
   type Subscription,
   PlanInterval 
-} from '@/../../shared/api';
+} from '@shared/api';
 
 interface PlanChangeDialogProps {
   isOpen: boolean;

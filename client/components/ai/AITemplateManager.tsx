@@ -33,7 +33,7 @@ import {
   AIRequestTemplate, 
   AIService,
   CreateAITemplateRequest 
-} from '../../../shared/api';
+} from '@shared/api';
 
 interface AITemplateManagerProps {
   templates: AIRequestTemplate[];

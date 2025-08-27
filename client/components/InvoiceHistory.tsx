@@ -14,7 +14,7 @@ import {
   FileText,
   AlertCircle
 } from 'lucide-react';
-import { type Invoice } from '@/../../shared/api';
+import { type Invoice } from '@shared/api';
 
 interface InvoiceHistoryProps {
   invoices: Invoice[];

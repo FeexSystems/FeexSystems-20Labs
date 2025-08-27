@@ -26,11 +26,11 @@ import {
   type AIService, 
   type AIRequest,
   type AIUsageAnalytics 
-} from '@/../../shared/api';
+} from '@shared/api';
 import { AIServiceCatalog } from '@/components/ai/AIServiceCatalog';
 import { AIRequestForm } from '@/components/ai/AIRequestForm';
 import { AIRequestHistory } from '@/components/ai/AIRequestHistory';
-import { AIUsageDashboard } from '@/components/ai/AIUsageDashboard';
+import { AIUsageAnalytics as AIUsageDashboard } from '@/components/ai/AIUsageAnalytics';
 import { useAIServices } from '@/hooks/use-ai-services';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';

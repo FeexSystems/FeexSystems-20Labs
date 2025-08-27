@@ -19,7 +19,7 @@ import {
   type UsageMetrics, 
   type Invoice,
   SubscriptionStatus 
-} from '@/../../shared/api';
+} from '@shared/api';
 
 interface BillingOverviewProps {
   subscription: Subscription;
