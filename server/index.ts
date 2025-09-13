@@ -103,6 +103,19 @@ export function createServer() {
     });
   });
 
+  // Serve static files in production and provide SPA fallback
+  if (process.env.NODE_ENV === "production") {
+    const spaPath = path.resolve(__dirname, "..", "spa");
+    app.use(express.static(spaPath));
+    app.get("*", (req, res, next) => {
+      if (req.originalUrl.startsWith("/api/")) {
+        return next();
+      }
+      res.sendFile(path.join(spaPath, "index.html"));
+    });
+  }
+  // In development, Vite handles serving the SPA.
+
   // 404 handler for API routes
   app.use("/api/*", (_req, res) => {
     res.status(404).json({
@@ -116,17 +129,6 @@ export function createServer() {
       },
     });
   });
-
-  // Serve static files in production
-  if (process.env.NODE_ENV === "production") {
-    app.use(express.static("dist/spa"));
-
-    // SPA fallback - serve index.html for all non-API routes
-    app.get("*", (_req, res) => {
-      res.sendFile(path.resolve("dist/spa/index.html"));
-    });
-  }
-  // In development, let Vite handle non-API routes
 
   // Global error handler
   app.use(
