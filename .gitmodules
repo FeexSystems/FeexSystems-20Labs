@@ -1,0 +1,3 @@
+[submodule "FeexSystems-20Labs"]
+	path = FeexSystems-20Labs
+	url = https://github.com/FeexSystems/FeexSystems-20Labs
