@@ -1,110 +1,240 @@
-import { useState, useEffect } from "react";
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/use-auth';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  User,
+  Settings,
+  LogOut,
+  Menu,
+  Home,
+  Shield,
+  Cpu,
+  Cloud,
+  CreditCard,
+  BarChart3,
+  Bell,
+  Search,
+} from 'lucide-react';
 
 interface NavigationProps {
-  activeSection: string;
-  onSectionChange: (section: string) => void;
+  className?: string;
 }
 
-export function Navigation({
-  activeSection,
-  onSectionChange,
-}: NavigationProps) {
-  const [isScrolled, setIsScrolled] = useState(false);
+const navigationItems = [
+  { name: 'Dashboard', href: '/dashboard', icon: Home },
+  { name: 'AI Services', href: '/ai-services', icon: Cpu },
+  { name: 'DevOps', href: '/devops', icon: Cloud },
+  { name: 'Security', href: '/security', icon: Shield },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Billing', href: '/billing', icon: CreditCard },
+];
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+export function Navigation({ className }: NavigationProps) {
+  const { user, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
-  const navItems = [
-    { id: "home", label: "Home" },
-    { id: "projects", label: "Projects" },
-    { id: "about", label: "About" },
-    { id: "contact", label: "Contact" },
-  ];
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role) {
+      case 'SUPER_ADMIN':
+        return 'destructive';
+      case 'ADMIN':
+        return 'default';
+      default:
+        return 'secondary';
+    }
+  };
+
+  const formatRoleName = (role: string) => {
+    return role.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const isActiveRoute = (href: string) => {
+    return location.pathname === href;
+  };
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        isScrolled ? "bg-card/90 backdrop-blur-lg shadow-lg" : "bg-transparent"
-      }`}
-      style={{
-        borderBottom: isScrolled ? "1px solid rgba(0, 170, 255, 0.2)" : "none",
-      }}
-      role="navigation"
-      aria-label="Main navigation"
-    >
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">
-                F
-              </span>
+    <header className={`border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${className}`}>
+      <div className="container flex h-16 items-center">
+        {/* Logo */}
+        <div className="mr-4 hidden md:flex">
+          <Link to="/dashboard" className="mr-6 flex items-center space-x-2">
+            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">F</span>
             </div>
-            <span className="text-xl font-bold text-primary">FeexSystems</span>
-          </div>
+            <span className="hidden font-bold sm:inline-block">FeexSystems</span>
+          </Link>
+        </div>
 
-          {/* Navigation Items */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => onSectionChange(item.id)}
-                className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 ${
-                  activeSection === item.id
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-                aria-current={activeSection === item.id ? "page" : undefined}
-              >
-                {item.label}
-                {activeSection === item.id && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Status Indicator */}
-          <div className="hidden lg:flex items-center space-x-2 text-xs text-muted-foreground">
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span>Grok 4 Heavy (4.2.1, G4H-Prime)</span>
-            </div>
-            <span>|</span>
-            <span>Colossus: Active, 100% Connection</span>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 text-muted-foreground hover:text-foreground"
-            onClick={() => {
-              // Toggle mobile menu - implement as needed
-            }}
-            aria-label="Toggle mobile menu"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        {/* Mobile menu trigger */}
+        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
+              <Menu className="h-6 w-6" />
+              <span className="sr-only">Toggle Menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="pr-0">
+            <MobileNav />
+          </SheetContent>
+        </Sheet>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={`flex items-center space-x-2 transition-colors hover:text-foreground/80 ${
+                  isActiveRoute(item.href)
+                    ? 'text-foreground'
+                    : 'text-foreground/60'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          {/* Search */}
+          <div className="w-full flex-1 md:w-auto md:flex-none">
+            <Button
+              variant="outline"
+              className="relative h-9 w-full justify-start text-sm text-muted-foreground sm:pr-12 md:w-40 lg:w-64"
+            >
+              <Search className="mr-2 h-4 w-4" />
+              <span className="hidden lg:inline-flex">Search...</span>
+              <span className="inline-flex lg:hidden">Search</span>
+              <kbd className="pointer-events-none absolute right-1.5 top-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+            </Button>
+          </div>
+
+          {/* Notifications */}
+          <Button variant="ghost" size="sm" className="h-9 w-9 px-0">
+            <Bell className="h-4 w-4" />
+            <span className="sr-only">Notifications</span>
+          </Button>
+
+          {/* User Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                <Avatar className="h-9 w-9">
+                  <AvatarImage src={user?.profileImageUrl} alt={user?.firstName} />
+                  <AvatarFallback>
+                    {user ? getInitials(user.firstName, user.lastName) : 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">
+                    {user?.firstName} {user?.lastName}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user?.email}
+                  </p>
+                  <div className="pt-1">
+                    <Badge variant={getRoleBadgeVariant(user?.role || 'USER')} className="text-xs">
+                      {formatRoleName(user?.role || 'USER')}
+                    </Badge>
+                  </div>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/profile" className="flex items-center">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/settings" className="flex items-center">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
-    </nav>
+    </header>
+  );
+}
+
+function MobileNav() {
+  const location = useLocation();
+
+  const isActiveRoute = (href: string) => {
+    return location.pathname === href;
+  };
+
+  return (
+    <div className="flex flex-col space-y-3">
+      <Link to="/dashboard" className="flex items-center space-x-2">
+        <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+          <span className="text-primary-foreground font-bold text-sm">F</span>
+        </div>
+        <span className="font-bold">FeexSystems</span>
+      </Link>
+      <div className="flex flex-col space-y-3">
+        {navigationItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={`flex items-center space-x-2 text-sm font-medium transition-colors hover:text-foreground/80 ${
+                isActiveRoute(item.href)
+                  ? 'text-foreground'
+                  : 'text-foreground/60'
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              <span>{item.name}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
   );
 }

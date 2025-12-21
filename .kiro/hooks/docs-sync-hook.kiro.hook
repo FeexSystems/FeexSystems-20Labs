@@ -1,0 +1,26 @@
+{
+  "enabled": true,
+  "name": "Documentation Sync",
+  "description": "Monitors TypeScript source files and configuration files for changes, then automatically updates project documentation in README.md and markdown files to keep them synchronized with code changes",
+  "version": "1",
+  "when": {
+    "type": "userTriggered",
+    "patterns": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "package.json",
+      "tsconfig.json",
+      "vite.config.ts",
+      "tailwind.config.ts",
+      "prisma/schema.prisma",
+      "docker-compose.yml",
+      "netlify.toml"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Source code files have been modified. Please review the changes and update the project documentation accordingly. Focus on:\n\n1. Update README.md with any new features, API changes, or setup instructions\n2. Update any existing .md files in the repository that may be affected by the code changes\n3. Ensure documentation reflects current architecture, dependencies, and configuration\n4. Add or update code examples if new functionality was added\n5. Update any setup or deployment instructions if configuration files changed\n\nPlease analyze the changed files and provide comprehensive documentation updates that keep the docs in sync with the current codebase."
+  }
+}
