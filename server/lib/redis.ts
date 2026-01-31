@@ -8,20 +8,13 @@ export function createRedisClient(): Redis {
   }
 
   const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-  
+
   redis = new Redis(redisUrl, {
-    retryDelayOnFailover: 100,
     enableReadyCheck: false,
-    maxRetriesPerRequest: null,
-    lazyConnect: true,
-    // Connection timeout
-    connectTimeout: 10000,
-    // Command timeout
-    commandTimeout: 5000,
-    // Retry configuration
-    retryDelayOnClusterDown: 300,
-    retryDelayOnFailover: 100,
     maxRetriesPerRequest: 3,
+    lazyConnect: true,
+    connectTimeout: 10000,
+    commandTimeout: 5000,
   });
 
   redis.on('connect', () => {
@@ -159,18 +152,18 @@ export class RateLimitService extends CacheService {
   private readonly RATE_LIMIT_PREFIX = 'rate_limit:';
 
   async checkRateLimit(
-    identifier: string, 
-    windowMs: number, 
+    identifier: string,
+    windowMs: number,
     maxRequests: number
   ): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
     const key = `${this.RATE_LIMIT_PREFIX}${identifier}`;
     const windowSeconds = Math.ceil(windowMs / 1000);
-    
+
     try {
       const current = await this.increment(key, windowSeconds);
       const remaining = Math.max(0, maxRequests - current);
       const resetTime = Date.now() + windowMs;
-      
+
       return {
         allowed: current <= maxRequests,
         remaining,
@@ -195,10 +188,10 @@ export async function checkRedisHealth() {
     await redis.ping();
     return { status: 'healthy', timestamp: new Date().toISOString() };
   } catch (error) {
-    return { 
-      status: 'unhealthy', 
+    return {
+      status: 'unhealthy',
       error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString() 
+      timestamp: new Date().toISOString()
     };
   }
 }

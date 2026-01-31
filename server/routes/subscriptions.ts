@@ -24,7 +24,7 @@ const router = express.Router();
 router.get('/plans', async (req, res) => {
   try {
     const plans = await subscriptionService.getPlans();
-    
+
     res.json({
       success: true,
       data: { plans },
@@ -48,7 +48,7 @@ router.get('/plans', async (req, res) => {
 router.get('/current', authMiddleware, async (req, res) => {
   try {
     const subscription = await subscriptionService.getUserSubscription(req.user!.id);
-    
+
     res.json({
       success: true,
       data: { subscription },
@@ -72,19 +72,19 @@ router.get('/current', authMiddleware, async (req, res) => {
 router.post('/create', authMiddleware, async (req, res) => {
   try {
     const validatedData = createSubscriptionRequestSchema.parse(req.body);
-    
+
     const result = await subscriptionService.createSubscription({
       userId: req.user!.id,
       ...validatedData,
     });
-    
+
     res.status(201).json({
       success: true,
       data: result,
     });
   } catch (error) {
     console.error('Error creating subscription:', error);
-    
+
     if (error instanceof z.ZodError) {
       res.status(400).json({
         error: {
@@ -96,7 +96,7 @@ router.post('/create', authMiddleware, async (req, res) => {
       });
       return;
     }
-    
+
     if (error instanceof Error) {
       if (error.message.includes('already has an active subscription')) {
         res.status(409).json({
@@ -108,7 +108,7 @@ router.post('/create', authMiddleware, async (req, res) => {
         });
         return;
       }
-      
+
       if (error.message.includes('not found')) {
         res.status(404).json({
           error: {
@@ -120,7 +120,7 @@ router.post('/create', authMiddleware, async (req, res) => {
         return;
       }
     }
-    
+
     res.status(500).json({
       error: {
         type: 'INTERNAL_SERVER_ERROR',
@@ -140,7 +140,7 @@ router.put('/:id/update', authMiddleware, requireActiveSubscription, async (req,
   try {
     const subscriptionId = req.params.id;
     const validatedData = updateSubscriptionRequestSchema.parse(req.body);
-    
+
     // Verify user owns this subscription
     const currentSubscription = await subscriptionService.getUserSubscription(req.user!.id);
     if (!currentSubscription || currentSubscription.id !== subscriptionId) {
@@ -153,19 +153,19 @@ router.put('/:id/update', authMiddleware, requireActiveSubscription, async (req,
       });
       return;
     }
-    
+
     const updatedSubscription = await subscriptionService.updateSubscription({
       subscriptionId,
       ...validatedData,
     });
-    
+
     res.json({
       success: true,
       data: { subscription: updatedSubscription },
     });
   } catch (error) {
     console.error('Error updating subscription:', error);
-    
+
     if (error instanceof z.ZodError) {
       res.status(400).json({
         error: {
@@ -177,7 +177,7 @@ router.put('/:id/update', authMiddleware, requireActiveSubscription, async (req,
       });
       return;
     }
-    
+
     if (error instanceof Error && error.message.includes('not found')) {
       res.status(404).json({
         error: {
@@ -188,7 +188,7 @@ router.put('/:id/update', authMiddleware, requireActiveSubscription, async (req,
       });
       return;
     }
-    
+
     res.status(500).json({
       error: {
         type: 'INTERNAL_SERVER_ERROR',
@@ -207,7 +207,7 @@ router.put('/:id', authMiddleware, requireActiveSubscription, async (req, res) =
   try {
     const subscriptionId = req.params.id;
     const validatedData = updateSubscriptionRequestSchema.parse(req.body);
-    
+
     // Verify user owns this subscription
     const currentSubscription = await subscriptionService.getUserSubscription(req.user!.id);
     if (!currentSubscription || currentSubscription.id !== subscriptionId) {
@@ -220,19 +220,19 @@ router.put('/:id', authMiddleware, requireActiveSubscription, async (req, res) =
       });
       return;
     }
-    
+
     const updatedSubscription = await subscriptionService.updateSubscription({
       subscriptionId,
       ...validatedData,
     });
-    
+
     res.json({
       success: true,
       data: { subscription: updatedSubscription },
     });
   } catch (error) {
     console.error('Error updating subscription:', error);
-    
+
     if (error instanceof z.ZodError) {
       res.status(400).json({
         error: {
@@ -244,7 +244,7 @@ router.put('/:id', authMiddleware, requireActiveSubscription, async (req, res) =
       });
       return;
     }
-    
+
     if (error instanceof Error && error.message.includes('not found')) {
       res.status(404).json({
         error: {
@@ -255,7 +255,7 @@ router.put('/:id', authMiddleware, requireActiveSubscription, async (req, res) =
       });
       return;
     }
-    
+
     res.status(500).json({
       error: {
         type: 'INTERNAL_SERVER_ERROR',
@@ -275,7 +275,7 @@ router.delete('/:id/cancel', authMiddleware, requireActiveSubscription, async (r
   try {
     const subscriptionId = req.params.id;
     const { immediate } = cancelSubscriptionRequestSchema.parse(req.query);
-    
+
     // Verify user owns this subscription
     const currentSubscription = await subscriptionService.getUserSubscription(req.user!.id);
     if (!currentSubscription || currentSubscription.id !== subscriptionId) {
@@ -288,19 +288,19 @@ router.delete('/:id/cancel', authMiddleware, requireActiveSubscription, async (r
       });
       return;
     }
-    
+
     const canceledSubscription = await subscriptionService.cancelSubscription(
       subscriptionId,
       immediate
     );
-    
+
     res.json({
       success: true,
       data: { subscription: canceledSubscription },
     });
   } catch (error) {
     console.error('Error canceling subscription:', error);
-    
+
     if (error instanceof Error && error.message.includes('not found')) {
       res.status(404).json({
         error: {
@@ -311,7 +311,7 @@ router.delete('/:id/cancel', authMiddleware, requireActiveSubscription, async (r
       });
       return;
     }
-    
+
     res.status(500).json({
       error: {
         type: 'INTERNAL_SERVER_ERROR',
@@ -330,7 +330,7 @@ router.delete('/:id', authMiddleware, requireActiveSubscription, async (req, res
   try {
     const subscriptionId = req.params.id;
     const { immediate } = cancelSubscriptionRequestSchema.parse(req.query);
-    
+
     // Verify user owns this subscription
     const currentSubscription = await subscriptionService.getUserSubscription(req.user!.id);
     if (!currentSubscription || currentSubscription.id !== subscriptionId) {
@@ -343,19 +343,19 @@ router.delete('/:id', authMiddleware, requireActiveSubscription, async (req, res
       });
       return;
     }
-    
+
     const canceledSubscription = await subscriptionService.cancelSubscription(
       subscriptionId,
       immediate
     );
-    
+
     res.json({
       success: true,
       data: { subscription: canceledSubscription },
     });
   } catch (error) {
     console.error('Error canceling subscription:', error);
-    
+
     if (error instanceof Error && error.message.includes('not found')) {
       res.status(404).json({
         error: {
@@ -366,7 +366,7 @@ router.delete('/:id', authMiddleware, requireActiveSubscription, async (req, res
       });
       return;
     }
-    
+
     res.status(500).json({
       error: {
         type: 'INTERNAL_SERVER_ERROR',
@@ -384,7 +384,7 @@ router.delete('/:id', authMiddleware, requireActiveSubscription, async (req, res
 router.get('/usage', authMiddleware, async (req, res) => {
   try {
     const limits = await subscriptionService.getSubscriptionLimits(req.user!.id);
-    
+
     // Get current period usage
     const period = new Date().toISOString().slice(0, 7);
     const usage = await prisma.usageMetrics.findUnique({
@@ -395,7 +395,7 @@ router.get('/usage', authMiddleware, async (req, res) => {
         },
       },
     });
-    
+
     res.json({
       success: true,
       data: {
@@ -429,7 +429,7 @@ router.get('/usage', authMiddleware, async (req, res) => {
 router.post('/billing-portal', authMiddleware, requireActiveSubscription, async (req, res) => {
   try {
     const subscription = await subscriptionService.getUserSubscription(req.user!.id);
-    
+
     if (!subscription?.stripeCustomerId) {
       res.status(400).json({
         error: {
@@ -440,14 +440,25 @@ router.post('/billing-portal', authMiddleware, requireActiveSubscription, async 
       });
       return;
     }
-    
+
     const { returnUrl } = billingPortalRequestSchema.parse(req.body);
-    
+
     const session = await stripeService.createBillingPortalSession(
       subscription.stripeCustomerId,
       returnUrl
     );
-    
+
+    if (!session) {
+      res.status(503).json({
+        error: {
+          type: 'SERVICE_UNAVAILABLE',
+          message: 'Billing portal is currently disabled',
+          code: 'BILLING_DISABLED',
+        },
+      });
+      return;
+    }
+
     res.json({
       success: true,
       data: { url: session.url },
@@ -471,7 +482,7 @@ router.post('/billing-portal', authMiddleware, requireActiveSubscription, async 
 router.get('/:id/details', authMiddleware, async (req, res) => {
   try {
     const subscriptionId = req.params.id;
-    
+
     // Verify user owns this subscription
     const currentSubscription = await subscriptionService.getUserSubscription(req.user!.id);
     if (!currentSubscription || currentSubscription.id !== subscriptionId) {
@@ -529,7 +540,7 @@ router.get('/:id/details', authMiddleware, async (req, res) => {
 router.post('/preview-change', authMiddleware, requireActiveSubscription, async (req, res) => {
   try {
     const { planId } = updateSubscriptionRequestSchema.parse(req.body);
-    
+
     if (!planId) {
       res.status(400).json({
         error: {
@@ -620,7 +631,7 @@ router.post('/preview-change', authMiddleware, requireActiveSubscription, async 
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   try {
     const signature = req.headers['stripe-signature'] as string;
-    
+
     if (!signature) {
       res.status(400).json({
         error: {
@@ -631,9 +642,9 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
       });
       return;
     }
-    
-    await webhookService.processStripeWebhook(req.body, signature);
-    
+
+    const event = await webhookService.processStripeWebhook(req.body, signature);
+
     res.json({ received: true });
   } catch (error) {
     console.error('Webhook error:', error);

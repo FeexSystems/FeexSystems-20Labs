@@ -4,22 +4,28 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export class StripeService {
-  private stripe: Stripe;
+  private stripe: Stripe | null = null;
 
   constructor() {
-    if (!process.env.STRIPE_SECRET_KEY) {
-      throw new Error('STRIPE_SECRET_KEY is required');
+    if (process.env.STRIPE_SECRET_KEY) {
+      this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: '2024-06-20',
+      });
+      console.log('✅ Stripe initialized successfully');
+    } else {
+      console.warn('⚠️ STRIPE_SECRET_KEY is missing. Stripe integration is disabled.');
     }
-    
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-06-20',
-    });
+  }
+
+  private isEnabled(): boolean {
+    return this.stripe !== null;
   }
 
   /**
    * Create a Stripe customer
    */
-  async createCustomer(email: string, name?: string, metadata?: Record<string, string>): Promise<Stripe.Customer> {
+  async createCustomer(email: string, name?: string, metadata?: Record<string, string>): Promise<Stripe.Customer | null> {
+    if (!this.stripe) return null;
     return await this.stripe.customers.create({
       email,
       name,
@@ -38,7 +44,8 @@ export class StripeService {
       metadata?: Record<string, string>;
       paymentBehavior?: Stripe.SubscriptionCreateParams.PaymentBehavior;
     }
-  ): Promise<Stripe.Subscription> {
+  ): Promise<Stripe.Subscription | null> {
+    if (!this.stripe) return null;
     const subscriptionParams: Stripe.SubscriptionCreateParams = {
       customer: customerId,
       items: [{ price: priceId }],
@@ -70,7 +77,8 @@ export class StripeService {
       cancelAtPeriodEnd?: boolean;
       metadata?: Record<string, string>;
     }
-  ): Promise<Stripe.Subscription> {
+  ): Promise<Stripe.Subscription | null> {
+    if (!this.stripe) return null;
     const updateParams: Stripe.SubscriptionUpdateParams = {};
 
     if (updates.priceId) {
@@ -98,14 +106,16 @@ export class StripeService {
   /**
    * Cancel a subscription immediately
    */
-  async cancelSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
+  async cancelSubscription(subscriptionId: string): Promise<Stripe.Subscription | null> {
+    if (!this.stripe) return null;
     return await this.stripe.subscriptions.cancel(subscriptionId);
   }
 
   /**
    * Retrieve a subscription
    */
-  async getSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
+  async getSubscription(subscriptionId: string): Promise<Stripe.Subscription | null> {
+    if (!this.stripe) return null;
     return await this.stripe.subscriptions.retrieve(subscriptionId, {
       expand: ['customer', 'items.data.price.product'],
     });
@@ -114,7 +124,8 @@ export class StripeService {
   /**
    * Create a setup intent for saving payment methods
    */
-  async createSetupIntent(customerId: string): Promise<Stripe.SetupIntent> {
+  async createSetupIntent(customerId: string): Promise<Stripe.SetupIntent | null> {
+    if (!this.stripe) return null;
     return await this.stripe.setupIntents.create({
       customer: customerId,
       payment_method_types: ['card'],
@@ -126,6 +137,7 @@ export class StripeService {
    * Get customer's payment methods
    */
   async getPaymentMethods(customerId: string): Promise<Stripe.PaymentMethod[]> {
+    if (!this.stripe) return [];
     const paymentMethods = await this.stripe.paymentMethods.list({
       customer: customerId,
       type: 'card',
@@ -139,7 +151,8 @@ export class StripeService {
   async createBillingPortalSession(
     customerId: string,
     returnUrl: string
-  ): Promise<Stripe.BillingPortal.Session> {
+  ): Promise<Stripe.BillingPortal.Session | null> {
+    if (!this.stripe) return null;
     return await this.stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: returnUrl,
@@ -149,7 +162,8 @@ export class StripeService {
   /**
    * Construct webhook event from request
    */
-  constructWebhookEvent(payload: string | Buffer, signature: string): Stripe.Event {
+  constructWebhookEvent(payload: string | Buffer, signature: string): Stripe.Event | null {
+    if (!this.stripe) return null;
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
     if (!webhookSecret) {
       throw new Error('STRIPE_WEBHOOK_SECRET is required');
@@ -162,6 +176,7 @@ export class StripeService {
    * Get all active prices/plans
    */
   async getActivePrices(): Promise<Stripe.Price[]> {
+    if (!this.stripe) return [];
     const prices = await this.stripe.prices.list({
       active: true,
       expand: ['data.product'],
@@ -178,7 +193,8 @@ export class StripeService {
     currency: string;
     description: string;
     metadata?: Record<string, string>;
-  }): Promise<Stripe.InvoiceItem> {
+  }): Promise<Stripe.InvoiceItem | null> {
+    if (!this.stripe) return null;
     return await this.stripe.invoiceItems.create(params);
   }
 
@@ -189,14 +205,16 @@ export class StripeService {
     customer: string;
     description?: string;
     metadata?: Record<string, string>;
-  }): Promise<Stripe.Invoice> {
+  }): Promise<Stripe.Invoice | null> {
+    if (!this.stripe) return null;
     return await this.stripe.invoices.create(params);
   }
 
   /**
    * Finalize an invoice
    */
-  async finalizeInvoice(invoiceId: string): Promise<Stripe.Invoice> {
+  async finalizeInvoice(invoiceId: string): Promise<Stripe.Invoice | null> {
+    if (!this.stripe) return null;
     return await this.stripe.invoices.finalizeInvoice(invoiceId);
   }
 
@@ -204,11 +222,12 @@ export class StripeService {
    * Sync plans from Stripe to database
    */
   async syncPlansFromStripe(): Promise<void> {
+    if (!this.stripe) return;
     const prices = await this.getActivePrices();
-    
+
     for (const price of prices) {
       const product = price.product as Stripe.Product;
-      
+
       await prisma.plan.upsert({
         where: { stripePriceId: price.id },
         update: {

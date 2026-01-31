@@ -37,7 +37,7 @@ export const authenticate = async (
   try {
     // Extract token from Authorization header
     const token = JWTService.extractTokenFromHeader(req.headers.authorization);
-    
+
     if (!token) {
       res.status(401).json({
         success: false,
@@ -128,7 +128,7 @@ export const optionalAuthenticate = async (
 ): Promise<void> => {
   try {
     const token = JWTService.extractTokenFromHeader(req.headers.authorization);
-    
+
     if (!token) {
       next();
       return;
@@ -250,7 +250,7 @@ export const rateLimit = (options: {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       // Generate rate limit key
-      const key = options.keyGenerator 
+      const key = options.keyGenerator
         ? options.keyGenerator(req)
         : req.user?.id || req.ip || 'anonymous';
 
@@ -306,7 +306,7 @@ export const authenticateSession = async (
 ): Promise<void> => {
   try {
     const sessionToken = req.headers['x-session-token'] as string;
-    
+
     if (!sessionToken) {
       res.status(401).json({
         success: false,
@@ -367,7 +367,7 @@ export const authenticateApiKey = async (
 ): Promise<void> => {
   try {
     const apiKey = req.headers['x-api-key'] as string;
-    
+
     if (!apiKey) {
       res.status(401).json({
         success: false,
@@ -466,21 +466,21 @@ export const rateLimitConfigs = {
     maxRequests: 100,
     message: 'Too many requests from this IP, please try again later',
   },
-  
+
   // Authentication endpoints (stricter)
   auth: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 10,
     message: 'Too many authentication attempts, please try again later',
   },
-  
+
   // Password reset (very strict)
   passwordReset: {
     windowMs: 60 * 60 * 1000, // 1 hour
     maxRequests: 3,
     message: 'Too many password reset attempts, please try again later',
   },
-  
+
   // AI services (per user)
   aiServices: {
     windowMs: 60 * 1000, // 1 minute
@@ -489,3 +489,7 @@ export const rateLimitConfigs = {
     message: 'AI service rate limit exceeded, please wait before making more requests',
   },
 };
+
+// Aliases for backward compatibility
+export const authMiddleware = authenticate;
+export const requireAuth = authenticate;

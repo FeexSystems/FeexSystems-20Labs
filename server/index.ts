@@ -33,7 +33,7 @@ export function createServer() {
   }));
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-  
+
   // Serve uploaded files
   app.use('/uploads', express.static('uploads'));
 
@@ -44,8 +44,8 @@ export function createServer() {
 
   // API routes
   app.get("/api/ping", (_req, res) => {
-    res.json({ 
-      message: "Hello from FeexSystems Enhanced Platform!", 
+    res.json({
+      message: "Hello from FeexSystems Enhanced Platform!",
       timestamp: new Date().toISOString(),
       version: "2.0.0"
     });
@@ -53,34 +53,34 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
   app.post("/api/chat", handleChat);
-  
+
   // Authentication routes
   app.use("/api/auth", authRoutes);
-  
+
   // User routes
   app.use("/api/users", userRoutes);
-  
+
   // Subscription routes
   app.use("/api/subscriptions", subscriptionRoutes);
-  
+
   // Usage routes
   app.use("/api/usage", usageRoutes);
-  
+
   // Billing routes
   app.use("/api/billing", billingRoutes);
-  
+
   // AI routes
   app.use("/api/ai", aiRoutes);
-  
+
   // DevOps routes
   app.use("/api/devops", devopsRoutes);
-  
+
   // Security routes
   app.use("/api/security", securityRoutes);
 
   // 404 handler for API routes
   app.use("/api/*", (_req, res) => {
-    res.status(404).json({ 
+    res.status(404).json({
       error: "API endpoint not found",
       timestamp: new Date().toISOString()
     });
@@ -105,23 +105,23 @@ export const app = createServer();
 // Initialize infrastructure connections
 export async function initializeInfrastructure() {
   console.log('🚀 Initializing infrastructure...');
-  
+
   try {
     // Connect to database
     await connectDatabase();
-    
+
     // Initialize Redis
     createRedisClient();
-    
+
     // Initialize AI service
     await aiService.initialize();
-    
+
     // Initialize Security service
     await securityService.initialize();
-    
+
     // Initialize Security Cron service
     await securityCronService.initialize();
-    
+
     console.log('✅ Infrastructure initialized successfully');
   } catch (error) {
     console.error('❌ Infrastructure initialization failed:', error);
@@ -132,26 +132,27 @@ export async function initializeInfrastructure() {
 // Start server with WebSocket support
 export async function startServer() {
   const port = process.env.PORT || 3001;
-  
+
   // Initialize infrastructure first
   await initializeInfrastructure();
-  
+
   // Create HTTP server
   const httpServer = createHttpServer(app);
-  
+
   // Initialize WebSocket services
   initializeDeploymentWebSocket(httpServer);
-  
+
   // Start listening
   httpServer.listen(port, () => {
     console.log(`🚀 Server running on port ${port}`);
     console.log(`📡 WebSocket endpoints available at ws://localhost:${port}/socket.io/deployments`);
   });
-  
+
   return httpServer;
 }
 
-// Start server if this file is run directly
-if (require.main === module) {
+// Start server if this file is run directly (ESM-safe)
+const isMainModule = import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}`;
+if (isMainModule) {
   startServer().catch(console.error);
 }

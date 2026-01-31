@@ -79,7 +79,7 @@ export class SubscriptionService {
     }
 
     // Create or get Stripe customer
-    let stripeCustomerId: string;
+    let stripeCustomerId: string | null = null;
     const existingCustomer = await prisma.subscription.findFirst({
       where: { userId: request.userId, stripeCustomerId: { not: null } },
       select: { stripeCustomerId: true },
@@ -93,13 +93,13 @@ export class SubscriptionService {
         `${user.firstName} ${user.lastName}`,
         { userId: user.id }
       );
-      stripeCustomerId = stripeCustomer.id;
+      stripeCustomerId = stripeCustomer?.id || null;
     }
 
     // Create Stripe subscription
     const stripeSubscription = await stripeService.createSubscription(
-      stripeCustomerId,
-      plan.stripePriceId,
+      stripeCustomerId || 'placeholder',
+      plan.stripePriceId || 'placeholder',
       {
         trialPeriodDays: request.trialPeriodDays || plan.trialPeriodDays || undefined,
         metadata: {
@@ -110,28 +110,39 @@ export class SubscriptionService {
     );
 
     // Create subscription in database
+    const subscriptionData: any = {
+      userId: request.userId,
+      planId: request.planId,
+      status: stripeSubscription
+        ? this.mapStripeStatusToDb(stripeSubscription.status)
+        : 'ACTIVE',
+      currentPeriodStart: stripeSubscription
+        ? new Date(stripeSubscription.current_period_start * 1000)
+        : new Date(),
+      currentPeriodEnd: stripeSubscription
+        ? new Date(stripeSubscription.current_period_end * 1000)
+        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default to 30 days
+      stripeSubscriptionId: stripeSubscription?.id || null,
+      stripeCustomerId,
+    };
+
+    if (stripeSubscription) {
+      if (stripeSubscription.trial_start) {
+        subscriptionData.trialStart = new Date(stripeSubscription.trial_start * 1000);
+      }
+      if (stripeSubscription.trial_end) {
+        subscriptionData.trialEnd = new Date(stripeSubscription.trial_end * 1000);
+      }
+    }
+
     const subscription = await prisma.subscription.create({
-      data: {
-        userId: request.userId,
-        planId: request.planId,
-        status: this.mapStripeStatusToDb(stripeSubscription.status),
-        currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-        stripeSubscriptionId: stripeSubscription.id,
-        stripeCustomerId,
-        trialStart: stripeSubscription.trial_start
-          ? new Date(stripeSubscription.trial_start * 1000)
-          : null,
-        trialEnd: stripeSubscription.trial_end
-          ? new Date(stripeSubscription.trial_end * 1000)
-          : null,
-      },
+      data: subscriptionData,
       include: { plan: true },
     });
 
     // Extract client secret if payment is required
     let clientSecret: string | undefined;
-    if (stripeSubscription.latest_invoice) {
+    if (stripeSubscription?.latest_invoice) {
       const invoice = stripeSubscription.latest_invoice as Stripe.Invoice;
       if (invoice.payment_intent) {
         const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
@@ -187,16 +198,24 @@ export class SubscriptionService {
       where: { id: request.subscriptionId },
       data: {
         planId: request.planId || subscription.planId,
-        status: this.mapStripeStatusToDb(stripeSubscription.status),
-        currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-        cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-        canceledAt: stripeSubscription.canceled_at
+        status: stripeSubscription
+          ? this.mapStripeStatusToDb(stripeSubscription.status)
+          : subscription.status,
+        currentPeriodStart: stripeSubscription
+          ? new Date(stripeSubscription.current_period_start * 1000)
+          : subscription.currentPeriodStart,
+        currentPeriodEnd: stripeSubscription
+          ? new Date(stripeSubscription.current_period_end * 1000)
+          : subscription.currentPeriodEnd,
+        cancelAtPeriodEnd: stripeSubscription
+          ? stripeSubscription.cancel_at_period_end
+          : updates.cancelAtPeriodEnd !== undefined ? updates.cancelAtPeriodEnd : subscription.cancelAtPeriodEnd,
+        canceledAt: stripeSubscription?.canceled_at
           ? new Date(stripeSubscription.canceled_at * 1000)
-          : null,
-        endedAt: stripeSubscription.ended_at
+          : subscription.canceledAt,
+        endedAt: stripeSubscription?.ended_at
           ? new Date(stripeSubscription.ended_at * 1000)
-          : null,
+          : subscription.endedAt,
       },
       include: { plan: true },
     });
@@ -217,34 +236,48 @@ export class SubscriptionService {
       throw new Error('Subscription not found');
     }
 
-    let stripeSubscription: Stripe.Subscription;
+    let stripeSubscription: Stripe.Subscription | null = null;
 
-    if (immediate) {
-      // Cancel immediately
-      stripeSubscription = await stripeService.cancelSubscription(
-        subscription.stripeSubscriptionId
-      );
-    } else {
-      // Cancel at period end
-      stripeSubscription = await stripeService.updateSubscription(
-        subscription.stripeSubscriptionId,
-        { cancelAtPeriodEnd: true }
-      );
+    if (subscription.stripeSubscriptionId) {
+      if (immediate) {
+        // Cancel immediately
+        stripeSubscription = await stripeService.cancelSubscription(
+          subscription.stripeSubscriptionId
+        );
+      } else {
+        // Cancel at period end
+        stripeSubscription = await stripeService.updateSubscription(
+          subscription.stripeSubscriptionId,
+          { cancelAtPeriodEnd: true }
+        );
+      }
     }
 
     // Update database
+    const updateData: any = {
+      status: stripeSubscription
+        ? this.mapStripeStatusToDb(stripeSubscription.status)
+        : (immediate ? 'CANCELED' : subscription.status),
+      cancelAtPeriodEnd: stripeSubscription
+        ? stripeSubscription.cancel_at_period_end
+        : !immediate,
+    };
+
+    if (stripeSubscription) {
+      if (stripeSubscription.canceled_at) {
+        updateData.canceledAt = new Date(stripeSubscription.canceled_at * 1000);
+      }
+      if (stripeSubscription.ended_at) {
+        updateData.endedAt = new Date(stripeSubscription.ended_at * 1000);
+      }
+    } else if (immediate) {
+      updateData.canceledAt = new Date();
+      updateData.endedAt = new Date();
+    }
+
     const updatedSubscription = await prisma.subscription.update({
       where: { id: subscriptionId },
-      data: {
-        status: this.mapStripeStatusToDb(stripeSubscription.status),
-        cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-        canceledAt: stripeSubscription.canceled_at
-          ? new Date(stripeSubscription.canceled_at * 1000)
-          : null,
-        endedAt: stripeSubscription.ended_at
-          ? new Date(stripeSubscription.ended_at * 1000)
-          : null,
-      },
+      data: updateData,
       include: { plan: true },
     });
 
@@ -256,7 +289,7 @@ export class SubscriptionService {
    */
   async getSubscriptionLimits(userId: string): Promise<Record<string, any> | null> {
     const subscription = await this.getUserSubscription(userId);
-    
+
     if (!subscription) {
       // Return free tier limits
       return {

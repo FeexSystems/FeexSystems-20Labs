@@ -55,7 +55,7 @@ async function main() {
 
   // Add users to team
   await prisma.teamMember.upsert({
-    where: { 
+    where: {
       teamId_userId: {
         teamId: team.id,
         userId: admin.id
@@ -70,7 +70,7 @@ async function main() {
   });
 
   await prisma.teamMember.upsert({
-    where: { 
+    where: {
       teamId_userId: {
         teamId: team.id,
         userId: testUser.id
@@ -107,7 +107,7 @@ async function main() {
 
   // Create sample usage metrics
   const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
-  
+
   await prisma.usageMetrics.upsert({
     where: {
       userId_period: {
@@ -131,13 +131,12 @@ async function main() {
 
   // Create subscription plans
   const freePlan = await prisma.plan.upsert({
-    where: { stripePriceId: 'price_free_tier' },
+    where: { id: 'plan_free' },
     update: {},
     create: {
+      id: 'plan_free',
       name: 'Free',
       description: 'Perfect for getting started with basic features',
-      stripePriceId: 'price_free_tier',
-      stripeProductId: 'prod_free_tier',
       price: 0,
       currency: 'usd',
       interval: 'month',
@@ -159,13 +158,12 @@ async function main() {
   });
 
   const starterPlan = await prisma.plan.upsert({
-    where: { stripePriceId: 'price_starter_monthly' },
+    where: { id: 'plan_starter' },
     update: {},
     create: {
+      id: 'plan_starter',
       name: 'Starter',
       description: 'Great for small teams and growing projects',
-      stripePriceId: 'price_starter_monthly',
-      stripeProductId: 'prod_starter',
       price: 2900, // $29.00
       currency: 'usd',
       interval: 'month',
@@ -187,13 +185,12 @@ async function main() {
   });
 
   const professionalPlan = await prisma.plan.upsert({
-    where: { stripePriceId: 'price_professional_monthly' },
+    where: { id: 'plan_professional' },
     update: {},
     create: {
+      id: 'plan_professional',
       name: 'Professional',
       description: 'Perfect for professional teams and advanced workflows',
-      stripePriceId: 'price_professional_monthly',
-      stripeProductId: 'prod_professional',
       price: 9900, // $99.00
       currency: 'usd',
       interval: 'month',
@@ -217,13 +214,12 @@ async function main() {
   });
 
   const enterprisePlan = await prisma.plan.upsert({
-    where: { stripePriceId: 'price_enterprise_monthly' },
+    where: { id: 'plan_enterprise' },
     update: {},
     create: {
+      id: 'plan_enterprise',
       name: 'Enterprise',
       description: 'For large organizations with custom requirements',
-      stripePriceId: 'price_enterprise_monthly',
-      stripeProductId: 'prod_enterprise',
       price: 29900, // $299.00
       currency: 'usd',
       interval: 'month',

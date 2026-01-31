@@ -8,13 +8,21 @@ interface TokenExpiredCallback {
   (): void;
 }
 
+interface TimeoutWarningCallback {
+  (secondsRemaining: number): void;
+}
+
 class TokenManager {
   private static instance: TokenManager;
   private refreshTimer: NodeJS.Timeout | null = null;
+  private warningTimer: NodeJS.Timeout | null = null;
   private refreshPromise: Promise<AuthTokens> | null = null;
   private refreshCallback: TokenRefreshCallback | null = null;
   private expiredCallback: TokenExpiredCallback | null = null;
+  private warningCallback: TimeoutWarningCallback | null = null;
   private isRefreshing = false;
+  // Warning threshold in seconds (default: 2 minutes before expiration)
+  private warningThresholdSeconds = 120;
 
   static getInstance(): TokenManager {
     if (!TokenManager.instance) {
@@ -28,10 +36,16 @@ class TokenManager {
    */
   initialize(
     refreshCallback: TokenRefreshCallback,
-    expiredCallback: TokenExpiredCallback
+    expiredCallback: TokenExpiredCallback,
+    warningCallback?: TimeoutWarningCallback,
+    warningThresholdSeconds?: number
   ) {
     this.refreshCallback = refreshCallback;
     this.expiredCallback = expiredCallback;
+    this.warningCallback = warningCallback || null;
+    if (warningThresholdSeconds) {
+      this.warningThresholdSeconds = warningThresholdSeconds;
+    }
   }
 
   /**
@@ -39,14 +53,31 @@ class TokenManager {
    */
   startAutoRefresh(tokens: AuthTokens) {
     this.clearRefreshTimer();
+    this.clearWarningTimer();
 
     if (!tokens.accessToken || !tokens.expiresIn) {
       return;
     }
 
+    const expirationTime = tokens.expiresIn * 1000;
+    const now = Date.now();
+
+    // Schedule timeout warning (e.g., 2 minutes before expiration)
+    const warningTime = expirationTime - (this.warningThresholdSeconds * 1000);
+    const timeUntilWarning = Math.max(warningTime - now, 0);
+
+    if (timeUntilWarning > 0 && this.warningCallback) {
+      console.log(`⚠️ Session timeout warning scheduled in ${Math.round(timeUntilWarning / 1000 / 60)} minutes`);
+      this.warningTimer = setTimeout(() => {
+        if (this.warningCallback) {
+          this.warningCallback(this.warningThresholdSeconds);
+        }
+      }, timeUntilWarning);
+    }
+
     // Calculate when to refresh (5 minutes before expiration)
-    const refreshTime = (tokens.expiresIn * 1000) - (5 * 60 * 1000);
-    const timeUntilRefresh = Math.max(refreshTime - Date.now(), 0);
+    const refreshTime = expirationTime - (5 * 60 * 1000);
+    const timeUntilRefresh = Math.max(refreshTime - now, 0);
 
     console.log(`🔄 Token refresh scheduled in ${Math.round(timeUntilRefresh / 1000 / 60)} minutes`);
 
@@ -56,10 +87,11 @@ class TokenManager {
   }
 
   /**
-   * Stop automatic token refresh
+   * Stop automatic token refresh and clear warning timers
    */
   stopAutoRefresh() {
     this.clearRefreshTimer();
+    this.clearWarningTimer();
     this.refreshPromise = null;
     this.isRefreshing = false;
   }
@@ -116,28 +148,28 @@ class TokenManager {
     }
 
     this.isRefreshing = true;
-    
+
     this.refreshPromise = this.refreshCallback()
       .then((newTokens) => {
         console.log('✅ Token refresh successful');
         this.isRefreshing = false;
         this.refreshPromise = null;
-        
+
         // Schedule next refresh
         this.startAutoRefresh(newTokens);
-        
+
         return newTokens;
       })
       .catch((error) => {
         console.error('❌ Token refresh failed:', error);
         this.isRefreshing = false;
         this.refreshPromise = null;
-        
+
         // Call expired callback to logout user
         if (this.expiredCallback) {
           this.expiredCallback();
         }
-        
+
         throw error;
       });
 
@@ -153,11 +185,11 @@ class TokenManager {
     maxRetries = 1
   ): Promise<T> {
     let attempts = 0;
-    
+
     while (attempts <= maxRetries) {
       try {
         const token = await this.getValidAccessToken(currentTokens);
-        
+
         if (!token) {
           throw new Error('No valid access token available');
         }
@@ -165,11 +197,11 @@ class TokenManager {
         return await requestFn(token);
       } catch (error: any) {
         attempts++;
-        
+
         // If it's a 401 error and we haven't exceeded max retries, try to refresh
         if (error.status === 401 && attempts <= maxRetries) {
           console.log(`🔄 Received 401, attempting token refresh (attempt ${attempts}/${maxRetries + 1})`);
-          
+
           try {
             const newTokens = await this.refreshTokens();
             currentTokens = newTokens;
@@ -179,12 +211,12 @@ class TokenManager {
             throw refreshError;
           }
         }
-        
+
         // If not a 401 or exceeded retries, throw the error
         throw error;
       }
     }
-    
+
     throw new Error('Max retry attempts exceeded');
   }
 
@@ -214,6 +246,13 @@ class TokenManager {
     if (this.refreshTimer) {
       clearTimeout(this.refreshTimer);
       this.refreshTimer = null;
+    }
+  }
+
+  private clearWarningTimer() {
+    if (this.warningTimer) {
+      clearTimeout(this.warningTimer);
+      this.warningTimer = null;
     }
   }
 }

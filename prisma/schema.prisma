@@ -66,8 +66,6 @@ model Plan {
   id                String   @id @default(cuid())
   name              String
   description       String?
-  stripePriceId     String   @unique @map("stripe_price_id")
-  stripeProductId   String   @map("stripe_product_id")
   price             Int      // Price in cents
   currency          String   @default("usd")
   interval          String   // 'month' or 'year'
@@ -92,8 +90,6 @@ model Subscription {
   currentPeriodStart   DateTime          @map("current_period_start")
   currentPeriodEnd     DateTime          @map("current_period_end")
   cancelAtPeriodEnd    Boolean           @default(false) @map("cancel_at_period_end")
-  stripeSubscriptionId String?           @unique @map("stripe_subscription_id")
-  stripeCustomerId     String?           @map("stripe_customer_id")
   trialStart           DateTime?         @map("trial_start")
   trialEnd             DateTime?         @map("trial_end")
   canceledAt           DateTime?         @map("canceled_at")
@@ -271,17 +267,6 @@ model UsageMetrics {
   @@map("usage_metrics")
 }
 
-model StripeWebhookEvent {
-  id            String   @id @default(cuid())
-  stripeEventId String   @unique @map("stripe_event_id")
-  eventType     String   @map("event_type")
-  processed     Boolean  @default(false)
-  data          Json
-  createdAt     DateTime @default(now()) @map("created_at")
-  processedAt   DateTime? @map("processed_at")
-
-  @@map("stripe_webhook_events")
-}
 
 model ActivityLog {
   id         String   @id @default(cuid())

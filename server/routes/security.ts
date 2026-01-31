@@ -3,9 +3,9 @@ import { z } from 'zod';
 import { authMiddleware } from '../lib/middleware/auth.middleware';
 import { rateLimitMiddleware } from '../lib/middleware/rate-limit.middleware';
 import { securityService } from '../lib/services/security.service';
-import { 
-  securityScanRequestSchema, 
-  scanQuerySchema, 
+import {
+  securityScanRequestSchema,
+  scanQuerySchema,
   cveSearchSchema,
   validateScanTarget,
   sanitizeScanConfiguration
@@ -24,7 +24,7 @@ router.use(authMiddleware);
  * POST /api/security/scan
  * Initiate a new security scan
  */
-router.post('/scan', 
+router.post('/scan',
   rateLimitMiddleware({ windowMs: 60 * 1000, max: 10 }), // 10 scans per minute
   async (req, res) => {
     try {
@@ -56,7 +56,7 @@ router.post('/scan',
 
       // Parse scheduled date if provided
       const scheduledDate = scheduledAt ? new Date(scheduledAt) : undefined;
-      
+
       // Validate scheduled date is in the future
       if (scheduledDate && scheduledDate <= new Date()) {
         return res.status(400).json({
@@ -170,8 +170,8 @@ router.get('/scan/:id/results', async (req, res) => {
     const result = await securityService.getScanResults(id, userId);
 
     if (result.error) {
-      const statusCode = result.error === 'Scan not found' ? 404 : 
-                        result.error === 'Unauthorized' ? 403 : 400;
+      const statusCode = result.error === 'Scan not found' ? 404 :
+        result.error === 'Unauthorized' ? 403 : 400;
       return res.status(statusCode).json({
         success: false,
         error: result.error
@@ -274,8 +274,8 @@ router.delete('/scan/:id', async (req, res) => {
     const result = await securityService.cancelScan(id, userId);
 
     if (!result.success) {
-      const statusCode = result.error === 'Scan not found' ? 404 : 
-                        result.error === 'Unauthorized' ? 403 : 400;
+      const statusCode = result.error === 'Scan not found' ? 404 :
+        result.error === 'Unauthorized' ? 403 : 400;
       return res.status(statusCode).json({
         success: false,
         error: result.error
@@ -303,7 +303,7 @@ router.delete('/scan/:id', async (req, res) => {
 router.get('/scanners', async (req, res) => {
   try {
     const scanners = securityService.getAvailableScanners();
-    
+
     res.json({
       success: true,
       data: {
@@ -327,7 +327,7 @@ router.get('/scanners', async (req, res) => {
 router.get('/scanners/:scanType', async (req, res) => {
   try {
     const { scanType } = req.params;
-    
+
     // Validate scan type
     const validScanTypes = ['VULNERABILITY', 'PENETRATION', 'COMPLIANCE'];
     if (!validScanTypes.includes(scanType.toUpperCase())) {
@@ -338,7 +338,7 @@ router.get('/scanners/:scanType', async (req, res) => {
     }
 
     const scanners = securityService.getScannersByScanType(scanType.toUpperCase() as any);
-    
+
     res.json({
       success: true,
       data: {
@@ -688,7 +688,7 @@ router.put('/admin/scanner/:id', async (req, res) => {
  * POST /api/security/schedule
  * Create a recurring scan schedule
  */
-router.post('/schedule', 
+router.post('/schedule',
   rateLimitMiddleware({ windowMs: 60 * 1000, max: 5 }), // 5 schedules per minute
   async (req, res) => {
     try {
@@ -981,7 +981,7 @@ router.post('/compliance-report', async (req, res) => {
     // Validate dates
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return res.status(400).json({
         success: false,
@@ -1891,7 +1891,7 @@ router.post('/remediation/report', async (req, res) => {
     // Validate dates
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return res.status(400).json({
         success: false,
@@ -1924,5 +1924,5 @@ router.post('/remediation/report', async (req, res) => {
     });
   }
 });
-expor
-t default router;
+
+export default router;

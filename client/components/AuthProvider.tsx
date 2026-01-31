@@ -1,16 +1,50 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState, useCallback } from 'react';
 import { AuthStoreProvider, useAuthStore } from '@/lib/auth-store';
 import { tokenManager } from '@/lib/token-manager';
-import { TokenExpirationWarning } from './TokenExpirationWarning';
+import { SessionTimeoutWarning } from './SessionTimeoutWarning';
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 function AuthProviderInner({ children }: AuthProviderProps) {
-  const { isAuthenticated, tokens, refreshToken } = useAuthStore();
+  const { isAuthenticated, tokens, refreshToken, logout } = useAuthStore();
+  const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
+  const [warningSeconds, setWarningSeconds] = useState(120); // 2 minutes default
+
+  // Handle timeout warning callback
+  const handleTimeoutWarning = useCallback((secondsRemaining: number) => {
+    console.log(`⚠️ Showing session timeout warning: ${secondsRemaining} seconds remaining`);
+    setWarningSeconds(secondsRemaining);
+    setShowTimeoutWarning(true);
+  }, []);
+
+  // Handle "Stay Logged In" action
+  const handleStayLoggedIn = useCallback(async () => {
+    try {
+      await refreshToken();
+      setShowTimeoutWarning(false);
+    } catch (error) {
+      console.error('Failed to refresh token from timeout warning:', error);
+      // If refresh fails, let the warning continue until auto-logout
+    }
+  }, [refreshToken]);
+
+  // Handle logout from warning
+  const handleLogoutFromWarning = useCallback(() => {
+    setShowTimeoutWarning(false);
+    logout();
+  }, [logout]);
 
   useEffect(() => {
+    // Initialize token manager with callbacks
+    tokenManager.initialize(
+      refreshToken,
+      logout,
+      handleTimeoutWarning,
+      120 // Warn 2 minutes before expiration
+    );
+
     // Initialize authentication check on app start
     const initializeAuth = async () => {
       if (isAuthenticated && tokens?.accessToken) {
@@ -80,8 +114,14 @@ function AuthProviderInner({ children }: AuthProviderProps) {
   return (
     <>
       {children}
-      {/* Show token expiration warning for authenticated users */}
-      {isAuthenticated && <TokenExpirationWarning />}
+      {/* Show session timeout warning */}
+      <SessionTimeoutWarning
+        remainingSeconds={warningSeconds}
+        isOpen={showTimeoutWarning && isAuthenticated}
+        onStayLoggedIn={handleStayLoggedIn}
+        onLogout={handleLogoutFromWarning}
+        onClose={() => setShowTimeoutWarning(false)}
+      />
     </>
   );
 }

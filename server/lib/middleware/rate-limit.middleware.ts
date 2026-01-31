@@ -28,18 +28,18 @@ export function rateLimitBySubscription(options: RateLimitOptions) {
 
       // Check if user can perform the action
       const canPerform = await usageService.canPerformAction(userId, options.action);
-      
+
       if (!canPerform.allowed) {
         // Get subscription info for upgrade suggestions
         const subscription = await subscriptionService.getUserSubscription(userId);
         const plans = await subscriptionService.getPlans();
-        
+
         // Find next tier plan
-        const currentPlanIndex = subscription 
+        const currentPlanIndex = subscription
           ? plans.findIndex(p => p.id === subscription.plan.id)
           : -1;
-        const nextPlan = currentPlanIndex < plans.length - 1 
-          ? plans[currentPlanIndex + 1] 
+        const nextPlan = currentPlanIndex < plans.length - 1
+          ? plans[currentPlanIndex + 1]
           : null;
 
         return res.status(429).json({
@@ -66,7 +66,7 @@ export function rateLimitBySubscription(options: RateLimitOptions) {
       // Store action info for post-processing
       req.rateLimitAction = options.action;
       req.rateLimitUserId = userId;
-      
+
       next();
     } catch (error) {
       console.error('Rate limit middleware error:', error);
@@ -89,8 +89,8 @@ export function incrementUsageAfterSuccess() {
   return async (req: Request, res: Response, next: NextFunction) => {
     // Store original res.json to intercept successful responses
     const originalJson = res.json;
-    
-    res.json = function(body: any) {
+
+    res.json = function (body: any) {
       // Check if response indicates success (2xx status codes)
       if (res.statusCode >= 200 && res.statusCode < 300) {
         // Increment usage asynchronously (don't wait for it)
@@ -103,11 +103,11 @@ export function incrementUsageAfterSuccess() {
           });
         }
       }
-      
+
       // Call original json method
       return originalJson.call(this, body);
     };
-    
+
     next();
   };
 }
@@ -131,8 +131,8 @@ export function checkStorageLimit() {
 
       // Get current usage and limits
       const usageReport = await usageService.getUserUsageReport(userId);
-      const fileSizeBytes = req.headers['content-length'] 
-        ? parseInt(req.headers['content-length']) 
+      const fileSizeBytes = req.headers['content-length']
+        ? parseInt(req.headers['content-length'])
         : 0;
 
       // Convert to GB for comparison
@@ -159,7 +159,7 @@ export function checkStorageLimit() {
       // Store file size for post-processing
       req.uploadFileSize = BigInt(fileSizeBytes);
       req.rateLimitUserId = userId;
-      
+
       next();
     } catch (error) {
       console.error('Storage limit middleware error:', error);
@@ -180,8 +180,8 @@ export function checkStorageLimit() {
 export function incrementStorageAfterUpload() {
   return async (req: Request, res: Response, next: NextFunction) => {
     const originalJson = res.json;
-    
-    res.json = function(body: any) {
+
+    res.json = function (body: any) {
       // Check if response indicates success
       if (res.statusCode >= 200 && res.statusCode < 300) {
         // Increment storage usage asynchronously
@@ -195,10 +195,10 @@ export function incrementStorageAfterUpload() {
           });
         }
       }
-      
+
       return originalJson.call(this, body);
     };
-    
+
     next();
   };
 }
@@ -214,26 +214,26 @@ export function trackBandwidthUsage() {
     }
 
     // Track request size
-    const requestSize = req.headers['content-length'] 
-      ? parseInt(req.headers['content-length']) 
+    const requestSize = req.headers['content-length']
+      ? parseInt(req.headers['content-length'])
       : 0;
 
     const originalJson = res.json;
     const originalSend = res.send;
-    
+
     // Override response methods to track bandwidth
-    res.json = function(body: any) {
+    res.json = function (body: any) {
       const responseSize = Buffer.byteLength(JSON.stringify(body), 'utf8');
       trackBandwidth(userId, requestSize + responseSize);
       return originalJson.call(this, body);
     };
-    
-    res.send = function(body: any) {
+
+    res.send = function (body: any) {
       const responseSize = Buffer.byteLength(body, 'utf8');
       trackBandwidth(userId, requestSize + responseSize);
       return originalSend.call(this, body);
     };
-    
+
     next();
   };
 }
@@ -261,3 +261,6 @@ declare global {
     }
   }
 }
+
+// Alias for backward compatibility
+export const rateLimitMiddleware = rateLimitBySubscription;

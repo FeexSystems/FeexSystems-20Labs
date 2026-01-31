@@ -44,7 +44,7 @@ export class BillingService {
    */
   async calculateBilling(userId: string, period?: string): Promise<BillingCalculation> {
     const currentPeriod = period || new Date().toISOString().slice(0, 7);
-    
+
     // Get user's subscription and usage
     const subscription = await subscriptionService.getUserSubscription(userId);
     if (!subscription) {
@@ -53,13 +53,13 @@ export class BillingService {
 
     const usage = await usageService.getUserUsage(userId, currentPeriod);
     const limits = subscription.plan.features as any;
-    
+
     // Get overage rates (could be customized per plan)
     const overageRates = this.getOverageRates(subscription.plan.id);
-    
+
     // Calculate base amount (subscription cost)
     const baseAmount = subscription.plan.price;
-    
+
     // Calculate overages
     const overageCharges = {
       aiRequests: this.calculateOverage(
@@ -114,7 +114,7 @@ export class BillingService {
     errors: Array<{ userId: string; error: string }>;
   }> {
     const currentPeriod = period || new Date().toISOString().slice(0, 7);
-    
+
     // Get all active subscriptions
     const activeSubscriptions = await prisma.subscription.findMany({
       where: {
@@ -136,7 +136,7 @@ export class BillingService {
     for (const subscription of activeSubscriptions) {
       try {
         const billing = await this.calculateBilling(subscription.userId, currentPeriod);
-        
+
         // Only create invoice if there are overage charges
         if (billing.totalOverage > 0) {
           await this.createOverageInvoice(subscription, billing);
@@ -170,7 +170,8 @@ export class BillingService {
     billing: BillingCalculation
   ): Promise<void> {
     if (!subscription.stripeCustomerId) {
-      throw new Error('No Stripe customer ID found');
+      console.warn(`⚠️ No Stripe customer ID found for user ${billing.userId}. Overage invoice skipped.`);
+      return;
     }
 
     // Create invoice items for each overage charge
@@ -237,7 +238,11 @@ export class BillingService {
       },
     });
 
-    await stripeService.finalizeInvoice(invoice.id);
+    if (invoice) {
+      await stripeService.finalizeInvoice(invoice.id);
+    } else {
+      console.warn(`⚠️ Stripe invoice creation skipped or failed for user ${billing.userId}.`);
+    }
   }
 
   /**
@@ -255,7 +260,7 @@ export class BillingService {
   private calculateOverage(usage: number, limit: number, ratePerUnit: number): number {
     if (limit === -1) return 0; // Unlimited
     if (usage <= limit) return 0; // Under limit
-    
+
     const overage = usage - limit;
     return overage * ratePerUnit;
   }
@@ -266,7 +271,7 @@ export class BillingService {
   private calculateStorageOverage(usageBytes: bigint, limitGB: number, ratePerGB: number): number {
     const usageGB = Number(usageBytes) / (1024 * 1024 * 1024);
     if (usageGB <= limitGB) return 0;
-    
+
     const overageGB = usageGB - limitGB;
     return Math.ceil(overageGB) * ratePerGB;
   }
@@ -276,10 +281,10 @@ export class BillingService {
    */
   private calculateBandwidthOverage(usageBytes: bigint, limitGB: number, ratePerGB: number): number {
     if (limitGB === 0) return 0; // No bandwidth limits
-    
+
     const usageGB = Number(usageBytes) / (1024 * 1024 * 1024);
     if (usageGB <= limitGB) return 0;
-    
+
     const overageGB = usageGB - limitGB;
     return Math.ceil(overageGB) * ratePerGB;
   }
@@ -290,11 +295,11 @@ export class BillingService {
   async getBillingHistory(userId: string, months: number = 6): Promise<BillingCalculation[]> {
     const history: BillingCalculation[] = [];
     const now = new Date();
-    
+
     for (let i = 0; i < months; i++) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const period = date.toISOString().slice(0, 7);
-      
+
       try {
         const billing = await this.calculateBilling(userId, period);
         history.push(billing);
@@ -303,7 +308,7 @@ export class BillingService {
         console.warn(`No billing data for user ${userId} in period ${period}`);
       }
     }
-    
+
     return history;
   }
 
@@ -449,10 +454,10 @@ export class BillingService {
     const currentMonth = new Date().toISOString().slice(0, 7);
     const currentDay = new Date().getDate();
     const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-    
+
     // Get current month's usage
     const currentUsage = await usageService.getUserUsage(userId, currentMonth);
-    
+
     // Estimate full month usage based on current progress
     const progressRatio = currentDay / daysInMonth;
     const estimatedUsage = {
@@ -473,7 +478,7 @@ export class BillingService {
     const limits = subscription.plan.features as any;
     const overageRates = this.getOverageRates(subscription.plan.id);
     const baseAmount = subscription.plan.price;
-    
+
     const overageCharges = {
       aiRequests: this.calculateOverage(
         estimatedUsage.aiRequestsCount,

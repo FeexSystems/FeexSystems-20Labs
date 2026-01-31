@@ -12,6 +12,11 @@ export class WebhookService {
     try {
       const event = stripeService.constructWebhookEvent(payload, signature);
 
+      if (!event) {
+        console.warn('⚠️ Stripe webhook processing skipped because Stripe is disabled.');
+        return;
+      }
+
       // Check if we've already processed this event
       const existingEvent = await prisma.stripeWebhookEvent.findUnique({
         where: { stripeEventId: event.id },
@@ -130,8 +135,8 @@ export class WebhookService {
    */
   private async handleInvoicePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
     if (invoice.subscription) {
-      const subscriptionId = typeof invoice.subscription === 'string' 
-        ? invoice.subscription 
+      const subscriptionId = typeof invoice.subscription === 'string'
+        ? invoice.subscription
         : invoice.subscription.id;
 
       // Update subscription status to active
@@ -150,8 +155,8 @@ export class WebhookService {
    */
   private async handleInvoicePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
     if (invoice.subscription) {
-      const subscriptionId = typeof invoice.subscription === 'string' 
-        ? invoice.subscription 
+      const subscriptionId = typeof invoice.subscription === 'string'
+        ? invoice.subscription
         : invoice.subscription.id;
 
       // Update subscription status
@@ -231,8 +236,8 @@ export class WebhookService {
         currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
         cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
         stripeSubscriptionId: stripeSubscription.id,
-        stripeCustomerId: typeof stripeSubscription.customer === 'string' 
-          ? stripeSubscription.customer 
+        stripeCustomerId: typeof stripeSubscription.customer === 'string'
+          ? stripeSubscription.customer
           : stripeSubscription.customer.id,
         trialStart: stripeSubscription.trial_start
           ? new Date(stripeSubscription.trial_start * 1000)

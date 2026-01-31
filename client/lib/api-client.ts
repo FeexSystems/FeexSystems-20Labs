@@ -9,6 +9,7 @@ interface ApiClientConfig {
 interface RequestConfig extends RequestInit {
   timeout?: number;
   requireAuth?: boolean;
+  skipCSRF?: boolean; // Skip CSRF for GET requests by default
 }
 
 interface ApiError extends Error {
@@ -21,17 +22,40 @@ class ApiClient {
   private baseURL: string;
   private timeout: number;
   private getTokens: (() => AuthTokens | null) | null = null;
+  private errorReporter: ((error: ApiError) => void) | null = null;
+  private csrfToken: string | null = null;
 
   constructor(config: ApiClientConfig = {}) {
     this.baseURL = config.baseURL || '/api';
     this.timeout = config.timeout || 30000;
+    this.initCSRFToken();
   }
 
   /**
-   * Initialize the API client with token getter
+   * Initialize CSRF token from meta tag or cookie
    */
-  initialize(getTokens: () => AuthTokens | null) {
+  private initCSRFToken() {
+    // Try to get CSRF token from meta tag
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag) {
+      this.csrfToken = metaTag.getAttribute('content');
+    }
+
+    // Fallback to cookie
+    if (!this.csrfToken) {
+      const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+      if (match) {
+        this.csrfToken = decodeURIComponent(match[1]);
+      }
+    }
+  }
+
+  /**
+   * Initialize the API client with token getter and error reporter
+   */
+  initialize(getTokens: () => AuthTokens | null, errorReporter?: (error: ApiError) => void) {
     this.getTokens = getTokens;
+    this.errorReporter = errorReporter || null;
   }
 
   /**
@@ -49,25 +73,31 @@ class ApiClient {
     } = config;
 
     const url = `${this.baseURL}${endpoint}`;
-    
+
     // Create abort controller for timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     try {
-      let requestHeaders = {
+      let requestHeaders: Record<string, string> = {
         'Content-Type': 'application/json',
-        ...headers,
+        ...headers as Record<string, string>,
       };
+
+      // Add CSRF token for state-changing methods
+      const isStateMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(requestConfig.method || 'GET');
+      if (isStateMutating && this.csrfToken && !config.skipCSRF) {
+        requestHeaders['X-CSRF-Token'] = this.csrfToken;
+      }
 
       // Add authorization header if auth is required
       if (requireAuth && this.getTokens) {
         const tokens = this.getTokens();
-        
+
         if (tokens) {
           // Use token manager to get valid token (with automatic refresh)
           const validToken = await tokenManager.getValidAccessToken(tokens);
-          
+
           if (validToken) {
             requestHeaders = {
               ...requestHeaders,
@@ -109,11 +139,11 @@ class ApiClient {
       return (await response.text()) as unknown as T;
     } catch (error) {
       clearTimeout(timeoutId);
-      
+
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error('Request timeout');
       }
-      
+
       throw error;
     }
   }
@@ -142,6 +172,23 @@ class ApiClient {
     apiError.status = response.status;
     apiError.code = errorCode;
     apiError.details = errorDetails;
+
+    // Report error to monitoring service if configured
+    if (this.errorReporter) {
+      try {
+        this.errorReporter(apiError);
+      } catch (reportError) {
+        console.error('Error reporting failed:', reportError);
+      }
+    }
+
+    // Special handling for rate limiting
+    if (response.status === 429) {
+      const retryAfter = response.headers.get('Retry-After');
+      if (retryAfter) {
+        apiError.details = { ...errorDetails, retryAfter };
+      }
+    }
 
     throw apiError;
   }
@@ -239,7 +286,7 @@ class ApiClient {
     }
 
     const tokens = this.getTokens();
-    
+
     return tokenManager.makeAuthenticatedRequest(
       async (token) => {
         // Update the authorization header for this request
@@ -288,10 +335,10 @@ export const handleApiError = (error: any): string => {
         return error.message || `An error occurred (${error.status}).`;
     }
   }
-  
+
   if (error instanceof Error) {
     return error.message;
   }
-  
+
   return 'An unexpected error occurred.';
 };
