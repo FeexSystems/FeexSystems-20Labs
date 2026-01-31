@@ -59,8 +59,9 @@ export interface ScanResults {
     timestamp: Date;
     configuration: Record<string, any>;
   };
-}e
-xport interface SecurityScanJob {
+}
+
+export interface SecurityScanJob {
   scanId: string;
   userId: string;
   target: ScanTarget;

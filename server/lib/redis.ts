@@ -7,14 +7,14 @@ export function createRedisClient(): Redis {
     return redis;
   }
 
-  const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+  const redisUrl = process.env['REDIS_URL'] || 'redis://localhost:6379';
 
   redis = new Redis(redisUrl, {
     enableReadyCheck: false,
-    maxRetriesPerRequest: 3,
     lazyConnect: true,
     connectTimeout: 10000,
     commandTimeout: 5000,
+    maxRetriesPerRequest: 3,
   });
 
   redis.on('connect', () => {
@@ -41,7 +41,7 @@ export function getRedisClient(): Redis {
 
 // Cache utilities
 export class CacheService {
-  private redis: Redis;
+  protected redis: Redis;
 
   constructor() {
     this.redis = getRedisClient();

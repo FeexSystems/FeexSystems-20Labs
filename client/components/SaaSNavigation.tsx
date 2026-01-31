@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
 
 interface SaaSNavigationProps {
@@ -13,6 +14,7 @@ export function SaaSNavigation({
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -105,23 +107,22 @@ export function SaaSNavigation({
 
   return (
     <nav
-      className={`glass-nav transition-all duration-300 ${
-        isScrolled
-          ? "glass shadow-lg border-b border-white/10"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+          ? "bg-background/95 backdrop-blur-md shadow-lg border-b border-border"
           : "bg-transparent"
-      }`}
+        }`}
       role="navigation"
       aria-label="Main navigation"
     >
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex justify-between flex-row flex-wrap">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="relative group">
-              <div className="w-10 h-10 bg-gradient-to-br from-mint-green to-mint-neon rounded-xl flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110">
-                <span className="text-white font-bold text-lg">F</span>
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="relative">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-emerald-400 rounded-xl flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110">
+                <span className="text-primary-foreground font-bold text-lg">F</span>
               </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-white animate-pulse"></div>
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-background"></div>
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">FeexSystems</h1>
@@ -129,7 +130,7 @@ export function SaaSNavigation({
                 AI IntelliSense Labs
               </p>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
@@ -144,11 +145,10 @@ export function SaaSNavigation({
                       setActiveDropdown(null);
                     }
                   }}
-                  className={`flex items-center px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg ${
-                    activeSection === item.id
-                      ? "text-mint-green bg-mint-light"
-                      : "text-muted-foreground hover:text-foreground hover:bg-gray-50"
-                  }`}
+                  className={`flex items-center px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg ${activeSection === item.id
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
                   aria-current={activeSection === item.id ? "page" : undefined}
                   aria-expanded={
                     item.dropdown ? activeDropdown === item.id : undefined
@@ -157,9 +157,8 @@ export function SaaSNavigation({
                   {item.label}
                   {item.dropdown && (
                     <svg
-                      className={`ml-1 w-4 h-4 transition-transform ${
-                        activeDropdown === item.id ? "rotate-180" : ""
-                      }`}
+                      className={`ml-1 w-4 h-4 transition-transform ${activeDropdown === item.id ? "rotate-180" : ""
+                        }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -174,9 +173,9 @@ export function SaaSNavigation({
                   )}
                 </button>
 
-                {/* Dropdown Menu */}
+                {/* Dropdown Menu - Clean solid design */}
                 {item.dropdown && activeDropdown === item.id && (
-                  <div className="absolute top-full left-0 mt-2 w-64 glass-card py-2 z-50 animate-glassmorphism-float">
+                  <div className="absolute top-full left-0 mt-2 w-64 bg-card border border-border rounded-xl shadow-xl py-2 z-50">
                     {item.dropdown.map((subItem) => (
                       <button
                         key={subItem.id}
@@ -184,7 +183,7 @@ export function SaaSNavigation({
                           onSectionChange(subItem.id);
                           setActiveDropdown(null);
                         }}
-                        className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                        className="w-full text-left px-4 py-3 hover:bg-muted transition-colors"
                       >
                         <div className="font-medium text-foreground text-sm">
                           {subItem.label}
@@ -200,20 +199,26 @@ export function SaaSNavigation({
             ))}
           </div>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons - Properly routed */}
           <div className="hidden lg:flex items-center space-x-4">
             <ThemeToggle />
-            <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <Link
+              to="/login"
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
               Sign In
-            </button>
-            <button className="px-6 py-2 bg-gradient-to-r from-mint-green to-mint-neon text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105" style={{transitionDuration: "10", transitionTimingFunction: "10", animationDuration: "10", animationTimingFunction: "10", animationName: "pulse-green"}}>
-              1010Start Free Trial
-            </button>
+            </Link>
+            <Link
+              to="/register"
+              className="px-6 py-2.5 bg-gradient-to-r from-primary to-emerald-400 text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/25 transform hover:scale-105 transition-all duration-200"
+            >
+              Start Free Trial
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
           <button
-            className="lg:hidden p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-gray-50 transition-colors"
+            className="lg:hidden p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle mobile menu"
           >
@@ -242,9 +247,9 @@ export function SaaSNavigation({
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - Clean solid design */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 glass border-t border-white/10 shadow-xl">
+          <div className="lg:hidden absolute top-full left-0 right-0 bg-card border-t border-border shadow-xl">
             <div className="px-6 py-4 space-y-2">
               {navItems.map((item) => (
                 <div key={item.id}>
@@ -257,7 +262,7 @@ export function SaaSNavigation({
                         setIsMobileMenuOpen(false);
                       }
                     }}
-                    className="w-full text-left px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-gray-50 rounded-lg transition-colors"
+                    className="w-full text-left px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                   >
                     {item.label}
                   </button>
@@ -271,7 +276,7 @@ export function SaaSNavigation({
                             setIsMobileMenuOpen(false);
                             setActiveDropdown(null);
                           }}
-                          className="block w-full text-left px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-gray-50 rounded-lg transition-colors"
+                          className="block w-full text-left px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                         >
                           {subItem.label}
                         </button>
@@ -280,13 +285,21 @@ export function SaaSNavigation({
                   )}
                 </div>
               ))}
-              <div className="pt-4 border-t border-gray-200 space-y-2">
-                <button className="w-full px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-gray-50 rounded-lg transition-colors">
+              <div className="pt-4 border-t border-border space-y-2">
+                <Link
+                  to="/login"
+                  className="block w-full px-4 py-2 text-sm font-medium text-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
                   Sign In
-                </button>
-                <button className="w-full px-4 py-2 bg-gradient-to-r from-mint-green to-mint-neon text-white font-semibold rounded-lg">
+                </Link>
+                <Link
+                  to="/register"
+                  className="block w-full px-4 py-2.5 bg-gradient-to-r from-primary to-emerald-400 text-primary-foreground font-semibold rounded-lg text-center"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
                   Start Free Trial
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -296,7 +309,7 @@ export function SaaSNavigation({
       {/* Background overlay for mobile menu */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[-1] lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}

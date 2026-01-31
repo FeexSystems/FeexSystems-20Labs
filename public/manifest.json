@@ -1,0 +1,102 @@
+{
+  "name": "FeexSystems Enhanced Platform",
+  "short_name": "FeexSystems",
+  "description": "AI-Powered DevOps & Security Management Platform",
+  "version": "1.0.0",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#10B981",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["productivity", "business", "developer"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "32x32",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/feexsystems-logo.svg",
+      "sizes": "200x80",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Access your main dashboard",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "Teams",
+      "short_name": "Teams",
+      "description": "Manage your teams",
+      "url": "/dashboard/teams",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "short_name": "Admin",
+      "description": "Access admin panel",
+      "url": "/admin",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "32x32"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "FeexSystems Dashboard"
+    },
+    {
+      "src": "/screenshots/mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "FeexSystems Mobile View"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
+} 

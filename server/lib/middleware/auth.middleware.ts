@@ -29,7 +29,7 @@ declare global {
 /**
  * Authentication middleware - verifies JWT token
  */
-export const authenticate = async (
+export const authMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -490,6 +490,5 @@ export const rateLimitConfigs = {
   },
 };
 
-// Aliases for backward compatibility
-export const authMiddleware = authenticate;
-export const requireAuth = authenticate;
+// Alias for backward compatibility
+export const requireAuth = authMiddleware;

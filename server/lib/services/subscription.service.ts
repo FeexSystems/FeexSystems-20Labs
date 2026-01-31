@@ -1,13 +1,10 @@
 import { PrismaClient, Subscription, Plan, SubscriptionStatus } from '@prisma/client';
-import { stripeService } from './stripe.service.js';
-import Stripe from 'stripe';
 
 const prisma = new PrismaClient();
 
 export interface CreateSubscriptionRequest {
   userId: string;
   planId: string;
-  paymentMethodId?: string;
   trialPeriodDays?: number;
 }
 
@@ -49,11 +46,10 @@ export class SubscriptionService {
   }
 
   /**
-   * Create a new subscription
+   * Create a new subscription (without Stripe - direct database only)
    */
   async createSubscription(request: CreateSubscriptionRequest): Promise<{
     subscription: SubscriptionWithPlan;
-    clientSecret?: string;
   }> {
     // Get user and plan
     const user = await prisma.user.findUnique({
@@ -78,86 +74,46 @@ export class SubscriptionService {
       throw new Error('User already has an active subscription');
     }
 
-    // Create or get Stripe customer
-    let stripeCustomerId: string | null = null;
-    const existingCustomer = await prisma.subscription.findFirst({
-      where: { userId: request.userId, stripeCustomerId: { not: null } },
-      select: { stripeCustomerId: true },
-    });
+    // Calculate subscription period
+    const now = new Date();
+    const periodEnd = new Date(now);
+    periodEnd.setMonth(periodEnd.getMonth() + 1); // 1 month subscription period
 
-    if (existingCustomer?.stripeCustomerId) {
-      stripeCustomerId = existingCustomer.stripeCustomerId;
-    } else {
-      const stripeCustomer = await stripeService.createCustomer(
-        user.email,
-        `${user.firstName} ${user.lastName}`,
-        { userId: user.id }
-      );
-      stripeCustomerId = stripeCustomer?.id || null;
+    // Handle trial period
+    let status: SubscriptionStatus = 'ACTIVE';
+    let trialStart: Date | null = null;
+    let trialEnd: Date | null = null;
+
+    const trialDays = request.trialPeriodDays || plan.trialPeriodDays || 0;
+    if (trialDays > 0) {
+      status = 'TRIALING';
+      trialStart = now;
+      trialEnd = new Date(now);
+      trialEnd.setDate(trialEnd.getDate() + trialDays);
     }
-
-    // Create Stripe subscription
-    const stripeSubscription = await stripeService.createSubscription(
-      stripeCustomerId || 'placeholder',
-      plan.stripePriceId || 'placeholder',
-      {
-        trialPeriodDays: request.trialPeriodDays || plan.trialPeriodDays || undefined,
-        metadata: {
-          userId: user.id,
-          planId: plan.id,
-        },
-      }
-    );
 
     // Create subscription in database
-    const subscriptionData: any = {
-      userId: request.userId,
-      planId: request.planId,
-      status: stripeSubscription
-        ? this.mapStripeStatusToDb(stripeSubscription.status)
-        : 'ACTIVE',
-      currentPeriodStart: stripeSubscription
-        ? new Date(stripeSubscription.current_period_start * 1000)
-        : new Date(),
-      currentPeriodEnd: stripeSubscription
-        ? new Date(stripeSubscription.current_period_end * 1000)
-        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default to 30 days
-      stripeSubscriptionId: stripeSubscription?.id || null,
-      stripeCustomerId,
-    };
-
-    if (stripeSubscription) {
-      if (stripeSubscription.trial_start) {
-        subscriptionData.trialStart = new Date(stripeSubscription.trial_start * 1000);
-      }
-      if (stripeSubscription.trial_end) {
-        subscriptionData.trialEnd = new Date(stripeSubscription.trial_end * 1000);
-      }
-    }
-
     const subscription = await prisma.subscription.create({
-      data: subscriptionData,
+      data: {
+        userId: request.userId,
+        planId: request.planId,
+        status,
+        currentPeriodStart: now,
+        currentPeriodEnd: periodEnd,
+        trialStart,
+        trialEnd,
+        cancelAtPeriodEnd: false,
+      },
       include: { plan: true },
     });
 
-    // Extract client secret if payment is required
-    let clientSecret: string | undefined;
-    if (stripeSubscription?.latest_invoice) {
-      const invoice = stripeSubscription.latest_invoice as Stripe.Invoice;
-      if (invoice.payment_intent) {
-        const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
-        clientSecret = paymentIntent.client_secret || undefined;
-      }
-    }
+    console.log(`✅ Created subscription ${subscription.id} for user ${request.userId} (Stripe disabled)`);
 
-    return {
-      subscription,
-      clientSecret,
-    };
+    return { subscription };
   }
 
   /**
-   * Update an existing subscription
+   * Update an existing subscription (without Stripe - direct database only)
    */
   async updateSubscription(request: UpdateSubscriptionRequest): Promise<SubscriptionWithPlan> {
     const subscription = await prisma.subscription.findUnique({
@@ -165,11 +121,11 @@ export class SubscriptionService {
       include: { plan: true },
     });
 
-    if (!subscription || !subscription.stripeSubscriptionId) {
+    if (!subscription) {
       throw new Error('Subscription not found');
     }
 
-    const updates: any = {};
+    const updateData: any = {};
 
     if (request.planId && request.planId !== subscription.planId) {
       const newPlan = await prisma.plan.findUnique({
@@ -180,51 +136,30 @@ export class SubscriptionService {
         throw new Error('New plan not found or inactive');
       }
 
-      updates.priceId = newPlan.stripePriceId;
+      updateData.planId = request.planId;
     }
 
     if (request.cancelAtPeriodEnd !== undefined) {
-      updates.cancelAtPeriodEnd = request.cancelAtPeriodEnd;
+      updateData.cancelAtPeriodEnd = request.cancelAtPeriodEnd;
+      if (request.cancelAtPeriodEnd) {
+        updateData.canceledAt = new Date();
+      }
     }
-
-    // Update Stripe subscription
-    const stripeSubscription = await stripeService.updateSubscription(
-      subscription.stripeSubscriptionId,
-      updates
-    );
 
     // Update database
     const updatedSubscription = await prisma.subscription.update({
       where: { id: request.subscriptionId },
-      data: {
-        planId: request.planId || subscription.planId,
-        status: stripeSubscription
-          ? this.mapStripeStatusToDb(stripeSubscription.status)
-          : subscription.status,
-        currentPeriodStart: stripeSubscription
-          ? new Date(stripeSubscription.current_period_start * 1000)
-          : subscription.currentPeriodStart,
-        currentPeriodEnd: stripeSubscription
-          ? new Date(stripeSubscription.current_period_end * 1000)
-          : subscription.currentPeriodEnd,
-        cancelAtPeriodEnd: stripeSubscription
-          ? stripeSubscription.cancel_at_period_end
-          : updates.cancelAtPeriodEnd !== undefined ? updates.cancelAtPeriodEnd : subscription.cancelAtPeriodEnd,
-        canceledAt: stripeSubscription?.canceled_at
-          ? new Date(stripeSubscription.canceled_at * 1000)
-          : subscription.canceledAt,
-        endedAt: stripeSubscription?.ended_at
-          ? new Date(stripeSubscription.ended_at * 1000)
-          : subscription.endedAt,
-      },
+      data: updateData,
       include: { plan: true },
     });
+
+    console.log(`✅ Updated subscription ${subscription.id} (Stripe disabled)`);
 
     return updatedSubscription;
   }
 
   /**
-   * Cancel a subscription
+   * Cancel a subscription (without Stripe - direct database only)
    */
   async cancelSubscription(subscriptionId: string, immediate = false): Promise<SubscriptionWithPlan> {
     const subscription = await prisma.subscription.findUnique({
@@ -232,47 +167,20 @@ export class SubscriptionService {
       include: { plan: true },
     });
 
-    if (!subscription || !subscription.stripeSubscriptionId) {
+    if (!subscription) {
       throw new Error('Subscription not found');
     }
 
-    let stripeSubscription: Stripe.Subscription | null = null;
-
-    if (subscription.stripeSubscriptionId) {
-      if (immediate) {
-        // Cancel immediately
-        stripeSubscription = await stripeService.cancelSubscription(
-          subscription.stripeSubscriptionId
-        );
-      } else {
-        // Cancel at period end
-        stripeSubscription = await stripeService.updateSubscription(
-          subscription.stripeSubscriptionId,
-          { cancelAtPeriodEnd: true }
-        );
-      }
-    }
-
-    // Update database
     const updateData: any = {
-      status: stripeSubscription
-        ? this.mapStripeStatusToDb(stripeSubscription.status)
-        : (immediate ? 'CANCELED' : subscription.status),
-      cancelAtPeriodEnd: stripeSubscription
-        ? stripeSubscription.cancel_at_period_end
-        : !immediate,
+      canceledAt: new Date(),
     };
 
-    if (stripeSubscription) {
-      if (stripeSubscription.canceled_at) {
-        updateData.canceledAt = new Date(stripeSubscription.canceled_at * 1000);
-      }
-      if (stripeSubscription.ended_at) {
-        updateData.endedAt = new Date(stripeSubscription.ended_at * 1000);
-      }
-    } else if (immediate) {
-      updateData.canceledAt = new Date();
+    if (immediate) {
+      updateData.status = 'CANCELED';
       updateData.endedAt = new Date();
+      updateData.cancelAtPeriodEnd = false;
+    } else {
+      updateData.cancelAtPeriodEnd = true;
     }
 
     const updatedSubscription = await prisma.subscription.update({
@@ -280,6 +188,8 @@ export class SubscriptionService {
       data: updateData,
       include: { plan: true },
     });
+
+    console.log(`✅ Canceled subscription ${subscriptionId} (immediate: ${immediate}, Stripe disabled)`);
 
     return updatedSubscription;
   }
@@ -332,40 +242,31 @@ export class SubscriptionService {
 
     switch (action) {
       case 'ai_request':
-        return currentUsage.aiRequestsCount < (limits.aiRequestsPerMonth || 0);
+        return currentUsage.aiRequestsCount < (limits['aiRequestsPerMonth'] || 0);
       case 'deployment':
-        return currentUsage.deploymentCount < (limits.deploymentsPerMonth || 0);
+        return currentUsage.deploymentCount < (limits['deploymentsPerMonth'] || 0);
       case 'security_scan':
-        return currentUsage.securityScansCount < (limits.securityScansPerMonth || 0);
+        return currentUsage.securityScansCount < (limits['securityScansPerMonth'] || 0);
       default:
         return false;
     }
   }
 
   /**
-   * Map Stripe subscription status to database enum
+   * Map status string to database enum (for compatibility)
    */
-  private mapStripeStatusToDb(stripeStatus: Stripe.Subscription.Status): SubscriptionStatus {
-    switch (stripeStatus) {
-      case 'active':
-        return 'ACTIVE';
-      case 'canceled':
-        return 'CANCELED';
-      case 'incomplete':
-        return 'INCOMPLETE';
-      case 'incomplete_expired':
-        return 'INCOMPLETE_EXPIRED';
-      case 'past_due':
-        return 'PAST_DUE';
-      case 'trialing':
-        return 'TRIALING';
-      case 'unpaid':
-        return 'UNPAID';
-      case 'paused':
-        return 'PAUSED';
-      default:
-        return 'INCOMPLETE';
-    }
+  mapStatusToDb(status: string): SubscriptionStatus {
+    const statusMap: Record<string, SubscriptionStatus> = {
+      'active': 'ACTIVE',
+      'canceled': 'CANCELED',
+      'incomplete': 'INCOMPLETE',
+      'incomplete_expired': 'INCOMPLETE_EXPIRED',
+      'past_due': 'PAST_DUE',
+      'trialing': 'TRIALING',
+      'unpaid': 'UNPAID',
+      'paused': 'PAUSED',
+    };
+    return statusMap[status.toLowerCase()] || 'INCOMPLETE';
   }
 }
 

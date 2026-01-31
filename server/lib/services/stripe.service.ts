@@ -1,259 +1,149 @@
-import Stripe from 'stripe';
-import { PrismaClient } from '@prisma/client';
+/**
+ * Stripe Service Stub
+ * 
+ * This is a stub implementation when Stripe is not installed.
+ * All methods return null/false to indicate Stripe is disabled.
+ */
 
-const prisma = new PrismaClient();
+// Stub Stripe types
+interface StubSession {
+  id: string;
+  url: string | null;
+}
+
+interface StubCustomer {
+  id: string;
+}
+
+interface StubSubscription {
+  id: string;
+  status: string;
+  current_period_start: number;
+  current_period_end: number;
+}
+
+interface StubInvoice {
+  id: string;
+}
+
+interface StubEvent {
+  id: string;
+  type: string;
+  data: { object: unknown };
+}
 
 export class StripeService {
-  private stripe: Stripe | null = null;
+  private enabled: boolean = false;
 
   constructor() {
-    if (process.env.STRIPE_SECRET_KEY) {
-      this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-        apiVersion: '2024-06-20',
-      });
-      console.log('✅ Stripe initialized successfully');
-    } else {
-      console.warn('⚠️ STRIPE_SECRET_KEY is missing. Stripe integration is disabled.');
-    }
+    console.warn('⚠️ Stripe integration is disabled. Install stripe package to enable billing features.');
   }
 
-  private isEnabled(): boolean {
-    return this.stripe !== null;
+  isEnabled(): boolean {
+    return this.enabled;
   }
 
-  /**
-   * Create a Stripe customer
-   */
-  async createCustomer(email: string, name?: string, metadata?: Record<string, string>): Promise<Stripe.Customer | null> {
-    if (!this.stripe) return null;
-    return await this.stripe.customers.create({
-      email,
-      name,
-      metadata,
-    });
+  async createCustomer(
+    _email: string,
+    _name: string,
+    _metadata?: Record<string, string>
+  ): Promise<StubCustomer | null> {
+    console.warn('⚠️ Stripe disabled: createCustomer called but returning null');
+    return null;
   }
 
-  /**
-   * Create a subscription for a customer
-   */
   async createSubscription(
-    customerId: string,
-    priceId: string,
-    options?: {
-      trialPeriodDays?: number;
-      metadata?: Record<string, string>;
-      paymentBehavior?: Stripe.SubscriptionCreateParams.PaymentBehavior;
-    }
-  ): Promise<Stripe.Subscription | null> {
-    if (!this.stripe) return null;
-    const subscriptionParams: Stripe.SubscriptionCreateParams = {
-      customer: customerId,
-      items: [{ price: priceId }],
-      payment_behavior: options?.paymentBehavior || 'default_incomplete',
-      payment_settings: {
-        save_default_payment_method: 'on_subscription',
-      },
-      expand: ['latest_invoice.payment_intent'],
-    };
-
-    if (options?.trialPeriodDays) {
-      subscriptionParams.trial_period_days = options.trialPeriodDays;
-    }
-
-    if (options?.metadata) {
-      subscriptionParams.metadata = options.metadata;
-    }
-
-    return await this.stripe.subscriptions.create(subscriptionParams);
+    _customerId: string,
+    _priceId: string,
+    _options?: { trialPeriodDays?: number; metadata?: Record<string, string> }
+  ): Promise<StubSubscription | null> {
+    console.warn('⚠️ Stripe disabled: createSubscription called but returning null');
+    return null;
   }
 
-  /**
-   * Update a subscription
-   */
   async updateSubscription(
-    subscriptionId: string,
-    updates: {
-      priceId?: string;
-      cancelAtPeriodEnd?: boolean;
+    _subscriptionId: string,
+    _updates: { priceId?: string; cancelAtPeriodEnd?: boolean }
+  ): Promise<StubSubscription | null> {
+    console.warn('⚠️ Stripe disabled: updateSubscription called but returning null');
+    return null;
+  }
+
+  async cancelSubscription(
+    _subscriptionId: string,
+    _immediately: boolean = false
+  ): Promise<StubSubscription | null> {
+    console.warn('⚠️ Stripe disabled: cancelSubscription called but returning null');
+    return null;
+  }
+
+  async createBillingPortalSession(
+    _customerId: string,
+    _returnUrl: string
+  ): Promise<StubSession | null> {
+    console.warn('⚠️ Stripe disabled: createBillingPortalSession called but returning null');
+    return null;
+  }
+
+  async createCheckoutSession(
+    _options: {
+      customerId?: string;
+      priceId: string;
+      successUrl: string;
+      cancelUrl: string;
+      mode?: 'subscription' | 'payment';
       metadata?: Record<string, string>;
     }
-  ): Promise<Stripe.Subscription | null> {
-    if (!this.stripe) return null;
-    const updateParams: Stripe.SubscriptionUpdateParams = {};
+  ): Promise<StubSession | null> {
+    console.warn('⚠️ Stripe disabled: createCheckoutSession called but returning null');
+    return null;
+  }
 
-    if (updates.priceId) {
-      // Get current subscription to update items
-      const currentSub = await this.stripe.subscriptions.retrieve(subscriptionId);
-      updateParams.items = [
-        {
-          id: currentSub.items.data[0].id,
-          price: updates.priceId,
-        },
-      ];
+  constructWebhookEvent(
+    _payload: string | Buffer,
+    _signature: string
+  ): StubEvent | null {
+    console.warn('⚠️ Stripe disabled: constructWebhookEvent called but returning null');
+    return null;
+  }
+
+  async createInvoiceItem(
+    _options: {
+      customer: string;
+      amount: number;
+      currency: string;
+      description: string;
     }
+  ): Promise<unknown | null> {
+    console.warn('⚠️ Stripe disabled: createInvoiceItem called but returning null');
+    return null;
+  }
 
-    if (updates.cancelAtPeriodEnd !== undefined) {
-      updateParams.cancel_at_period_end = updates.cancelAtPeriodEnd;
+  async createInvoice(
+    _options: {
+      customer: string;
+      auto_advance?: boolean;
+      collection_method?: string;
+      description?: string;
     }
-
-    if (updates.metadata) {
-      updateParams.metadata = updates.metadata;
-    }
-
-    return await this.stripe.subscriptions.update(subscriptionId, updateParams);
+  ): Promise<StubInvoice | null> {
+    console.warn('⚠️ Stripe disabled: createInvoice called but returning null');
+    return null;
   }
 
-  /**
-   * Cancel a subscription immediately
-   */
-  async cancelSubscription(subscriptionId: string): Promise<Stripe.Subscription | null> {
-    if (!this.stripe) return null;
-    return await this.stripe.subscriptions.cancel(subscriptionId);
+  async finalizeInvoice(_invoiceId: string): Promise<StubInvoice | null> {
+    console.warn('⚠️ Stripe disabled: finalizeInvoice called but returning null');
+    return null;
   }
 
-  /**
-   * Retrieve a subscription
-   */
-  async getSubscription(subscriptionId: string): Promise<Stripe.Subscription | null> {
-    if (!this.stripe) return null;
-    return await this.stripe.subscriptions.retrieve(subscriptionId, {
-      expand: ['customer', 'items.data.price.product'],
-    });
+  async getSubscription(_subscriptionId: string): Promise<StubSubscription | null> {
+    console.warn('⚠️ Stripe disabled: getSubscription called but returning null');
+    return null;
   }
 
-  /**
-   * Create a setup intent for saving payment methods
-   */
-  async createSetupIntent(customerId: string): Promise<Stripe.SetupIntent | null> {
-    if (!this.stripe) return null;
-    return await this.stripe.setupIntents.create({
-      customer: customerId,
-      payment_method_types: ['card'],
-      usage: 'off_session',
-    });
-  }
-
-  /**
-   * Get customer's payment methods
-   */
-  async getPaymentMethods(customerId: string): Promise<Stripe.PaymentMethod[]> {
-    if (!this.stripe) return [];
-    const paymentMethods = await this.stripe.paymentMethods.list({
-      customer: customerId,
-      type: 'card',
-    });
-    return paymentMethods.data;
-  }
-
-  /**
-   * Create a billing portal session
-   */
-  async createBillingPortalSession(
-    customerId: string,
-    returnUrl: string
-  ): Promise<Stripe.BillingPortal.Session | null> {
-    if (!this.stripe) return null;
-    return await this.stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: returnUrl,
-    });
-  }
-
-  /**
-   * Construct webhook event from request
-   */
-  constructWebhookEvent(payload: string | Buffer, signature: string): Stripe.Event | null {
-    if (!this.stripe) return null;
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    if (!webhookSecret) {
-      throw new Error('STRIPE_WEBHOOK_SECRET is required');
-    }
-
-    return this.stripe.webhooks.constructEvent(payload, signature, webhookSecret);
-  }
-
-  /**
-   * Get all active prices/plans
-   */
-  async getActivePrices(): Promise<Stripe.Price[]> {
-    if (!this.stripe) return [];
-    const prices = await this.stripe.prices.list({
-      active: true,
-      expand: ['data.product'],
-    });
-    return prices.data;
-  }
-
-  /**
-   * Create an invoice item
-   */
-  async createInvoiceItem(params: {
-    customer: string;
-    amount: number;
-    currency: string;
-    description: string;
-    metadata?: Record<string, string>;
-  }): Promise<Stripe.InvoiceItem | null> {
-    if (!this.stripe) return null;
-    return await this.stripe.invoiceItems.create(params);
-  }
-
-  /**
-   * Create an invoice
-   */
-  async createInvoice(params: {
-    customer: string;
-    description?: string;
-    metadata?: Record<string, string>;
-  }): Promise<Stripe.Invoice | null> {
-    if (!this.stripe) return null;
-    return await this.stripe.invoices.create(params);
-  }
-
-  /**
-   * Finalize an invoice
-   */
-  async finalizeInvoice(invoiceId: string): Promise<Stripe.Invoice | null> {
-    if (!this.stripe) return null;
-    return await this.stripe.invoices.finalizeInvoice(invoiceId);
-  }
-
-  /**
-   * Sync plans from Stripe to database
-   */
-  async syncPlansFromStripe(): Promise<void> {
-    if (!this.stripe) return;
-    const prices = await this.getActivePrices();
-
-    for (const price of prices) {
-      const product = price.product as Stripe.Product;
-
-      await prisma.plan.upsert({
-        where: { stripePriceId: price.id },
-        update: {
-          name: product.name,
-          description: product.description,
-          price: price.unit_amount || 0,
-          currency: price.currency,
-          interval: price.recurring?.interval || 'month',
-          intervalCount: price.recurring?.interval_count || 1,
-          isActive: price.active,
-          updatedAt: new Date(),
-        },
-        create: {
-          name: product.name,
-          description: product.description,
-          stripePriceId: price.id,
-          stripeProductId: product.id,
-          price: price.unit_amount || 0,
-          currency: price.currency,
-          interval: price.recurring?.interval || 'month',
-          intervalCount: price.recurring?.interval_count || 1,
-          features: product.metadata || {},
-          isActive: price.active,
-        },
-      });
-    }
+  async getCustomer(_customerId: string): Promise<StubCustomer | null> {
+    console.warn('⚠️ Stripe disabled: getCustomer called but returning null');
+    return null;
   }
 }
 

@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Brain, Settings, Shield, BarChart3, Check, ArrowRight } from "lucide-react";
 
 export function FeatureShowcase() {
   const [activeFeature, setActiveFeature] = useState(0);
@@ -36,91 +38,89 @@ export function FeatureShowcase() {
       title: "AI-Powered Intelligence",
       description:
         "Advanced machine learning algorithms that analyze complex data patterns and provide actionable insights in real-time.",
-      icon: "🧠",
+      icon: Brain,
       benefits: [
         "96.8% prediction accuracy",
         "Real-time data processing",
         "Automated decision making",
         "Custom ML model training",
       ],
-      image:
-        "https://cdn.builder.io/o/assets%2Fd861c8115257469c9c2c0c03f0272845%2F829ecb38245545d78ffe1d8294c0db86?alt=media&token=7d184244-f3a0-4645-aa56-0a5be870d6b5&apiKey=d861c8115257469c9c2c0c03f0272845",
-      color: "mint-green",
+      gradient: "from-primary to-emerald-400",
     },
     {
       id: "devops-automation",
       title: "DevOps Automation Suite",
       description:
         "Streamline your entire development lifecycle with intelligent automation, from code deployment to infrastructure scaling.",
-      icon: "⚙️",
+      icon: Settings,
       benefits: [
         "45% faster deployments",
         "99.9% uptime guarantee",
         "Auto-scaling infrastructure",
         "Zero-downtime deployments",
       ],
-      color: "mint-neon",
+      gradient: "from-blue-500 to-cyan-400",
     },
     {
       id: "security-shield",
       title: "Advanced Security Shield",
       description:
         "Proactive threat detection and prevention using AI-powered security algorithms that protect your systems 24/7.",
-      icon: "🛡️",
+      icon: Shield,
       benefits: [
         "Real-time threat detection",
         "98.5% attack prevention",
         "Compliance automation",
         "Zero-trust architecture",
       ],
-      color: "deepmind-blue",
+      gradient: "from-orange-500 to-red-400",
     },
     {
       id: "analytics-dashboard",
       title: "Intelligent Analytics",
       description:
         "Comprehensive dashboards with interactive visualizations that turn complex data into simple, actionable insights.",
-      icon: "📊",
+      icon: BarChart3,
       benefits: [
         "Custom dashboard builder",
         "Real-time data streaming",
         "Predictive analytics",
         "Automated reporting",
       ],
-      color: "success",
+      gradient: "from-purple-500 to-pink-400",
     },
   ];
 
   const integrations = [
-    { name: "Slack", logo: "💬", connected: true },
-    { name: "GitHub", logo: "🐙", connected: true },
-    { name: "AWS", logo: "☁️", connected: true },
-    { name: "Docker", logo: "🐳", connected: true },
-    { name: "Kubernetes", logo: "⚓", connected: false },
-    { name: "Terraform", logo: "🏗️", connected: true },
+    { name: "Slack", icon: "💬", connected: true },
+    { name: "GitHub", icon: "🐙", connected: true },
+    { name: "AWS", icon: "☁️", connected: true },
+    { name: "Docker", icon: "🐳", connected: true },
+    { name: "Kubernetes", icon: "⚓", connected: false },
+    { name: "Terraform", icon: "🏗️", connected: true },
   ];
+
+  const ActiveIcon = features[activeFeature].icon;
 
   return (
     <section
       id="features"
-      className="py-24 bg-gradient-to-br from-gray-50 to-white overflow-hidden"
+      className="py-24 bg-muted/30 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div
-          className={`text-center mb-20 transition-all duration-1000 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`text-center mb-20 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
-          <div className="inline-flex items-center px-4 py-2 glass-card text-mint-green font-medium mb-6 animate-glassmorphism-float">
-            <span className="w-2 h-2 bg-mint-green rounded-full mr-2 animate-pulse-green"></span>
-            <span className="mono-medium">Platform Features</span>
+          <div className="inline-flex items-center px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm font-medium text-primary mb-6">
+            <span className="w-2 h-2 bg-primary rounded-full mr-2 animate-pulse"></span>
+            <span>Platform Features</span>
           </div>
           <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
             Everything you need to
-            <span className="text-transparent bg-clip-text bg-gradient-torch">
-              {" "}
-              scale your business
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400">
+              {" "}scale your business
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -131,40 +131,37 @@ export function FeatureShowcase() {
 
         {/* Interactive Feature Showcase */}
         <div
-          className={`mb-20 transition-all duration-1000 delay-300 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`mb-20 transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           {/* Feature Tabs */}
           <div className="flex flex-wrap justify-center gap-4 mb-12">
-            {features.map((feature, index) => (
-              <button
-                key={feature.id}
-                onClick={() => setActiveFeature(index)}
-                className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-300 interactive-card ${
-                  activeFeature === index
-                    ? "bg-mint-green text-white shadow-lg transform scale-105 animate-glow"
-                    : "glass-card text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <span className="text-2xl mr-3">{feature.icon}</span>
-                {feature.title}
-              </button>
-            ))}
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <button
+                  key={feature.id}
+                  onClick={() => setActiveFeature(index)}
+                  className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-300 ${activeFeature === index
+                      ? `bg-gradient-to-r ${feature.gradient} text-white shadow-lg transform scale-105`
+                      : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
+                    }`}
+                >
+                  <Icon className="w-5 h-5 mr-3" />
+                  {feature.title}
+                </button>
+              );
+            })}
           </div>
 
           {/* Active Feature Display */}
-          <div className="glass-card p-8 lg:p-12 interactive-card">
+          <div className="bg-card border border-border rounded-2xl p-8 lg:p-12 shadow-xl hover:border-primary/20 transition-all duration-300">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Content */}
               <div>
-                <div
-                  className={`inline-block px-4 py-2 bg-${features[activeFeature].color}/10 text-${features[activeFeature].color} rounded-full text-sm font-medium mb-6`}
-                >
-                  <span className="text-2xl mr-2">
-                    {features[activeFeature].icon}
-                  </span>
-                  {features[activeFeature].title}
+                <div className={`inline-flex items-center px-4 py-2 bg-gradient-to-r ${features[activeFeature].gradient} bg-opacity-10 rounded-full text-sm font-medium mb-6`}>
+                  <ActiveIcon className="w-5 h-5 mr-2 text-white" />
+                  <span className="text-white">{features[activeFeature].title}</span>
                 </div>
                 <h3 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">
                   {features[activeFeature].title}
@@ -173,12 +170,12 @@ export function FeatureShowcase() {
                   {features[activeFeature].description}
                 </p>
 
-                <div className="grid grid-cols-2 gap-4 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                   {features[activeFeature].benefits.map((benefit, index) => (
                     <div key={index} className="flex items-center space-x-3">
-                      <div
-                        className={`w-2 h-2 bg-${features[activeFeature].color} rounded-full`}
-                      ></div>
+                      <div className="flex-shrink-0 w-5 h-5 bg-primary/10 rounded-full flex items-center justify-center">
+                        <Check className="w-3 h-3 text-primary" />
+                      </div>
                       <span className="text-sm font-medium text-foreground">
                         {benefit}
                       </span>
@@ -187,10 +184,14 @@ export function FeatureShowcase() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <button className="px-6 py-3 bg-gradient-torch text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                  <Link
+                    to="/register"
+                    className={`inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r ${features[activeFeature].gradient} text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200`}
+                  >
                     Try This Feature
-                  </button>
-                  <button className="px-6 py-3 border border-gray-300 text-foreground font-semibold rounded-lg hover:bg-gray-50 transition-colors">
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                  <button className="px-6 py-3 border border-border text-foreground font-semibold rounded-lg hover:bg-muted transition-colors">
                     Learn More
                   </button>
                 </div>
@@ -198,53 +199,35 @@ export function FeatureShowcase() {
 
               {/* Visual */}
               <div className="relative">
-                {activeFeature === 0 && features[activeFeature].image ? (
-                  <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
-                    <img
-                      src={features[activeFeature].image}
-                      alt={features[activeFeature].title}
-                      className="w-full h-full object-cover"
-                    />
+                <div className={`aspect-square bg-gradient-to-br ${features[activeFeature].gradient} opacity-10 rounded-2xl p-8 flex items-center justify-center relative overflow-hidden`}>
+                  {/* Animated background elements */}
+                  <div className="absolute inset-0">
+                    {[...Array(8)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="absolute w-3 h-3 bg-primary/20 rounded-full animate-pulse"
+                        style={{
+                          top: `${15 + Math.random() * 70}%`,
+                          left: `${15 + Math.random() * 70}%`,
+                          animationDelay: `${i * 150}ms`,
+                        }}
+                      ></div>
+                    ))}
                   </div>
-                ) : (
-                  <div
-                    className={`aspect-square bg-gradient-to-br from-${features[activeFeature].color}/10 to-${features[activeFeature].color}/5 rounded-2xl p-8 flex items-center justify-center relative overflow-hidden`}
-                  >
-                    {/* Animated background elements */}
-                    <div className="absolute inset-0">
-                      {[...Array(6)].map((_, i) => (
-                        <div
-                          key={i}
-                          className={`absolute w-2 h-2 bg-${features[activeFeature].color}/30 rounded-full animate-pulse`}
-                          style={{
-                            top: `${20 + Math.random() * 60}%`,
-                            left: `${20 + Math.random() * 60}%`,
-                            animationDelay: `${i * 200}ms`,
-                          }}
-                        ></div>
-                      ))}
-                    </div>
 
-                    {/* Main visual element */}
-                    <div className="relative z-10 text-center">
+                  {/* Main visual element */}
+                  <div className="relative z-10 text-center">
+                    <div className={`w-32 h-32 bg-gradient-to-br ${features[activeFeature].gradient} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl`}>
+                      <ActiveIcon className="w-16 h-16 text-white" />
+                    </div>
+                    <div className="w-48 h-2 bg-muted rounded-full mx-auto overflow-hidden">
                       <div
-                        className={`w-32 h-32 bg-${features[activeFeature].color}/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse`}
-                      >
-                        <span className="text-6xl">
-                          {features[activeFeature].icon}
-                        </span>
-                      </div>
-                      <div
-                        className={`w-48 h-2 bg-${features[activeFeature].color}/30 rounded-full mx-auto`}
-                      >
-                        <div
-                          className={`h-2 bg-${features[activeFeature].color} rounded-full animate-pulse`}
-                          style={{ width: "75%" }}
-                        ></div>
-                      </div>
+                        className={`h-2 bg-gradient-to-r ${features[activeFeature].gradient} rounded-full animate-pulse`}
+                        style={{ width: "75%" }}
+                      ></div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -252,9 +235,8 @@ export function FeatureShowcase() {
 
         {/* Integrations Section */}
         <div
-          className={`transition-all duration-1000 delay-500 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`transition-all duration-1000 delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <div className="text-center mb-12">
             <h3 className="text-2xl font-bold text-foreground mb-4">
@@ -266,26 +248,24 @@ export function FeatureShowcase() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {integrations.map((integration, index) => (
+            {integrations.map((integration) => (
               <div
                 key={integration.name}
-                className={`glass-card p-6 transition-all duration-300 transform hover:scale-105 interactive-card ${
-                  integration.connected
-                    ? "ring-2 ring-mint-green/30 animate-glow"
-                    : ""
-                }`}
+                className={`bg-card border rounded-xl p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${integration.connected
+                    ? "border-primary/30 hover:border-primary"
+                    : "border-border hover:border-muted-foreground"
+                  }`}
               >
                 <div className="text-center">
-                  <div className="text-4xl mb-3">{integration.logo}</div>
+                  <div className="text-4xl mb-3">{integration.icon}</div>
                   <div className="font-medium text-foreground text-sm mb-2">
                     {integration.name}
                   </div>
                   <div
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      integration.connected
-                        ? "bg-success/10 text-success"
-                        : "bg-gray-100 text-muted-foreground"
-                    }`}
+                    className={`text-xs px-3 py-1 rounded-full inline-block ${integration.connected
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                      }`}
                   >
                     {integration.connected ? "Connected" : "Available"}
                   </div>

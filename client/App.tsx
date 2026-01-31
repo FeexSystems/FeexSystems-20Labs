@@ -1,7 +1,4 @@
-import "./global.css";
-
 import { Toaster } from "@/components/ui/toaster";
-import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -61,118 +58,118 @@ const App = () => (
             >
               <AuthProvider>
                 <Routes>
-              {/* Public routes - redirect to dashboard if authenticated */}
-              <Route
-                path="/"
-                element={
-                  <PublicRoute>
-                    <Index />
-                  </PublicRoute>
-                }
-              />
+                  {/* Public routes - redirect to dashboard if authenticated */}
+                  <Route
+                    path="/"
+                    element={
+                      <PublicRoute>
+                        <Index />
+                      </PublicRoute>
+                    }
+                  />
 
-              {/* Authentication routes - will be added in next task */}
-              <Route
-                path="/login"
-                element={
-                  <PublicRoute>
-                    <Login />
-                  </PublicRoute>
-                }
-              />
-              <Route
-                path="/register"
-                element={
-                  <PublicRoute>
-                    <Register />
-                  </PublicRoute>
-                }
-              />
-              <Route
-                path="/forgot-password"
-                element={
-                  <PublicRoute>
-                    <ForgotPassword />
-                  </PublicRoute>
-                }
-              />
-              <Route
-                path="/reset-password"
-                element={
-                  <PublicRoute>
-                    <ResetPassword />
-                  </PublicRoute>
-                }
-              />
-              <Route
-                path="/verify-email"
-                element={
-                  <PublicRoute>
-                    <EmailVerification />
-                  </PublicRoute>
-                }
-              />
+                  {/* Authentication routes - will be added in next task */}
+                  <Route
+                    path="/login"
+                    element={
+                      <PublicRoute>
+                        <Login />
+                      </PublicRoute>
+                    }
+                  />
+                  <Route
+                    path="/register"
+                    element={
+                      <PublicRoute>
+                        <Register />
+                      </PublicRoute>
+                    }
+                  />
+                  <Route
+                    path="/forgot-password"
+                    element={
+                      <PublicRoute>
+                        <ForgotPassword />
+                      </PublicRoute>
+                    }
+                  />
+                  <Route
+                    path="/reset-password"
+                    element={
+                      <PublicRoute>
+                        <ResetPassword />
+                      </PublicRoute>
+                    }
+                  />
+                  <Route
+                    path="/verify-email"
+                    element={
+                      <PublicRoute>
+                        <EmailVerification />
+                      </PublicRoute>
+                    }
+                  />
 
-              {/* Protected routes - require authentication */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <UserProfile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/subscription"
-                element={
-                  <ProtectedRoute>
-                    <div>Subscription Page - Coming Soon</div>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/ai"
-                element={
-                  <ProtectedRoute>
-                    <div>AI Services Page - Coming Soon</div>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/devops"
-                element={
-                  <ProtectedRoute>
-                    <div>DevOps Page - Coming Soon</div>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/security"
-                element={
-                  <ProtectedRoute>
-                    <div>Security Page - Coming Soon</div>
-                  </ProtectedRoute>
-                }
-              />
+                  {/* Protected routes - require authentication */}
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute>
+                        <UserProfile />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/subscription"
+                    element={
+                      <ProtectedRoute>
+                        <div>Subscription Page - Coming Soon</div>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/ai"
+                    element={
+                      <ProtectedRoute>
+                        <div>AI Services Page - Coming Soon</div>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/devops"
+                    element={
+                      <ProtectedRoute>
+                        <div>DevOps Page - Coming Soon</div>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/security"
+                    element={
+                      <ProtectedRoute>
+                        <div>Security Page - Coming Soon</div>
+                      </ProtectedRoute>
+                    }
+                  />
 
-              {/* Catch-all route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AuthProvider>
-        </ErrorBoundary>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-</div>
-</ErrorBoundary>
+                  {/* Catch-all route */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </AuthProvider>
+            </ErrorBoundary>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </div>
+  </ErrorBoundary>
 );
 
-createRoot(document.getElementById("root")!).render(<App />);
+export default App;

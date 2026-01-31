@@ -15,11 +15,11 @@ export default function Index() {
 
   const handleSectionChange = useCallback((section: string) => {
     setActiveSection(section);
-    
+
     // Handle dropdown menu items
     const sectionMapping: Record<string, string> = {
       'intelligence': 'features',
-      'research': 'features', 
+      'research': 'features',
       'security': 'features',
       'devops': 'features',
       'enterprise': 'pricing',
@@ -33,7 +33,7 @@ export default function Index() {
     };
 
     const targetSection = sectionMapping[section] || section;
-    
+
     // Smooth scroll to section
     const element = document.getElementById(targetSection);
     if (element) {
@@ -66,7 +66,9 @@ export default function Index() {
       <PricingSection />
 
       {/* Testimonials & Trust Indicators */}
-      <TestimonialsSection />
+      <div id="testimonials">
+        <TestimonialsSection />
+      </div>
 
       {/* Multiple CTA Sections */}
       <CTASections />

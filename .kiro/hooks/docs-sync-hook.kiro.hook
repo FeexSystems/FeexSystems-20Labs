@@ -1,10 +1,17 @@
 {
   "enabled": true,
   "name": "Documentation Sync",
+<<<<<<< HEAD
   "description": "Monitors TypeScript source files and configuration files for changes, then automatically updates project documentation in README.md and markdown files to keep them synchronized with code changes",
   "version": "1",
   "when": {
     "type": "userTriggered",
+=======
+  "description": "Listens to TypeScript source files and configuration changes to automatically update project documentation",
+  "version": "1",
+  "when": {
+    "type": "fileCreated",
+>>>>>>> e7a98f3ee0097fb9d145531a4c05fd98d35d932c
     "patterns": [
       "**/*.ts",
       "**/*.tsx",
@@ -21,6 +28,10 @@
   },
   "then": {
     "type": "askAgent",
+<<<<<<< HEAD
     "prompt": "Source code files have been modified. Please review the changes and update the project documentation accordingly. Focus on:\n\n1. Update README.md with any new features, API changes, or setup instructions\n2. Update any existing .md files in the repository that may be affected by the code changes\n3. Ensure documentation reflects current architecture, dependencies, and configuration\n4. Add or update code examples if new functionality was added\n5. Update any setup or deployment instructions if configuration files changed\n\nPlease analyze the changed files and provide comprehensive documentation updates that keep the docs in sync with the current codebase."
+=======
+    "prompt": "Source code or configuration files have been modified. Please review the changes and update the project documentation accordingly. Focus on:\n\n1. Update README.md with any new features, setup instructions, or architectural changes\n2. If there's a /docs folder, update relevant documentation files there\n3. Ensure API documentation reflects any endpoint changes\n4. Update setup/installation instructions if dependencies or configuration changed\n5. Document any new environment variables or configuration options\n6. Update architecture diagrams or technical specifications if the system design changed\n\nPlease analyze the specific files that changed and determine what documentation updates are needed to keep everything current and accurate."
+>>>>>>> e7a98f3ee0097fb9d145531a4c05fd98d35d932c
   }
 }

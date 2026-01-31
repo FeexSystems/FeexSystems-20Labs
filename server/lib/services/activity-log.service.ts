@@ -19,6 +19,13 @@ export class ActivityLogService {
   constructor(private prisma: PrismaClient) {}
 
   /**
+   * Create an activity log entry (convenience function)
+   */
+  async createActivityLog(entry: ActivityLogEntry): Promise<void> {
+    return this.logActivity(entry);
+  }
+
+  /**
    * Log a user activity
    */
   async logActivity(entry: ActivityLogEntry): Promise<void> {
@@ -245,3 +252,9 @@ export class ActivityLogService {
     };
   }
 }
+
+// Export convenience function
+export const createActivityLog = async (entry: ActivityLogEntry): Promise<void> => {
+  const service = new ActivityLogService(new PrismaClient());
+  return service.createActivityLog(entry);
+};

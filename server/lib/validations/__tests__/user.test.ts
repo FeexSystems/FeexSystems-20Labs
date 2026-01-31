@@ -51,7 +51,7 @@ describe('User Validation Schemas', () => {
       const result = registerUserSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Password must be at least 8 characters');
+        expect(result.error.issues[0].message).toBe('Password must be at least 8 characters long');
       }
     });
 
@@ -230,7 +230,7 @@ describe('User Validation Schemas', () => {
       const result = passwordResetSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Password must be at least 8 characters');
+        expect(result.error.issues[0].message).toBe('Password must be at least 8 characters long');
       }
     });
   });
@@ -291,7 +291,7 @@ describe('User Validation Schemas', () => {
       const result = changePasswordSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Password must be at least 8 characters');
+        expect(result.error.issues[0].message).toBe('Password must be at least 8 characters long');
       }
     });
   });

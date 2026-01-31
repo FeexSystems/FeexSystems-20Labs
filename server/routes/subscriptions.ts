@@ -428,9 +428,21 @@ router.get('/usage', authMiddleware, async (req, res) => {
  */
 router.post('/billing-portal', authMiddleware, requireActiveSubscription, async (req, res) => {
   try {
+    // Stripe integration is disabled
+    if (!stripeService.isEnabled()) {
+      res.status(503).json({
+        error: {
+          type: 'SERVICE_UNAVAILABLE',
+          message: 'Billing portal is currently disabled',
+          code: 'BILLING_DISABLED',
+        },
+      });
+      return;
+    }
+
     const subscription = await subscriptionService.getUserSubscription(req.user!.id);
 
-    if (!subscription?.stripeCustomerId) {
+    if (!subscription) {
       res.status(400).json({
         error: {
           type: 'SUBSCRIPTION_ERROR',
@@ -443,25 +455,14 @@ router.post('/billing-portal', authMiddleware, requireActiveSubscription, async 
 
     const { returnUrl } = billingPortalRequestSchema.parse(req.body);
 
-    const session = await stripeService.createBillingPortalSession(
-      subscription.stripeCustomerId,
-      returnUrl
-    );
-
-    if (!session) {
-      res.status(503).json({
-        error: {
-          type: 'SERVICE_UNAVAILABLE',
-          message: 'Billing portal is currently disabled',
-          code: 'BILLING_DISABLED',
-        },
-      });
-      return;
-    }
-
-    res.json({
-      success: true,
-      data: { url: session.url },
+    // Stripe is enabled but we don't have the customer ID stored
+    // This would work with a full Stripe integration
+    res.status(503).json({
+      error: {
+        type: 'SERVICE_UNAVAILABLE',
+        message: 'Billing portal is currently disabled',
+        code: 'BILLING_DISABLED',
+      },
     });
   } catch (error) {
     console.error('Error creating billing portal session:', error);

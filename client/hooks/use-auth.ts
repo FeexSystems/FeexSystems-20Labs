@@ -89,10 +89,10 @@ export function useAuth() {
         setLoading(true);
         // Update user in store optimistically
         updateUser(userData);
-        
+
         // TODO: Make API call to update user profile
         // await apiClient.put('/users/profile', userData);
-        
+
         toast({
           title: 'Profile Updated',
           description: 'Your profile has been successfully updated.',
@@ -191,45 +191,6 @@ export function useAuth() {
     [storeResendVerificationEmail]
   );
 
-  const verifyEmail = useCallback(
-    async (token: string) => {
-      try {
-        await storeVerifyEmail(token);
-        toast({
-          title: 'Email Verified!',
-          description: 'Your account has been successfully verified.',
-        });
-      } catch (error) {
-        toast({
-          title: 'Verification Failed',
-          description: error instanceof Error ? error.message : 'Unable to verify your email',
-          variant: 'destructive',
-        });
-        throw error;
-      }
-    },
-    [storeVerifyEmail]
-  );
-
-  const resendVerificationEmail = useCallback(
-    async (email: string) => {
-      try {
-        await storeResendVerificationEmail(email);
-        toast({
-          title: 'Verification Email Sent',
-          description: 'Please check your email for the new verification link.',
-        });
-      } catch (error) {
-        toast({
-          title: 'Failed to Resend',
-          description: error instanceof Error ? error.message : 'Unable to send verification email',
-          variant: 'destructive',
-        });
-        throw error;
-      }
-    },
-    [storeResendVerificationEmail]
-  );
 
   const uploadProfileImage = useCallback(
     async (file: File): Promise<string> => {
@@ -264,7 +225,7 @@ export function useAuth() {
         await refreshToken();
         return true;
       }
-      
+
       // TODO: Optionally validate token with server
       // await apiClient.get('/auth/validate');
       return true;
@@ -278,7 +239,7 @@ export function useAuth() {
   const hasRole = useCallback(
     (role: 'USER' | 'ADMIN' | 'SUPER_ADMIN') => {
       if (!user) return false;
-      
+
       const roleHierarchy = {
         USER: 0,
         ADMIN: 1,
@@ -335,7 +296,7 @@ export function useAuth() {
     hasRole,
     isAdmin,
     isSuperAdmin,
-    
+
     // Token utilities
     getTimeUntilExpiration,
     isTokenExpired,
