@@ -70,9 +70,8 @@ export function ActionableInsights() {
       <div className="max-w-7xl mx-auto px-6">
         {/* Section Header */}
         <div
-          className={`text-center mb-16 transition-all duration-1000 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`text-center mb-16 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <div className="inline-flex items-center px-4 py-2 bg-mint-light rounded-full text-mint-green font-medium mb-6">
             <span className="w-2 h-2 bg-mint-green rounded-full mr-2"></span>
@@ -94,31 +93,28 @@ export function ActionableInsights() {
 
         {/* Interactive Torch Visualization */}
         <div
-          className={`mb-20 transition-all duration-1000 delay-300 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`mb-20 transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <TorchDataVisualization />
         </div>
 
         {/* Insight Cards */}
         <div
-          className={`transition-all duration-1000 delay-500 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`transition-all duration-1000 delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           {/* Navigation */}
           <div className="flex justify-center mb-12">
-            <div className="glass-card rounded-full p-2">
+            <div className="bg-card border border-border rounded-full p-2 inline-flex">
               {insights.map((insight, index) => (
                 <button
                   key={index}
                   onClick={() => setActiveInsight(index)}
-                  className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
-                    activeInsight === index
-                      ? `bg-${insight.color} text-white shadow-lg`
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${activeInsight === index
+                      ? "bg-gradient-to-r from-primary to-emerald-400 text-white shadow-lg"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
                 >
                   {insight.category}
                 </button>
@@ -127,7 +123,7 @@ export function ActionableInsights() {
           </div>
 
           {/* Active Insight Card */}
-          <div className="glass-card p-8 lg:p-12 interactive-card">
+          <div className="bg-card border border-border rounded-2xl p-8 lg:p-12 shadow-xl hover:border-primary/20 transition-all duration-300">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Content */}
               <div>
@@ -157,11 +153,10 @@ export function ActionableInsights() {
                           {metric.value}
                         </span>
                         <span
-                          className={`text-sm font-medium px-2 py-1 rounded-full ${
-                            metric.trend.startsWith("+")
+                          className={`text-sm font-medium px-2 py-1 rounded-full ${metric.trend.startsWith("+")
                               ? "bg-green-100 text-green-700"
                               : "bg-blue-100 text-blue-700"
-                          }`}
+                            }`}
                         >
                           {metric.trend}
                         </span>
@@ -260,9 +255,8 @@ export function ActionableInsights() {
 
         {/* Call to Action */}
         <div
-          className={`text-center mt-16 transition-all duration-1000 delay-700 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`text-center mt-16 transition-all duration-1000 delay-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <button className="px-8 py-4 bg-gradient-torch text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">
             Explore Our Intelligence Platform

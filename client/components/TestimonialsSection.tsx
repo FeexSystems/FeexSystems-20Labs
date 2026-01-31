@@ -126,9 +126,8 @@ export function TestimonialsSection() {
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div
-          className={`text-center mb-20 transition-all duration-1000 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`text-center mb-20 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <div className="inline-flex items-center px-4 py-2 bg-success/10 rounded-full text-success font-medium mb-6">
             <span className="w-2 h-2 bg-success rounded-full mr-2 animate-pulse"></span>
@@ -149,9 +148,8 @@ export function TestimonialsSection() {
 
         {/* Featured Testimonial */}
         <div
-          className={`mb-20 transition-all duration-1000 delay-300 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`mb-20 transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-8 lg:p-12 shadow-xl border border-gray-100 relative overflow-hidden">
             {/* Background decoration */}
@@ -195,15 +193,15 @@ export function TestimonialsSection() {
               </div>
 
               {/* Metrics Card */}
-              <div className="glass-card p-8">
+              <div className="bg-card border border-border rounded-xl p-8">
                 <div className="text-center">
-                  <div className="text-5xl font-bold text-mint-green mb-2">
+                  <div className="text-5xl font-bold text-primary mb-2">
                     {testimonials[activeTestimonial].metrics.improvement}
                   </div>
                   <div className="text-muted-foreground font-medium">
                     {testimonials[activeTestimonial].metrics.metric}
                   </div>
-                  <div className="mt-6 pt-6 border-t border-gray-200">
+                  <div className="mt-6 pt-6 border-t border-border">
                     <div className="text-sm text-muted-foreground">
                       Results achieved with FeexSystems
                     </div>
@@ -218,11 +216,10 @@ export function TestimonialsSection() {
                 <button
                   key={index}
                   onClick={() => setActiveTestimonial(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === activeTestimonial
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${index === activeTestimonial
                       ? "bg-mint-green"
                       : "bg-gray-300 hover:bg-gray-400"
-                  }`}
+                    }`}
                   aria-label={`View testimonial ${index + 1}`}
                 />
               ))}
@@ -232,9 +229,8 @@ export function TestimonialsSection() {
 
         {/* Trust Indicators */}
         <div
-          className={`mb-20 transition-all duration-1000 delay-500 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`mb-20 transition-all duration-1000 delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <div className="text-center mb-12">
             <h3 className="text-2xl font-bold text-foreground mb-4">
@@ -246,7 +242,7 @@ export function TestimonialsSection() {
             {trustIndicators.map((indicator, index) => (
               <div
                 key={index}
-                className="glass-card p-6 hover:border-mint-green/30 hover:shadow-lg transition-all duration-300 text-center group interactive-card"
+                className="bg-card border border-border rounded-xl p-6 hover:border-primary/30 hover:shadow-lg transition-all duration-300 text-center group"
               >
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                   {indicator.icon}
@@ -264,9 +260,8 @@ export function TestimonialsSection() {
 
         {/* Company Logos */}
         <div
-          className={`transition-all duration-1000 delay-700 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`transition-all duration-1000 delay-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <div className="text-center mb-12">
             <p className="text-muted-foreground font-medium">
@@ -293,9 +288,8 @@ export function TestimonialsSection() {
 
         {/* Statistics */}
         <div
-          className={`mt-20 bg-gradient-to-br from-mint-dark to-gray-900 rounded-3xl p-8 lg:p-12 text-white transition-all duration-1000 delay-900 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`mt-20 bg-gradient-to-br from-mint-dark to-gray-900 rounded-3xl p-8 lg:p-12 text-white transition-all duration-1000 delay-900 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <div className="text-center mb-12">
             <h3 className="text-3xl font-bold mb-4">
