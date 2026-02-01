@@ -1,6 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Brain, Settings, Shield, BarChart3, Check, ArrowRight } from "lucide-react";
+
+// Lazy load WebGL component
+const NeuralNetwork = lazy(() =>
+  import('./webgl/NeuralNetwork').then(mod => ({ default: mod.NeuralNetwork }))
+);
 
 export function FeatureShowcase() {
   const [activeFeature, setActiveFeature] = useState(0);
@@ -48,35 +53,35 @@ export function FeatureShowcase() {
       gradient: "from-primary to-emerald-400",
     },
     {
-      id: "devops-automation",
-      title: "DevOps Automation Suite",
+      id: "devops",
+      title: "Smart DevOps Automation",
       description:
-        "Streamline your entire development lifecycle with intelligent automation, from code deployment to infrastructure scaling.",
+        "Fully integrated CI/CD pipelines with intelligent scaling and predictive infrastructure management.",
       icon: Settings,
       benefits: [
-        "45% faster deployments",
-        "99.9% uptime guarantee",
-        "Auto-scaling infrastructure",
-        "Zero-downtime deployments",
+        "Automated deployments",
+        "Smart resource scaling",
+        "Predictive maintenance",
+        "Cost optimization",
       ],
       gradient: "from-blue-500 to-cyan-400",
     },
     {
-      id: "security-shield",
-      title: "Advanced Security Shield",
+      id: "security",
+      title: "Proactive Security",
       description:
-        "Proactive threat detection and prevention using AI-powered security algorithms that protect your systems 24/7.",
+        "Next-generation threat detection and prevention with ML-powered vulnerability scanning and real-time protection.",
       icon: Shield,
       benefits: [
-        "Real-time threat detection",
-        "98.5% attack prevention",
+        "Threat detection in 12s",
+        "Zero-day protection",
         "Compliance automation",
-        "Zero-trust architecture",
+        "Security insights",
       ],
-      gradient: "from-orange-500 to-red-400",
+      gradient: "from-orange-500 to-yellow-400",
     },
     {
-      id: "analytics-dashboard",
+      id: "analytics",
       title: "Intelligent Analytics",
       description:
         "Comprehensive dashboards with interactive visualizations that turn complex data into simple, actionable insights.",
@@ -105,9 +110,14 @@ export function FeatureShowcase() {
   return (
     <section
       id="features"
-      className="py-24 bg-muted/30 overflow-hidden"
+      className="relative py-24 bg-muted/30 overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto px-6">
+      {/* Neural Network WebGL Background */}
+      <Suspense fallback={null}>
+        <NeuralNetwork nodeCount={60} className="opacity-40" />
+      </Suspense>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Header */}
         <div
           className={`text-center mb-20 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
@@ -143,8 +153,8 @@ export function FeatureShowcase() {
                   key={feature.id}
                   onClick={() => setActiveFeature(index)}
                   className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-300 ${activeFeature === index
-                      ? `bg-gradient-to-r ${feature.gradient} text-white shadow-lg transform scale-105`
-                      : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
+                    ? `bg-gradient-to-r ${feature.gradient} text-white shadow-lg transform scale-105`
+                    : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
                     }`}
                 >
                   <Icon className="w-5 h-5 mr-3" />
@@ -252,8 +262,8 @@ export function FeatureShowcase() {
               <div
                 key={integration.name}
                 className={`bg-card border rounded-xl p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${integration.connected
-                    ? "border-primary/30 hover:border-primary"
-                    : "border-border hover:border-muted-foreground"
+                  ? "border-primary/30 hover:border-primary"
+                  : "border-border hover:border-muted-foreground"
                   }`}
               >
                 <div className="text-center">
@@ -263,8 +273,8 @@ export function FeatureShowcase() {
                   </div>
                   <div
                     className={`text-xs px-3 py-1 rounded-full inline-block ${integration.connected
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-muted-foreground"
                       }`}
                   >
                     {integration.connected ? "Connected" : "Available"}

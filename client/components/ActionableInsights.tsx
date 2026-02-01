@@ -1,5 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { TorchDataVisualization } from "./TorchDataVisualization";
+
+// Lazy load WebGL component
+const ParticleField = lazy(() =>
+  import('./webgl/ParticleField').then(mod => ({ default: mod.ParticleField }))
+);
 
 export function ActionableInsights() {
   const [activeInsight, setActiveInsight] = useState(0);
@@ -65,9 +70,14 @@ export function ActionableInsights() {
   return (
     <section
       id="insights"
-      className="py-24 bg-gradient-to-br from-gray-50 to-white"
+      className="relative py-24 bg-gradient-to-br from-gray-50 to-white dark:from-background dark:to-muted/20 overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto px-6">
+      {/* Particle Field WebGL Background */}
+      <Suspense fallback={null}>
+        <ParticleField particleCount={2000} className="opacity-30" />
+      </Suspense>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Section Header */}
         <div
           className={`text-center mb-16 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
@@ -112,8 +122,8 @@ export function ActionableInsights() {
                   key={index}
                   onClick={() => setActiveInsight(index)}
                   className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${activeInsight === index
-                      ? "bg-gradient-to-r from-primary to-emerald-400 text-white shadow-lg"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-gradient-to-r from-primary to-emerald-400 text-white shadow-lg"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                 >
                   {insight.category}
@@ -154,8 +164,8 @@ export function ActionableInsights() {
                         </span>
                         <span
                           className={`text-sm font-medium px-2 py-1 rounded-full ${metric.trend.startsWith("+")
-                              ? "bg-green-100 text-green-700"
-                              : "bg-blue-100 text-blue-700"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-blue-100 text-blue-700"
                             }`}
                         >
                           {metric.trend}

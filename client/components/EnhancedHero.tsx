@@ -1,6 +1,11 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, lazy, Suspense } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles, BarChart3, Zap, Shield } from "lucide-react";
+
+// Lazy load WebGL component for performance
+const ImmersiveHeroBackground = lazy(() =>
+  import('./webgl/ImmersiveHeroBackground').then(mod => ({ default: mod.ImmersiveHeroBackground }))
+);
 
 export function EnhancedHero() {
   const [isVisible, setIsVisible] = useState(false);
@@ -40,12 +45,19 @@ export function EnhancedHero() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-background via-background to-muted/20 pt-20">
-      {/* Subtle animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Gradient orbs */}
-        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }}></div>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background pt-20">
+      {/* Immersive WebGL Background */}
+      <Suspense fallback={null}>
+        <ImmersiveHeroBackground quality="high" particleCount={3000} />
+      </Suspense>
+
+      {/* Fallback gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-muted/20" style={{ zIndex: -1 }}></div>
+
+      {/* Additional gradient orbs for depth */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl"></div>
 
         {/* Grid pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
@@ -85,13 +97,13 @@ export function EnhancedHero() {
 
           {/* CTA Buttons - Properly routed */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <button
-              onClick={handleExploreClick}
-              className="group inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-primary to-emerald-400 text-primary-foreground font-semibold rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-primary/25 hover:scale-105"
+            <Link
+              to="/dashboard"
+              className="group inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-primary to-emerald-400 text-primary-foreground font-bold rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-primary/25 hover:scale-105"
             >
-              <span>Explore Our Intelligence</span>
+              <span>ENTER THE PLAYGROUND</span>
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+            </Link>
             <button
               onClick={handleCaseStudiesClick}
               className="inline-flex items-center justify-center px-8 py-4 bg-card border border-border text-foreground font-semibold rounded-xl transition-all duration-300 hover:bg-muted hover:border-primary/30 hover:scale-105"
@@ -108,23 +120,23 @@ export function EnhancedHero() {
                 <div
                   key={index}
                   className={`transition-all duration-500 ${activeMetric === index
-                      ? "scale-105"
-                      : "scale-100 opacity-80"
+                    ? "scale-105"
+                    : "scale-100 opacity-80"
                     }`}
                 >
                   <div className="bg-card border border-border rounded-2xl p-8 hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
                     <div className="flex items-center justify-center mb-4">
                       <div className={`p-3 rounded-xl ${activeMetric === index
-                          ? "bg-primary/15 text-primary"
-                          : "bg-muted text-muted-foreground"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground"
                         } transition-all duration-300`}>
                         <Icon className="w-6 h-6" />
                       </div>
                     </div>
                     <div
                       className={`text-4xl md:text-5xl font-bold mb-2 ${activeMetric === index
-                          ? "text-primary"
-                          : "text-foreground"
+                        ? "text-primary"
+                        : "text-foreground"
                         } transition-colors duration-300`}
                     >
                       {metric.value}

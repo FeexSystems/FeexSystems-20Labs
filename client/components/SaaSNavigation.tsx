@@ -108,8 +108,8 @@ export function SaaSNavigation({
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-          ? "bg-background/95 backdrop-blur-md shadow-lg border-b border-border"
-          : "bg-transparent"
+        ? "bg-background/95 backdrop-blur-md shadow-lg border-b border-border"
+        : "bg-transparent"
         }`}
       role="navigation"
       aria-label="Main navigation"
@@ -146,8 +146,8 @@ export function SaaSNavigation({
                     }
                   }}
                   className={`flex items-center px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg ${activeSection === item.id
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   aria-current={activeSection === item.id ? "page" : undefined}
                   aria-expanded={
@@ -199,20 +199,29 @@ export function SaaSNavigation({
             ))}
           </div>
 
-          {/* CTA Buttons - Properly routed */}
-          <div className="hidden lg:flex items-center space-x-4">
+          {/* CTA Buttons - Beta Mode with Free Access */}
+          <div className="hidden lg:flex items-center space-x-3">
             <ThemeToggle />
             <Link
               to="/login"
-              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               Sign In
             </Link>
             <Link
               to="/register"
-              className="px-6 py-2.5 bg-gradient-to-r from-primary to-emerald-400 text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/25 transform hover:scale-105 transition-all duration-200"
+              className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              Start Free Trial
+              Register
+            </Link>
+            <Link
+              to="/dashboard"
+              className="group px-6 py-2.5 bg-gradient-to-r from-primary to-emerald-400 text-primary-foreground font-bold rounded-lg hover:shadow-lg hover:shadow-primary/25 transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
+            >
+              <span>ENTER THE PLAYGROUND</span>
+              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             </Link>
           </div>
 
@@ -287,19 +296,28 @@ export function SaaSNavigation({
               ))}
               <div className="pt-4 border-t border-border space-y-2">
                 <Link
-                  to="/login"
-                  className="block w-full px-4 py-2 text-sm font-medium text-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+                  to="/dashboard"
+                  className="block w-full px-4 py-3 bg-gradient-to-r from-primary to-emerald-400 text-primary-foreground font-bold rounded-lg text-center"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Sign In
+                  ENTER THE PLAYGROUND
                 </Link>
-                <Link
-                  to="/register"
-                  className="block w-full px-4 py-2.5 bg-gradient-to-r from-primary to-emerald-400 text-primary-foreground font-semibold rounded-lg text-center"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Start Free Trial
-                </Link>
+                <div className="flex space-x-2">
+                  <Link
+                    to="/login"
+                    className="flex-1 px-4 py-2 text-sm font-medium text-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors border border-border"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="flex-1 px-4 py-2 text-sm font-medium text-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors border border-border"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Register
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

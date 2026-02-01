@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Check, Play, BookOpen, GraduationCap, MessageCircle } from "lucide-react";
+
+// Lazy load WebGL component
+const WaveBackground = lazy(() =>
+  import('./webgl/WaveBackground').then(mod => ({ default: mod.WaveBackground }))
+);
 
 export function CTASections() {
   const [email, setEmail] = useState("");
@@ -18,14 +23,19 @@ export function CTASections() {
   return (
     <>
       {/* Main CTA Section */}
-      <section className="py-24 bg-gradient-to-b from-background to-muted/50 overflow-hidden relative">
+      <section className="relative py-24 bg-gradient-to-b from-background to-muted/50 overflow-hidden">
+        {/* Wave Background WebGL */}
+        <Suspense fallback={null}>
+          <WaveBackground className="opacity-50" />
+        </Suspense>
+
         {/* Subtle background elements */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-20 left-20 w-72 h-72 bg-primary/5 rounded-full blur-3xl"></div>
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl"></div>
         </div>
 
-        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl md:text-6xl font-bold mb-6 text-foreground">
             Ready to transform your
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400">

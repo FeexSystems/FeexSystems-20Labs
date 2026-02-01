@@ -22,6 +22,7 @@ import {
 } from "./routes/health";
 import subscriptionRoutes from "./routes/subscriptions";
 import authRoutes from "./routes/auth";
+import mockAuthRoutes from "./routes/mock-auth";
 import userRoutes from "./routes/users";
 import usageRoutes from "./routes/usage";
 import billingRoutes from "./routes/billing";
@@ -78,7 +79,15 @@ export function createServer() {
   // API routes
   app.use("/api/demo", handleDemo);
   app.use("/api/chat", handleChat);
-  app.use("/api/auth", authRoutes);
+
+  // Use mock auth if USE_MOCK_AUTH is enabled (for testing without database)
+  const useMockAuth = process.env['USE_MOCK_AUTH'] === 'true';
+  if (useMockAuth) {
+    console.log('[SERVER] Using MOCK AUTH routes (no database required)');
+    app.use("/api/auth", mockAuthRoutes);
+  } else {
+    app.use("/api/auth", authRoutes);
+  }
   app.use("/api/users", userRoutes);
   app.use("/api/usage", usageRoutes);
   app.use("/api/billing", billingRoutes);

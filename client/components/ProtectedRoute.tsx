@@ -3,6 +3,9 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/lib/auth-store';
 import { AlertCircle, Shield } from 'lucide-react';
 
+// BETA MODE: Set to true to allow free access without login
+const BETA_MODE = true;
+
 interface ProtectedRouteProps {
   children: ReactNode;
   requireAuth?: boolean;
@@ -18,6 +21,11 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { isAuthenticated, user, isLoading } = useAuthStore();
   const location = useLocation();
+
+  // BETA MODE: Skip authentication check entirely
+  if (BETA_MODE) {
+    return <>{children}</>;
+  }
 
   // Show loading spinner while checking authentication
   if (isLoading) {
