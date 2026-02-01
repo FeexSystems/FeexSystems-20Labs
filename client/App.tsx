@@ -7,15 +7,37 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { ProtectedRoute, PublicRoute } from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { globalErrorHandler } from "@/lib/error-handler";
+
+// Public pages
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import EmailVerification from "./pages/EmailVerification";
-import UserProfile from "./pages/UserProfile";
-import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+
+// Protected pages
+import UserProfile from "./pages/UserProfile";
+
+// Dashboard pages
+import DashboardIndex from "./pages/dashboard/index";
+import AIServicesPage from "./pages/dashboard/ai-services";
+import AnalyticsPage from "./pages/dashboard/analytics";
+import BillingPage from "./pages/dashboard/billing";
+import DevOpsPage from "./pages/dashboard/devops";
+import SecurityPage from "./pages/dashboard/security";
+import SettingsPage from "./pages/dashboard/settings";
+import TeamsPage from "./pages/dashboard/teams";
+import DashboardProfilePage from "./pages/dashboard/profile";
+
+// Admin pages
+import AdminIndex from "./pages/admin/index";
+import AdminUsers from "./pages/admin/users";
+import AdminHealth from "./pages/admin/health";
+import AdminSecurity from "./pages/admin/security";
+import AdminAuditLogs from "./pages/admin/audit-logs";
+import AdminSubscriptions from "./pages/admin/subscriptions";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,7 +90,7 @@ const App = () => (
                     }
                   />
 
-                  {/* Authentication routes - will be added in next task */}
+                  {/* Authentication routes */}
                   <Route
                     path="/login"
                     element={
@@ -110,15 +132,100 @@ const App = () => (
                     }
                   />
 
-                  {/* Protected routes - require authentication */}
+                  {/* Dashboard routes */}
                   <Route
                     path="/dashboard"
                     element={
                       <ProtectedRoute>
-                        <Dashboard />
+                        <DashboardIndex />
                       </ProtectedRoute>
                     }
                   />
+                  <Route
+                    path="/dashboard/ai"
+                    element={
+                      <ProtectedRoute>
+                        <AIServicesPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/ai-services"
+                    element={
+                      <ProtectedRoute>
+                        <AIServicesPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/analytics"
+                    element={
+                      <ProtectedRoute>
+                        <AnalyticsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/billing"
+                    element={
+                      <ProtectedRoute>
+                        <BillingPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/devops"
+                    element={
+                      <ProtectedRoute>
+                        <DevOpsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/security"
+                    element={
+                      <ProtectedRoute>
+                        <SecurityPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/settings"
+                    element={
+                      <ProtectedRoute>
+                        <SettingsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/teams"
+                    element={
+                      <ProtectedRoute>
+                        <TeamsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/profile"
+                    element={
+                      <ProtectedRoute>
+                        <DashboardProfilePage />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* Legacy route redirects */}
+                  <Route path="/ai" element={<Navigate to="/dashboard/ai" replace />} />
+                  <Route path="/ai-services" element={<Navigate to="/dashboard/ai-services" replace />} />
+                  <Route path="/devops" element={<Navigate to="/dashboard/devops" replace />} />
+                  <Route path="/security" element={<Navigate to="/dashboard/security" replace />} />
+                  <Route path="/analytics" element={<Navigate to="/dashboard/analytics" replace />} />
+                  <Route path="/billing" element={<Navigate to="/dashboard/billing" replace />} />
+                  <Route path="/teams" element={<Navigate to="/dashboard/teams" replace />} />
+                  <Route path="/settings" element={<Navigate to="/dashboard/settings" replace />} />
+                  <Route path="/subscription" element={<Navigate to="/dashboard/billing" replace />} />
+
+                  {/* User profile route */}
                   <Route
                     path="/profile"
                     element={
@@ -127,35 +234,53 @@ const App = () => (
                       </ProtectedRoute>
                     }
                   />
+
+                  {/* Admin routes */}
                   <Route
-                    path="/subscription"
+                    path="/admin"
                     element={
                       <ProtectedRoute>
-                        <div>Subscription Page - Coming Soon</div>
+                        <AdminIndex />
                       </ProtectedRoute>
                     }
                   />
                   <Route
-                    path="/ai"
+                    path="/admin/users"
                     element={
                       <ProtectedRoute>
-                        <div>AI Services Page - Coming Soon</div>
+                        <AdminUsers />
                       </ProtectedRoute>
                     }
                   />
                   <Route
-                    path="/devops"
+                    path="/admin/health"
                     element={
                       <ProtectedRoute>
-                        <div>DevOps Page - Coming Soon</div>
+                        <AdminHealth />
                       </ProtectedRoute>
                     }
                   />
                   <Route
-                    path="/security"
+                    path="/admin/security"
                     element={
                       <ProtectedRoute>
-                        <div>Security Page - Coming Soon</div>
+                        <AdminSecurity />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/audit-logs"
+                    element={
+                      <ProtectedRoute>
+                        <AdminAuditLogs />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/subscriptions"
+                    element={
+                      <ProtectedRoute>
+                        <AdminSubscriptions />
                       </ProtectedRoute>
                     }
                   />

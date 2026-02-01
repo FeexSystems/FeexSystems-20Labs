@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+
 export interface User {
   id: string;
   email: string;
@@ -30,13 +31,13 @@ interface AuthState {
   isLoading: boolean;
   isInitialized: boolean;
   error: AuthError | null;
-  
+
   // Computed
   isLoggedIn: () => boolean;
   isTokenExpired: () => boolean;
   isAdmin: () => boolean;
   isSuperAdmin: () => boolean;
-  
+
   // Actions
   login: (user: User, token: string, refreshToken?: string, expiresIn?: number) => void;
   logout: () => void;
@@ -60,48 +61,48 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       isInitialized: false,
       error: null,
-      
+
       // Computed values
       isLoggedIn: () => {
         const state = get();
         return !!state.token && !state.isTokenExpired() && !!state.user;
       },
-      
+
       isTokenExpired: () => {
         const state = get();
         if (!state.expiresAt) return false;
         return Date.now() >= state.expiresAt;
       },
-      
+
       isAdmin: () => {
         const state = get();
         return state.user?.role === 'ADMIN' || state.user?.role === 'SUPER_ADMIN';
       },
-      
+
       isSuperAdmin: () => {
         const state = get();
         return state.user?.role === 'SUPER_ADMIN';
       },
-      
+
       // Actions
       login: (user, token, refreshToken, expiresIn = 3600) => {
         const expiresAt = Date.now() + (expiresIn * 1000);
-        set({ 
-          user, 
-          token, 
-          refreshToken, 
+        set({
+          user,
+          token,
+          refreshToken,
           expiresAt,
           isLoading: false,
           error: null,
           isInitialized: true
         });
       },
-      
+
       logout: () => {
-        set({ 
-          user: null, 
-          token: null, 
-          refreshToken: null, 
+        set({
+          user: null,
+          token: null,
+          refreshToken: null,
           expiresAt: null,
           isLoading: false,
           error: null,
@@ -110,25 +111,25 @@ export const useAuthStore = create<AuthState>()(
         // Clear any stored data
         localStorage.removeItem('auth-storage');
       },
-      
+
       setUser: (user) => set((state) => ({ ...state, user })),
-      
+
       setLoading: (loading) => set({ isLoading: loading }),
-      
+
       setError: (error) => set({ error }),
-      
+
       setInitialized: (initialized) => set({ isInitialized: initialized }),
-      
+
       clearError: () => set({ error: null }),
-      
+
       initialize: async () => {
         const state = get();
-        
+
         // If already initialized, skip
         if (state.isInitialized) return;
-        
+
         set({ isLoading: true });
-        
+
         try {
           // If we have a token but it's expired, try to refresh
           if (state.token && state.isTokenExpired() && state.refreshToken) {
@@ -137,7 +138,7 @@ export const useAuthStore = create<AuthState>()(
               get().logout();
             }
           }
-          
+
           // If we have a valid token, verify the user is still valid
           if (state.token && !state.isTokenExpired()) {
             try {
@@ -146,7 +147,7 @@ export const useAuthStore = create<AuthState>()(
                   'Authorization': `Bearer ${state.token}`,
                 },
               });
-              
+
               if (response.ok) {
                 const userData = await response.json();
                 if (userData.success) {
@@ -163,7 +164,7 @@ export const useAuthStore = create<AuthState>()(
           }
         } catch (error) {
           console.error('Auth initialization error:', error);
-          set({ 
+          set({
             error: {
               type: 'INITIALIZATION_ERROR',
               message: 'Failed to initialize authentication',
@@ -175,7 +176,7 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: false, isInitialized: true });
         }
       },
-      
+
       refreshAuthToken: async () => {
         const state = get();
         if (!state.refreshToken) {
@@ -185,7 +186,7 @@ export const useAuthStore = create<AuthState>()(
 
         try {
           set({ isLoading: true, error: null });
-          
+
           const response = await fetch('/api/auth/refresh-token', {
             method: 'POST',
             headers: {
@@ -195,7 +196,7 @@ export const useAuthStore = create<AuthState>()(
           });
 
           const data = await response.json();
-          
+
           if (response.ok && data.success) {
             const expiresAt = Date.now() + (data.expiresIn * 1000);
             set({
