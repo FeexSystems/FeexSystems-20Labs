@@ -1,0 +1,87 @@
+export type ProjectVisibility = "public" | "private";
+
+export interface FeexProject {
+  id: string;
+  name: string;
+  repository: string;
+  description: string;
+  domain: string;
+  status: "active" | "research" | "prototype" | "archived";
+  visibility: ProjectVisibility;
+  technologies: string[];
+  featured?: boolean;
+}
+
+/**
+ * Initial public showcase registry.
+ * This is deliberately small and evidence-safe: the ingestion service will
+ * become the authoritative source as GitHub synchronization is implemented.
+ */
+export const feexProjects: FeexProject[] = [
+  {
+    id: "persona-os",
+    name: "Persona Digital Operating Environment",
+    repository: "FEEXSYSTEMS-Persona-Digital-Portfolio",
+    description: "A spatial digital environment for exploring the Persona, systems, technologies and engineering relationships.",
+    domain: "Intelligence",
+    status: "active",
+    visibility: "public",
+    technologies: ["JavaScript", "Three.js", "WebGL"],
+    featured: true,
+  },
+  {
+    id: "yurrheeler-med-advisor",
+    name: "Yurrheeler Med Advisor",
+    repository: "yurrheeler-med-advisor",
+    description: "AI-oriented healthcare application and medical-advisor engineering project.",
+    domain: "Healthcare",
+    status: "active",
+    visibility: "public",
+    technologies: ["TypeScript", "React", "AI"],
+    featured: true,
+  },
+  {
+    id: "kappaxchangefin",
+    name: "KappaXchangeFin",
+    repository: "kappaxchangefin",
+    description: "Financial infrastructure project within the FEEXSYSTEMS engineering ecosystem.",
+    domain: "Finance",
+    status: "active",
+    visibility: "public",
+    technologies: ["TypeScript", "Finance", "APIs"],
+    featured: true,
+  },
+  {
+    id: "holokai-systems-labs",
+    name: "HoloKai Systems Labs",
+    repository: "HoloKai-Systems-Labs",
+    description: "Research and systems work exploring civilization intelligence and knowledge interfaces.",
+    domain: "Research",
+    status: "research",
+    visibility: "public",
+    technologies: ["TypeScript", "AI", "Knowledge Systems"],
+  },
+  {
+    id: "vyra-labs",
+    name: "VYRA Labs",
+    repository: "VYRA-LABS",
+    description: "Experimental systems laboratory within the broader FEEXSYSTEMS ecosystem.",
+    domain: "Research",
+    status: "research",
+    visibility: "public",
+    technologies: ["TypeScript", "AI", "Systems"],
+  },
+  {
+    id: "3wm-sonik-labs",
+    name: "3WM SONIK Labs",
+    repository: "3WM-SONIK-LABS",
+    description: "Three-world-model research and engineering laboratory.",
+    domain: "Intelligence",
+    status: "research",
+    visibility: "public",
+    technologies: ["TypeScript", "World Models", "AI"],
+  },
+];
+
+export const githubRepositoryUrl = (repository: string) =>
+  `https://github.com/FeexSystems/${repository}`;
