@@ -25,7 +25,7 @@ router.post("/webhook", async (req:RawRequest,res:Response)=>{
   if(!verifyGitHubSignature(raw,req.header("x-hub-signature-256")))return res.status(401).json({success:false,error:"Invalid GitHub webhook signature"});
   try{
     const payload=req.body;
-    if(payload.ref&&payload.ref!=="refs/heads/main")return res.status(202).json({success:true,ignored:true,reason:"non-main branch"});
+    if(payload.ref&&payload.repository?.default_branch&&payload.ref!==`refs/heads/${payload.repository.default_branch}`)return res.status(202).json({success:true,ignored:true,reason:"non-default branch"});
     const result=await processWebhook(payload);res.status(202).json({success:true,data:result});
   }catch(error){res.status(400).json({success:false,error:error instanceof Error?error.message:"Invalid webhook"});}
 });
