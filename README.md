@@ -1,396 +1,306 @@
-# FeexSystems Platform
+# FEEXSYSTEMS — Living Engineering Intelligence
 
-A comprehensive full-stack TypeScript platform providing AI services, DevOps automation, and security solutions with enterprise-grade authentication and multi-tenant architecture.
+**FeexSystems.codes** is the public SaaS experience for FEEXSYSTEMS: an evidence-backed engineering intelligence platform that turns the FeexSystems GitHub ecosystem into an explorable World Model.
 
-## 🚀 Quick Start
+> **Building digital worlds, one system at a time.**
+
+## Product model
+
+FEEXSYSTEMS is the application. Projects such as Persona OS, Yurrheeler AI, OjaChat and other FeexSystems repositories are projects/worlds showcased and continuously modeled inside the application.
+
+The canonical pipeline is:
+
+```text
+GitHub Organization / Profile
+        ↓
+Repository Discovery
+        ↓
+Persistent World Model
+        ↓
+Evidence Fabric
+        ↓
+Repository Tree
+        ↓
+Artifacts
+        ↓
+Technologies
+        ↓
+Relationships
+        ↓
+Incremental GitHub Webhook
+        ↓
+World Model Mutation
+        ↓
+Navigator Retrieval
+```
+
+The World Model is authoritative. The LLM is an interpreter and reasoning layer; it does not silently create canonical facts.
+
+## MVP capabilities
+
+- SaaS landing experience for FEEXSYSTEMS.CODES
+- Public project explorer
+- GitHub pinned-project discovery
+- Persistent repository/project records
+- Repository tree and artifact discovery
+- SHA-backed evidence provenance
+- Technology extraction from repository metadata and manifests
+- Project → technology relationships
+- Incremental GitHub webhook ingestion with HMAC verification
+- World Model event history
+- Grounded Navigator API and public Navigator experience
+- Existing authentication, dashboard, billing, DevOps and security platform foundations
+
+## Architecture
+
+```text
+┌─────────────────────────────────────────────┐
+│ EXPERIENCE                                  │
+│ Landing · Projects · Navigator · 3D World  │
+├─────────────────────────────────────────────┤
+│ NAVIGATION                                  │
+│ Search · Graph traversal · Exploration     │
+├─────────────────────────────────────────────┤
+│ INTELLIGENCE                                │
+│ LLM · Agents · Reasoning · Explanation     │
+├─────────────────────────────────────────────┤
+│ WORLD MODEL                                 │
+│ Projects · Artifacts · Technologies        │
+├─────────────────────────────────────────────┤
+│ EVIDENCE FABRIC                             │
+│ Files · SHAs · URLs · Events · Provenance │
+├─────────────────────────────────────────────┤
+│ SYNCHRONIZATION                             │
+│ GitHub discovery · Webhooks · Incremental  │
+├─────────────────────────────────────────────┤
+│ PERSISTENCE                                 │
+│ PostgreSQL · Prisma · Redis                 │
+└─────────────────────────────────────────────┘
+```
+
+### Canonical principles
+
+1. **Canonical data + model reasoning** — the World Model is authoritative; models interpret it.
+2. **Graph, not list** — relationships are first-class information.
+3. **Evidence, not claims** — important facts must have traceable implementation evidence.
+4. **Provider-neutral intelligence** — model providers can change without replacing the World Model.
+5. **Progressive disclosure** — ecosystem → world → repository → artifact → technology → source → evidence.
+6. **Spatial meaning** — the 3D interface communicates relationships rather than acting as decoration.
+7. **Human + machine** — the Persona is the builder; AI is the navigation and reasoning interface.
+8. **Autonomous, not uncontrolled** — mutations follow validation and provenance rules.
+9. **Browser as projection** — persistent server state is canonical; client state is a read model/cache.
+
+## Technology stack
+
+- **Frontend:** React 18, Vite, TypeScript, Tailwind CSS, shadcn/ui
+- **Backend:** Express.js, TypeScript
+- **Database:** PostgreSQL, Prisma ORM
+- **Cache:** Redis
+- **Authentication:** JWT, refresh tokens, role-based access control
+- **Testing:** Vitest, MSW, jsdom
+- **Infrastructure:** Docker / Docker Compose
+- **Intelligence direction:** graph retrieval + pgvector semantic retrieval + provider-neutral model adapters
+
+## Project structure
+
+```text
+FeexSystems-20Labs/
+├── client/                  # Public SaaS UI and authenticated application
+├── server/                  # API, World Model and ingestion services
+├── shared/                  # Shared types/utilities
+├── prisma/                  # Database schema and migrations
+├── docs/                    # Product, architecture and API documentation
+├── docker/                  # Container configuration
+└── scripts/                 # Maintained operational scripts only
+```
+
+## Development
 
 ### Prerequisites
-- Node.js 18+ and npm
-- Docker and Docker Compose
-- PostgreSQL 15+ (or use Docker)
-- Redis 7+ (or use Docker)
 
-### Development Setup
+- Node.js 18+
+- npm
+- PostgreSQL 15+
+- Redis 7+
+- Docker / Docker Compose (recommended)
+
+### Setup
 
 ```bash
-# Clone and setup
-git clone <repository-url>
+git clone https://github.com/FeexSystems/FeexSystems-20Labs.git
 cd FeexSystems-20Labs
 npm install
-
-# Environment setup
 cp .env.example .env
-# Edit .env with your configuration
-
-# Start with Docker (recommended)
-npm run docker:dev
-
-# Or start manually
-npm run db:init
 npm run dev
 ```
 
-The application will be available at:
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:3001
-- **Health Check**: http://localhost:3001/health
+### Useful commands
 
-## 🏗️ Architecture
-
-### Tech Stack
-- **Frontend**: React 18 + Vite + TypeScript + TailwindCSS + shadcn/ui
-- **Backend**: Express.js + TypeScript + Prisma ORM
-- **Database**: PostgreSQL with multi-tenant schema
-- **Cache**: Redis for sessions and caching
-- **Auth**: JWT with refresh tokens + Zustand state management
-- **Testing**: Vitest + MSW + jsdom
-- **Infrastructure**: Docker + Docker Compose
-
-### Project Structure
-```
-FeexSystems-20Labs/
-├── client/                 # React frontend application
-│   ├── components/         # Reusable UI components
-│   ├── hooks/             # Custom React hooks
-│   ├── lib/               # Utilities and services
-│   ├── pages/             # Route components
-│   └── test/              # Frontend tests
-├── server/                # Express backend application
-│   ├── lib/               # Business logic and services
-│   ├── routes/            # API route handlers
-│   └── test/              # Backend tests
-├── shared/                # Shared types and utilities
-├── prisma/                # Database schema and migrations
-├── docker/                # Docker configuration
-└── scripts/               # Build and deployment scripts
-```
-
-## 🔐 Authentication System
-
-### Features
-- **JWT-based authentication** with automatic token refresh
-- **Role-based access control** (USER, ADMIN, SUPER_ADMIN)
-- **Persistent sessions** with localStorage
-- **Protected routing** with automatic redirects
-- **Email verification** and password reset flows
-- **Rate limiting** and security protections
-
-### Usage Examples
-
-#### Authentication Hook
-```typescript
-import { useAuth } from '@/hooks/use-auth';
-
-function MyComponent() {
-  const { user, isAuthenticated, login, logout } = useAuth();
-  
-  if (!isAuthenticated) {
-    return <LoginForm onLogin={login} />;
-  }
-  
-  return (
-    <div>
-      Welcome, {user.firstName}!
-      <button onClick={logout}>Logout</button>
-    </div>
-  );
-}
-```
-
-#### Protected Routes
-```typescript
-import { ProtectedRoute, AdminRoute } from '@/components/ProtectedRoute';
-
-// Regular protected route
-<ProtectedRoute>
-  <Dashboard />
-</ProtectedRoute>
-
-// Admin-only route
-<AdminRoute>
-  <AdminPanel />
-</AdminRoute>
-```
-
-#### API Client
-```typescript
-import { apiClient } from '@/lib/api-client';
-
-// Authenticated requests with automatic token handling
-const userData = await apiClient.get('/users/profile');
-const result = await apiClient.post('/ai/request', { prompt: 'Hello' });
-```
-
-## 🧪 Testing
-
-### Test Infrastructure
-- **Vitest** for unit and integration tests
-- **MSW** for API mocking
-- **jsdom** for DOM testing
-- **Comprehensive mocks** for localStorage, fetch, and React Router
-
-### Running Tests
 ```bash
-# Run all tests
+npm run dev
 npm test
-
-# Run with coverage
 npm run test:coverage
-
-# Run specific test file
-npx vitest run client/test/auth/use-auth.test.ts
-```
-
-### Test Coverage
-- ✅ Authentication store and state management
-- ✅ Token manager and automatic refresh
-- ✅ API client with error handling
-- ✅ useAuth hook functionality
-- ✅ Protected route components
-- ✅ Mock utilities and test helpers
-
-## 🐳 Docker Support
-
-### Development Environment
-```bash
-# Start all services
+npm run build
+npm run db:init
+npm run db:migrate
+npm run db:seed
+npm run db:studio
 npm run docker:dev
-
-# View logs
-docker-compose logs -f
-
-# Stop services
 npm run docker:down
 ```
 
-### Production Environment
-```bash
-# Start production build
-npm run docker:prod
+## World Model synchronization
 
-# Scale application
-docker-compose --profile prod up --scale app-prod=3
+The GitHub synchronization layer is designed around observation rather than manual content authoring.
+
+### Discovery
+
+The MVP discovers the FeexSystems public GitHub ecosystem and uses the pinned-project set as the initial project showcase. A deterministic configured repository list may be used as an evidence-safe fallback when public profile discovery is unavailable.
+
+### Repository analysis
+
+For each discovered repository the system can record:
+
+- repository identity and metadata
+- default branch
+- repository tree
+- source/documentation/configuration artifacts
+- file paths and blob SHAs
+- technology candidates
+- project → technology relationships
+- source URLs and discovery provenance
+
+### Incremental updates
+
+GitHub webhook events are validated using the configured webhook secret. Relevant commit/change paths are converted into World Model events so future synchronization can process only affected repository state.
+
+## Navigator
+
+The Navigator is a grounded exploration interface over the World Model.
+
+Example questions:
+
+```text
+Which projects use PostgreSQL?
+
+What technologies are used by Persona OS?
+
+What evidence supports this technology relationship?
+
+Which repositories changed recently?
+
+How is one project connected to another?
 ```
 
-## 📊 Database Management
+The intended retrieval architecture is:
 
-### Available Commands
-```bash
-# Initialize database (first time)
-npm run db:init
-
-# Create and apply migrations
-npm run db:migrate migrate add_feature_name
-
-# Reset database (development)
-npm run db:reset
-
-# Seed with sample data
-npm run db:seed
-
-# Open database GUI
-npm run db:studio
+```text
+User intent
+   ↓
+Navigator
+   ↓
+World Model retrieval
+   ├── entity search
+   ├── graph traversal
+   └── vector search
+   ↓
+Evidence ranking
+   ↓
+Grounded context
+   ↓
+Model reasoning / explanation
 ```
 
-### Schema Features
-- **Multi-tenant architecture** with proper isolation
-- **User management** with roles and permissions
-- **Subscription handling** with Stripe integration
-- **AI service tracking** and usage analytics
-- **Audit logging** for security and compliance
+## Evidence model
 
-## 🔧 API Endpoints
+FEEXSYSTEMS treats provenance as a first-class system concern.
 
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/refresh-token` - Token refresh
-- `POST /api/auth/forgot-password` - Password reset request
-- `POST /api/auth/reset-password` - Password reset confirmation
-- `GET /api/auth/me` - Current user profile
+A canonical fact should be traceable to evidence such as:
 
-### Health Checks
-- `GET /health` - Overall system health
-- `GET /health/ready` - Readiness check
-- `GET /health/live` - Liveness check
+- GitHub repository
+- branch
+- commit SHA
+- file path
+- artifact
+- README/documentation
+- package manifest
+- webhook event
+- observation timestamp
 
-### Protected Endpoints
-- `GET /api/users/profile` - User profile management
-- `POST /api/ai/request` - AI service requests
-- `GET /api/subscription/status` - Subscription information
+This enables future `Why?`, `Show evidence`, temporal reconstruction and dependency-impact features.
 
-## 🛡️ Security Features
+## Roadmap
 
-### Authentication Security
-- **JWT tokens** with short expiration (15 minutes)
-- **Refresh token rotation** for enhanced security
-- **Automatic token refresh** before expiration
-- **Secure token storage** in localStorage
-- **Role-based access control** with hierarchical permissions
+### Phase I — SaaS Foundation
 
-### API Security
-- **Rate limiting** on all endpoints
-- **Input validation** with Zod schemas
-- **CORS protection** with configurable origins
-- **Error handling** without information leakage
-- **Request/response logging** for audit trails
+- Public landing page
+- Authentication
+- User dashboard
+- Core platform services
 
-### Infrastructure Security
-- **Environment variable protection**
-- **Database connection encryption**
-- **Redis authentication**
-- **Docker security best practices**
+### Phase II — Ecosystem Experience
 
-## 🚀 Deployment
+- Project explorer
+- World navigation
+- Persona/project presentation
+- Responsive command center
 
-### Environment Variables
-```env
-# Database
-DATABASE_URL=postgresql://user:pass@host:port/db
+### Phase III — Living Engineering Intelligence
 
-# Redis
-REDIS_URL=redis://host:port
+- [x] GitHub repository discovery
+- [x] Persistent World Model project records
+- [x] Evidence Fabric foundation
+- [x] Repository tree/artifact discovery
+- [x] Technology extraction
+- [x] Project → technology relationships
+- [x] Incremental webhook event ingestion
+- [x] Grounded Navigator endpoint
+- [ ] pgvector embeddings
+- [ ] Hybrid graph/vector ranking
+- [ ] Commit-level temporal reconstruction
+- [ ] Dependency-impact propagation
+- [ ] Source/evidence explorer
+- [ ] Automated GitHub webhook provisioning
+- [ ] Autonomous World Model maintenance
+- [ ] Spatial graph reasoning
+- [ ] Voice navigation
 
-# JWT Authentication
-JWT_SECRET=your-super-secret-jwt-key
-JWT_REFRESH_SECRET=your-refresh-secret
+## Documentation
 
-# Optional: Email, Stripe, OpenAI
-SMTP_HOST=smtp.gmail.com
-STRIPE_SECRET_KEY=sk_test_...
-OPENAI_API_KEY=sk-...
-```
+- `docs/ARCHITECTURE.md` — system architecture and boundaries
+- `docs/WORLD_MODEL.md` — canonical entities, relationships and persistence model
+- `docs/EVIDENCE_FABRIC.md` — provenance and evidence lifecycle
+- `docs/GITHUB_INGESTION.md` — discovery, repository analysis and webhook synchronization
+- `docs/NAVIGATOR.md` — grounded retrieval and reasoning contract
+- `docs/DEPLOYMENT.md` — production deployment and environment configuration
 
-### Production Checklist
-- [ ] Set strong JWT secrets
-- [ ] Configure database with SSL
-- [ ] Set up Redis with authentication
-- [ ] Configure email service
-- [ ] Set up monitoring and logging
-- [ ] Configure CORS for production domains
-- [ ] Set up SSL/TLS certificates
-- [ ] Configure rate limiting
-- [ ] Set up backup strategies
+## Security
 
-## 📈 Monitoring
+- JWT authentication and refresh-token handling
+- Role-based access control
+- Rate limiting
+- Zod/input validation
+- Configurable CORS
+- GitHub webhook HMAC verification
+- Environment-based secret configuration
+- Audit logging foundations
 
-### Health Checks
-The application provides comprehensive health monitoring:
+Never commit production secrets, private keys, webhook secrets or provider API keys.
 
-```json
-{
-  "status": "healthy",
-  "timestamp": "2024-01-15T10:30:00.000Z",
-  "services": {
-    "database": { "status": "healthy" },
-    "redis": { "status": "healthy" }
-  },
-  "uptime": 3600,
-  "memory": {
-    "rss": 52428800,
-    "heapTotal": 29360128,
-    "heapUsed": 20971520
-  },
-  "version": "2.0.0"
-}
-```
+## Deployment target
 
-### Logging
-- **Structured logging** with timestamps and request IDs
-- **Error tracking** with stack traces
-- **Performance monitoring** for API endpoints
-- **Security event logging** for authentication attempts
+The public FEEXSYSTEMS experience is intended for:
 
-## 🤝 Contributing
+**https://FeexSystems.codes**
 
-### Development Workflow
-1. Fork the repository
-2. Create a feature branch
-3. Make changes following the coding standards
-4. Add tests for new functionality
-5. Run tests and ensure they pass
-6. Submit a pull request
+Production infrastructure may use the existing Docker/PostgreSQL/Redis stack and a managed deployment platform as appropriate.
 
-### Coding Standards
-- **2 spaces indentation** (never tabs)
-- **Trailing commas** in objects/arrays
-- **Functional components** with hooks only
-- **TypeScript strict mode** disabled (maintain current setting)
-- **Prettier formatting** with existing configuration
+## License
 
-### Testing Requirements
-- Unit tests for new functions and hooks
-- Integration tests for API endpoints
-- Component tests for UI changes
-- Mock external dependencies properly
-
-## 📚 Documentation
-
-### Additional Resources
-- [Infrastructure Setup Guide](./INFRASTRUCTURE_SETUP.md)
-- [Authentication Infrastructure](./client/README-auth-infrastructure.md)
-- [Testing Documentation](./client/test/README.md)
-- [Server Authentication Service](./server/lib/services/README-auth.md)
-
-### API Documentation
-- Interactive API documentation available at `/api/docs` (when running)
-- OpenAPI specification in `docs/api-spec.yaml`
-- Postman collection in `docs/postman-collection.json`
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Database Connection Failed**
-```bash
-# Check PostgreSQL status
-docker-compose ps postgres
-docker-compose logs postgres
-
-# Test connection
-psql $DATABASE_URL
-```
-
-**Redis Connection Failed**
-```bash
-# Check Redis status
-docker-compose ps redis
-redis-cli -u $REDIS_URL ping
-```
-
-**Authentication Issues**
-```bash
-# Clear auth storage
-localStorage.clear()
-
-# Check JWT token validity
-# Tokens expire after 15 minutes
-```
-
-**Build Issues**
-```bash
-# Clean install
-rm -rf node_modules package-lock.json
-npm install
-
-# Clear build cache
-npm run build:clean
-```
-
-## 📄 License
-
-This project is proprietary software owned by FeexSystems. All rights reserved.
-
-## 📞 Support
-
-For technical support or questions:
-- Create an issue in the repository
-- Contact the development team
-- Check the documentation in the `docs/` directory
+Proprietary software owned by FeexSystems. All rights reserved.
 
 ---
 
-**Version**: 2.0.0  
-**Last Updated**: January 2024  
-**Node.js**: 18+  
-**TypeScript**: 5.5+
+**Product:** FEEXSYSTEMS — Living Engineering Intelligence  
+**Public domain:** FeexSystems.codes  
+**Repository:** FeexSystems/FeexSystems-20Labs
