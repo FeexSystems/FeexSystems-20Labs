@@ -229,14 +229,21 @@ export default function Navigator() {
                               {p.repository}
                             </div>
                           </div>
-                          <a
-                            href={p.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-muted-foreground hover:text-primary transition"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
+                          <div className="flex items-center gap-1.5">
+                            <Button asChild variant="ghost" size="sm" className="h-7 px-2 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10">
+                              <Link to={`/evidence/${encodeURIComponent(p.id)}`} title="Inspect evidence in Explorer">
+                                <FileCode className="h-3.5 w-3.5" />
+                              </Link>
+                            </Button>
+                            <a
+                              href={p.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-muted-foreground hover:text-primary transition p-1"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </div>
                         </div>
                         <p className="mt-2 text-xs text-muted-foreground line-clamp-2">
                           {p.description || "Project entity discovered from the FeexSystems GitHub ecosystem."}
@@ -289,18 +296,22 @@ export default function Navigator() {
                     </CardHeader>
                     <CardContent className="space-y-2">
                       {result.artifacts.map((art) => (
-                        <div
+                        <Link
                           key={art.id}
-                          className="flex items-center justify-between rounded-lg border border-border/60 bg-card/30 p-2.5 text-xs"
+                          to={`/evidence/${encodeURIComponent(art.projectId)}?path=${encodeURIComponent(art.path)}`}
+                          className="flex items-center justify-between rounded-lg border border-border/60 bg-card/30 p-2.5 text-xs transition hover:border-emerald-500/40 hover:bg-emerald-500/5 group"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <FileCode className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                            <span className="font-mono text-foreground truncate">{art.path}</span>
+                            <FileCode className="h-3.5 w-3.5 text-muted-foreground group-hover:text-emerald-400 shrink-0" />
+                            <span className="font-mono text-foreground group-hover:text-emerald-300 truncate">{art.path}</span>
                           </div>
-                          <Badge variant="outline" className="text-[10px] shrink-0">
-                            {art.kind}
-                          </Badge>
-                        </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <Badge variant="outline" className="text-[10px]">
+                              {art.kind}
+                            </Badge>
+                            <span className="text-[10px] text-emerald-400 opacity-0 group-hover:opacity-100 transition">Inspect &rarr;</span>
+                          </div>
+                        </Link>
                       ))}
                     </CardContent>
                   </Card>
@@ -308,20 +319,28 @@ export default function Navigator() {
               </div>
             </div>
 
-            {/* 3D Link Action */}
-            <div className="flex items-center justify-between rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
+            {/* 3D and Evidence Links Action */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
               <div>
-                <h4 className="font-semibold text-emerald-300">Explore Relationships in 3D</h4>
+                <h4 className="font-semibold text-emerald-300">Explore Evidence & Topology</h4>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  View how these entities interconnect within the full spatial knowledge galaxy.
+                  Verify cryptographic SHAs in the Evidence Explorer or inspect spatial graphs in 3D.
                 </p>
               </div>
-              <Button asChild size="sm" className="bg-emerald-500 font-semibold text-black hover:bg-emerald-400">
-                <Link to="/world">
-                  <Globe className="h-4 w-4 mr-1.5" />
-                  Open 3D Galaxy
-                </Link>
-              </Button>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button asChild variant="outline" size="sm" className="border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10">
+                  <Link to="/evidence">
+                    <FileCode className="h-4 w-4 mr-1.5" />
+                    Evidence Explorer
+                  </Link>
+                </Button>
+                <Button asChild size="sm" className="bg-emerald-500 font-semibold text-black hover:bg-emerald-400">
+                  <Link to="/world">
+                    <Globe className="h-4 w-4 mr-1.5" />
+                    3D Galaxy
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         )}

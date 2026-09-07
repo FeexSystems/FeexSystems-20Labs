@@ -258,11 +258,10 @@ This enables future `Why?`, `Show evidence`, temporal reconstruction and depende
 - [ ] pgvector embeddings
 - [ ] Hybrid graph/vector ranking
 - [ ] Commit-level temporal reconstruction
-- [ ] Dependency-impact propagation
-- [ ] Source/evidence explorer
+- [x] Source/evidence explorer (`/evidence`)
 - [ ] Automated GitHub webhook provisioning
 - [ ] Autonomous World Model maintenance
-- [ ] Spatial graph reasoning
+- [x] Spatial graph reasoning & 3D Knowledge Galaxy (`/world`)
 - [ ] Voice navigation
 
 ## Documentation
@@ -303,4 +302,4 @@ Proprietary software owned by FeexSystems. All rights reserved.
 
 **Product:** FEEXSYSTEMS — Living Engineering Intelligence  
 **Public domain:** FeexSystems.codes  
-**Repository:** FeexSystems/FeexSystems-20Labs
+**Repository:** FeexSystems/FeexSystems-Living-Intelligence-World

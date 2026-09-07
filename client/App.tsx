@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Projects from "./pages/Projects";
 import Navigator from "./pages/Navigator";
 import SpatialWorld from "./pages/SpatialWorld";
+import EvidenceExplorer from "./pages/EvidenceExplorer";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -79,6 +80,8 @@ const App = () => (
                   <Route path="/projects" element={<Public><Projects /></Public>} />
                   <Route path="/navigator" element={<Public><Navigator /></Public>} />
                   <Route path="/world" element={<Public><SpatialWorld /></Public>} />
+                  <Route path="/evidence" element={<Public><EvidenceExplorer /></Public>} />
+                  <Route path="/evidence/:projectId" element={<Public><EvidenceExplorer /></Public>} />
 
                   {/* Guest-only Authentication routes */}
                   <Route path="/login" element={<GuestOnly><Login /></GuestOnly>} />

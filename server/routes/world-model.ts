@@ -1,5 +1,7 @@
 import { Request, Response, Router } from "express";
 import {
+  getAllProjectsEvidenceSummary,
+  getArtifactContent,
   getPinnedWorldModelProjects,
   getProjectEvidence,
   getWorldModelGraph,
@@ -46,6 +48,44 @@ router.get("/graph", async (_req: Request, res: Response) => {
   }
 });
 
+// Evidence list for all projects
+router.get("/evidence/projects", async (_req: Request, res: Response) => {
+  try {
+    const projects = await getAllProjectsEvidenceSummary();
+    res.json({
+      success: true,
+      data: projects,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Evidence projects query failed",
+    });
+  }
+});
+
+// Artifact file content fetch and git blob SHA verification
+router.get("/evidence/:projectId/content", async (req: Request, res: Response) => {
+  try {
+    const { projectId } = req.params;
+    const filePath = String(req.query.path || "").trim();
+    if (!projectId || !filePath) {
+      return res.status(400).json({ success: false, error: "Project ID and file path query are required" });
+    }
+    const result = await getArtifactContent(projectId, filePath);
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Artifact content fetch failed",
+    });
+  }
+});
+
+// Project-level evidence, artifacts, and event history
 router.get("/evidence/:projectId", async (req: Request, res: Response) => {
   try {
     const { projectId } = req.params;

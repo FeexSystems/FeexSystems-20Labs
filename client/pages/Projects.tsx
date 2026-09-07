@@ -5,6 +5,7 @@ import {
   Boxes,
   Compass,
   ExternalLink,
+  FileCode,
   GitBranch,
   Globe,
   RefreshCw,
@@ -166,6 +167,12 @@ export default function Projects() {
               <span className="ml-2 hidden sm:inline">Sync</span>
             </Button>
             <Button asChild variant="outline">
+              <Link to="/evidence">
+                <FileCode className="h-4 w-4 mr-1.5 text-emerald-400" />
+                <span className="hidden sm:inline">Evidence</span>
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
               <Link to="/world">
                 <Globe className="h-4 w-4 mr-1.5 text-emerald-400" />
                 <span className="hidden sm:inline">3D Galaxy</span>
@@ -210,15 +217,20 @@ export default function Projects() {
                     </Badge>
                   ))}
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <Button asChild variant="outline" size="sm">
                     <Link to={`/navigator?q=${encodeURIComponent(p.name)}`}>
-                      <Compass className="h-3.5 w-3.5 mr-1 text-primary" /> Navigator
+                      <Compass className="h-3.5 w-3.5 mr-1 text-primary" /> Nav
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="sm" className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10">
+                    <Link to={`/evidence/${encodeURIComponent(p.id)}`}>
+                      <FileCode className="h-3.5 w-3.5 mr-1 text-emerald-400" /> Evidence
                     </Link>
                   </Button>
                   <Button asChild size="sm" className="group-hover:bg-primary">
                     <a href={p.url} target="_blank" rel="noreferrer">
-                      GitHub <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                      Code <ExternalLink className="ml-1 h-3 w-3" />
                     </a>
                   </Button>
                 </div>

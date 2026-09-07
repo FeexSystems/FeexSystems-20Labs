@@ -7,6 +7,7 @@ import {
   Boxes,
   Compass,
   ExternalLink,
+  FileCode,
   Filter,
   GitBranch,
   Layers,
@@ -420,6 +421,17 @@ export default function SpatialWorld() {
           </Button>
           <Button
             asChild
+            variant="outline"
+            size="sm"
+            className="border-white/10 bg-black/60 text-white/80 backdrop-blur-xl"
+          >
+            <Link to="/evidence">
+              <ShieldCheck className="h-4 w-4 mr-1.5 text-emerald-400" />
+              <span className="hidden sm:inline">Evidence</span>
+            </Link>
+          </Button>
+          <Button
+            asChild
             size="sm"
             className="bg-emerald-500 font-semibold text-black hover:bg-emerald-400"
           >
@@ -430,6 +442,7 @@ export default function SpatialWorld() {
           </Button>
         </div>
       </header>
+
 
       {/* Search & Filter Toolbar */}
       <div className="absolute top-20 left-4 md:left-6 z-20 flex flex-col gap-2 pointer-events-auto max-w-sm w-full">
@@ -608,6 +621,14 @@ export default function SpatialWorld() {
 
             {/* Action Buttons */}
             <div className="pt-4 space-y-2.5">
+              {selectedNode.type === "project" && (
+                <Button asChild variant="outline" className="w-full border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300">
+                  <Link to={`/evidence/${encodeURIComponent(selectedNode.id || selectedNode.name)}`}>
+                    <FileCode className="h-4 w-4 mr-2 text-emerald-400" />
+                    Inspect in Evidence Explorer
+                  </Link>
+                </Button>
+              )}
               {selectedNode.url && (
                 <Button asChild className="w-full bg-emerald-500 font-semibold text-black hover:bg-emerald-400">
                   <a href={selectedNode.url} target="_blank" rel="noreferrer">

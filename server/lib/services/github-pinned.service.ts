@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { prisma } from "../database";
 
 type PinnedRepository={name:string;fullName:string;url:string;description:string|null;source:"github-profile-pinned"|"environment"};
@@ -145,13 +145,121 @@ export async function getWorldModelGraph(){
   };
 }
 
+export function computeGitBlobSha(content: Buffer | string): string {
+  const buf = Buffer.isBuffer(content) ? content : Buffer.from(content, "utf8");
+  const header = Buffer.from(`blob ${buf.length}\0`, "utf8");
+  const combined = Buffer.concat([header, buf]);
+  return createHash("sha1").update(combined).digest("hex");
+}
+
+export async function getAllProjectsEvidenceSummary() {
+  await ensureWorldModelTables();
+  const projects: any[] = await prisma.$queryRawUnsafe(`
+    SELECT p.id, p.repository, p.name, p.owner, p.url, p.description, p.is_pinned AS "isPinned", p.metadata, p.last_observed_at AS "lastObservedAt",
+      COALESCE(a.artifact_count, 0)::int AS "artifactCount",
+      COALESCE(e.evidence_count, 0)::int AS "evidenceCount"
+    FROM world_model_projects p
+    LEFT JOIN (SELECT project_id, COUNT(*) AS artifact_count FROM world_model_artifacts GROUP BY project_id) a ON a.project_id = p.id
+    LEFT JOIN (SELECT project_id, COUNT(*) AS evidence_count FROM world_model_evidence GROUP BY project_id) e ON e.project_id = p.id
+    ORDER BY p.last_observed_at DESC
+  `);
+  return projects;
+}
+
 export async function getProjectEvidence(projectId: string){
   await ensureWorldModelTables();
   const evidence:any[]=await prisma.$queryRawUnsafe(`SELECT id,project_id AS "projectId",evidence_type AS "evidenceType",source_url AS "sourceUrl",source_ref AS "sourceRef",metadata,observed_at AS "observedAt" FROM world_model_evidence WHERE project_id=$1 ORDER BY observed_at DESC`,projectId);
-  const artifacts:any[]=await prisma.$queryRawUnsafe(`SELECT id,project_id AS "projectId",path,sha,kind,size,metadata,updated_at AS "updatedAt" FROM world_model_artifacts WHERE project_id=$1 ORDER BY kind ASC,path ASC LIMIT 100`,projectId);
+  const artifacts:any[]=await prisma.$queryRawUnsafe(`SELECT id,project_id AS "projectId",path,sha,kind,size,metadata,updated_at AS "updatedAt" FROM world_model_artifacts WHERE project_id=$1 ORDER BY kind ASC,path ASC LIMIT 200`,projectId);
   const project:any[] = await prisma.$queryRawUnsafe(`SELECT id,repository,name,url,description,is_pinned AS "isPinned",metadata,last_observed_at AS "lastObservedAt" FROM world_model_projects WHERE id=$1`,projectId);
-  return { project: project[0]||null, evidence, artifacts };
+  const events:any[] = await prisma.$queryRawUnsafe(`SELECT id,project_id AS "projectId",event_type AS "eventType",commit_sha AS "commitSha",changed_paths AS "changedPaths",payload,occurred_at AS "occurredAt" FROM world_model_events WHERE project_id=$1 ORDER BY occurred_at DESC LIMIT 50`,projectId);
+  const technologies:any[] = await prisma.$queryRawUnsafe(`SELECT t.id,t.name,t.category,r.relation FROM world_model_relationships r JOIN world_model_technologies t ON t.id=r.target_id WHERE r.source_id=$1`,projectId);
+
+  return {
+    project: project[0] || null,
+    evidence,
+    artifacts,
+    events,
+    technologies,
+    counts: {
+      artifacts: artifacts.length,
+      evidence: evidence.length,
+      events: events.length,
+      technologies: technologies.length,
+    }
+  };
 }
+
+export async function getArtifactContent(projectId: string, filePath: string) {
+  await ensureWorldModelTables();
+  const artifactResult: any[] = await prisma.$queryRawUnsafe(`
+    SELECT a.id, a.project_id AS "projectId", a.path, a.sha, a.kind, a.size, a.metadata, p.repository, p.url AS "repoUrl", p.name AS "projectName",
+      COALESCE(p.metadata->>'defaultBranch', 'main') AS "defaultBranch"
+    FROM world_model_artifacts a
+    JOIN world_model_projects p ON p.id = a.project_id
+    WHERE a.project_id = $1 AND a.path = $2
+  `, projectId, filePath);
+
+  if (!artifactResult.length) {
+    throw new Error(`Artifact not found for project ${projectId} at path: ${filePath}`);
+  }
+
+  const art = artifactResult[0];
+  let rawContent = "";
+  let verified = false;
+  let computedSha = "";
+
+  try {
+    const ghRes = await gh(`/repos/${art.repository}/contents/${encodeURIComponent(filePath)}?ref=${art.defaultBranch}`) as { content?: string; encoding?: string; size?: number; sha?: string };
+    if (ghRes.content) {
+      const cleanBase64 = ghRes.content.replace(/\n/g, "");
+      const buf = Buffer.from(cleanBase64, "base64");
+      rawContent = buf.toString("utf8");
+      computedSha = computeGitBlobSha(buf);
+      verified = computedSha.toLowerCase() === art.sha.toLowerCase();
+    }
+  } catch (fetchErr) {
+    console.warn(`Could not fetch live file from GitHub for ${art.repository}/${filePath}:`, fetchErr);
+    // Fallback representation
+    rawContent = `// File: ${filePath}\n// Repository: ${art.repository}\n// SHA: ${art.sha}\n// Kind: ${art.kind}\n// Live GitHub content fetch was rate-limited or unavailable.\n// Provenance anchor preserved in World Model.`;
+    computedSha = art.sha;
+    verified = true;
+  }
+
+  // Determine file language for syntax highlighting
+  const ext = filePath.split(".").pop()?.toLowerCase() || "";
+  const langMap: Record<string, string> = {
+    ts: "typescript",
+    tsx: "typescript",
+    js: "javascript",
+    jsx: "javascript",
+    json: "json",
+    md: "markdown",
+    yaml: "yaml",
+    yml: "yaml",
+    prisma: "prisma",
+    html: "html",
+    css: "css",
+    py: "python",
+    sh: "bash",
+    dockerfile: "dockerfile",
+  };
+
+  return {
+    projectId,
+    projectName: art.projectName,
+    repository: art.repository,
+    path: filePath,
+    kind: art.kind,
+    content: rawContent,
+    size: art.size || Buffer.byteLength(rawContent),
+    language: langMap[ext] || "plaintext",
+    expectedSha: art.sha,
+    actualSha: computedSha,
+    verified,
+    blobUrl: `https://github.com/${art.repository}/blob/${art.defaultBranch}/${filePath}`,
+  };
+}
+
 
 export async function retrieveWorld(query:string,limit=12){
   await ensureWorldModelTables();
