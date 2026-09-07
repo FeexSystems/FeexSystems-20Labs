@@ -9,17 +9,10 @@ import path from "path";
 import { validateEnv } from "./lib/config/validate-env";
 import { applyProductionSecurity } from "./lib/middleware/production-security";
 import { createServer as createHttpServer } from "http";
-import {
-  initializeSentry,
-  setupSentryErrorHandler,
-} from "./lib/logging/sentry";
+import { initializeSentry, setupSentryErrorHandler } from "./lib/logging/sentry";
 import { handleDemo } from "./routes/demo";
 import { handleChat } from "./routes/chat";
-import {
-  handleHealthCheck,
-  handleReadinessCheck,
-  handleLivenessCheck,
-} from "./routes/health";
+import { handleHealthCheck, handleReadinessCheck, handleLivenessCheck } from "./routes/health";
 import subscriptionRoutes from "./routes/subscriptions";
 import authRoutes from "./routes/auth";
 import mockAuthRoutes from "./routes/mock-auth";
@@ -38,19 +31,15 @@ import { aiService } from "./lib/services/ai.service";
 import { securityService } from "./lib/services/security.service";
 import { securityCronService } from "./lib/services/security-cron.service";
 import { initializeDeploymentWebSocket } from "./lib/services/deployment-websocket.service";
+import { syncPinnedProjects } from "./lib/services/github-pinned.service";
 
-// Load environment variables
 dotenv.config();
-// Validate environment variables
 validateEnv();
 
 export function createServer() {
   const app = express();
 
-  if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
-    initializeSentry(app);
-  }
-
+  if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) initializeSentry(app);
   if (process.env.NODE_ENV === "production") {
     applyProductionSecurity(app);
   } else {
@@ -70,13 +59,7 @@ export function createServer() {
   app.use("/api/chat", handleChat);
 
   const useMockAuth = process.env["USE_MOCK_AUTH"] === "true";
-  if (useMockAuth) {
-    console.log("[SERVER] Using MOCK AUTH routes (no database required)");
-    app.use("/api/auth", mockAuthRoutes);
-  } else {
-    app.use("/api/auth", authRoutes);
-  }
-
+  app.use("/api/auth", useMockAuth ? mockAuthRoutes : authRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/usage", usageRoutes);
   app.use("/api/billing", billingRoutes);
@@ -90,17 +73,9 @@ export function createServer() {
   // Living Engineering Intelligence API
   app.use("/api/world-model", worldModelRoutes);
 
-  if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
-    setupSentryErrorHandler(app);
-  }
+  if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) setupSentryErrorHandler(app);
 
-  app.get("/api/ping", (_req, res) => {
-    res.json({
-      message: "Hello from FeexSystems Enhanced Platform!",
-      timestamp: new Date().toISOString(),
-      version: "2.0.0",
-    });
-  });
+  app.get("/api/ping", (_req, res) => res.json({ message: "Hello from FeexSystems Enhanced Platform!", timestamp: new Date().toISOString(), version: "2.0.0" }));
 
   if (process.env.NODE_ENV === "production") {
     const spaPath = path.resolve(__dirname, "..", "spa");
@@ -111,32 +86,10 @@ export function createServer() {
     });
   }
 
-  app.use("/api/*", (_req, res) => {
-    res.status(404).json({
-      success: false,
-      error: {
-        type: "NOT_FOUND_ERROR",
-        message: "API endpoint not found",
-        code: "API_ENDPOINT_NOT_FOUND",
-        timestamp: new Date().toISOString(),
-        requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      },
-    });
-  });
-
-  app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  app.use("/api/*", (_req, res) => res.status(404).json({ success: false, error: { type: "NOT_FOUND_ERROR", message: "API endpoint not found", code: "API_ENDPOINT_NOT_FOUND", timestamp: new Date().toISOString(), requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` } }));
+  app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error("Unhandled error:", error);
-    res.status(500).json({
-      success: false,
-      error: {
-        type: "INTERNAL_SERVER_ERROR",
-        message: "Internal server error",
-        code: "INTERNAL_ERROR",
-        timestamp: new Date().toISOString(),
-        requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        ...(process.env.NODE_ENV === "development" && { details: error.message }),
-      },
-    });
+    res.status(500).json({ success: false, error: { type: "INTERNAL_SERVER_ERROR", message: "Internal server error", code: "INTERNAL_ERROR", timestamp: new Date().toISOString(), requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` } });
   });
 
   return app;
@@ -148,6 +101,12 @@ export async function initializeInfrastructure() {
   console.log("🚀 Initializing infrastructure...");
   try {
     await connectDatabase();
+    try {
+      const projects = await syncPinnedProjects();
+      console.log(`🌐 World Model synchronized ${projects.length} pinned GitHub projects`);
+    } catch (error) {
+      console.warn("⚠️ GitHub pinned project synchronization skipped:", error instanceof Error ? error.message : error);
+    }
     createRedisClient();
     await aiService.initialize();
     await securityService.initialize();
