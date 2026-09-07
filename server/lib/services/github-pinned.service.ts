@@ -34,12 +34,16 @@ export async function discoverPinnedRepositories(): Promise<PinnedRepository[]> 
   if (!response.ok) throw new Error(`GitHub profile request failed: ${response.status}`);
 
   const html = await response.text();
-  const pinnedSection = html.match(/pinned-item-list[^>]*>([\s\S]*?)<\/ol>/i)?.[1] || html;
+  const pinnedMatch = html.match(/pinned-item-list[^>]*>([\s\S]*?)<\/ol>/i);
+  if (!pinnedMatch) {
+    throw new Error("GitHub pinned repository section was not found; refusing to infer pinned projects from unrelated profile links");
+  }
+
   const repositories = new Map<string, PinnedRepository>();
   const linkPattern = /href=["']\/FeexSystems\/([^"'#?]+)["'][^>]*>/gi;
   let match: RegExpExecArray | null;
 
-  while ((match = linkPattern.exec(pinnedSection)) !== null) {
+  while ((match = linkPattern.exec(pinnedMatch[1])) !== null) {
     const name = match[1].replace(/\/$/, "");
     if (!name || name.startsWith(".") || repositories.has(name)) continue;
     repositories.set(name, { name, fullName: `FeexSystems/${name}`, url: `https://github.com/FeexSystems/${name}`, description: null, source: "github-profile-pinned" });
@@ -98,25 +102,15 @@ export async function syncPinnedProjects() {
          source = EXCLUDED.source,
          metadata = EXCLUDED.metadata,
          last_observed_at = NOW()`,
-      id,
-      repository.fullName,
-      repository.name,
-      "FeexSystems",
-      repository.url,
-      repository.description,
-      repository.source,
-      metadata,
+      id, repository.fullName, repository.name, "FeexSystems", repository.url,
+      repository.description, repository.source, metadata,
     );
 
     await prisma.$executeRawUnsafe(
       `INSERT INTO world_model_evidence (id, project_id, evidence_type, source_url, source_ref, metadata)
        VALUES ($1, $2, 'repository-discovery', $3, $4, $5::jsonb)
        ON CONFLICT (id) DO UPDATE SET observed_at = NOW(), metadata = EXCLUDED.metadata`,
-      `evidence:${repository.fullName}`,
-      id,
-      repository.url,
-      "profile-pinned",
-      metadata,
+      `evidence:${repository.fullName}`, id, repository.url, "profile-pinned", metadata,
     );
   }
 
