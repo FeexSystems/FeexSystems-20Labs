@@ -6,10 +6,10 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
-import { validateEnv } from "./lib/config/validate-env";
-import { applyProductionSecurity } from "./lib/middleware/production-security";
 import { createServer as createHttpServer } from "http";
 import { initializeSentry, setupSentryErrorHandler } from "./lib/logging/sentry";
+import { validateEnv } from "./lib/config/validate-env";
+import { applyProductionSecurity } from "./lib/middleware/production-security";
 import { handleDemo } from "./routes/demo";
 import { handleChat } from "./routes/chat";
 import { handleHealthCheck, handleReadinessCheck, handleLivenessCheck } from "./routes/health";
@@ -38,97 +38,25 @@ validateEnv();
 
 export function createServer() {
   const app = express();
-
   if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) initializeSentry(app);
-  if (process.env.NODE_ENV === "production") {
-    applyProductionSecurity(app);
-  } else {
-    app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000", credentials: true }));
-  }
-
-  app.set("json replacer", (key: string, value: unknown) => typeof value === "bigint" ? value.toString() : value);
-  app.use(express.json({ limit: "10mb" }));
-  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-  app.use("/uploads", express.static("uploads"));
-
-  app.get("/health", handleHealthCheck);
-  app.get("/health/ready", handleReadinessCheck);
-  app.get("/health/live", handleLivenessCheck);
-
-  app.use("/api/demo", handleDemo);
-  app.use("/api/chat", handleChat);
-
-  const useMockAuth = process.env["USE_MOCK_AUTH"] === "true";
-  app.use("/api/auth", useMockAuth ? mockAuthRoutes : authRoutes);
-  app.use("/api/users", userRoutes);
-  app.use("/api/usage", usageRoutes);
-  app.use("/api/billing", billingRoutes);
-  app.use("/api/subscriptions", subscriptionRoutes);
-  app.use("/api/ai", aiRoutes);
-  app.use("/api/devops", devopsRoutes);
-  app.use("/api/security", securityRoutes);
-  app.use("/api/teams", teamRoutes);
-  app.use("/api/admin", adminRoutes);
-
-  // Living Engineering Intelligence API
-  app.use("/api/world-model", worldModelRoutes);
-
-  if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) setupSentryErrorHandler(app);
-
-  app.get("/api/ping", (_req, res) => res.json({ message: "Hello from FeexSystems Enhanced Platform!", timestamp: new Date().toISOString(), version: "2.0.0" }));
-
-  if (process.env.NODE_ENV === "production") {
-    const spaPath = path.resolve(__dirname, "..", "spa");
-    app.use(express.static(spaPath));
-    app.get("*", (req, res, next) => {
-      if (req.originalUrl.startsWith("/api/")) return next();
-      res.sendFile(path.join(spaPath, "index.html"));
-    });
-  }
-
-  app.use("/api/*", (_req, res) => res.status(404).json({ success: false, error: { type: "NOT_FOUND_ERROR", message: "API endpoint not found", code: "API_ENDPOINT_NOT_FOUND", timestamp: new Date().toISOString(), requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` } }));
-  app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-    console.error("Unhandled error:", error);
-    res.status(500).json({ success: false, error: { type: "INTERNAL_SERVER_ERROR", message: "Internal server error", code: "INTERNAL_ERROR", timestamp: new Date().toISOString(), requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` } });
-  });
-
+  if (process.env.NODE_ENV === "production") applyProductionSecurity(app); else app.use(cors({origin:process.env.FRONTEND_URL||"http://localhost:3000",credentials:true}));
+  app.set("json replacer",(key:string,value:unknown)=>typeof value==="bigint"?value.toString():value);
+  app.use(express.json({limit:"10mb",verify:(req,_res,buf)=>{(req as express.Request & {rawBody?:Buffer}).rawBody=Buffer.from(buf);}}));
+  app.use(express.urlencoded({extended:true,limit:"10mb"}));
+  app.use("/uploads",express.static("uploads"));
+  app.get("/health",handleHealthCheck);app.get("/health/ready",handleReadinessCheck);app.get("/health/live",handleLivenessCheck);
+  app.use("/api/demo",handleDemo);app.use("/api/chat",handleChat);
+  const useMockAuth=process.env.USE_MOCK_AUTH==="true";app.use("/api/auth",useMockAuth?mockAuthRoutes:authRoutes);
+  app.use("/api/users",userRoutes);app.use("/api/usage",usageRoutes);app.use("/api/billing",billingRoutes);app.use("/api/subscriptions",subscriptionRoutes);app.use("/api/ai",aiRoutes);app.use("/api/devops",devopsRoutes);app.use("/api/security",securityRoutes);app.use("/api/teams",teamRoutes);app.use("/api/admin",adminRoutes);app.use("/api/world-model",worldModelRoutes);
+  if(process.env.NODE_ENV==="production"&&process.env.SENTRY_DSN)setupSentryErrorHandler(app);
+  app.get("/api/ping",(_req,res)=>res.json({message:"Hello from FeexSystems Enhanced Platform!",timestamp:new Date().toISOString(),version:"2.0.0"}));
+  if(process.env.NODE_ENV==="production"){const spaPath=path.resolve(__dirname,"..","spa");app.use(express.static(spaPath));app.get("*",(req,res,next)=>req.originalUrl.startsWith("/api/")?next():res.sendFile(path.join(spaPath,"index.html"));}
+  app.use("/api/*",(_req,res)=>res.status(404).json({success:false,error:{type:"NOT_FOUND_ERROR",message:"API endpoint not found",code:"API_ENDPOINT_NOT_FOUND",timestamp:new Date().toISOString()}}));
+  app.use((error:Error,_req:express.Request,res:express.Response,_next:express.NextFunction)=>{console.error("Unhandled error:",error);res.status(500).json({success:false,error:{type:"INTERNAL_SERVER_ERROR",message:"Internal server error",code:"INTERNAL_ERROR",timestamp:new Date().toISOString()}});});
   return app;
 }
 
-export const app = createServer();
-
-export async function initializeInfrastructure() {
-  console.log("🚀 Initializing infrastructure...");
-  try {
-    await connectDatabase();
-    try {
-      const projects = await syncPinnedProjects();
-      console.log(`🌐 World Model synchronized ${projects.length} pinned GitHub projects`);
-    } catch (error) {
-      console.warn("⚠️ GitHub pinned project synchronization skipped:", error instanceof Error ? error.message : error);
-    }
-    createRedisClient();
-    await aiService.initialize();
-    await securityService.initialize();
-    await securityCronService.initialize();
-    console.log("✅ Infrastructure initialized successfully");
-  } catch (error) {
-    console.error("❌ Infrastructure initialization failed:", error);
-    throw error;
-  }
-}
-
-export async function startServer() {
-  const port = process.env.PORT || 3001;
-  await initializeInfrastructure();
-  const httpServer = createHttpServer(app);
-  initializeDeploymentWebSocket(httpServer);
-  httpServer.listen(port, () => {
-    console.log(`🚀 Server running on port ${port}`);
-    console.log(`📡 WebSocket endpoints available at ws://localhost:${port}/socket.io/deployments`);
-  });
-  return httpServer;
-}
-
-const isMainModule = import.meta.url === `file://${process.argv[1].replace(/\\/g, "/")}`;
-if (isMainModule) startServer().catch(console.error);
+export const app=createServer();
+export async function initializeInfrastructure(){console.log("🚀 Initializing infrastructure...");try{await connectDatabase();try{const projects=await syncPinnedProjects();console.log(`🌐 World Model synchronized ${projects.length} pinned GitHub projects`);}catch(error){console.warn("⚠️ GitHub World Model synchronization skipped:",error instanceof Error?error.message:error);}createRedisClient();await aiService.initialize();await securityService.initialize();await securityCronService.initialize();console.log("✅ Infrastructure initialized successfully");}catch(error){console.error("❌ Infrastructure initialization failed:",error);throw error;}}
+export async function startServer(){const port=process.env.PORT||3001;await initializeInfrastructure();const httpServer=createHttpServer(app);initializeDeploymentWebSocket(httpServer);httpServer.listen(port,()=>console.log(`🚀 Server running on port ${port}`));return httpServer;}
+const isMainModule=import.meta.url===`file://${process.argv[1].replace(/\\/g,"/")}`;if(isMainModule)startServer().catch(console.error);
