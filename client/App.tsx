@@ -10,6 +10,7 @@ import { globalErrorHandler } from "@/lib/error-handler";
 
 // Public pages
 import Index from "./pages/Index";
+import Projects from "./pages/Projects";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -43,14 +44,11 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: (failureCount, error) => {
-        // Don't retry on 401/403 errors
-        if (error instanceof Error && error.message.includes('401')) {
-          return false;
-        }
+        if (error instanceof Error && error.message.includes("401")) return false;
         return failureCount < 3;
       },
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
     },
   },
 });
@@ -60,7 +58,7 @@ const App = () => (
     onError={(error, errorInfo) => {
       globalErrorHandler.captureException(error, {
         componentStack: errorInfo.componentStack,
-        section: 'app-root',
+        section: "app-root",
       });
     }}
   >
@@ -74,147 +72,32 @@ const App = () => (
               onError={(error, errorInfo) => {
                 globalErrorHandler.captureException(error, {
                   componentStack: errorInfo.componentStack,
-                  section: 'router',
+                  section: "router",
                 });
               }}
             >
               <AuthProvider>
                 <Routes>
-                  {/* Public routes - redirect to dashboard if authenticated */}
-                  <Route
-                    path="/"
-                    element={
-                      <PublicRoute>
-                        <Index />
-                      </PublicRoute>
-                    }
-                  />
+                  <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
+                  <Route path="/projects" element={<PublicRoute><Projects /></PublicRoute>} />
 
-                  {/* Authentication routes */}
-                  <Route
-                    path="/login"
-                    element={
-                      <PublicRoute>
-                        <Login />
-                      </PublicRoute>
-                    }
-                  />
-                  <Route
-                    path="/register"
-                    element={
-                      <PublicRoute>
-                        <Register />
-                      </PublicRoute>
-                    }
-                  />
-                  <Route
-                    path="/forgot-password"
-                    element={
-                      <PublicRoute>
-                        <ForgotPassword />
-                      </PublicRoute>
-                    }
-                  />
-                  <Route
-                    path="/reset-password"
-                    element={
-                      <PublicRoute>
-                        <ResetPassword />
-                      </PublicRoute>
-                    }
-                  />
-                  <Route
-                    path="/verify-email"
-                    element={
-                      <PublicRoute>
-                        <EmailVerification />
-                      </PublicRoute>
-                    }
-                  />
+                  <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+                  <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+                  <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+                  <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
+                  <Route path="/verify-email" element={<PublicRoute><EmailVerification /></PublicRoute>} />
 
-                  {/* Dashboard routes */}
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedRoute>
-                        <DashboardIndex />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/ai"
-                    element={
-                      <ProtectedRoute>
-                        <AIServicesPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/ai-services"
-                    element={
-                      <ProtectedRoute>
-                        <AIServicesPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/analytics"
-                    element={
-                      <ProtectedRoute>
-                        <AnalyticsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/billing"
-                    element={
-                      <ProtectedRoute>
-                        <BillingPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/devops"
-                    element={
-                      <ProtectedRoute>
-                        <DevOpsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/security"
-                    element={
-                      <ProtectedRoute>
-                        <SecurityPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/settings"
-                    element={
-                      <ProtectedRoute>
-                        <SettingsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/teams"
-                    element={
-                      <ProtectedRoute>
-                        <TeamsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/profile"
-                    element={
-                      <ProtectedRoute>
-                        <DashboardProfilePage />
-                      </ProtectedRoute>
-                    }
-                  />
+                  <Route path="/dashboard" element={<ProtectedRoute><DashboardIndex /></ProtectedRoute>} />
+                  <Route path="/dashboard/ai" element={<ProtectedRoute><AIServicesPage /></ProtectedRoute>} />
+                  <Route path="/dashboard/ai-services" element={<ProtectedRoute><AIServicesPage /></ProtectedRoute>} />
+                  <Route path="/dashboard/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+                  <Route path="/dashboard/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
+                  <Route path="/dashboard/devops" element={<ProtectedRoute><DevOpsPage /></ProtectedRoute>} />
+                  <Route path="/dashboard/security" element={<ProtectedRoute><SecurityPage /></ProtectedRoute>} />
+                  <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                  <Route path="/dashboard/teams" element={<ProtectedRoute><TeamsPage /></ProtectedRoute>} />
+                  <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfilePage /></ProtectedRoute>} />
 
-                  {/* Legacy route redirects */}
                   <Route path="/ai" element={<Navigate to="/dashboard/ai" replace />} />
                   <Route path="/ai-services" element={<Navigate to="/dashboard/ai-services" replace />} />
                   <Route path="/devops" element={<Navigate to="/dashboard/devops" replace />} />
@@ -225,67 +108,15 @@ const App = () => (
                   <Route path="/settings" element={<Navigate to="/dashboard/settings" replace />} />
                   <Route path="/subscription" element={<Navigate to="/dashboard/billing" replace />} />
 
-                  {/* User profile route */}
-                  <Route
-                    path="/profile"
-                    element={
-                      <ProtectedRoute>
-                        <UserProfile />
-                      </ProtectedRoute>
-                    }
-                  />
+                  <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
 
-                  {/* Admin routes */}
-                  <Route
-                    path="/admin"
-                    element={
-                      <ProtectedRoute>
-                        <AdminIndex />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/users"
-                    element={
-                      <ProtectedRoute>
-                        <AdminUsers />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/health"
-                    element={
-                      <ProtectedRoute>
-                        <AdminHealth />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/security"
-                    element={
-                      <ProtectedRoute>
-                        <AdminSecurity />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/audit-logs"
-                    element={
-                      <ProtectedRoute>
-                        <AdminAuditLogs />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/subscriptions"
-                    element={
-                      <ProtectedRoute>
-                        <AdminSubscriptions />
-                      </ProtectedRoute>
-                    }
-                  />
+                  <Route path="/admin" element={<ProtectedRoute><AdminIndex /></ProtectedRoute>} />
+                  <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
+                  <Route path="/admin/health" element={<ProtectedRoute><AdminHealth /></ProtectedRoute>} />
+                  <Route path="/admin/security" element={<ProtectedRoute><AdminSecurity /></ProtectedRoute>} />
+                  <Route path="/admin/audit-logs" element={<ProtectedRoute><AdminAuditLogs /></ProtectedRoute>} />
+                  <Route path="/admin/subscriptions" element={<ProtectedRoute><AdminSubscriptions /></ProtectedRoute>} />
 
-                  {/* Catch-all route */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </AuthProvider>
