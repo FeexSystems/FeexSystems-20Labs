@@ -103,11 +103,17 @@ export function SuperAdminRoute({ children }: { children: ReactNode }) {
   );
 }
 
-// Convenience wrapper for public routes (redirects to dashboard if authenticated)
+// Convenience wrapper for public routes (accessible to everyone: guests and authenticated users)
 export function PublicRoute({ children }: { children: ReactNode }) {
+  return <>{children}</>;
+}
+
+// Convenience wrapper for guest-only routes (e.g., login, register) - redirects to dashboard if authenticated
+export function GuestOnlyRoute({ children }: { children: ReactNode }) {
   return (
     <ProtectedRoute requireAuth={false}>
       {children}
     </ProtectedRoute>
   );
 }
+

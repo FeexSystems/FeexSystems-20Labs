@@ -1,164 +1,82 @@
-# Fusion Starter
+# FEEXSYSTEMS — Living Engineering Intelligence
 
-A production-ready full-stack React application template with integrated Express server, featuring React Router 6 SPA mode, TypeScript, Vitest, Zod and modern tooling.
-
-While the starter comes with a express server, only create endpoint when strictly neccesary, for example to encapsulate logic that must leave in the server, such as private keys handling, or certain DB operations, db...
+**FeexSystems.codes** is the public SaaS experience for FEEXSYSTEMS: an evidence-backed engineering intelligence platform that turns the FeexSystems GitHub ecosystem into an explorable World Model.
 
 ## Tech Stack
 
-- **Frontend**: React 18 + React Router 6 (spa) + TypeScript + Vite + TailwindCSS 3
-- **Backend**: Express server integrated with Vite dev server
-- **Testing**: Vitest
-- **UI**: Radix UI + TailwindCSS 3 + Lucide React icons
+- **Frontend**: React 18 + React Router 7 + TypeScript + Vite + TailwindCSS 3 + Three.js (@react-three/fiber & @react-three/drei) + Lucide Icons + Radix UI
+- **Backend**: Express 5 server integrated with Vite dev server
+- **Database**: PostgreSQL 15+ via Prisma ORM
+- **Cache**: Redis (ioredis) + Bull queue
+- **Testing**: Vitest + Playwright E2E + MSW
+- **Intelligence**: Provider-neutral model adapters (`aiService`) + Evidence Fabric grounded retrieval + pgvector semantic retrieval
+
+## Architecture & Canonical Principles
+
+1. **Canonical Data + Model Reasoning**: The database-backed World Model is authoritative; models interpret, reason, and summarize. Models do not invent or mutate canonical facts without evidence.
+2. **Graph, Not List**: Relationships (`PROJECT ── HAS_REPOSITORY ──> REPOSITORY`, `REPOSITORY ── CONTAINS ──> ARTIFACT`, `PROJECT ── USES ──> TECHNOLOGY`) are first-class data entities.
+3. **Evidence, Not Claims**: Facts must have traceable implementation evidence (GitHub repo, branch, commit SHA, file path, artifact, observation timestamp).
+4. **Provider-Neutral Intelligence**: Model reasoning layers must use provider-agnostic abstractions so underlying models can interchange without breaking World Model contracts.
+5. **Spatial Meaning**: The 3D interface (`/world`) communicates engineering topology and relationships rather than acting as mere decoration.
+6. **Browser as Projection**: The browser is a read model/view projection. Server state is canonical.
+7. **Dual Mode Routing**: Public routes (`/`, `/projects`, `/navigator`, `/world`) are accessible to all users (both guests and authenticated users). Only guest auth routes (`/login`, `/register`) redirect authenticated users.
+8. **Non-Blocking Infrastructure Initialization**: Database and external service connections must never hang the HTTP dev server or readiness checks.
 
 ## Project Structure
 
-```
-client/                   # React SPA frontend
-├── pages/                # Route components (Index.tsx = home)
-├── components/ui/        # Pre-built UI component library
-├── App.tsx                # App entry point and with SPA routing setup
-└── global.css            # TailwindCSS 3 theming and global styles
-
-server/                   # Express API backend
-├── index.ts              # Main server setup (express config + routes)
-└── routes/               # API handlers
-
-shared/                   # Types used by both client & server
-└── api.ts                # Example of how to share api interfaces
-```
-
-## Key Features
-
-## SPA Routing System
-
-The routing system is powered by React Router 6:
-
-- `client/pages/Index.tsx` represents the home page.
-- Routes are defined in `client/App.tsx` using the `react-router-dom` import
-- Route files are located in the `client/pages/` directory
-
-For example, routes can be defined with:
-
-```typescript
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-<Routes>
-  <Route path="/" element={<Index />} />
-  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-  <Route path="*" element={<NotFound />} />
-</Routes>;
+```text
+FeexSystems-Living-Intelligence-World/
+├── client/                  # React SPA frontend & 3D Spatial World
+│   ├── pages/               # Route components (Index, Projects, Navigator, SpatialWorld, dashboard, admin)
+│   ├── components/webgl/    # 3D scenes (NeuralNetwork, ParticleField, WaveBackground, ImmersiveHeroBackground)
+│   ├── components/ui/       # Radix + Tailwind component library
+│   ├── App.tsx              # React Router 7 SPA routing & error boundary setup
+│   └── global.css           # TailwindCSS 3 theming & design tokens
+├── server/                  # Express API backend & World Model services
+│   ├── index.ts             # Express server setup, health checks & route wiring
+│   ├── routes/              # Route controllers (world-model, auth, ai, devops, security, etc.)
+│   └── lib/services/        # World Model synchronization, AI service, database & redis clients
+├── shared/                  # Shared TypeScript types & API contracts
+├── prisma/                  # Prisma schema (SaaS models + World Model entities)
+├── docs/                    # Architecture, World Model, Evidence Fabric & Ingestion documentation
+├── docker/                  # Docker & Compose configurations
+└── .agents/                 # Antigravity agent rules and operational skills
 ```
 
-### Styling System
+## Key Routes & Endpoints
 
-- **Primary**: TailwindCSS 3 utility classes
-- **Theme and design tokens**: Configure in `client/global.css` 
-- **UI components**: Pre-built library in `client/components/ui/`
-- **Utility**: `cn()` function combines `clsx` + `tailwind-merge` for conditional classes
+### Public Experience
+- `/` — Living SaaS landing experience with interactive WebGL background
+- `/projects` — Public project explorer with GitHub sync action
+- `/navigator` — AI-grounded Navigator interface with evidence provenance
+- `/world` — Full-screen 3D Spatial Knowledge Galaxy with node inspector
 
-```typescript
-// cn utility usage
-className={cn(
-  "base-classes",
-  { "conditional-class": condition },
-  props.className  // User overrides
-)}
-```
+### Authenticated Experience
+- `/dashboard` — Platform overview & operations
+- `/dashboard/ai-services` — AI model orchestration
+- `/dashboard/devops` — Pipelines & deployments
+- `/dashboard/security` — Security scans & audit logs
+- `/admin/*` — Admin panel & user management
 
-### Express Server Integration
-
-- **Development**: Single port (8080) for both frontend/backend
-- **Hot reload**: Both client and server code
-- **API endpoints**: Prefixed with `/api/`
-
-#### Example API Routes
-- `GET /api/ping` - Simple ping api
-- `GET /api/demo` - Demo endpoint  
-
-### Shared Types
-Import consistent types in both client and server:
-```typescript
-import { DemoResponse } from '@shared/api';
-```
-
-Path aliases:
-- `@shared/*` - Shared folder
-- `@/*` - Client folder
+### API Routes
+- `GET /health` — Basic liveness & health check
+- `GET /health/ready` — Readiness check
+- `GET /api/ping` — Ecosystem status & timestamp
+- `GET /api/world-model/projects` — Synchronized World Model projects
+- `GET /api/world-model/graph` — 3D/2D node & edge graph topology
+- `GET /api/world-model/evidence/:projectId` — Evidence provenance ledger
+- `GET /api/world-model/navigator?q=<query>` — Grounded retrieval with AI explanation
+- `POST /api/world-model/sync/github-pinned` — Trigger GitHub profile sync
+- `POST /api/world-model/webhook` — GitHub webhook receiver with HMAC SHA-256 verification
 
 ## Development Commands
 
 ```bash
-npm run dev        # Start dev server (client + server)
-npm run build      # Production build
+npm run dev        # Start dev server (Vite + Express on port 8080)
+npm run build      # Build client (dist/spa) and server (dist/server)
 npm run start      # Start production server
+npm test           # Run Vitest test suite
 npm run typecheck  # TypeScript validation
-npm test          # Run Vitest tests
+npm run db:init    # Initialize database
+npm run db:migrate # Run Prisma migrations
 ```
-
-## Adding Features
-
-### Add new colors to the theme
-
-Open `client/global.css` and `tailwind.config.ts` and add new tailwind colors.
-
-### New API Route
-1. **Optional**: Create a shared interface in `shared/api.ts`:
-```typescript
-export interface MyRouteResponse {
-  message: string;
-  // Add other response properties here
-}
-```
-
-2. Create a new route handler in `server/routes/my-route.ts`:
-```typescript
-import { RequestHandler } from "express";
-import { MyRouteResponse } from "@shared/api"; // Optional: for type safety
-
-export const handleMyRoute: RequestHandler = (req, res) => {
-  const response: MyRouteResponse = {
-    message: 'Hello from my endpoint!'
-  };
-  res.json(response);
-};
-```
-
-3. Register the route in `server/index.ts`:
-```typescript
-import { handleMyRoute } from "./routes/my-route";
-
-// Add to the createServer function:
-app.get("/api/my-endpoint", handleMyRoute);
-```
-
-4. Use in React components with type safety:
-```typescript
-import { MyRouteResponse } from '@shared/api'; // Optional: for type safety
-
-const response = await fetch('/api/my-endpoint');
-const data: MyRouteResponse = await response.json();
-```
-
-### New Page Route
-1. Create component in `client/pages/MyPage.tsx`
-2. Add route in `client/App.tsx`:
-```typescript
-<Route path="/my-page" element={<MyPage />} />
-```
-
-## Production Deployment
-
-- **Standard**: `npm run build` + `npm start`
-- **Docker**: Dockerfile included
-- **Binary**: Self-contained executables (Linux, macOS, Windows)
-- Express serves the built React SPA with fallback routing support
-
-## Architecture Notes
-
-- Single-port development with Vite + Express integration
-- TypeScript throughout (client, server, shared)
-- Full hot reload for rapid development
-- Production-ready with multiple deployment options
-- Comprehensive UI component library included
-- Type-safe API communication via shared interfaces

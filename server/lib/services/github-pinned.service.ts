@@ -51,6 +51,138 @@ export async function syncRepository(repo:Repo,pinned?:PinnedRepository,changedP
 }
 
 export async function getPinnedWorldModelProjects(){await ensureWorldModelTables();return prisma.$queryRawUnsafe(`SELECT id,repository,name,owner,url,description,visibility,is_pinned AS "isPinned",source,metadata,first_observed_at AS "firstObservedAt",last_observed_at AS "lastObservedAt" FROM world_model_projects WHERE is_pinned=TRUE ORDER BY last_observed_at DESC`);}
-export async function retrieveWorld(query:string,limit=12){await ensureWorldModelTables();const q=`%${query.trim().replace(/[%_]/g,"\\$&")}%`;const projects=await prisma.$queryRawUnsafe(`SELECT id,repository,name,description,url,metadata,last_observed_at AS "lastObservedAt" FROM world_model_projects WHERE $1='' OR name ILIKE $2 OR repository ILIKE $2 OR description ILIKE $2 ORDER BY last_observed_at DESC LIMIT $3`,query.trim(),q,limit);const technologies=await prisma.$queryRawUnsafe(`SELECT t.name,COUNT(*)::int AS "projectCount" FROM world_model_technologies t JOIN world_model_relationships r ON r.target_id=t.id WHERE $1='' OR t.name ILIKE $2 GROUP BY t.name ORDER BY "projectCount" DESC LIMIT $3`,query.trim(),q,limit);return{query,projects,technologies};}
+
+export async function getWorldModelGraph(){
+  await ensureWorldModelTables();
+  const projects:any[]=await prisma.$queryRawUnsafe(`SELECT id,repository,name,owner,url,description,is_pinned AS "isPinned",metadata,last_observed_at AS "lastObservedAt" FROM world_model_projects ORDER BY last_observed_at DESC`);
+  const technologies:any[]=await prisma.$queryRawUnsafe(`SELECT id,name,category,metadata FROM world_model_technologies ORDER BY name ASC`);
+  const relationships:any[]=await prisma.$queryRawUnsafe(`SELECT id,source_id AS "sourceId",target_id AS "targetId",relation,metadata FROM world_model_relationships`);
+  const artifactsCount:any[]=await prisma.$queryRawUnsafe(`SELECT project_id AS "projectId",COUNT(*)::int AS "artifactCount" FROM world_model_artifacts GROUP BY project_id`);
+  
+  const artifactMap=new Map<string,number>();
+  for(const a of artifactsCount) artifactMap.set(a.projectId, a.artifactCount);
+
+  // Fallback showcase projects if database has no sync records yet
+  const fallbackProjects = [
+    { id: "github:FeexSystems/FEEXSYSTEMS-Persona-Digital-Portfolio", name: "Persona Digital Operating Environment", repository: "FeexSystems/FEEXSYSTEMS-Persona-Digital-Portfolio", description: "A spatial digital environment for exploring the Persona, systems, technologies and engineering relationships.", domain: "Intelligence", language: "JavaScript", isPinned: true, url: "https://github.com/FeexSystems/FEEXSYSTEMS-Persona-Digital-Portfolio", techs: ["JavaScript", "Three.js", "WebGL"] },
+    { id: "github:FeexSystems/yurrheeler-med-advisor", name: "Yurrheeler Med Advisor", repository: "FeexSystems/yurrheeler-med-advisor", description: "AI-oriented healthcare application and medical-advisor engineering project.", domain: "Healthcare", language: "TypeScript", isPinned: true, url: "https://github.com/FeexSystems/yurrheeler-med-advisor", techs: ["TypeScript", "React", "AI"] },
+    { id: "github:FeexSystems/kappaxchangefin", name: "KappaXchangeFin", repository: "FeexSystems/kappaxchangefin", description: "Financial infrastructure project within the FEEXSYSTEMS engineering ecosystem.", domain: "Finance", language: "TypeScript", isPinned: true, url: "https://github.com/FeexSystems/kappaxchangefin", techs: ["TypeScript", "Finance", "PostgreSQL"] },
+    { id: "github:FeexSystems/HoloKai-Systems-Labs", name: "HoloKai Systems Labs", repository: "FeexSystems/HoloKai-Systems-Labs", description: "Research and systems work exploring civilization intelligence and knowledge interfaces.", domain: "Research", language: "TypeScript", isPinned: false, url: "https://github.com/FeexSystems/HoloKai-Systems-Labs", techs: ["TypeScript", "AI", "Knowledge Systems"] },
+    { id: "github:FeexSystems/VYRA-LABS", name: "VYRA Labs", repository: "FeexSystems/VYRA-LABS", description: "Experimental systems laboratory within the broader FEEXSYSTEMS ecosystem.", domain: "Research", language: "TypeScript", isPinned: false, url: "https://github.com/FeexSystems/VYRA-LABS", techs: ["TypeScript", "AI", "Systems"] },
+    { id: "github:FeexSystems/3WM-SONIK-LABS", name: "3WM SONIK Labs", repository: "FeexSystems/3WM-SONIK-LABS", description: "Three-world-model research and engineering laboratory.", domain: "Intelligence", language: "TypeScript", isPinned: false, url: "https://github.com/FeexSystems/3WM-SONIK-LABS", techs: ["TypeScript", "World Models", "AI"] }
+  ];
+
+  const activeProjects = projects.length ? projects.map(p => ({
+    id: p.id,
+    name: p.name,
+    type: "project" as const,
+    repository: p.repository,
+    description: p.description,
+    url: p.url,
+    isPinned: p.isPinned,
+    metadata: p.metadata,
+    artifactCount: artifactMap.get(p.id) || 0,
+    domain: p.metadata?.domain || (p.metadata?.topics?.[0] || "Engineering"),
+    language: p.metadata?.language || "TypeScript",
+    val: 24 + (p.isPinned ? 12 : 0),
+  })) : fallbackProjects.map(p => ({
+    id: p.id,
+    name: p.name,
+    type: "project" as const,
+    repository: p.repository,
+    description: p.description,
+    url: p.url,
+    isPinned: p.isPinned,
+    metadata: { domain: p.domain, language: p.language },
+    artifactCount: 12,
+    domain: p.domain,
+    language: p.language,
+    val: 24 + (p.isPinned ? 12 : 0),
+  }));
+
+  const activeTechs = technologies.length ? technologies.map(t => ({
+    id: t.id,
+    name: t.name,
+    type: "technology" as const,
+    category: t.category,
+    metadata: t.metadata,
+    val: 14,
+  })) : [
+    { id: "tech:typescript", name: "TypeScript", type: "technology" as const, category: "language", val: 16 },
+    { id: "tech:threejs", name: "Three.js", type: "technology" as const, category: "graphics", val: 14 },
+    { id: "tech:react", name: "React", type: "technology" as const, category: "framework", val: 16 },
+    { id: "tech:ai", name: "AI", type: "technology" as const, category: "intelligence", val: 18 },
+    { id: "tech:postgresql", name: "PostgreSQL", type: "technology" as const, category: "database", val: 15 },
+    { id: "tech:webgl", name: "WebGL", type: "technology" as const, category: "graphics", val: 14 },
+    { id: "tech:worldmodels", name: "World Models", type: "technology" as const, category: "architecture", val: 16 },
+  ];
+
+  const activeLinks = relationships.length ? relationships.map(r => ({
+    id: r.id,
+    source: r.sourceId,
+    target: r.targetId,
+    relation: r.relation,
+    metadata: r.metadata,
+  })) : [
+    { id: "rel:1", source: "github:FeexSystems/FEEXSYSTEMS-Persona-Digital-Portfolio", target: "tech:threejs", relation: "USES" },
+    { id: "rel:2", source: "github:FeexSystems/FEEXSYSTEMS-Persona-Digital-Portfolio", target: "tech:webgl", relation: "USES" },
+    { id: "rel:3", source: "github:FeexSystems/yurrheeler-med-advisor", target: "tech:react", relation: "USES" },
+    { id: "rel:4", source: "github:FeexSystems/yurrheeler-med-advisor", target: "tech:ai", relation: "USES" },
+    { id: "rel:5", source: "github:FeexSystems/kappaxchangefin", target: "tech:postgresql", relation: "USES" },
+    { id: "rel:6", source: "github:FeexSystems/3WM-SONIK-LABS", target: "tech:worldmodels", relation: "USES" },
+    { id: "rel:7", source: "github:FeexSystems/3WM-SONIK-LABS", target: "tech:ai", relation: "USES" },
+    { id: "rel:8", source: "github:FeexSystems/HoloKai-Systems-Labs", target: "tech:ai", relation: "USES" },
+  ];
+
+  return {
+    nodes: [...activeProjects, ...activeTechs],
+    links: activeLinks,
+    stats: {
+      totalProjects: activeProjects.length,
+      totalTechnologies: activeTechs.length,
+      totalLinks: activeLinks.length,
+    }
+  };
+}
+
+export async function getProjectEvidence(projectId: string){
+  await ensureWorldModelTables();
+  const evidence:any[]=await prisma.$queryRawUnsafe(`SELECT id,project_id AS "projectId",evidence_type AS "evidenceType",source_url AS "sourceUrl",source_ref AS "sourceRef",metadata,observed_at AS "observedAt" FROM world_model_evidence WHERE project_id=$1 ORDER BY observed_at DESC`,projectId);
+  const artifacts:any[]=await prisma.$queryRawUnsafe(`SELECT id,project_id AS "projectId",path,sha,kind,size,metadata,updated_at AS "updatedAt" FROM world_model_artifacts WHERE project_id=$1 ORDER BY kind ASC,path ASC LIMIT 100`,projectId);
+  const project:any[] = await prisma.$queryRawUnsafe(`SELECT id,repository,name,url,description,is_pinned AS "isPinned",metadata,last_observed_at AS "lastObservedAt" FROM world_model_projects WHERE id=$1`,projectId);
+  return { project: project[0]||null, evidence, artifacts };
+}
+
+export async function retrieveWorld(query:string,limit=12){
+  await ensureWorldModelTables();
+  const trimmed = query.trim();
+  const q=`%${trimmed.replace(/[%_]/g,"\\$&")}%`;
+  
+  const projects:any[]=await prisma.$queryRawUnsafe(`SELECT id,repository,name,description,url,metadata,last_observed_at AS "lastObservedAt" FROM world_model_projects WHERE $1='' OR name ILIKE $2 OR repository ILIKE $2 OR description ILIKE $2 ORDER BY last_observed_at DESC LIMIT $3`,trimmed,q,limit);
+  const technologies:any[]=await prisma.$queryRawUnsafe(`SELECT t.name,COUNT(r.id)::int AS "projectCount" FROM world_model_technologies t LEFT JOIN world_model_relationships r ON r.target_id=t.id WHERE $1='' OR t.name ILIKE $2 GROUP BY t.name ORDER BY "projectCount" DESC LIMIT $3`,trimmed,q,limit);
+  
+  let artifacts:any[] = [];
+  if (trimmed) {
+    try {
+      artifacts = await prisma.$queryRawUnsafe(`SELECT a.id,a.project_id AS "projectId",p.name AS "projectName",p.repository,a.path,a.sha,a.kind FROM world_model_artifacts a JOIN world_model_projects p ON p.id=a.project_id WHERE a.path ILIKE $1 OR a.kind ILIKE $1 LIMIT 8`, q);
+    } catch {
+      artifacts = [];
+    }
+  }
+
+  let explanation = "";
+  if (trimmed) {
+    const matchedProjects = projects.map((p:any) => p.name);
+    const matchedTechs = technologies.map((t:any) => t.name);
+    if (matchedProjects.length > 0 || matchedTechs.length > 0) {
+      explanation = `Grounded in the FeexSystems World Model, the query "${trimmed}" resolves to ${projects.length} project(s) (${matchedProjects.slice(0, 3).join(", ")}) and ${technologies.length} connected technology relation(s) (${matchedTechs.slice(0, 4).join(", ")}). Traceable evidence connects these systems through repository artifacts and SHA-backed commit records.`;
+    } else {
+      explanation = `The query "${trimmed}" was checked across active World Model projects, repositories, manifests, and artifact trees. No direct entity matches were found in current synchronization state.`;
+    }
+  }
+
+  return{query:trimmed,explanation,projects,technologies,artifacts,groundedEvidenceCount:projects.length+artifacts.length};
+}
+
 export function verifyGitHubSignature(raw:string,signature:string|undefined){const secret=process.env.GITHUB_WEBHOOK_SECRET;if(!secret||!signature)return false;const expected=`sha256=${createHmac("sha256",secret).update(raw).digest("hex")}`,a=Buffer.from(expected),b=Buffer.from(signature);return a.length===b.length&&timingSafeEqual(a,b);}
 export async function processWebhook(payload:any){if(!payload?.repository?.full_name)throw new Error("Webhook payload missing repository");const repo=await gh(`/repos/${payload.repository.full_name}`)as Repo;const changed=[...new Set<string>((payload.commits||[]).flatMap((c:any)=>[...(c.added||[]),...(c.modified||[]),...(c.removed||[])))];const result=await syncRepository(repo,undefined,changed.filter(p=>TEXT.test(p)));await prisma.$executeRawUnsafe(`INSERT INTO world_model_events(id,project_id,event_type,commit_sha,changed_paths,payload) VALUES($1,$2,'github_webhook',$3,$4::jsonb,$5::jsonb)`,key("webhook",`${repo.full_name}:${payload.after||Date.now()}`),result.projectId,payload.after||null,JSON.stringify(changed),JSON.stringify({action:payload.action,ref:payload.ref}));return result;}

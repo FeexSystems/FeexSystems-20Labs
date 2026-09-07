@@ -476,3 +476,97 @@ enum ResourceType {
   SECURITY_SCAN
   WORKSPACE
 }
+
+// ==========================================
+// FEEXSYSTEMS Living World Model Entities
+// ==========================================
+
+model WorldModelProject {
+  id              String   @id
+  repository      String   @unique
+  name            String
+  owner           String
+  url             String
+  description     String?
+  visibility      String?
+  isPinned        Boolean  @default(false) @map("is_pinned")
+  source          String   @default("github")
+  metadata        Json     @default("{}")
+  repoId          BigInt?  @map("repo_id")
+  firstObservedAt DateTime @default(now()) @map("first_observed_at")
+  lastObservedAt  DateTime @default(now()) @map("last_observed_at")
+
+  evidence        WorldModelEvidence[]
+  artifacts       WorldModelArtifact[]
+  events          WorldModelEvent[]
+
+  @@index([isPinned])
+  @@map("world_model_projects")
+}
+
+model WorldModelEvidence {
+  id           String   @id
+  projectId    String   @map("project_id")
+  evidenceType String   @map("evidence_type")
+  sourceUrl    String   @map("source_url")
+  sourceRef    String?  @map("source_ref")
+  metadata     Json     @default("{}")
+  observedAt   DateTime @default(now()) @map("observed_at")
+
+  project      WorldModelProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("world_model_evidence")
+}
+
+model WorldModelArtifact {
+  id        String   @id
+  projectId String   @map("project_id")
+  path      String
+  sha       String
+  kind      String
+  size      BigInt?
+  metadata  Json     @default("{}")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  project   WorldModelProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, path])
+  @@index([projectId])
+  @@map("world_model_artifacts")
+}
+
+model WorldModelTechnology {
+  id       String @id
+  name     String @unique
+  category String?
+  metadata Json   @default("{}")
+
+  @@map("world_model_technologies")
+}
+
+model WorldModelRelationship {
+  id       String @id
+  sourceId String @map("source_id")
+  targetId String @map("target_id")
+  relation String
+  metadata Json   @default("{}")
+
+  @@unique([sourceId, targetId, relation])
+  @@map("world_model_relationships")
+}
+
+model WorldModelEvent {
+  id           String   @id
+  projectId    String?  @map("project_id")
+  eventType    String   @map("event_type")
+  commitSha    String?  @map("commit_sha")
+  changedPaths Json     @default("[]") @map("changed_paths")
+  payload      Json     @default("{}")
+  occurredAt   DateTime @default(now()) @map("occurred_at")
+
+  project      WorldModelProject? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, occurredAt(sort: Desc)])
+  @@map("world_model_events")
+}
