@@ -14,39 +14,24 @@ function configuredPinnedRepositories(): PinnedRepository[] {
   const raw = process.env.GITHUB_PINNED_REPOSITORIES?.trim();
   if (!raw) return [];
 
-  return raw
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean)
-    .map((repository) => ({
-      name: repository.split("/").pop() || repository,
-      fullName: repository.includes("/") ? repository : `FeexSystems/${repository}`,
-      url: `https://github.com/${repository.includes("/") ? repository : `FeexSystems/${repository}`}`,
-      description: null,
-      source: "environment" as const,
-    }));
+  return raw.split(",").map((value) => value.trim()).filter(Boolean).map((repository) => ({
+    name: repository.split("/").pop() || repository,
+    fullName: repository.includes("/") ? repository : `FeexSystems/${repository}`,
+    url: `https://github.com/${repository.includes("/") ? repository : `FeexSystems/${repository}`}`,
+    description: null,
+    source: "environment" as const,
+  }));
 }
 
-/**
- * GitHub's REST API does not expose profile-pinned repositories. For the MVP
- * we read the public FeexSystems profile and extract the pinned repository
- * cards. An explicit environment list remains available as a deterministic
- * fallback for deployments where GitHub changes its profile markup.
- */
+/** GitHub REST has no pinned-repository endpoint, so the MVP reads the public profile markup and keeps an explicit env fallback. */
 export async function discoverPinnedRepositories(): Promise<PinnedRepository[]> {
   const configured = configuredPinnedRepositories();
   if (configured.length > 0) return configured;
 
   const response = await fetch(PROFILE_URL, {
-    headers: {
-      Accept: "text/html",
-      "User-Agent": "FEEXSYSTEMS-World-Model/1.0",
-    },
+    headers: { Accept: "text/html", "User-Agent": "FEEXSYSTEMS-World-Model/1.0" },
   });
-
-  if (!response.ok) {
-    throw new Error(`GitHub profile request failed: ${response.status}`);
-  }
+  if (!response.ok) throw new Error(`GitHub profile request failed: ${response.status}`);
 
   const html = await response.text();
   const pinnedSection = html.match(/pinned-item-list[^>]*>([\s\S]*?)<\/ol>/i)?.[1] || html;
@@ -57,57 +42,40 @@ export async function discoverPinnedRepositories(): Promise<PinnedRepository[]> 
   while ((match = linkPattern.exec(pinnedSection)) !== null) {
     const name = match[1].replace(/\/$/, "");
     if (!name || name.startsWith(".") || repositories.has(name)) continue;
-    repositories.set(name, {
-      name,
-      fullName: `FeexSystems/${name}`,
-      url: `https://github.com/FeexSystems/${name}`,
-      description: null,
-      source: "github-profile-pinned",
-    });
+    repositories.set(name, { name, fullName: `FeexSystems/${name}`, url: `https://github.com/FeexSystems/${name}`, description: null, source: "github-profile-pinned" });
   }
 
   return Array.from(repositories.values()).slice(0, 6);
 }
 
 export async function ensureWorldModelTables() {
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS world_model_projects (
-      id TEXT PRIMARY KEY,
-      repository TEXT NOT NULL UNIQUE,
-      name TEXT NOT NULL,
-      owner TEXT NOT NULL,
-      url TEXT NOT NULL,
-      description TEXT,
-      visibility TEXT,
-      is_pinned BOOLEAN NOT NULL DEFAULT FALSE,
-      source TEXT NOT NULL DEFAULT 'github',
-      metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
-      first_observed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      last_observed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `);
+  await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS world_model_projects (
+    id TEXT PRIMARY KEY,
+    repository TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    owner TEXT NOT NULL,
+    url TEXT NOT NULL,
+    description TEXT,
+    visibility TEXT,
+    is_pinned BOOLEAN NOT NULL DEFAULT FALSE,
+    source TEXT NOT NULL DEFAULT 'github',
+    metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+    first_observed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_observed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`);
 
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS world_model_evidence (
-      id TEXT PRIMARY KEY,
-      project_id TEXT NOT NULL REFERENCES world_model_projects(id) ON DELETE CASCADE,
-      evidence_type TEXT NOT NULL,
-      source_url TEXT NOT NULL,
-      source_ref TEXT,
-      metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
-      observed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `);
+  await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS world_model_evidence (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES world_model_projects(id) ON DELETE CASCADE,
+    evidence_type TEXT NOT NULL,
+    source_url TEXT NOT NULL,
+    source_ref TEXT,
+    metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+    observed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`);
 
-  await prisma.$executeRawUnsafe(`
-    CREATE INDEX IF NOT EXISTS world_model_projects_pinned_idx
-    ON world_model_projects(is_pinned)
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    CREATE INDEX IF NOT EXISTS world_model_evidence_project_idx
-    ON world_model_evidence(project_id)
-  `);
+  await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS world_model_projects_pinned_idx ON world_model_projects(is_pinned)`);
+  await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS world_model_evidence_project_idx ON world_model_evidence(project_id)`);
 }
 
 export async function syncPinnedProjects() {
@@ -116,6 +84,8 @@ export async function syncPinnedProjects() {
 
   for (const repository of repositories) {
     const id = `github:${repository.fullName}`;
+    const metadata = JSON.stringify({ discovery: repository.source, profile: PROFILE_URL });
+
     await prisma.$executeRawUnsafe(
       `INSERT INTO world_model_projects
         (id, repository, name, owner, url, description, is_pinned, source, metadata, last_observed_at)
@@ -127,7 +97,7 @@ export async function syncPinnedProjects() {
          is_pinned = TRUE,
          source = EXCLUDED.source,
          metadata = EXCLUDED.metadata,
-         last_observed_at = NOW()` ,
+         last_observed_at = NOW()`,
       id,
       repository.fullName,
       repository.name,
@@ -135,7 +105,18 @@ export async function syncPinnedProjects() {
       repository.url,
       repository.description,
       repository.source,
-      JSON.stringify({ discovery: repository.source }),
+      metadata,
+    );
+
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO world_model_evidence (id, project_id, evidence_type, source_url, source_ref, metadata)
+       VALUES ($1, $2, 'repository-discovery', $3, $4, $5::jsonb)
+       ON CONFLICT (id) DO UPDATE SET observed_at = NOW(), metadata = EXCLUDED.metadata`,
+      `evidence:${repository.fullName}`,
+      id,
+      repository.url,
+      "profile-pinned",
+      metadata,
     );
   }
 
@@ -144,13 +125,8 @@ export async function syncPinnedProjects() {
 
 export async function getPinnedWorldModelProjects() {
   await ensureWorldModelTables();
-  return prisma.$queryRawUnsafe(`
-    SELECT id, repository, name, owner, url, description, visibility,
-           is_pinned AS "isPinned", source, metadata,
-           first_observed_at AS "firstObservedAt",
-           last_observed_at AS "lastObservedAt"
-    FROM world_model_projects
-    WHERE is_pinned = TRUE
-    ORDER BY last_observed_at DESC
-  `);
+  return prisma.$queryRawUnsafe(`SELECT id, repository, name, owner, url, description, visibility,
+    is_pinned AS "isPinned", source, metadata, first_observed_at AS "firstObservedAt",
+    last_observed_at AS "lastObservedAt"
+    FROM world_model_projects WHERE is_pinned = TRUE ORDER BY last_observed_at DESC`);
 }
