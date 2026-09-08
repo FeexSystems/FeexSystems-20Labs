@@ -7,6 +7,7 @@ import {
   GizmoViewport,
   Grid,
   Stars,
+  Sparkles,
   Text,
   Float,
   Billboard,
@@ -161,18 +162,22 @@ function NodeMesh({
             />
           )}
 
-          {/* Drei Edges: Geometric Wireframe Highlighting on Selection or Hover */}
-          {(isSelected || isHovered) && (
-            <Edges linewidth={2} color={chroma.primary} threshold={15} />
-          )}
+          {/* Drei Edges: Geometric Wireframe Highlighting with threshold=2 so sphere latitude/longitude facets are outlined */}
+          <Edges
+            linewidth={isSelected ? 2.5 : isHovered ? 2 : 1}
+            color={isSelected ? "#00FFA3" : chroma.primary}
+            threshold={2}
+            transparent
+            opacity={isSelected ? 0.9 : isHovered ? 0.7 : 0.28}
+          />
 
-          {/* Drei Outlines: Inverted-Hull Silky Halo on Pinned Project Worlds */}
-          {node.isPinned && !isDimmed && (
+          {/* Drei Outlines: Inverted-Hull Silky Halo on all Project Worlds */}
+          {node.type === "project" && !isDimmed && (
             <Outlines
-              thickness={0.08}
-              color={chroma.accent}
+              thickness={isSelected ? 0.12 : node.isPinned ? 0.08 : 0.05}
+              color={isSelected ? "#00FFA3" : chroma.accent}
               transparent
-              opacity={0.65}
+              opacity={isSelected ? 0.95 : 0.55}
               screenspace={false}
             />
           )}
@@ -234,15 +239,19 @@ function NodeMesh({
   );
 }
 
-// Animated Traveling Pulse along Selected Links via Drei Trail
+// Animated Traveling Pulse along Links via Drei Trail
 function AnimatedPulseSphere({
   start,
   end,
   color,
+  speed = 0.7,
+  size = 0.08,
 }: {
   start: [number, number, number];
   end: [number, number, number];
   color: string;
+  speed?: number;
+  size?: number;
 }) {
   const pulseRef = useRef<THREE.Mesh>(null);
   const pStart = useMemo(() => new THREE.Vector3(...start), [start]);
@@ -250,21 +259,21 @@ function AnimatedPulseSphere({
 
   useFrame(({ clock }) => {
     if (!pulseRef.current) return;
-    const t = (clock.getElapsedTime() * 0.8) % 1;
+    const t = (clock.getElapsedTime() * speed) % 1;
     pulseRef.current.position.lerpVectors(pStart, pEnd, t);
   });
 
   return (
-    <Trail width={0.15} color={color} length={6} decay={1.5} local={false}>
+    <Trail width={size * 2.2} color={color} length={8} decay={1.2} local={false}>
       <mesh ref={pulseRef}>
-        <sphereGeometry args={[0.08, 12, 12]} />
+        <sphereGeometry args={[size, 16, 16]} />
         <meshBasicMaterial color={color} />
       </mesh>
     </Trail>
   );
 }
 
-// 3D Connection Line with Highlight Pulse
+// 3D Connection Line with Continuous and Highlight Drei Trail Pulses
 function ConnectionLine({
   start,
   end,
@@ -283,14 +292,21 @@ function ConnectionLine({
     <group>
       <line geometry={lineGeometry}>
         <lineBasicMaterial
-          color={isHighlighted ? "#00F5D4" : "#4b5563"}
+          color={isHighlighted ? "#00FFA3" : "#3b82f6"}
           transparent
-          opacity={isHighlighted ? 0.85 : isDimmed ? 0.05 : 0.25}
+          opacity={isHighlighted ? 0.95 : isDimmed ? 0.05 : 0.35}
           linewidth={isHighlighted ? 2 : 1}
         />
       </line>
-      {isHighlighted && (
-        <AnimatedPulseSphere start={start} end={end} color="#00F5D4" />
+      {/* Streaming telemetry pulse via Drei Trail on all active links */}
+      {!isDimmed && (
+        <AnimatedPulseSphere
+          start={start}
+          end={end}
+          color={isHighlighted ? "#00FFA3" : "#00F5D4"}
+          speed={isHighlighted ? 1.4 : 0.65}
+          size={isHighlighted ? 0.12 : 0.07}
+        />
       )}
     </group>
   );
@@ -407,19 +423,28 @@ function WorldScene({
       <pointLight position={[-20, -20, -20]} intensity={0.8} color="#06b6d4" />
       <Stars radius={120} depth={60} count={5000} factor={4} saturation={0.6} fade speed={0.8} />
 
+      {/* Drei Sparkles: Holographic Cyber Particles throughout Spatial Void */}
+      <Sparkles
+        count={160}
+        scale={[50, 25, 50]}
+        size={3.5}
+        speed={0.4}
+        opacity={0.65}
+        color="#00F5D4"
+      />
+
       {/* Cybernetic Infinite Coordinate Grid */}
       <Grid
         position={[0, -9, 0]}
-        args={[120, 120]}
-        cellSize={2}
-        cellThickness={0.4}
-        cellColor="#0B132B"
+        args={[160, 160]}
+        cellSize={2.5}
+        cellThickness={1.0}
+        cellColor="#1E293B"
         sectionSize={10}
-        sectionThickness={0.9}
+        sectionThickness={1.8}
         sectionColor="#00F5D4"
-        fadeDistance={90}
-        fadeStrength={1.5}
-        fadeFrom={1}
+        fadeDistance={140}
+        fadeStrength={1.2}
         infiniteGrid
         followCamera
       />
@@ -738,8 +763,9 @@ export default function SpatialWorld() {
           </span>
         </div>
         <div className="h-6 w-px bg-[#1E293B]" />
-        <div className="text-[#64748B] font-mono text-[11px]">
-          Click planetary core to inspect telemetry & provenance
+        <div className="flex items-center gap-1.5 font-mono text-[10px] text-[#00F5D4]/90 bg-[#00F5D4]/10 px-2.5 py-1 rounded border border-[#00F5D4]/30">
+          <Sparkles className="h-3.5 w-3.5 text-[#00FFA3] animate-pulse" />
+          <span>DREI: CameraControls • Grid • Gizmo • Outlines • Edges • Trail • Sparkles</span>
         </div>
       </div>
 
