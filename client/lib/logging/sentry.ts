@@ -33,21 +33,23 @@ export const initializeSentry = () => {
   }
 };
 
+import React from 'react';
+
 // Higher-order component for error boundaries
 export const withErrorBoundary = (Component: React.ComponentType<any>) => {
   return Sentry.withErrorBoundary(Component, {
-    fallback: (props) => (
-      <div className="error-boundary-fallback">
-        <h2>Something went wrong</h2>
-        <p>We've been notified and will fix this issue soon.</p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="refresh-button"
-        >
-          Refresh Page
-        </button>
-      </div>
-    ),
+    fallback: () =>
+      React.createElement(
+        'div',
+        { className: 'error-boundary-fallback' },
+        React.createElement('h2', null, 'Something went wrong'),
+        React.createElement('p', null, "We've been notified and will fix this issue soon."),
+        React.createElement(
+          'button',
+          { onClick: () => window.location.reload(), className: 'refresh-button' },
+          'Refresh Page'
+        )
+      ),
   });
 };
 

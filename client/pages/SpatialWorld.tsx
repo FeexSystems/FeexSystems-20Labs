@@ -1,7 +1,20 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Stars, Text, Float, Billboard } from "@react-three/drei";
+import {
+  CameraControls,
+  GizmoHelper,
+  GizmoViewport,
+  Grid,
+  Stars,
+  Text,
+  Float,
+  Billboard,
+  Edges,
+  Outlines,
+  Trail,
+  Loader,
+} from "@react-three/drei";
 import * as THREE from "three";
 import {
   Boxes,
@@ -23,6 +36,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  PlanetaryCoreShaderMaterial,
+  AtmosphereHalo,
+  CryptographicLattice,
+  EquatorialTelemetryRing,
+  resolveWorldChroma,
+} from "@/components/webgl/PlanetaryCoreMaterial";
+import { FeexMasterMark, FeexHorizontalLockup, FeexWorldBadge } from "@/components/FeexLogo";
 
 interface GraphNode {
   id: string;
@@ -71,7 +92,7 @@ function getNodeColor(node: GraphNode): string {
   return "#10b981";
 }
 
-// 3D Node Sphere
+// 3D Node Sphere with Procedural GLSL Planetary Core Shaders + Drei Edges & Outlines
 function NodeMesh({
   node,
   isSelected,
@@ -88,20 +109,21 @@ function NodeMesh({
   onPointerOut: () => void;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const color = useMemo(() => getNodeColor(node), [node]);
-  const size = node.type === "project" ? (node.isPinned ? 1.6 : 1.2) : 0.8;
+  const [isHovered, setIsHovered] = useState(false);
+  const chroma = useMemo(() => resolveWorldChroma(node.name, node.domain), [node]);
+  const size = node.type === "project" ? (node.isPinned ? 1.7 : 1.3) : 0.85;
 
   useFrame((state) => {
     if (!meshRef.current) return;
     if (isSelected) {
-      const scale = 1 + Math.sin(state.clock.elapsedTime * 4) * 0.15;
+      const scale = 1 + Math.sin(state.clock.elapsedTime * 4) * 0.12;
       meshRef.current.scale.set(scale, scale, scale);
     }
   });
 
   return (
     <group position={node.position || [0, 0, 0]}>
-      <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
+      <Float speed={1.2} rotationIntensity={0.25} floatIntensity={0.35}>
         <mesh
           ref={meshRef}
           onClick={(e) => {
@@ -111,53 +133,138 @@ function NodeMesh({
           onPointerOver={(e) => {
             e.stopPropagation();
             document.body.style.cursor = "pointer";
+            setIsHovered(true);
             onPointerOver();
           }}
           onPointerOut={() => {
             document.body.style.cursor = "auto";
+            setIsHovered(false);
             onPointerOut();
           }}
         >
-          <sphereGeometry args={[size, 32, 32]} />
-          <meshStandardMaterial
-            color={color}
-            emissive={color}
-            emissiveIntensity={isSelected ? 0.9 : isDimmed ? 0.1 : 0.45}
-            roughness={0.2}
-            metalness={0.8}
-            transparent
-            opacity={isDimmed ? 0.2 : 0.95}
-          />
+          <sphereGeometry args={[size, 64, 64]} />
+          {node.type === "project" ? (
+            <PlanetaryCoreShaderMaterial
+              chroma={chroma}
+              isSelected={isSelected}
+              isDimmed={isDimmed}
+            />
+          ) : (
+            <meshStandardMaterial
+              color={chroma.primary}
+              emissive={chroma.primary}
+              emissiveIntensity={isSelected ? 0.9 : isDimmed ? 0.1 : 0.45}
+              roughness={0.2}
+              metalness={0.8}
+              transparent
+              opacity={isDimmed ? 0.2 : 0.95}
+            />
+          )}
+
+          {/* Drei Edges: Geometric Wireframe Highlighting on Selection or Hover */}
+          {(isSelected || isHovered) && (
+            <Edges linewidth={2} color={chroma.primary} threshold={15} />
+          )}
+
+          {/* Drei Outlines: Inverted-Hull Silky Halo on Pinned Project Worlds */}
+          {node.isPinned && !isDimmed && (
+            <Outlines
+              thickness={0.08}
+              color={chroma.accent}
+              transparent
+              opacity={0.65}
+              screenspace={false}
+            />
+          )}
         </mesh>
 
-        {/* Glow Ring for Pinned Projects */}
-        {node.isPinned && !isDimmed && (
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[size * 1.3, size * 1.5, 32]} />
-            <meshBasicMaterial color={color} transparent opacity={0.5} side={THREE.DoubleSide} />
-          </mesh>
+        {/* Volumetric Atmospheric Glow Halo */}
+        {!isDimmed && node.type === "project" && (
+          <AtmosphereHalo
+            color={chroma.primary}
+            radius={size}
+            fresnelPower={isSelected ? 2.5 : 3.2}
+          />
         )}
 
-        {/* Billboard Text Label */}
+        {/* Cryptographic Wireframe Lattice for Pinned or Selected Worlds */}
+        {(node.isPinned || isSelected) && !isDimmed && (
+          <CryptographicLattice radius={size} color={chroma.accent} />
+        )}
+
+        {/* Equatorial Telemetry Orbit Ring */}
+        {(node.isPinned || isSelected) && !isDimmed && (
+          <EquatorialTelemetryRing radius={size} color={chroma.primary} />
+        )}
+
+        {/* Billboard Text Labels with Dynamic Typography & Domain Tags */}
         <Billboard follow={true} lockX={false} lockY={false} lockZ={false}>
           <Text
-            position={[0, size + 0.9, 0]}
-            fontSize={node.type === "project" ? 0.65 : 0.45}
-            color={isDimmed ? "#6b7280" : "#ffffff"}
+            position={[0, size + 1.1, 0]}
+            fontSize={node.type === "project" ? 0.7 : 0.45}
+            maxWidth={9}
+            lineHeight={1.1}
+            color={isDimmed ? "#64748b" : "#f8fafc"}
             anchorX="center"
             anchorY="middle"
-            outlineWidth={0.06}
-            outlineColor="#000000"
+            outlineWidth={0.08}
+            outlineColor="#030508"
+            outlineOpacity={0.9}
+            font="https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_al0618U14d.woff2"
           >
             {node.name}
           </Text>
+          {node.domain && !isDimmed && (
+            <Text
+              position={[0, size + 0.6, 0]}
+              fontSize={0.28}
+              color={chroma.primary}
+              anchorX="center"
+              anchorY="middle"
+              outlineWidth={0.04}
+              outlineColor="#030508"
+              font="https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_al0618U14d.woff2"
+            >
+              {node.domain.toUpperCase()}
+            </Text>
+          )}
         </Billboard>
       </Float>
     </group>
   );
 }
 
-// 3D Connection Line
+// Animated Traveling Pulse along Selected Links via Drei Trail
+function AnimatedPulseSphere({
+  start,
+  end,
+  color,
+}: {
+  start: [number, number, number];
+  end: [number, number, number];
+  color: string;
+}) {
+  const pulseRef = useRef<THREE.Mesh>(null);
+  const pStart = useMemo(() => new THREE.Vector3(...start), [start]);
+  const pEnd = useMemo(() => new THREE.Vector3(...end), [end]);
+
+  useFrame(({ clock }) => {
+    if (!pulseRef.current) return;
+    const t = (clock.getElapsedTime() * 0.8) % 1;
+    pulseRef.current.position.lerpVectors(pStart, pEnd, t);
+  });
+
+  return (
+    <Trail width={0.15} color={color} length={6} decay={1.5} local={false}>
+      <mesh ref={pulseRef}>
+        <sphereGeometry args={[0.08, 12, 12]} />
+        <meshBasicMaterial color={color} />
+      </mesh>
+    </Trail>
+  );
+}
+
+// 3D Connection Line with Highlight Pulse
 function ConnectionLine({
   start,
   end,
@@ -173,18 +280,23 @@ function ConnectionLine({
   const lineGeometry = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
 
   return (
-    <line geometry={lineGeometry}>
-      <lineBasicMaterial
-        color={isHighlighted ? "#34d399" : "#4b5563"}
-        transparent
-        opacity={isHighlighted ? 0.8 : isDimmed ? 0.05 : 0.25}
-        linewidth={isHighlighted ? 2 : 1}
-      />
-    </line>
+    <group>
+      <line geometry={lineGeometry}>
+        <lineBasicMaterial
+          color={isHighlighted ? "#00F5D4" : "#4b5563"}
+          transparent
+          opacity={isHighlighted ? 0.85 : isDimmed ? 0.05 : 0.25}
+          linewidth={isHighlighted ? 2 : 1}
+        />
+      </line>
+      {isHighlighted && (
+        <AnimatedPulseSphere start={start} end={end} color="#00F5D4" />
+      )}
+    </group>
   );
 }
 
-// Spatial Scene graph layout
+// Spatial Scene graph layout with CameraControls, Infinite Cybernetic Grid, and GizmoViewport
 function WorldScene({
   data,
   selectedNode,
@@ -200,7 +312,7 @@ function WorldScene({
   autoRotate: boolean;
   onSelectNode: (node: GraphNode | null) => void;
 }) {
-  const controlsRef = useRef<any>(null);
+  const cameraControlsRef = useRef<CameraControls>(null);
 
   // Position nodes radially in 3D space
   const positionedNodes = useMemo(() => {
@@ -248,6 +360,30 @@ function WorldScene({
     return map;
   }, [positionedNodes]);
 
+  // Smooth Camera transition when a node is selected
+  useEffect(() => {
+    if (selectedNode && selectedNode.position && cameraControlsRef.current) {
+      const [x, y, z] = selectedNode.position;
+      const dist = selectedNode.type === "project" ? 6 : 4;
+      cameraControlsRef.current.setLookAt(
+        x,
+        y + 2,
+        z + dist,
+        x,
+        y,
+        z,
+        true // animated transition
+      );
+    }
+  }, [selectedNode]);
+
+  // Handle auto-rotate via azimuthAngle in useFrame
+  useFrame((_, delta) => {
+    if (autoRotate && cameraControlsRef.current && !selectedNode) {
+      cameraControlsRef.current.azimuthAngle += 0.15 * delta;
+    }
+  });
+
   const matchesSearch = (n: GraphNode) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
@@ -269,7 +405,24 @@ function WorldScene({
       <ambientLight intensity={0.6} />
       <pointLight position={[20, 20, 20]} intensity={1.5} />
       <pointLight position={[-20, -20, -20]} intensity={0.8} color="#06b6d4" />
-      <Stars radius={100} depth={50} count={4000} factor={4} saturation={0.5} fade speed={1} />
+      <Stars radius={120} depth={60} count={5000} factor={4} saturation={0.6} fade speed={0.8} />
+
+      {/* Cybernetic Infinite Coordinate Grid */}
+      <Grid
+        position={[0, -9, 0]}
+        args={[120, 120]}
+        cellSize={2}
+        cellThickness={0.4}
+        cellColor="#0B132B"
+        sectionSize={10}
+        sectionThickness={0.9}
+        sectionColor="#00F5D4"
+        fadeDistance={90}
+        fadeStrength={1.5}
+        fadeFrom={1}
+        infiniteGrid
+        followCamera
+      />
 
       {/* Connection Links */}
       {data.links.map((link) => {
@@ -315,15 +468,23 @@ function WorldScene({
         );
       })}
 
-      <OrbitControls
-        ref={controlsRef}
-        autoRotate={autoRotate}
-        autoRotateSpeed={0.6}
-        enableDamping={true}
-        dampingFactor={0.05}
-        minDistance={5}
-        maxDistance={50}
+      {/* Production Drei CameraControls with smooth damping */}
+      <CameraControls
+        ref={cameraControlsRef}
+        makeDefault
+        minDistance={4}
+        maxDistance={60}
+        dollySpeed={0.8}
+        smoothTime={0.35}
       />
+
+      {/* Drei Gizmo Orientation Viewport */}
+      <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
+        <GizmoViewport
+          axisColors={["#00F5D4", "#00FFA3", "#7B2CBF"]}
+          labelColor="#f8fafc"
+        />
+      </GizmoHelper>
     </>
   );
 }
@@ -378,25 +539,28 @@ export default function SpatialWorld() {
   };
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-black text-white select-none">
+    <div className="relative h-screen w-screen overflow-hidden bg-[#030508] text-white select-none">
+      {/* Subtle Scanline Overlay for Cybernetic HUD Depth */}
+      <div className="scanline-overlay absolute inset-0 z-10 pointer-events-none" />
+
       {/* Top Floating HUD Bar */}
       <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4 md:p-6 pointer-events-none">
         <div className="flex items-center gap-4 pointer-events-auto">
           <Link
             to="/"
-            className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-black/60 px-4 py-2 text-sm font-semibold backdrop-blur-xl transition hover:border-emerald-500/50 hover:bg-black/80"
+            className="hud-bracket flex items-center gap-3 rounded-lg border border-[#1E293B] bg-[#0A0E17]/85 px-4 py-2 text-sm font-semibold backdrop-blur-xl shadow-feex-hud transition hover:border-[#00F5D4]/50 hover:bg-[#0A0E17]"
           >
-            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500 font-black text-xs text-black">
-              F
-            </div>
-            <span>FEEXSYSTEMS</span>
-            <span className="text-white/40">/</span>
-            <span className="text-emerald-400">3D World Model</span>
+            <FeexHorizontalLockup markSize={28} showSubtitle={false} />
+            <span className="text-white/30 font-mono">/</span>
+            <span className="text-[#00F5D4] font-mono text-xs tracking-wider uppercase">
+              3D_WORLD_MODEL
+            </span>
           </Link>
-          <div className="hidden sm:flex items-center gap-2 rounded-xl border border-white/10 bg-black/50 px-3 py-1.5 text-xs text-white/70 backdrop-blur-xl">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-            <span>Interactive Spatial Graph</span>
-          </div>
+          <FeexWorldBadge
+            sha="sha-wm3"
+            status="ACTIVE 100%"
+            className="hidden lg:inline-flex"
+          />
         </div>
 
         <div className="flex items-center gap-2 pointer-events-auto">
@@ -404,18 +568,18 @@ export default function SpatialWorld() {
             variant="outline"
             size="sm"
             onClick={() => setAutoRotate(!autoRotate)}
-            className={`border-white/10 bg-black/60 backdrop-blur-xl transition ${
-              autoRotate ? "text-emerald-400 border-emerald-500/30" : "text-white/70"
+            className={`border-[#1E293B] bg-[#0A0E17]/80 backdrop-blur-xl transition ${
+              autoRotate ? "text-[#00FFA3] border-[#00FFA3]/40" : "text-white/70"
             }`}
           >
             <RotateCw className={`h-4 w-4 mr-1.5 ${autoRotate ? "animate-spin" : ""}`} />
-            <span className="hidden md:inline">Rotate</span>
+            <span className="hidden md:inline font-mono text-xs">Orbit</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={toggleFullscreen}
-            className="border-white/10 bg-black/60 text-white/80 backdrop-blur-xl"
+            className="border-[#1E293B] bg-[#0A0E17]/80 text-white/80 backdrop-blur-xl"
           >
             {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
           </Button>
@@ -423,17 +587,17 @@ export default function SpatialWorld() {
             asChild
             variant="outline"
             size="sm"
-            className="border-white/10 bg-black/60 text-white/80 backdrop-blur-xl"
+            className="border-[#1E293B] bg-[#0A0E17]/80 text-white/80 backdrop-blur-xl"
           >
             <Link to="/evidence">
-              <ShieldCheck className="h-4 w-4 mr-1.5 text-emerald-400" />
-              <span className="hidden sm:inline">Evidence</span>
+              <ShieldCheck className="h-4 w-4 mr-1.5 text-[#00FFA3]" />
+              <span className="hidden sm:inline font-mono text-xs">Evidence</span>
             </Link>
           </Button>
           <Button
             asChild
             size="sm"
-            className="bg-emerald-500 font-semibold text-black hover:bg-emerald-400"
+            className="bg-[#00F5D4] font-semibold text-black hover:bg-[#00F5D4]/80 shadow-feex-neon"
           >
             <Link to="/navigator">
               <Compass className="h-4 w-4 mr-1.5" />
@@ -443,16 +607,15 @@ export default function SpatialWorld() {
         </div>
       </header>
 
-
       {/* Search & Filter Toolbar */}
       <div className="absolute top-20 left-4 md:left-6 z-20 flex flex-col gap-2 pointer-events-auto max-w-sm w-full">
-        <div className="relative">
+        <div className="relative hud-bracket">
           <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Filter projects, technologies..."
-            className="h-11 border-white/10 bg-black/60 pl-10 text-sm text-white placeholder-white/40 backdrop-blur-xl focus:border-emerald-500"
+            placeholder="Search World Model coordinate nodes..."
+            className="h-11 border-[#1E293B] bg-[#0A0E17]/80 pl-10 font-mono text-xs text-white placeholder-white/40 backdrop-blur-xl focus:border-[#00F5D4]"
           />
           {searchQuery && (
             <button
@@ -469,23 +632,23 @@ export default function SpatialWorld() {
           <Badge
             variant="outline"
             onClick={() => setDomainFilter("all")}
-            className={`cursor-pointer border-white/10 px-2.5 py-1 text-xs backdrop-blur-md transition ${
+            className={`cursor-pointer border-[#1E293B] px-2.5 py-1 text-xs backdrop-blur-md transition ${
               domainFilter === "all"
-                ? "border-emerald-500 bg-emerald-500/20 text-emerald-300 font-semibold"
-                : "bg-black/50 text-white/60 hover:text-white hover:border-white/30"
+                ? "border-[#00F5D4] bg-[#00F5D4]/20 text-[#00F5D4] font-semibold"
+                : "bg-[#0A0E17]/60 text-white/60 hover:text-white hover:border-white/30"
             }`}
           >
-            All Domains
+            All Systems
           </Badge>
           {domains.map((dom) => (
             <Badge
               key={dom}
               variant="outline"
               onClick={() => setDomainFilter(dom)}
-              className={`cursor-pointer border-white/10 px-2.5 py-1 text-xs backdrop-blur-md transition ${
+              className={`cursor-pointer border-[#1E293B] px-2.5 py-1 text-xs backdrop-blur-md transition ${
                 domainFilter === dom
-                  ? "border-emerald-500 bg-emerald-500/20 text-emerald-300 font-semibold"
-                  : "bg-black/50 text-white/60 hover:text-white hover:border-white/30"
+                  ? "border-[#00F5D4] bg-[#00F5D4]/20 text-[#00F5D4] font-semibold"
+                  : "bg-[#0A0E17]/60 text-white/60 hover:text-white hover:border-white/30"
               }`}
             >
               {dom}
@@ -497,92 +660,140 @@ export default function SpatialWorld() {
       {/* 3D WebGL Canvas */}
       <div className="h-full w-full">
         {graphData ? (
-          <Canvas
-            camera={{ position: [0, 10, 28], fov: 55 }}
-            gl={{ antialias: true, alpha: false }}
-          >
-            <Suspense fallback={null}>
-              <WorldScene
-                data={graphData}
-                selectedNode={selectedNode}
-                searchQuery={searchQuery}
-                domainFilter={domainFilter}
-                autoRotate={autoRotate}
-                onSelectNode={(node) => setSelectedNode(node)}
-              />
-            </Suspense>
-          </Canvas>
+          <>
+            <Canvas
+              camera={{ position: [0, 10, 28], fov: 55 }}
+              gl={{ antialias: true, alpha: false }}
+            >
+              <Suspense fallback={null}>
+                <WorldScene
+                  data={graphData}
+                  selectedNode={selectedNode}
+                  searchQuery={searchQuery}
+                  domainFilter={domainFilter}
+                  autoRotate={autoRotate}
+                  onSelectNode={(node) => setSelectedNode(node)}
+                />
+              </Suspense>
+            </Canvas>
+            <Loader
+              containerStyles={{
+                backgroundColor: "rgba(3, 5, 8, 0.95)",
+                backdropFilter: "blur(16px)",
+                zIndex: 100,
+              }}
+              innerStyles={{
+                width: "280px",
+                backgroundColor: "rgba(10, 14, 23, 0.85)",
+                border: "1px solid rgba(0, 245, 212, 0.35)",
+                borderRadius: "8px",
+                padding: "10px",
+              }}
+              barStyles={{
+                backgroundColor: "#00F5D4",
+                height: "4px",
+                borderRadius: "2px",
+                boxShadow: "0 0 12px #00F5D4",
+              }}
+              dataStyles={{
+                fontFamily: "JetBrains Mono, monospace",
+                fontSize: "11px",
+                color: "#00F5D4",
+                letterSpacing: "0.05em",
+                marginTop: "10px",
+              }}
+              dataInterpolation={(p) => `INITIALIZING SPATIAL WORLD: ${p.toFixed(0)}%`}
+            />
+          </>
         ) : (
           <div className="flex h-full items-center justify-center">
             <div className="text-center">
-              <RefreshCw className="h-8 w-8 animate-spin text-emerald-400 mx-auto mb-3" />
-              <p className="text-white/60 text-sm">Constructing 3D World Model...</p>
+              <RefreshCw className="h-8 w-8 animate-spin text-[#00F5D4] mx-auto mb-3" />
+              <p className="text-white/60 text-sm font-mono">Synthesizing GLSL Planetary Cores...</p>
             </div>
           </div>
         )}
       </div>
 
       {/* Bottom Stats HUD */}
-      <div className="absolute bottom-6 left-6 z-20 hidden md:flex items-center gap-6 rounded-2xl border border-white/10 bg-black/60 px-5 py-3 text-xs backdrop-blur-xl pointer-events-auto">
+      <div className="hud-bracket absolute bottom-6 left-6 z-20 hidden md:flex items-center gap-6 rounded-lg border border-[#1E293B] bg-[#0A0E17]/85 px-5 py-3 text-xs backdrop-blur-xl shadow-feex-hud pointer-events-auto">
         <div>
-          <span className="text-white/40 block">Projects</span>
-          <span className="text-sm font-bold text-emerald-400">
+          <span className="text-[#64748B] text-[10px] font-mono uppercase block">Projects / Worlds</span>
+          <span className="text-sm font-bold font-mono text-[#00FFA3]">
             {graphData?.stats.totalProjects || 0}
           </span>
         </div>
-        <div className="h-6 w-px bg-white/10" />
+        <div className="h-6 w-px bg-[#1E293B]" />
         <div>
-          <span className="text-white/40 block">Technologies</span>
-          <span className="text-sm font-bold text-indigo-400">
+          <span className="text-[#64748B] text-[10px] font-mono uppercase block">Technologies</span>
+          <span className="text-sm font-bold font-mono text-[#0066FF]">
             {graphData?.stats.totalTechnologies || 0}
           </span>
         </div>
-        <div className="h-6 w-px bg-white/10" />
+        <div className="h-6 w-px bg-[#1E293B]" />
         <div>
-          <span className="text-white/40 block">Relationships</span>
-          <span className="text-sm font-bold text-cyan-400">
+          <span className="text-[#64748B] text-[10px] font-mono uppercase block">Graph Edges</span>
+          <span className="text-sm font-bold font-mono text-[#00F5D4]">
             {graphData?.stats.totalLinks || 0}
           </span>
         </div>
-        <div className="h-6 w-px bg-white/10" />
-        <div className="text-white/50">
-          Click any node to inspect evidence & artifacts
+        <div className="h-6 w-px bg-[#1E293B]" />
+        <div className="text-[#64748B] font-mono text-[11px]">
+          Click planetary core to inspect telemetry & provenance
         </div>
       </div>
 
       {/* Slide-over Node Inspector Drawer */}
       {selectedNode && (
-        <aside className="absolute right-0 top-0 bottom-0 z-30 w-full max-w-md border-l border-white/10 bg-black/85 p-6 shadow-2xl backdrop-blur-2xl overflow-y-auto animate-in slide-in-from-right duration-300">
-          <div className="flex items-start justify-between pb-4 border-b border-white/10">
+        <aside className="hud-bracket absolute right-0 top-0 bottom-0 z-30 w-full max-w-md border-l border-[#1E293B] bg-[#0A0E17]/95 p-6 shadow-2xl backdrop-blur-2xl overflow-y-auto animate-in slide-in-from-right duration-300">
+          <div className="flex items-start justify-between pb-4 border-b border-[#1E293B]">
             <div className="flex items-center gap-3">
               <div
-                className="h-9 w-9 rounded-xl flex items-center justify-center font-bold"
-                style={{ backgroundColor: `${getNodeColor(selectedNode)}20`, color: getNodeColor(selectedNode) }}
+                className="h-10 w-10 rounded-lg flex items-center justify-center font-bold border"
+                style={{
+                  backgroundColor: `${resolveWorldChroma(selectedNode.name, selectedNode.domain).primary}20`,
+                  borderColor: resolveWorldChroma(selectedNode.name, selectedNode.domain).primary,
+                  color: resolveWorldChroma(selectedNode.name, selectedNode.domain).primary,
+                }}
               >
-                {selectedNode.type === "project" ? <Boxes className="h-5 w-5" /> : <Layers className="h-5 w-5" />}
+                {selectedNode.type === "project" ? (
+                  <Boxes className="h-5 w-5" />
+                ) : (
+                  <Layers className="h-5 w-5" />
+                )}
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wider text-white/50">
-                  {selectedNode.type} entity
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#00F5D4]">
+                    {resolveWorldChroma(selectedNode.name, selectedNode.domain).tag || "WORLD_ENTITY"}
+                  </span>
                 </div>
-                <h2 className="text-lg font-bold text-white">{selectedNode.name}</h2>
+                <h2 className="text-lg font-display font-bold text-white tracking-wide">
+                  {selectedNode.name}
+                </h2>
               </div>
             </div>
             <button
               onClick={() => setSelectedNode(null)}
-              className="rounded-lg p-1.5 text-white/50 hover:bg-white/10 hover:text-white"
+              className="rounded-lg p-1.5 text-white/50 hover:bg-white/10 hover:text-white transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
 
-          <div className="mt-6 space-y-6">
+          <div className="mt-6 space-y-6 font-sans">
+            {/* Live Telemetry Provenance Badge */}
+            <FeexWorldBadge
+              sha={selectedNode.id ? `sha-${selectedNode.id.substring(0, 7)}` : "sha-canonical"}
+              status="VERIFIED 100%"
+            />
+
             {selectedNode.description && (
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-2">
+                <h4 className="text-[10px] font-mono font-semibold uppercase tracking-wider text-[#64748B] mb-2">
                   Observed Description
                 </h4>
-                <p className="text-sm text-white/80 leading-relaxed bg-white/5 rounded-xl p-4 border border-white/5">
+                <p className="text-sm text-slate-300 leading-relaxed bg-[#121826]/70 rounded-lg p-4 border border-[#1E293B]">
                   {selectedNode.description}
                 </p>
               </div>
@@ -591,27 +802,27 @@ export default function SpatialWorld() {
             {selectedNode.type === "project" && (
               <>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <span className="text-xs text-white/40 block">Domain</span>
-                    <span className="text-sm font-semibold text-white mt-1 block">
+                  <div className="rounded-lg border border-[#1E293B] bg-[#121826]/70 p-3">
+                    <span className="text-[10px] font-mono uppercase text-[#64748B] block">Domain</span>
+                    <span className="text-xs font-mono font-semibold text-[#00F5D4] mt-1 block">
                       {selectedNode.domain || "Engineering"}
                     </span>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <span className="text-xs text-white/40 block">Primary Language</span>
-                    <span className="text-sm font-semibold text-white mt-1 block">
+                  <div className="rounded-lg border border-[#1E293B] bg-[#121826]/70 p-3">
+                    <span className="text-[10px] font-mono uppercase text-[#64748B] block">Primary Language</span>
+                    <span className="text-xs font-mono font-semibold text-[#F8FAFC] mt-1 block">
                       {selectedNode.language || "TypeScript"}
                     </span>
                   </div>
                 </div>
 
                 {selectedNode.repository && (
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                    <div className="flex items-center justify-between text-xs text-white/50 mb-1">
+                  <div className="rounded-lg border border-[#1E293B] bg-[#121826]/70 p-4">
+                    <div className="flex items-center justify-between text-[10px] font-mono text-[#64748B] mb-1">
                       <span>Repository Provenance</span>
-                      <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                      <ShieldCheck className="h-4 w-4 text-[#00FFA3]" />
                     </div>
-                    <div className="font-mono text-xs text-emerald-300 font-semibold break-all">
+                    <div className="font-mono text-xs text-[#00FFA3] font-semibold break-all">
                       {selectedNode.repository}
                     </div>
                   </div>
@@ -622,23 +833,34 @@ export default function SpatialWorld() {
             {/* Action Buttons */}
             <div className="pt-4 space-y-2.5">
               {selectedNode.type === "project" && (
-                <Button asChild variant="outline" className="w-full border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full border-[#00FFA3]/40 bg-[#00FFA3]/10 hover:bg-[#00FFA3]/20 text-[#00FFA3] font-mono text-xs"
+                >
                   <Link to={`/evidence/${encodeURIComponent(selectedNode.id || selectedNode.name)}`}>
-                    <FileCode className="h-4 w-4 mr-2 text-emerald-400" />
+                    <FileCode className="h-4 w-4 mr-2 text-[#00FFA3]" />
                     Inspect in Evidence Explorer
                   </Link>
                 </Button>
               )}
               {selectedNode.url && (
-                <Button asChild className="w-full bg-emerald-500 font-semibold text-black hover:bg-emerald-400">
+                <Button
+                  asChild
+                  className="w-full bg-[#00F5D4] font-semibold text-black hover:bg-[#00F5D4]/80 font-mono text-xs shadow-feex-neon"
+                >
                   <a href={selectedNode.url} target="_blank" rel="noreferrer">
                     Inspect Repository Source <ExternalLink className="h-4 w-4 ml-2" />
                   </a>
                 </Button>
               )}
-              <Button asChild variant="outline" className="w-full border-white/20 hover:bg-white/10 text-white">
+              <Button
+                asChild
+                variant="outline"
+                className="w-full border-[#1E293B] hover:bg-[#121826] text-white font-mono text-xs"
+              >
                 <Link to={`/navigator?q=${encodeURIComponent(selectedNode.name)}`}>
-                  <Compass className="h-4 w-4 mr-2 text-emerald-400" />
+                  <Compass className="h-4 w-4 mr-2 text-[#00F5D4]" />
                   Query Navigator for Provenance
                 </Link>
               </Button>

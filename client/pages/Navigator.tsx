@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { FeexHorizontalLockup, FeexWorldBadge } from "@/components/FeexLogo";
 
 interface NavigatorProject {
   id: string;
@@ -110,21 +111,28 @@ export default function Navigator() {
       {/* Header & Hero Search */}
       <section className="border-b border-border bg-gradient-to-b from-card/40 to-background">
         <div className="mx-auto max-w-6xl px-6 py-16 lg:px-8">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-              ← FEEXSYSTEMS
-            </Link>
-            <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs text-emerald-400 border-emerald-500/30">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-4">
+              <Link to="/">
+                <FeexHorizontalLockup markSize={28} showSubtitle={false} />
+              </Link>
+              <span className="text-[#64748B] font-mono">/</span>
+              <span className="font-mono text-sm text-[#00F5D4] uppercase tracking-wider">
+                Navigator
+              </span>
+              <FeexWorldBadge sha="sha-feex-navigator" status="GROUNDED 100%" className="hidden sm:inline-flex" />
+            </div>
+            <Button asChild size="sm" className="bg-[#00F5D4] font-semibold text-black hover:bg-[#00F5D4]/80 shadow-feex-neon">
               <Link to="/world">
-                <Globe className="h-3.5 w-3.5" /> 3D World Model
+                <Globe className="h-4 w-4 mr-1.5" /> 3D World Model
               </Link>
             </Button>
           </div>
 
           <div className="mt-8 max-w-4xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm text-primary">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#00F5D4]/20 bg-[#00F5D4]/10 px-4 py-1.5 text-xs font-mono text-[#00F5D4]">
               <Sparkles className="h-4 w-4" />
-              World Model AI Navigator
+              World Model AI Navigator · Grounded Retrieval
             </div>
             <h1 className="mt-6 text-5xl font-black tracking-tight md:text-7xl">
               Ask the engineering world.

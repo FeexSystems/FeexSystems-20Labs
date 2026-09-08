@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { feexProjects } from "@/lib/feex-ecosystem";
+import { FeexHorizontalLockup, FeexWorldBadge } from "@/components/FeexLogo";
 
 interface ProjectSummary {
   id: string;
@@ -149,7 +150,7 @@ export default function EvidenceExplorer() {
       setLoadingDetails(true);
       setError("");
       try {
-        const res = await fetch(`/api/world-model/evidence/${encodeURIComponent(selectedProjectId)}`);
+        const res = await fetch(`/api/world-model/evidence/detail?projectId=${encodeURIComponent(selectedProjectId)}`);
         const json = await res.json();
         if (json.success && json.data) {
           setProjectDetails(json.data);
@@ -177,7 +178,7 @@ export default function EvidenceExplorer() {
       setLoadingContent(true);
       try {
         const res = await fetch(
-          `/api/world-model/evidence/${encodeURIComponent(selectedProjectId)}/content?path=${encodeURIComponent(
+          `/api/world-model/evidence/content?projectId=${encodeURIComponent(selectedProjectId)}&path=${encodeURIComponent(
             selectedArtifact.path
           )}`
         );
@@ -239,34 +240,36 @@ export default function EvidenceExplorer() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Top Header Bar */}
-      <header className="border-b border-border bg-card/60 px-6 py-4 backdrop-blur-xl sticky top-0 z-20">
+      <header className="border-b border-[#1E293B] bg-[#0A0E17]/85 px-6 py-4 backdrop-blur-xl sticky top-0 z-20">
         <div className="mx-auto max-w-7xl flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3">
-            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1.5">
-              <ArrowLeft className="h-4 w-4" />
-              FEEXSYSTEMS
+          <div className="flex items-center gap-4 flex-wrap">
+            <Link to="/" className="flex items-center gap-2">
+              <FeexHorizontalLockup markSize={28} showSubtitle={false} />
             </Link>
-            <span className="text-muted-foreground">/</span>
+            <span className="text-[#64748B] font-mono">/</span>
             <div className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
-              <span className="font-bold tracking-tight text-foreground">Source & Evidence Explorer</span>
+              <ShieldCheck className="h-5 w-5 text-[#00FFA3]" />
+              <span className="font-mono text-sm text-[#00F5D4] uppercase tracking-wider">
+                Evidence_Explorer
+              </span>
             </div>
+            <FeexWorldBadge sha="sha-feex-evidence" status="VERIFIED 100%" className="hidden sm:inline-flex" />
           </div>
 
           <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="border-[#1E293B] bg-[#121826]/70">
               <Link to="/world">
-                <Globe className="h-4 w-4 mr-1.5 text-emerald-400" />
+                <Globe className="h-4 w-4 mr-1.5 text-[#00FFA3]" />
                 3D World
               </Link>
             </Button>
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="border-[#1E293B] bg-[#121826]/70">
               <Link to="/projects">
-                <Boxes className="h-4 w-4 mr-1.5" />
+                <Boxes className="h-4 w-4 mr-1.5 text-[#0066FF]" />
                 Projects
               </Link>
             </Button>
-            <Button asChild size="sm" className="bg-emerald-500 font-semibold text-black hover:bg-emerald-400">
+            <Button asChild size="sm" className="bg-[#00F5D4] font-semibold text-black hover:bg-[#00F5D4]/80 shadow-feex-neon">
               <Link to={`/navigator?q=${encodeURIComponent(currentProject?.name || "")}`}>
                 <Compass className="h-4 w-4 mr-1.5" />
                 Ask Navigator
@@ -446,7 +449,7 @@ export default function EvidenceExplorer() {
         <main className="p-6 flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-73px)]">
           {/* Cryptographic SHA Integrity Header */}
           {artifactContent ? (
-            <div className="rounded-2xl border border-border bg-card/50 p-5 space-y-4">
+            <div className="hud-bracket rounded-lg border border-[#1E293B] bg-[#0A0E17]/80 p-5 space-y-4 shadow-feex-hud backdrop-blur-md">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border/60">
                 <div>
                   <div className="flex items-center gap-2">

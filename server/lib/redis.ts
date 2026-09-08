@@ -12,9 +12,13 @@ export function createRedisClient(): Redis {
   redis = new Redis(redisUrl, {
     enableReadyCheck: false,
     lazyConnect: true,
-    connectTimeout: 10000,
-    commandTimeout: 5000,
-    maxRetriesPerRequest: 3,
+    connectTimeout: 5000,
+    commandTimeout: 3000,
+    maxRetriesPerRequest: 1,
+    retryStrategy: (times) => {
+      if (times > 2) return null; // Stop retrying after 2 attempts in local/offline dev
+      return Math.min(times * 500, 2000);
+    },
   });
 
   redis.on('connect', () => {

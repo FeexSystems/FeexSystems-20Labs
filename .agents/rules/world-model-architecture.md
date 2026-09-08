@@ -1,7 +1,7 @@
 ---
+trigger: glob
 description: Canonical architecture invariants and coding standards for FeexSystems Living Intelligence World
 globs: **/*
-always_on: true
 ---
 
 # FeexSystems Living Intelligence Invariants

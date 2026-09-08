@@ -323,7 +323,7 @@ router.get('/me', (req: Request, res: Response) => {
 });
 
 // Catch-all for other auth endpoints (return mock responses)
-router.all('*', (req: Request, res: Response) => {
+router.use((req: Request, res: Response) => {
     console.log(`[MOCK AUTH] Unhandled route: ${req.method} ${req.path}`);
     res.json({
         success: true,

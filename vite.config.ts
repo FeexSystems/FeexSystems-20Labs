@@ -24,15 +24,15 @@ function expressPlugin(): Plugin {
   return {
     name: "express-plugin",
     apply: "serve", // Only apply during development (serve mode)
-    configureServer(server) {
-      // Dynamically import server code only during development
-      import("./server").then(({ createServer }) => {
+    async configureServer(server) {
+      try {
+        const { createServer } = await import("./server");
         const app = createServer();
-        // Add Express app as middleware to Vite dev server
+        // Add Express app as middleware to Vite dev server before internal HTML fallback
         server.middlewares.use(app);
-      }).catch(error => {
+      } catch (error) {
         console.error("Failed to load server:", error);
-      });
+      }
     },
   };
 }

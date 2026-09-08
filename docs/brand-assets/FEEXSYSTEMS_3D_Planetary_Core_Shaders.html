@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEEXSYSTEMS — Planetary Core GLSL Shaders & 3D Spatial Environment</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Three.js and OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            void: '#030508',
+            obsidian: '#080C12',
+            surface: {
+              card: '#0E141E',
+              subtle: 'rgba(14, 20, 30, 0.75)',
+              border: 'rgba(255, 255, 255, 0.08)'
+            },
+            feex: {
+              cyan: '#00F2FE',
+              teal: '#4FACFE',
+              emerald: '#00FFA3',
+              violet: '#8A2BE2',
+              electric: '#6366F1',
+              amber: '#FFB800'
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          boxShadow: {
+            glow: '0 0 25px -5px rgba(0, 242, 254, 0.3)',
+            'glow-emerald': '0 0 25px -5px rgba(0, 255, 163, 0.3)',
+            'glow-violet': '0 0 25px -5px rgba(138, 43, 226, 0.3)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #030508;
+      overflow: hidden;
+      margin: 0;
+      user-select: none;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080C12;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 3px;
+    }
+
+    .hud-bracket {
+      position: relative;
+    }
+    .hud-bracket::before, .hud-bracket::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-color: rgba(0, 242, 254, 0.4);
+      pointer-events: none;
+    }
+    .hud-bracket::before {
+      top: -1px;
+      left: -1px;
+      border-top: 1.5px solid;
+      border-left: 1.5px solid;
+    }
+    .hud-bracket::after {
+      bottom: -1px;
+      right: -1px;
+      border-bottom: 1.5px solid;
+      border-right: 1.5px solid;
+    }
+
+    .scanline-overlay {
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.25) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.01),
+        rgba(0, 255, 0, 0.005),
+        rgba(0, 0, 255, 0.01)
+      );
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+    }
+
+    input[type=range] {
+      accent-color: #00F2FE;
+    }
+  </style>
+</head>
+
+<body class="w-screen h-screen relative font-sans text-slate-200 antialiased selection:bg-feex-cyan/30">
+
+  <canvas id="webgl-canvas" class="absolute inset-0 w-full h-full z-0 block"></canvas>
+  <div class="scanline-overlay absolute inset-0 z-10 pointer-events-none"></div>
+
+  <header class="absolute top-0 left-0 right-0 z-20 px-6 py-4 flex items-center justify-between pointer-events-none">
+    <div class="flex items-center space-x-3 pointer-events-auto">
+      <div class="w-9 h-9 rounded bg-surface-card/90 border border-feex-cyan/40 flex items-center justify-center shadow-glow backdrop-blur-md">
+        <svg class="w-5 h-5 text-feex-cyan animate-spin-slow" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2"/>
+          <circle cx="12" cy="12" r="4" fill="currentColor"/>
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <span class="font-display font-bold tracking-widest text-sm text-white">FEEXSYSTEMS</span>
+          <span class="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-feex-cyan/10 text-feex-cyan border border-feex-cyan/20">GLSL_WORLD_MODEL</span>
+        </div>
+        <p class="text-[10px] font-mono text-slate-400">Phase III-E // Three.js Planetary Shader Core</p>
+      </div>
+    </div>
+
+    <!-- Live Telemetry Readout -->
+    <div class="hidden md:flex items-center space-x-6 text-[11px] font-mono bg-surface-subtle/80 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 pointer-events-auto">
+      <div class="flex items-center space-x-2">
+        <span class="w-2 h-2 rounded-full bg-feex-emerald animate-pulse"></span>
+        <span class="text-slate-400">FPS:</span>
+        <span id="stat-fps" class="text-white font-bold">60</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="text-slate-400">STATE:</span>
+        <span id="stat-state" class="text-feex-cyan">CANONICAL_INVARIANT</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="text-slate-400">NODES:</span>
+        <span class="text-feex-amber">6 WORLDS ACTIVE</span>
+      </div>
+    </div>
+
+    <!-- Actions & Modal Toggles -->
+    <div class="flex items-center space-x-2 pointer-events-auto">
+      <button id="btn-toggle-inspector" class="px-3 py-1.5 rounded-lg bg-surface-card/90 hover:bg-white/10 border border-white/10 hover:border-feex-cyan/40 text-xs font-mono text-slate-200 transition-all flex items-center space-x-1.5 backdrop-blur-md">
+        <i data-lucide="code" class="w-3.5 h-3.5 text-feex-cyan"></i>
+        <span>GLSL Source</span>
+      </button>
+      <button id="btn-reset-cam" class="px-3 py-1.5 rounded-lg bg-feex-cyan/10 hover:bg-feex-cyan/20 border border-feex-cyan/30 text-feex-cyan text-xs font-mono transition-all backdrop-blur-md flex items-center space-x-1.5 shadow-glow">
+        <i data-lucide="compass" class="w-3.5 h-3.5"></i>
+        <span>Reset Orbit</span>
+      </button>
+    </div>
+  </header>
+
+  <aside class="absolute left-6 top-24 bottom-8 w-80 z-20 pointer-events-auto flex flex-col justify-between space-y-4">
+    
+    <!-- Shader Controls Panel -->
+    <div class="hud-bracket bg-surface-card/90 border border-white/10 rounded-xl p-5 backdrop-blur-md shadow-2xl flex-1 flex flex-col overflow-hidden">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="sliders" class="w-4 h-4 text-feex-cyan"></i>
+          <h2 class="font-display font-semibold text-xs tracking-wider uppercase text-white">Shader Parameters</h2>
+        </div>
+        <span class="text-[9px] font-mono text-slate-400">UNIFORMS</span>
+      </div>
+
+      <div class="overflow-y-auto pr-1 mt-4 space-y-4 text-xs font-mono flex-1">
+        
+        <!-- Preset Selector -->
+        <div>
+          <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-2">Spectral Archetype</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="applyPreset('canonical')" class="preset-btn px-2.5 py-1.5 rounded bg-white/5 hover:bg-feex-cyan/20 hover:text-feex-cyan border border-white/10 text-[10px] text-left transition-all active-preset" data-preset="canonical">
+              01. CANONICAL TRUTH
+            </button>
+            <button onclick="applyPreset('evidence')" class="preset-btn px-2.5 py-1.5 rounded bg-white/5 hover:bg-feex-emerald/20 hover:text-feex-emerald border border-white/10 text-[10px] text-left transition-all" data-preset="evidence">
+              02. EVIDENCE SHA
+            </button>
+            <button onclick="applyPreset('reasoning')" class="preset-btn px-2.5 py-1.5 rounded bg-white/5 hover:bg-feex-violet/20 hover:text-feex-violet border border-white/10 text-[10px] text-left transition-all" data-preset="reasoning">
+              03. REASONING LLM
+            </button>
+            <button onclick="applyPreset('hyperwarp')" class="preset-btn px-2.5 py-1.5 rounded bg-white/5 hover:bg-feex-amber/20 hover:text-feex-amber border border-white/10 text-[10px] text-left transition-all" data-preset="hyperwarp">
+              04. HYPER DYNAMICS
+            </button>
+          </div>
+        </div>
+
+        <!-- Slider: Pulse Speed -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="text-slate-300">u_time_speed</span>
+            <span id="val-speed" class="text-feex-cyan font-bold">1.00</span>
+          </div>
+          <input id="slider-speed" type="range" min="0.1" max="3.0" step="0.05" value="1.0" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Slider: FBM Noise Scale -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="text-slate-300">u_noise_frequency</span>
+            <span id="val-freq" class="text-feex-cyan font-bold">2.80</span>
+          </div>
+          <input id="slider-freq" type="range" min="0.5" max="8.0" step="0.1" value="2.8" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Slider: Domain Warp Distortion -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="text-slate-300">u_warp_amplitude</span>
+            <span id="val-warp" class="text-feex-cyan font-bold">0.45</span>
+          </div>
+          <input id="slider-warp" type="range" min="0.0" max="1.5" step="0.05" value="0.45" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Slider: Fresnel Aura Power -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="text-slate-300">u_fresnel_power</span>
+            <span id="val-fresnel" class="text-feex-cyan font-bold">3.20</span>
+          </div>
+          <input id="slider-fresnel" type="range" min="1.0" max="7.0" step="0.2" value="3.2" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Toggle: Lattice & Grid -->
+        <div class="space-y-2 pt-2 border-t border-white/5">
+          <label class="flex items-center space-x-2 text-[11px] cursor-pointer">
+            <input id="chk-lattice" type="checkbox" checked class="rounded bg-black border-white/20 text-feex-cyan focus:ring-0">
+            <span class="text-slate-300">Cryptographic Wire Lattice</span>
+          </label>
+          <label class="flex items-center space-x-2 text-[11px] cursor-pointer">
+            <input id="chk-orbits" type="checkbox" checked class="rounded bg-black border-white/20 text-feex-cyan focus:ring-0">
+            <span class="text-slate-300">System World Orbital Rails</span>
+          </label>
+          <label class="flex items-center space-x-2 text-[11px] cursor-pointer">
+            <input id="chk-swarm" type="checkbox" checked class="rounded bg-black border-white/20 text-feex-cyan focus:ring-0">
+            <span class="text-slate-300">pgvector Swarm Particles</span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Quick Subsystem Selector -->
+      <div class="pt-3 border-t border-white/10">
+        <label class="text-[9px] font-mono text-slate-400 uppercase tracking-wider block mb-2">Focus System World</label>
+        <div class="grid grid-cols-3 gap-1 text-[9px] font-mono">
+          <button onclick="focusWorldNode(0)" class="px-1.5 py-1 rounded bg-white/5 hover:bg-feex-cyan/20 truncate">KAPPA</button>
+          <button onclick="focusWorldNode(1)" class="px-1.5 py-1 rounded bg-white/5 hover:bg-feex-cyan/20 truncate">HOLOKAI</button>
+          <button onclick="focusWorldNode(2)" class="px-1.5 py-1 rounded bg-white/5 hover:bg-feex-cyan/20 truncate">YURRHEEL</button>
+          <button onclick="focusWorldNode(3)" class="px-1.5 py-1 rounded bg-white/5 hover:bg-feex-cyan/20 truncate">SONIK</button>
+          <button onclick="focusWorldNode(4)" class="px-1.5 py-1 rounded bg-white/5 hover:bg-feex-cyan/20 truncate">VYRA</button>
+          <button onclick="focusWorldNode(5)" class="px-1.5 py-1 rounded bg-white/5 hover:bg-feex-cyan/20 truncate">RENTAL</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Active World Card (Dynamic Context) -->
+    <div id="subsystem-card" class="hud-bracket bg-surface-card/90 border border-white/10 rounded-xl p-4 backdrop-blur-md shadow-lg transition-all duration-300">
+      <div class="flex items-center justify-between mb-1">
+        <span class="text-[9px] font-mono uppercase text-feex-cyan" id="card-tag">CANONICAL_CORE</span>
+        <span class="text-[9px] font-mono text-slate-500">ORBIT_R: 1.0</span>
+      </div>
+      <h3 class="font-display font-bold text-sm text-white" id="card-title">FEEX World Model Invariant</h3>
+      <p class="text-[11px] text-slate-400 mt-1" id="card-desc">Authoritative relational matrix. LLMs act solely as translation & reasoning bridges while facts remain canonical.</p>
+    </div>
+
+  </aside>
+
+  <div id="modal-inspector" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-lg flex items-center justify-center p-6 hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-surface-card border border-white/10 rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col overflow-hidden shadow-2xl hud-bracket">
+      
+      <!-- Modal Header -->
+      <div class="p-4 border-b border-white/10 flex items-center justify-between bg-obsidian">
+        <div class="flex items-center space-x-3">
+          <i data-lucide="terminal" class="w-4 h-4 text-feex-cyan"></i>
+          <span class="font-display font-semibold text-white text-sm">Planetary Core GLSL Source (WebGL 2.0 / Three.js)</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="copyCurrentShaderSource()" class="px-3 py-1 rounded bg-feex-cyan/10 hover:bg-feex-cyan/20 text-feex-cyan text-xs font-mono flex items-center space-x-1.5 border border-feex-cyan/30">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy GLSL</span>
+          </button>
+          <button id="btn-close-inspector" class="p-1 rounded text-slate-400 hover:text-white">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="flex items-center border-b border-white/10 bg-surface-card/60 px-4 text-xs font-mono space-x-4">
+        <button id="tab-frag" class="py-2.5 border-b-2 border-feex-cyan text-white font-medium" onclick="switchShaderTab('frag')">planetary_core.frag</button>
+        <button id="tab-vert" class="py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200" onclick="switchShaderTab('vert')">planetary_core.vert</button>
+        <button id="tab-atmo" class="py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200" onclick="switchShaderTab('atmo')">atmosphere_fresnel.frag</button>
+      </div>
+
+      <!-- Code Viewer Body -->
+      <div class="flex-1 p-4 bg-obsidian/90 overflow-auto font-mono text-xs text-slate-300 leading-relaxed">
+        <pre><code id="shader-code-display">/* Loading GLSL Source... */</code></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom Notification Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center space-x-2 px-4 py-2 rounded-lg bg-surface-card border border-feex-cyan/40 text-feex-cyan font-mono text-xs shadow-glow">
+    <i data-lucide="check-circle" class="w-4 h-4"></i>
+    <span id="toast-text">Shader uniforms recompiled</span>
+  </div>
+
+  <!-- 1. Planetary Core Vertex Shader -->
+  <script id="planetary-vertex-shader" type="x-shader/x-vertex">
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    varying vec2 vUv;
+    varying vec3 vViewPosition;
+
+    uniform float u_time;
+    uniform float u_displacement;
+
+    // Simplex noise approximation for vertex pulse
+    vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+    vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+    float snoise(vec3 v) {
+      const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+      const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+      vec3 i  = floor(v + dot(v, C.yyy));
+      vec3 x0 = v - i + dot(i, C.xxx);
+      vec3 g = step(x0.yzx, x0.xyz);
+      vec3 l = 1.0 - g;
+      vec3 i1 = min(g.xyz, l.zxy);
+      vec3 i2 = max(g.xyz, l.zxy);
+      vec3 x1 = x0 - i1 + C.xxx;
+      vec3 x2 = x0 - i2 + C.yyy;
+      vec3 x3 = x0 - D.yyy;
+      i = mod289(i);
+      vec4 p = permute(permute(permute(
+                i.z + vec4(0.0, i1.z, i2.z, 1.0))
+              + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+              + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+      float n_ = 0.142857142857;
+      vec3 ns = n_ * D.wyz - D.xzx;
+      vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+      vec4 x_ = floor(j * ns.z);
+      vec4 y_ = floor(j - 7.0 * x_);
+      vec4 x = x_ *ns.x + ns.yyyy;
+      vec4 y = y_ *ns.x + ns.yyyy;
+      vec4 h = 1.0 - abs(x) - abs(y);
+      vec4 b0 = vec4(x.xy, y.xy);
+      vec4 b1 = vec4(x.zw, y.zw);
+      vec4 s0 = floor(b0)*2.0 + 1.0;
+      vec4 s1 = floor(b1)*2.0 + 1.0;
+      vec4 sh = -step(h, vec4(0.0));
+      vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+      vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+      vec3 p0 = vec3(a0.xy, h.x);
+      vec3 p1 = vec3(a0.zw, h.y);
+      vec3 p2 = vec3(a1.xy, h.z);
+      vec3 p3 = vec3(a1.zw, h.w);
+      vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+      p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+      vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+      m = m * m;
+      return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+    }
+
+    void main() {
+      vUv = uv;
+      vNormal = normalize(normalMatrix * normal);
+      vPosition = position;
+
+      // Subtle dynamic surface breathing
+      float elevation = snoise(position * 0.4 + vec3(0.0, 0.0, u_time * 0.15)) * u_displacement;
+      vec3 newPosition = position + normal * elevation;
+
+      vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.0);
+      vViewPosition = -mvPosition.xyz;
+      gl_Position = projectionMatrix * mvPosition;
+    }
+  </script>
+
+  <!-- 2. Planetary Core Fragment Shader -->
+  <script id="planetary-fragment-shader" type="x-shader/x-fragment">
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    varying vec2 vUv;
+    varying vec3 vViewPosition;
+
+    uniform float u_time;
+    uniform float u_noise_freq;
+    uniform float u_warp_amp;
+    uniform vec3 u_color_primary;   // Cyan
+    uniform vec3 u_color_secondary; // Violet / Teal
+    uniform vec3 u_color_accent;    // Emerald
+    uniform vec3 u_color_void;      // Deep Void
+
+    // Fractal Brownian Motion Noise Functions
+    float hash(vec3 p) {
+      p  = fract(p * 0.3183099 + 0.1);
+      p *= 17.0;
+      return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+    }
+
+    float noise(in vec3 x) {
+      vec3 i = floor(x);
+      vec3 f = fract(x);
+      f = f * f * (3.0 - 2.0 * f);
+      return mix(mix(mix(hash(i + vec3(0,0,0)), hash(i + vec3(1,0,0)), f.x),
+                     mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+                 mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
+                     mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
+    }
+
+    float fbm(vec3 p) {
+      float f = 0.0;
+      f += 0.5000 * noise(p); p = p * 2.02;
+      f += 0.2500 * noise(p); p = p * 2.03;
+      f += 0.1250 * noise(p); p = p * 2.01;
+      f += 0.0625 * noise(p);
+      return f;
+    }
+
+    void main() {
+      vec3 normal = normalize(vNormal);
+      vec3 viewDir = normalize(vViewPosition);
+
+      // Domain Warping for Living Fluid Intelligence
+      vec3 p = vPosition * u_noise_freq;
+      vec3 q = vec3(fbm(p + vec3(0.0, u_time * 0.1, 0.0)),
+                    fbm(p + vec3(5.2, 1.3, 2.8)),
+                    fbm(p + vec3(2.2, 8.4, 0.5)));
+
+      vec3 r = vec3(fbm(p + u_warp_amp * q + vec3(1.7, 9.2, u_time * 0.15)),
+                    fbm(p + u_warp_amp * q + vec3(8.3, 2.8, 4.1)),
+                    fbm(p + u_warp_amp * q + vec3(4.1, 1.2, 7.3)));
+
+      float f = fbm(p + u_warp_amp * r);
+
+      // High-tech Latitudinal / Longitudinal Coordinates Grid
+      float latGrid = abs(sin(vUv.y * 62.8318)); // 20 bands
+      float lonGrid = abs(sin(vUv.x * 62.8318));
+      float gridIntensity = step(0.96, latGrid) + step(0.96, lonGrid);
+
+      // Equator & Polar Continuous Traversal Pulses
+      float pulseRing = smoothstep(0.02, 0.0, abs(fract(vUv.y * 2.0 - u_time * 0.2) - 0.5) - 0.02);
+
+      // Chromatic Spectral Composition
+      vec3 color = mix(u_color_void, u_color_secondary, smoothstep(0.1, 0.6, f));
+      color = mix(color, u_color_primary, smoothstep(0.5, 0.9, f));
+      color = mix(color, u_color_accent, smoothstep(0.85, 1.0, f));
+
+      // Add energy grid lines & pulse highlights
+      color += u_color_primary * gridIntensity * 0.45;
+      color += u_color_accent * pulseRing * 0.6;
+
+      // Rim Fresnel Lighting calculation
+      float fresnel = 1.0 - max(dot(normal, viewDir), 0.0);
+      fresnel = pow(fresnel, 2.5);
+      color += u_color_primary * fresnel * 0.8;
+
+      gl_FragColor = vec4(color, 0.95);
+    }
+  </script>
+
+  <!-- 3. Volumetric Atmospheric Fresnel Glow Shader -->
+  <script id="atmosphere-vertex-shader" type="x-shader/x-vertex">
+    varying vec3 vNormal;
+    varying vec3 vViewPosition;
+
+    void main() {
+      vNormal = normalize(normalMatrix * normal);
+      vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+      vViewPosition = -mvPosition.xyz;
+      gl_Position = projectionMatrix * mvPosition;
+    }
+  </script>
+
+  <script id="atmosphere-fragment-shader" type="x-shader/x-fragment">
+    varying vec3 vNormal;
+    varying vec3 vViewPosition;
+
+    uniform vec3 u_glow_color;
+    uniform float u_fresnel_power;
+
+    void main() {
+      vec3 normal = normalize(vNormal);
+      vec3 viewDir = normalize(vViewPosition);
+
+      // Inverse Fresnel calculation for soft exterior atmospheric halo
+      float intensity = pow(1.0 - max(dot(normal, viewDir), 0.0), u_fresnel_power);
+      
+      gl_FragColor = vec4(u_glow_color, intensity * 0.85);
+    }
+  </script>
+
+  <script>
+    // System World Metadata Registry (Authoritative)
+    const SYSTEM_WORLDS = [
+      {
+        name: "KappaXchangefin",
+        tag: "FINANCIAL_INFRASTRUCTURE",
+        desc: "ISO 20022 Multi-currency ledger engines and settlement state machines.",
+        color: 0x00FFA3,
+        colorHex: "#00FFA3",
+        radius: 4.2,
+        speed: 0.25,
+        tilt: 0.15
+      },
+      {
+        name: "HoloKai",
+        tag: "CULTURAL_INTELLIGENCE",
+        desc: "Spatial storytelling, world modeling pipelines & 3D memory archival graphs.",
+        color: 0x00F2FE,
+        colorHex: "#00F2FE",
+        radius: 5.6,
+        speed: -0.18,
+        tilt: 0.35
+      },
+      {
+        name: "Yurrheeler AI",
+        tag: "HEALTHCARE_INTELLIGENCE",
+        desc: "Multi-agent diagnostic reasoning chains and patient context safety envelopes.",
+        color: 0x8A2BE2,
+        colorHex: "#8A2BE2",
+        radius: 6.8,
+        speed: 0.12,
+        tilt: -0.2
+      },
+      {
+        name: "3WM SONIK LABS",
+        tag: "NEURAL_DSP_AUDIO",
+        desc: "AI-native dynamic audio synthesis, spectral DSP and neural acoustics.",
+        color: 0xFFB800,
+        colorHex: "#FFB800",
+        radius: 8.0,
+        speed: -0.09,
+        tilt: 0.4
+      },
+      {
+        name: "VYRA LABS",
+        tag: "MULTIMODAL_CONVERSATIONAL",
+        desc: "Natural language telemetry and context-steering conversational engines.",
+        color: 0x6366F1,
+        colorHex: "#6366F1",
+        radius: 9.2,
+        speed: 0.07,
+        tilt: -0.3
+      },
+      {
+        name: "Rental Paradise",
+        tag: "SPATIAL_COMMERCE",
+        desc: "Geo-spatial real estate discovery platform with verified state ledgers.",
+        color: 0xFFFFFF,
+        colorHex: "#FFFFFF",
+        radius: 10.4,
+        speed: -0.05,
+        tilt: 0.1
+      }
+    ];
+
+    // Global 3D & Engine References
+    let scene, camera, renderer, controls;
+    let planetaryCore, atmosphereAura, latticeCore, swarmParticles;
+    let coreMaterial, atmoMaterial, railGroup, nodeMeshes = [];
+    let clock = new THREE.Clock();
+    let frameCount = 0, lastTime = performance.now();
+
+    // Shader Uniform Dictionaries
+    const coreUniforms = {
+      u_time: { value: 0 },
+      u_time_speed: { value: 1.0 },
+      u_noise_freq: { value: 2.8 },
+      u_warp_amp: { value: 0.45 },
+      u_displacement: { value: 0.08 },
+      u_color_primary: { value: new THREE.Color(0x00F2FE) },
+      u_color_secondary: { value: new THREE.Color(0x8A2BE2) },
+      u_color_accent: { value: new THREE.Color(0x00FFA3) },
+      u_color_void: { value: new THREE.Color(0x030508) }
+    };
+
+    const atmoUniforms = {
+      u_glow_color: { value: new THREE.Color(0x00F2FE) },
+      u_fresnel_power: { value: 3.2 }
+    };
+
+    function initThree() {
+      const canvas = document.getElementById('webgl-canvas');
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x030508, 0.028);
+
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 5, 14);
+
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.1;
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 3.5;
+      controls.maxDistance = 25;
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 0.4;
+
+      // Ambient Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+      scene.add(ambientLight);
+
+      // Directional Rim Lights
+      const dirLight1 = new THREE.DirectionalLight(0x00F2FE, 1.2);
+      dirLight1.position.set(5, 10, 7);
+      scene.add(dirLight1);
+
+      const dirLight2 = new THREE.DirectionalLight(0x8A2BE2, 0.8);
+      dirLight2.position.set(-5, -5, -7);
+      scene.add(dirLight2);
+
+      // Build 3D Entities
+      createPlanetaryCore();
+      createAtmosphericAura();
+      createCryptographicLattice();
+      createOrbitalSystemWorlds();
+      createPgvectorParticleSwarm();
+      createStarfield();
+
+      // Event Listeners
+      window.addEventListener('resize', onWindowResize);
+      setupUIControls();
+      setupRaycaster();
+      lucide.createIcons();
+    }
+
+    function createPlanetaryCore() {
+      const geometry = new THREE.SphereGeometry(2.2, 128, 128);
+      
+      coreMaterial = new THREE.ShaderMaterial({
+        vertexShader: document.getElementById('planetary-vertex-shader').textContent,
+        fragmentShader: document.getElementById('planetary-fragment-shader').textContent,
+        uniforms: coreUniforms,
+        transparent: true,
+        side: THREE.FrontSide
+      });
+
+      planetaryCore = new THREE.Mesh(geometry, coreMaterial);
+      scene.add(planetaryCore);
+    }
+
+    function createAtmosphericAura() {
+      const geometry = new THREE.SphereGeometry(2.45, 64, 64);
+      
+      atmoMaterial = new THREE.ShaderMaterial({
+        vertexShader: document.getElementById('atmosphere-vertex-shader').textContent,
+        fragmentShader: document.getElementById('atmosphere-fragment-shader').textContent,
+        uniforms: atmoUniforms,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        transparent: true
+      });
+
+      atmosphereAura = new THREE.Mesh(geometry, atmoMaterial);
+      scene.add(atmosphereAura);
+    }
+
+    function createCryptographicLattice() {
+      const geometry = new THREE.IcosahedronGeometry(2.28, 2);
+      const wireframe = new THREE.WireframeGeometry(geometry);
+      
+      const latticeMat = new THREE.LineBasicMaterial({
+        color: 0x00FFA3,
+        transparent: true,
+        opacity: 0.28,
+        blending: THREE.AdditiveBlending
+      });
+
+      latticeCore = new THREE.LineSegments(wireframe, latticeMat);
+      scene.add(latticeCore);
+    }
+
+    function createOrbitalSystemWorlds() {
+      railGroup = new THREE.Group();
+      scene.add(railGroup);
+
+      SYSTEM_WORLDS.forEach((world, index) => {
+        // Orbit Rail Circle
+        const orbitGeo = new THREE.BufferGeometry();
+        const points = [];
+        const segments = 96;
+        for (let i = 0; i <= segments; i++) {
+          const theta = (i / segments) * Math.PI * 2;
+          points.push(new THREE.Vector3(Math.cos(theta) * world.radius, 0, Math.sin(theta) * world.radius));
+        }
+        orbitGeo.setFromPoints(points);
+        const orbitMat = new THREE.LineBasicMaterial({
+          color: world.color,
+          transparent: true,
+          opacity: 0.15
+        });
+        const orbitLine = new THREE.Line(orbitGeo, orbitMat);
+        orbitLine.rotation.x = world.tilt;
+        railGroup.add(orbitLine);
+
+        // System World Node Mesh
+        const nodeGeo = new THREE.SphereGeometry(0.22, 24, 24);
+        const nodeMat = new THREE.MeshStandardMaterial({
+          color: world.color,
+          emissive: world.color,
+          emissiveIntensity: 0.8,
+          roughness: 0.2
+        });
+        const nodeMesh = new THREE.Mesh(nodeGeo, nodeMat);
+        nodeMesh.userData = { ...world, index, currentAngle: (index / SYSTEM_WORLDS.length) * Math.PI * 2 };
+        
+        // Node Aura Glow Ring
+        const ringGeo = new THREE.RingGeometry(0.3, 0.38, 32);
+        const ringMat = new THREE.MeshBasicMaterial({
+          color: world.color,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.6
+        });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = Math.PI / 2;
+        nodeMesh.add(ring);
+
+        nodeMeshes.push(nodeMesh);
+        scene.add(nodeMesh);
+      });
+    }
+
+    function createPgvectorParticleSwarm() {
+      const particleCount = 850;
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+      const colors = new Float32Array(particleCount * 3);
+
+      const colorA = new THREE.Color(0x00F2FE);
+      const colorB = new THREE.Color(0x8A2BE2);
+      const colorC = new THREE.Color(0x00FFA3);
+
+      for (let i = 0; i < particleCount; i++) {
+        const radius = 2.6 + Math.random() * 8.5;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos((Math.random() * 2) - 1);
+
+        positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = radius * Math.cos(phi);
+
+        const mixedColor = Math.random() > 0.5 ? colorA.clone().lerp(colorB, Math.random()) : colorC;
+        colors[i * 3] = mixedColor.r;
+        colors[i * 3 + 1] = mixedColor.g;
+        colors[i * 3 + 2] = mixedColor.b;
+      }
+
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      const material = new THREE.PointsMaterial({
+        size: 0.045,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.75,
+        blending: THREE.AdditiveBlending
+      });
+
+      swarmParticles = new THREE.Points(geometry, material);
+      scene.add(swarmParticles);
+    }
+
+    function createStarfield() {
+      const starCount = 1500;
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(starCount * 3);
+
+      for (let i = 0; i < starCount * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 160;
+        positions[i + 1] = (Math.random() - 0.5) * 160;
+        positions[i + 2] = (Math.random() - 0.5) * 160;
+      }
+
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const material = new THREE.PointsMaterial({
+        size: 0.07,
+        color: 0x94A3B8,
+        transparent: true,
+        opacity: 0.4
+      });
+
+      const stars = new THREE.Points(geometry, material);
+      scene.add(stars);
+    }
+
+    function setupUIControls() {
+      // Speed slider
+      const sliderSpeed = document.getElementById('slider-speed');
+      sliderSpeed.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        coreUniforms.u_time_speed.value = val;
+        document.getElementById('val-speed').innerText = val.toFixed(2);
+      });
+
+      // Frequency slider
+      const sliderFreq = document.getElementById('slider-freq');
+      sliderFreq.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        coreUniforms.u_noise_freq.value = val;
+        document.getElementById('val-freq').innerText = val.toFixed(2);
+      });
+
+      // Warp amplitude slider
+      const sliderWarp = document.getElementById('slider-warp');
+      sliderWarp.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        coreUniforms.u_warp_amp.value = val;
+        document.getElementById('val-warp').innerText = val.toFixed(2);
+      });
+
+      // Fresnel power slider
+      const sliderFresnel = document.getElementById('slider-fresnel');
+      sliderFresnel.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        atmoUniforms.u_fresnel_power.value = val;
+        document.getElementById('val-fresnel').innerText = val.toFixed(2);
+      });
+
+      // Checkboxes
+      document.getElementById('chk-lattice').addEventListener('change', (e) => {
+        latticeCore.visible = e.target.checked;
+      });
+      document.getElementById('chk-orbits').addEventListener('change', (e) => {
+        railGroup.visible = e.target.checked;
+      });
+      document.getElementById('chk-swarm').addEventListener('change', (e) => {
+        swarmParticles.visible = e.target.checked;
+      });
+
+      // Reset camera
+      document.getElementById('btn-reset-cam').addEventListener('click', () => {
+        animateCameraTo(new THREE.Vector3(0, 5, 14), new THREE.Vector3(0, 0, 0));
+        updateWorldCard("CANONICAL_CORE", "FEEX World Model Invariant", "Authoritative relational matrix. LLMs act solely as translation & reasoning bridges while facts remain canonical.");
+      });
+
+      // GLSL Inspector Modal
+      const modal = document.getElementById('modal-inspector');
+      document.getElementById('btn-toggle-inspector').addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        switchShaderTab('frag');
+      });
+      document.getElementById('btn-close-inspector').addEventListener('click', () => {
+        modal.classList.add('opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+      });
+    }
+
+    function applyPreset(type) {
+      document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('border-feex-cyan', 'text-feex-cyan', 'bg-white/10'));
+      const activeBtn = document.querySelector(`[data-preset="${type}"]`);
+      if (activeBtn) activeBtn.classList.add('border-feex-cyan', 'text-feex-cyan', 'bg-white/10');
+
+      const statState = document.getElementById('stat-state');
+
+      if (type === 'canonical') {
+        coreUniforms.u_color_primary.value.setHex(0x00F2FE);
+        coreUniforms.u_color_secondary.value.setHex(0x4FACFE);
+        coreUniforms.u_color_accent.value.setHex(0x00FFA3);
+        atmoUniforms.u_glow_color.value.setHex(0x00F2FE);
+        coreUniforms.u_warp_amp.value = 0.45;
+        statState.innerText = "CANONICAL_INVARIANT";
+        statState.className = "text-feex-cyan";
+        showToast("Archetype: Canonical Invariant (Cyan/Teal)");
+      } else if (type === 'evidence') {
+        coreUniforms.u_color_primary.value.setHex(0x00FFA3);
+        coreUniforms.u_color_secondary.value.setHex(0x008050);
+        coreUniforms.u_color_accent.value.setHex(0xFFFFFF);
+        atmoUniforms.u_glow_color.value.setHex(0x00FFA3);
+        coreUniforms.u_warp_amp.value = 0.2;
+        statState.innerText = "EVIDENCE_FABRIC_PASS";
+        statState.className = "text-feex-emerald";
+        showToast("Archetype: Cryptographic SHA (Emerald)");
+      } else if (type === 'reasoning') {
+        coreUniforms.u_color_primary.value.setHex(0x8A2BE2);
+        coreUniforms.u_color_secondary.value.setHex(0x6366F1);
+        coreUniforms.u_color_accent.value.setHex(0x00F2FE);
+        atmoUniforms.u_glow_color.value.setHex(0x8A2BE2);
+        coreUniforms.u_warp_amp.value = 0.75;
+        statState.innerText = "LLM_REASONING_INFERENCE";
+        statState.className = "text-feex-violet";
+        showToast("Archetype: Reasoning Synthesis (Violet)");
+      } else if (type === 'hyperwarp') {
+        coreUniforms.u_color_primary.value.setHex(0xFFB800);
+        coreUniforms.u_color_secondary.value.setHex(0xFF3366);
+        coreUniforms.u_color_accent.value.setHex(0x00F2FE);
+        atmoUniforms.u_glow_color.value.setHex(0xFFB800);
+        coreUniforms.u_warp_amp.value = 1.1;
+        statState.innerText = "HYPER_DYNAMIC_WARP";
+        statState.className = "text-feex-amber";
+        showToast("Archetype: Dynamic Ingestion (Amber)");
+      }
+    }
+
+    function setupRaycaster() {
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+
+      window.addEventListener('pointerdown', (e) => {
+        // Ignore clicks on HUD UI panels
+        if (e.target.closest('header') || e.target.closest('aside') || e.target.closest('#modal-inspector')) return;
+
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(nodeMeshes);
+        if (intersects.length > 0) {
+          const hitNode = intersects[0].object;
+          focusWorldNode(hitNode.userData.index);
+        }
+      });
+    }
+
+    function focusWorldNode(index) {
+      const node = nodeMeshes[index];
+      if (!node) return;
+      const data = node.userData;
+
+      const targetPos = new THREE.Vector3();
+      node.getWorldPosition(targetPos);
+
+      // Position camera slightly offset from target node
+      const camOffset = targetPos.clone().normalize().multiplyScalar(targetPos.length() + 3.0);
+      camOffset.y += 1.2;
+
+      animateCameraTo(camOffset, targetPos);
+      updateWorldCard(data.tag, data.name, data.desc);
+      showToast(`Navigation focus: ${data.name}`);
+    }
+
+    function updateWorldCard(tag, title, desc) {
+      document.getElementById('card-tag').innerText = tag;
+      document.getElementById('card-title').innerText = title;
+      document.getElementById('card-desc').innerText = desc;
+    }
+
+    function animateCameraTo(targetCamPos, targetLookAt) {
+      controls.autoRotate = false;
+      const startCamPos = camera.position.clone();
+      const startTarget = controls.target.clone();
+      let progress = 0;
+
+      function step() {
+        progress += 0.035;
+        if (progress <= 1.0) {
+          camera.position.lerpVectors(startCamPos, targetCamPos, progress);
+          controls.target.lerpVectors(startTarget, targetLookAt, progress);
+          controls.update();
+          requestAnimationFrame(step);
+        } else {
+          camera.position.copy(targetCamPos);
+          controls.target.copy(targetLookAt);
+          controls.update();
+        }
+      }
+      step();
+    }
+
+    let currentTab = 'frag';
+    function switchShaderTab(tab) {
+      currentTab = tab;
+      const tabs = { frag: 'tab-frag', vert: 'tab-vert', atmo: 'tab-atmo' };
+      Object.keys(tabs).forEach(k => {
+        const el = document.getElementById(tabs[k]);
+        if (k === tab) {
+          el.className = "py-2.5 border-b-2 border-feex-cyan text-white font-medium";
+        } else {
+          el.className = "py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200";
+        }
+      });
+
+      const display = document.getElementById('shader-code-display');
+      if (tab === 'frag') {
+        display.textContent = document.getElementById('planetary-fragment-shader').textContent.trim();
+      } else if (tab === 'vert') {
+        display.textContent = document.getElementById('planetary-vertex-shader').textContent.trim();
+      } else if (tab === 'atmo') {
+        display.textContent = document.getElementById('atmosphere-fragment-shader').textContent.trim();
+      }
+    }
+
+    function copyCurrentShaderSource() {
+      const code = document.getElementById('shader-code-display').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast("GLSL source copied to clipboard");
+      });
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-text').innerText = text;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2500);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const delta = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+
+      // Update shader uniform clocks
+      coreUniforms.u_time.value += delta * coreUniforms.u_time_speed.value;
+
+      // Rotate primary planetary core and atmospheric field
+      if (planetaryCore) planetaryCore.rotation.y += 0.002 * coreUniforms.u_time_speed.value;
+      if (atmosphereAura) atmosphereAura.rotation.y += 0.001 * coreUniforms.u_time_speed.value;
+      if (latticeCore) {
+        latticeCore.rotation.y -= 0.0015;
+        latticeCore.rotation.x += 0.0008;
+      }
+
+      // Orbit Swarm
+      if (swarmParticles) {
+        swarmParticles.rotation.y += 0.0005;
+      }
+
+      // Animate Orbital System World Nodes
+      nodeMeshes.forEach(node => {
+        const d = node.userData;
+        d.currentAngle += delta * d.speed * coreUniforms.u_time_speed.value;
+        
+        // Compute circular orbital coordinate along tilted plane
+        const x = Math.cos(d.currentAngle) * d.radius;
+        const z = Math.sin(d.currentAngle) * d.radius;
+        const y = Math.sin(d.currentAngle) * Math.sin(d.tilt) * (d.radius * 0.45);
+
+        node.position.set(x, y, z);
+      });
+
+      controls.update();
+      renderer.render(scene, camera);
+
+      // FPS Telemetry Update
+      frameCount++;
+      const now = performance.now();
+      if (now - lastTime >= 1000) {
+        document.getElementById('stat-fps').innerText = frameCount;
+        frameCount = 0;
+        lastTime = now;
+      }
+    }
+
+    // Start Simulation on DOM ready
+    window.addEventListener('DOMContentLoaded', () => {
+      initThree();
+      animate();
+    });
+  </script>
+</body>
+</html>

@@ -6,7 +6,7 @@
 
 ## Product model
 
-FEEXSYSTEMS is the application. Projects such as Persona OS, Yurrheeler AI, OjaChat and other FeexSystems repositories are projects/worlds showcased and continuously modeled inside the application.
+FEEXSYSTEMS is the application. Projects such as Persona OS, Yurrheeler AI, 3WM Sonik and other FeexSystems repositories are projects/worlds showcased and continuously modeled inside the application.
 
 The canonical pipeline is:
 
@@ -92,26 +92,26 @@ The World Model is authoritative. The LLM is an interpreter and reasoning layer;
 
 ## Technology stack
 
-- **Frontend:** React 18, Vite, TypeScript, Tailwind CSS, shadcn/ui
-- **Backend:** Express.js, TypeScript
-- **Database:** PostgreSQL, Prisma ORM
-- **Cache:** Redis
-- **Authentication:** JWT, refresh tokens, role-based access control
-- **Testing:** Vitest, MSW, jsdom
+- **Frontend:** React 18, React Router 7, TypeScript, Vite, Tailwind CSS 3, Three.js (`@react-three/fiber` & `@react-three/drei`), Procedural GLSL Planetary Core Shaders, Radix UI, Lucide Icons
+- **Backend:** Express 5 server integrated with Vite dev server, TypeScript
+- **Database & Retrieval:** PostgreSQL 15+, Prisma ORM, pgvector semantic retrieval
+- **Cache & Queues:** Redis (ioredis), Bull queue
+- **Authentication:** JWT, refresh tokens, role-based access control (RBAC)
+- **Testing:** Vitest, MSW, Playwright E2E
 - **Infrastructure:** Docker / Docker Compose
-- **Intelligence direction:** graph retrieval + pgvector semantic retrieval + provider-neutral model adapters
+- **Intelligence & AI:** Provider-neutral model adapters (`aiService`), Gemini API (Interactions & Live), Evidence Fabric grounded retrieval
 
 ## Project structure
 
 ```text
-FeexSystems-20Labs/
-├── client/                  # Public SaaS UI and authenticated application
-├── server/                  # API, World Model and ingestion services
-├── shared/                  # Shared types/utilities
-├── prisma/                  # Database schema and migrations
-├── docs/                    # Product, architecture and API documentation
+FeexSystems-Living-Intelligence-World/
+├── client/                  # Public SaaS UI, 3D Spatial World & authenticated application
+├── server/                  # Express 5 API, World Model, and ingestion services
+├── shared/                  # Shared TypeScript contracts and schema types
+├── prisma/                  # Prisma schema and PostgreSQL migrations
+├── docs/                    # Architecture, World Model, Evidence Fabric & Brand library
 ├── docker/                  # Container configuration
-└── scripts/                 # Maintained operational scripts only
+└── .agents/                 # Antigravity agent rules, skills, and spatial standards
 ```
 
 ## Development
@@ -127,8 +127,8 @@ FeexSystems-20Labs/
 ### Setup
 
 ```bash
-git clone https://github.com/FeexSystems/FeexSystems-20Labs.git
-cd FeexSystems-20Labs
+git clone https://github.com/FeexSystems/FeexSystems-Living-Intelligence-World.git
+cd FeexSystems-Living-Intelligence-World
 npm install
 cp .env.example .env
 npm run dev
@@ -290,7 +290,7 @@ Never commit production secrets, private keys, webhook secrets or provider API k
 
 The public FEEXSYSTEMS experience is intended for:
 
-**https://FeexSystems.codes**
+**<https://FeexSystems.codes>**
 
 Production infrastructure may use the existing Docker/PostgreSQL/Redis stack and a managed deployment platform as appropriate.
 

@@ -62,3 +62,7 @@ logs/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Temporary directories
+.tmp
+.tmp/

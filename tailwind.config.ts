@@ -72,6 +72,47 @@ export default {
         },
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
+        feex: {
+          void: "#030508",
+          obsidian: "#0A0E17",
+          surface: "#121826",
+          border: "rgba(30, 41, 59, 0.8)",
+          cyan: {
+            DEFAULT: "#00F5D4",
+            glow: "rgba(0, 245, 212, 0.35)",
+            dim: "#009688",
+            electric: "#00F2FE",
+          },
+          azure: {
+            DEFAULT: "#0066FF",
+            glow: "rgba(0, 102, 255, 0.35)",
+          },
+          violet: {
+            DEFAULT: "#7B2CBF",
+            glow: "rgba(123, 44, 191, 0.4)",
+            deep: "#8A2BE2",
+          },
+          emerald: {
+            DEFAULT: "#00FFA3",
+            glow: "rgba(0, 255, 163, 0.35)",
+          },
+          amber: {
+            DEFAULT: "#FFB800",
+            dim: "rgba(255, 184, 0, 0.15)",
+          },
+          crimson: "#FF0055",
+        },
+      },
+      fontFamily: {
+        sans: ["Plus Jakarta Sans", "Inter", "sans-serif"],
+        display: ["Space Grotesk", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
+      },
+      boxShadow: {
+        "feex-hud": "0 0 24px -4px rgba(0, 245, 212, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.08)",
+        "feex-neon": "0 0 16px rgba(0, 245, 212, 0.45)",
+        "feex-glow-emerald": "0 0 25px -5px rgba(0, 255, 163, 0.3)",
+        "feex-glow-violet": "0 0 25px -5px rgba(123, 44, 191, 0.35)",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { feexProjects, githubRepositoryUrl } from "@/lib/feex-ecosystem";
+import { FeexHorizontalLockup, FeexWorldBadge } from "@/components/FeexLogo";
 
 const NeuralNetwork = lazy(() =>
   import("@/components/webgl/NeuralNetwork").then((mod) => ({ default: mod.NeuralNetwork }))
@@ -89,15 +90,7 @@ export default function Index() {
         {/* Navigation Bar */}
         <nav className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-8">
           <Link to="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary font-black text-primary-foreground shadow-lg shadow-primary/20">
-              F
-            </div>
-            <div>
-              <div className="font-bold tracking-tight">FEEXSYSTEMS</div>
-              <div className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                Living Engineering Intelligence
-              </div>
-            </div>
+            <FeexHorizontalLockup markSize={36} showSubtitle={true} />
           </Link>
           <div className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
             <Link to="/world" className="flex items-center gap-1.5 text-emerald-400 font-semibold hover:text-emerald-300">
@@ -109,11 +102,12 @@ export default function Index() {
             <Link to="/navigator" className="hover:text-foreground">Navigator</Link>
             <a href="#architecture" className="hover:text-foreground">Architecture</a>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <FeexWorldBadge sha="sha-feex-wm" status="SYNC 100%" className="hidden xl:inline-flex" />
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
               <Link to="/login">Sign in</Link>
             </Button>
-            <Button asChild size="sm" className="bg-emerald-500 font-semibold text-black hover:bg-emerald-400">
+            <Button asChild size="sm" className="bg-[#00F5D4] font-semibold text-black hover:bg-[#00F5D4]/80 shadow-feex-neon">
               <Link to="/world">
                 <Globe className="h-4 w-4 mr-1.5" />
                 Launch 3D World
@@ -125,13 +119,15 @@ export default function Index() {
         {/* Hero Content */}
         <div className="relative z-10 mx-auto grid max-w-7xl gap-14 px-6 pb-20 pt-16 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:pb-28 lg:pt-20">
           <div className="flex flex-col justify-center">
-            <Badge
-              variant="outline"
-              className="mb-7 w-fit gap-2 border-primary/30 bg-primary/10 px-3 py-1.5 text-primary backdrop-blur-md"
-            >
-              <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-              FEEXSYSTEMS.CODES · SYSTEM MVP
-            </Badge>
+            <div className="mb-7 flex items-center gap-3 flex-wrap">
+              <FeexWorldBadge sha="sha-feex-core-v3" status="CANONICAL 100%" />
+              <Badge
+                variant="outline"
+                className="gap-2 border-[#00F5D4]/30 bg-[#00F5D4]/10 px-3 py-1 text-[#00F5D4] font-mono text-xs backdrop-blur-md"
+              >
+                FEEXSYSTEMS.CODES · SYSTEM MVP
+              </Badge>
+            </div>
             <h1 className="max-w-4xl text-5xl font-black tracking-[-0.04em] md:text-7xl lg:text-8xl">
               Your engineering ecosystem,
               <span className="block bg-gradient-to-r from-primary via-emerald-400 to-cyan-400 bg-clip-text text-transparent">

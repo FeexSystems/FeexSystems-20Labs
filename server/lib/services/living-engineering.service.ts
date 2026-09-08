@@ -80,4 +80,27 @@ export async function retrieveWorld(query:string,limit=12){
 
 export function verifyGitHubSignature(rawBody:string,signature:string|undefined){const secret=process.env.GITHUB_WEBHOOK_SECRET;if(!secret||!signature)return false;const expected=`sha256=${createHmac("sha256",secret).update(rawBody).digest("hex")}`;const a=Buffer.from(expected),b=Buffer.from(signature);return a.length===b.length&&timingSafeEqual(a,b);}
 
-export async function processWebhook(payload:any){if(!payload?.repository?.full_name)throw new Error("Webhook payload missing repository");const repo=await gh(`/repos/${payload.repository.full_name}`) as Repo;const changed=[...new Set<string>((payload.commits||[]).flatMap((c:any)=>[...(c.added||[]),...(c.modified||[]),...(c.removed||[])))];const result=await syncRepository(repo,changed.filter(p=>TEXT.test(p)));await prisma.$executeRawUnsafe(`INSERT INTO world_model_events(id,project_id,event_type,commit_sha,changed_paths,payload) VALUES($1,$2,'github_webhook',$3,$4::jsonb,$5::jsonb)`,key("webhook",`${repo.full_name}:${payload.after||Date.now()}`),result.projectId,payload.after||null,JSON.stringify(changed),JSON.stringify({action:payload.action,ref:payload.ref}));return result;}
+export async function processWebhook(payload: any) {
+  if (!payload?.repository?.full_name) throw new Error("Webhook payload missing repository");
+  const repo = (await gh(`/repos/${payload.repository.full_name}`)) as Repo;
+  const changed = Array.from(
+    new Set<string>(
+      (payload.commits || []).flatMap((c: any) => [
+        ...(c.added || []),
+        ...(c.modified || []),
+        ...(c.removed || []),
+      ])
+    )
+  );
+  const result = await syncRepository(repo, changed.filter((p) => TEXT.test(p)));
+  await prisma.$executeRawUnsafe(
+    `INSERT INTO world_model_events(id,project_id,event_type,commit_sha,changed_paths,payload) VALUES($1,$2,'github_webhook',$3,$4::jsonb,$5::jsonb)`,
+    key("webhook", `${repo.full_name}:${payload.after || Date.now()}`),
+    result.projectId,
+    payload.after || null,
+    JSON.stringify(changed),
+    JSON.stringify({ action: payload.action, ref: payload.ref })
+  );
+  return result;
+}
+

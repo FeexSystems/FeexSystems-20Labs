@@ -1,0 +1,737 @@
+# FEEXSYSTEMS · Master Brand Assets Library & Design System Specification
+### Living Engineering Intelligence · Autonomous World Models · Persona OS
+**Version:** 4.0.0 (Canonical 2026 Production Release)  
+**Classification:** Canonical Identity & Engineering Systems Architecture  
+**Core Domains:** `feexsystems.codes` · `feexsystems.tech` · `feexsystems.github.io`  
+**Ecosystem Repositories:** `FeexSystems-20Labs` · `FEEXSYSTEMS-Persona-Digital-Portfolio`
+
+---
+
+## 1. Brand Philosophy & Core Identity Architecture
+
+FEEXSYSTEMS is neither a static software portfolio nor an ephemeral design showcase; it is a **living operating environment for the future of systems**. The visual and functional identity is derived from the core computational paradigm: turning complex architectures, repositories, and workflows into an inspectable, explorable, and mathematically grounded **World Model**.
+
+```
+                           ┌────────────────────────────────────────┐
+                           │          CANONICAL TRUTH               │
+                           │            World Model                 │
+                           │   (Entities · Edges · Artifacts)       │
+                           └──────────────────┬─────────────────────┘
+                                              │
+                     ┌────────────────────────┴────────────────────────┐
+                     ▼                                                 ▼
+     ┌───────────────────────────────┐                 ┌───────────────────────────────┐
+     │        RUNTIME STATE          │                 │       REASONING ENGINE        │
+     │         Digital Twin          │                 │        Hybrid AI Models       │
+     │   (Telemetry · Commit SHAs    │                 │   (Vector + Graph Traversal   │
+     │    Temporal Reconstruction)   │                 │    Provider-Neutral LLM)      │
+     └───────────────┬───────────────┘                 └───────────────┬───────────────┘
+                     │                                                 │
+                     └────────────────────────┬────────────────────────┘
+                                              ▼
+                           ┌────────────────────────────────────────┐
+                           │           SPATIAL INTERFACE            │
+                           │         Planetary Persona OS           │
+                           │  (Three.js Viewport · HUD · Voice)     │
+                           └────────────────────────────────────────┘
+```
+
+### 1.1 The Seven Canonical Axioms
+1. **Canonical Data + Model Reasoning:** The World Model is authoritative; models and LLMs interpret it. The LLM never invents canonical facts.
+2. **Graph, Not List:** Relationships (typed edges: `OWNS`, `IMPLEMENTS`, `USES`, `DEPENDS_ON`, `EVOLVED_FROM`) are first-class visual and programmatic information.
+3. **Evidence, Not Claims:** Grounded aesthetic. Every assertion is backed by verifiable SHA hashes, package manifests, or telemetry stamps.
+4. **Architectural, Not Decorative:** Every line, grid node, lumen, and animation duration serves a navigational, stateful, or evidentiary purpose.
+5. **Progressive Disclosure:** Depth unwinds systematically: $\text{Ecosystem} \to \text{World} \to \text{Repository} \to \text{Artifact} \to \text{Technology} \to \text{Source Evidence}$.
+6. **Living Substrate:** UI surfaces react to live runtime telemetry (pulsing signals, synchronized twins, spectral telemetry) reflecting active runtime truth.
+7. **Human + Machine Symbiosis:** The Persona is the human builder; the AI is the navigation, query, and reasoning interface.
+
+---
+
+## 2. The Master Mark: Mathematical Geometry & Vector Assets
+
+The FEEXSYSTEMS Master Mark is an orthographic synthesis of a **hyper-dimensional coordinate node**, a **closed-loop feedback lattice**, and the fused letterforms **F** and **X**.
+
+```
+              ┌───────────────────── 16 Grid Units ─────────────────────┐
+           ┌  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ┐
+           │  ·  ·  ·  ·  ·  ┌────────────────────────┐  ·  ·  ·  ·  ·  ·  ·  │
+           │  ·  ·  ·  ·  ·  │  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │  ·  ·  ·  ·  ·  ·  ·  │ ── Top Horizontal Arm
+           │  ·  ·  ·  ·  ·  │  ▓▓  ┌─────────────────┘  ·  ·  ·  ·  ·  ·  ·  │
+           │  ·  ·  ·  ·  ·  │  ▓▓  │  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  │
+      16u  │  ·  ·  ·  ·  ·  │  ▓▓  └───────────┐  ·  ·  ·  ·  ·  ·  ·  ·  ·  │
+           │  ·  ·  ·  ·  ·  │  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │  ·  ·  ·  ·  ·  ·  ·  ·  ·  │ ── Intermediate Node
+           │  ·  ·  ·  ·  ·  │  ▓▓  ┌───────────┘  ·  ·  [X-VECTOR 1] ·  ·  ·  │
+           │  ·  ·  ·  ·  ·  │  ▓▓  │  ·  ·  ·  ·  ·  ·  ·  ╲     ╱ ·  ·  ·  │
+           │  ·  ·  ·  ·  ·  │  ▓▓  │  ·  ·  ·  ·  ·  ·  ·   ╲   ╱  ·  ·  ·  │
+           │  ·  ·  ·  ·  ·  │  ▓▓  │  ·  ·  ·  ·  ·  ·  ·    ╲ ╱   ·  ·  ·  │ ── Coordinate Singularity
+           │  ·  ·  ·  ·  ·  │  ▓▓  │  ·  ·  ·  ·  ·  ·  ·     ╳    ·  ·  ·  │    (Quantum Anchor)
+           │  ·  ·  ·  ·  ·  │  ▓▓  │  ·  ·  ·  ·  ·  ·  ·    ╱ ╲   ·  ·  ·  │
+           │  ·  ·  ·  ·  ·  └──────┘  ·  ·  ·  ·  ·  ·  ·   ╱   ╲  ·  ·  ·  │
+           │  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·[X-VECTOR 2] · · │
+           └  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ┘
+```
+
+### 2.1 Geometric Formulas & Proportions
+* **Base Aspect Ratio:** $1:1$ (Master Glyph Core) | $4.75:1$ (Horizontal Platform Lockup).
+* **Grid Matrix:** $16 \times 16$ Cartesian grid unit, subdivided into $64 \times 64$ micro-units.
+* **Cutaway Angles:** Strict $45^\circ$ isometric bevels representing high-performance vector alignment.
+* **Golden Angle Telemetry Arc:** Concentric orbital sensor ring angled at $\phi = 137.5077^\circ$.
+* **Clearance Enclosure:** Minimum exclusion boundary equals $1.5 \times X$ (where $X$ is the thickness of the primary vertical trunk).
+
+---
+
+### 2.2 Production SVG: The Master Glyph (`feex-core-glyph.svg`)
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%" fill="none" aria-label="FEEXSYSTEMS Master Mark">
+  <defs>
+    <!-- Primary Substrate Gradient -->
+    <linearGradient id="feexPrimaryLattice" x1="16" y1="16" x2="112" y2="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00F5D4" />
+      <stop offset="48%" stop-color="#0066FF" />
+      <stop offset="100%" stop-color="#7B2CBF" />
+    </linearGradient>
+
+    <!-- High-Luminance Vector Accent -->
+    <linearGradient id="feexVectorAccent" x1="68" y1="68" x2="108" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="60%" stop-color="#80E5FF" />
+      <stop offset="100%" stop-color="#00F5D4" />
+    </linearGradient>
+
+    <!-- Telemetry Glow Filter -->
+    <filter id="feexQuantumGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Ground Plane Radar / Telemetry Grid -->
+  <circle cx="64" cy="64" r="58" stroke="#121826" stroke-width="1.2" stroke-dasharray="2 4" />
+  <circle cx="64" cy="64" r="46" stroke="#1E293B" stroke-width="1" />
+  
+  <!-- Polar Orthogonal Axes -->
+  <line x1="64" y1="6" x2="64" y2="20" stroke="#00F5D4" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round" />
+  <line x1="64" y1="108" x2="64" y2="122" stroke="#00F5D4" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round" />
+  <line x1="6" y1="64" x2="20" y2="64" stroke="#00F5D4" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round" />
+  <line x1="108" y1="64" x2="122" y2="64" stroke="#00F5D4" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round" />
+
+  <!-- The Architectural 'F' Structure -->
+  <path d="M34 28 H94 V42 H50 V56 H86 V70 H50 V100 H34 V28Z" 
+        fill="url(#feexPrimaryLattice)" />
+
+  <!-- The Autonomous 'X' Coordinate Lattice Vectors -->
+  <path d="M70 68 L102 100" stroke="url(#feexVectorAccent)" stroke-width="7" stroke-linecap="round" />
+  <path d="M102 68 L76 94" stroke="url(#feexVectorAccent)" stroke-width="7" stroke-linecap="round" />
+
+  <!-- Singularity Quantum State Anchors -->
+  <circle cx="64" cy="64" r="3.5" fill="#00F5D4" filter="url(#feexQuantumGlow)" />
+  <circle cx="102" cy="100" r="2.5" fill="#FFFFFF" />
+  <circle cx="34" cy="28" r="2" fill="#00F5D4" />
+</svg>
+```
+
+---
+
+### 2.3 Production SVG: Horizontal Architectural Platform Lockup (`feex-horizontal-lockup.svg`)
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 96" width="100%" height="100%" fill="none" aria-label="FEEXSYSTEMS Horizontal Platform Lockup">
+  <defs>
+    <linearGradient id="lockupGrad" x1="12" y1="12" x2="84" y2="84" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00F5D4" />
+      <stop offset="50%" stop-color="#0066FF" />
+      <stop offset="100%" stop-color="#7B2CBF" />
+    </linearGradient>
+  </defs>
+
+  <!-- Left Monogram Icon Block -->
+  <g transform="translate(8, 8)">
+    <rect width="80" height="80" rx="8" fill="#0A0E17" stroke="#1E293B" stroke-width="1.5" />
+    <path d="M26 22 H64 V31 H37 V41 H60 V50 H37 V62 H26 V22Z" fill="url(#lockupGrad)" />
+    <path d="M48 48 L66 66 M66 48 L52 62" stroke="#00F5D4" stroke-width="4.5" stroke-linecap="round" />
+    <circle cx="40" cy="40" r="2" fill="#00F5D4" />
+  </g>
+
+  <!-- Brand Wordmark Typography: Space Grotesk Architecture -->
+  <text x="110" y="49" font-family="'Space Grotesk', 'Syne', sans-serif" font-size="32" font-weight="700" letter-spacing="-0.03em" fill="#F8FAFC">
+    FEEX<tspan fill="#00F5D4">SYSTEMS</tspan>
+  </text>
+
+  <!-- Telemetry Sub-Band: JetBrains Mono Spec -->
+  <text x="112" y="70" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="500" letter-spacing="0.16em" fill="#64748B">
+    LIVING ENGINEERING INTELLIGENCE · PERSONA OS
+  </text>
+
+  <!-- Live Status Node -->
+  <circle cx="510" cy="42" r="3.5" fill="#00F5D4" />
+  <circle cx="510" cy="42" r="7.5" stroke="#00F5D4" stroke-width="1" stroke-opacity="0.4" />
+  <text x="500" y="66" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#00F5D4" letter-spacing="0.1em">RUNNING</text>
+</svg>
+```
+
+---
+
+### 2.4 Production SVG: Cryptographic Evidence Provenance Stamp (`feex-evidence-seal.svg`)
+
+This seal certifies verifiable SHA-backed source data, GitHub webhook ingestion, and pgvector HNSW indexing.
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" fill="none" aria-label="FEEXSYSTEMS Evidence Fabric Seal">
+  <defs>
+    <path id="textCirclePath" d="M 80, 80 m -62, 0 a 62,62 0 1,1 124,0 a 62,62 0 1,1 -124,0" />
+    <linearGradient id="sealGoldGrad" x1="20" y1="20" x2="140" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFB703" />
+      <stop offset="100%" stop-color="#FB8500" />
+    </linearGradient>
+  </defs>
+
+  <!-- Circular Outer Enclosure -->
+  <circle cx="80" cy="80" r="76" stroke="#1E293B" stroke-width="2" />
+  <circle cx="80" cy="80" r="70" stroke="#FFB703" stroke-width="1" stroke-dasharray="3 3" />
+
+  <!-- Peripheral Circular Telemetry Text -->
+  <text fill="#FFB703" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.22em">
+    <textPath href="#textCirclePath" startOffset="0%">
+      EVIDENCE FABRIC · CANONICAL SOURCE TRUTH · HMAC VERIFIED · SHA-256 PROVENANCE ·
+    </textPath>
+  </text>
+
+  <!-- Inner Hexagonal Geometry -->
+  <polygon points="80,32 118,54 118,98 80,120 42,98 42,54" stroke="#334155" stroke-width="1.5" fill="#0A0E17" />
+
+  <!-- Core Graphic: Merkle Node Root -->
+  <circle cx="80" cy="62" r="5" fill="url(#sealGoldGrad)" />
+  <circle cx="64" cy="88" r="4" fill="#00F5D4" />
+  <circle cx="96" cy="88" r="4" fill="#0066FF" />
+  <line x1="80" y1="62" x2="64" y2="88" stroke="#64748B" stroke-width="1.5" />
+  <line x1="80" y1="62" x2="96" y2="88" stroke="#64748B" stroke-width="1.5" />
+  <line x1="64" y1="88" x2="96" y2="88" stroke="#64748B" stroke-width="1.5" stroke-dasharray="2 2" />
+
+  <!-- Telemetry Badge Text -->
+  <text x="80" y="108" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="6.5" font-weight="700" fill="#F8FAFC" letter-spacing="0.1em">AUTONOMOUS</text>
+</svg>
+```
+
+---
+
+## 3. Chromatic System & Color Science
+
+The FEEXSYSTEMS spectrum is calibrated for high-contrast spatial HUDs, WebGL viewports, and deep OLED black canvases. Muddy grays are strictly prohibited in favor of deep-space tinted void fields, coherent neon emission lines, and contextual semantic indicators.
+
+### 3.1 Master Chromatic Matrix
+
+| Semantic Token | Hex Code | OKLCH ($L, C, H$) | RGB Decimal | Contrast Ratio vs Void | Core Systems Assignment |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `void-black` | `#05070A` | $0.05, 0.015, 240$ | $5, 7, 10$ | $1.00:1$ | Primary Spatial Canvas & Deep Viewport Void |
+| `substrate-obsidian` | `#0A0E17` | $0.11, 0.025, 235$ | $10, 14, 23$ | $1.25:1$ | Canonical Card Panels & Surface Substrates |
+| `substrate-surface` | `#121826` | $0.16, 0.035, 235$ | $18, 24, 38$ | $1.72:1$ | Elevated HUD Windows & Navigation Frames |
+| `substrate-border` | `#1E293B` | $0.27, 0.030, 230$ | $30, 41, 59$ | $2.85:1$ | Structural Dividers & Isometric Grids |
+| `phosphor-cyan` | `#00F5D4` | $0.88, 0.165, 172$ | $0, 245, 212$ | $15.4:1$ (AAA) | Canonical Truth, Validated Entities, Primary Focus |
+| `ion-azure` | `#0066FF` | $0.54, 0.245, 260$ | $0, 102, 255$ | $5.20:1$ (AA) | World Model Edges, Query Traversal Paths |
+| `quantum-violet` | `#7B2CBF` | $0.46, 0.230, 305$ | $123, 44, 191$ | $4.55:1$ (AA) | AI Reasoning, Neural Vectors, Hybrid Retrieval |
+| `telemetry-amber` | `#FFB703` | $0.80, 0.170, 82$ | $255, 183, 3$ | $12.8:1$ (AAA) | Runtime Events, Webhooks, HMAC Evidence |
+| `laser-crimson` | `#FF0055` | $0.62, 0.260, 15$ | $255, 0, 85$ | $6.80:1$ (AAA) | Anomaly Detection, Audio Resonators (3WM) |
+| `synapse-white` | `#F8FAFC` | $0.98, 0.005, 230$ | $248, 250, 252$ | $19.2:1$ (AAA) | Sovereign Headers & High-Value Text Readouts |
+| `signal-dim` | `#64748B` | $0.53, 0.035, 235$ | $100, 116, 139$ | $4.85:1$ (AA) | Hashes, Commit Trees, Inactive Metadata |
+
+---
+
+### 3.2 Complete Design Token Configuration (`tailwind.brand.config.ts`)
+
+```typescript
+import type { Config } from 'tailwindcss';
+
+export const feexDesignSystemConfig: Partial<Config> = {
+  theme: {
+    extend: {
+      colors: {
+        feex: {
+          void: '#05070A',
+          obsidian: '#0A0E17',
+          surface: '#121826',
+          border: {
+            DEFAULT: '#1E293B',
+            glow: 'rgba(0, 245, 212, 0.2)',
+          },
+          cyan: {
+            DEFAULT: '#00F5D4',
+            50: '#E6FFFA',
+            100: '#B3FFF3',
+            400: '#26F7DC',
+            500: '#00F5D4',
+            600: '#00BAA2',
+            glow: 'rgba(0, 245, 212, 0.35)',
+          },
+          azure: {
+            DEFAULT: '#0066FF',
+            glow: 'rgba(0, 102, 255, 0.35)',
+            deep: '#0047B3',
+          },
+          violet: {
+            DEFAULT: '#7B2CBF',
+            glow: 'rgba(123, 44, 191, 0.35)',
+            deep: '#5A189A',
+          },
+          amber: {
+            DEFAULT: '#FFB703',
+            dim: 'rgba(255, 183, 3, 0.15)',
+          },
+          crimson: {
+            DEFAULT: '#FF0055',
+            glow: 'rgba(255, 0, 85, 0.4)',
+          },
+          text: {
+            primary: '#F8FAFC',
+            secondary: '#94A3B8',
+            dim: '#64748B',
+            code: '#00F5D4',
+          }
+        }
+      },
+      fontFamily: {
+        display: ['"Space Grotesk"', '"Syne"', 'sans-serif'],
+        sans: ['"Inter"', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
+      },
+      boxShadow: {
+        'feex-hud': '0 0 24px -4px rgba(0, 245, 212, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.08)',
+        'feex-cyan-glow': '0 0 20px rgba(0, 245, 212, 0.4)',
+        'feex-azure-glow': '0 0 20px rgba(0, 102, 255, 0.4)',
+        'feex-violet-glow': '0 0 24px rgba(123, 44, 191, 0.35)',
+      },
+      backgroundImage: {
+        'radial-void': 'radial-gradient(circle at 50% 0%, #0F172A 0%, #05070A 80%)',
+        'grid-pattern': 'linear-gradient(to right, rgba(30, 41, 59, 0.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(30, 41, 59, 0.5) 1px, transparent 1px)',
+      },
+      animation: {
+        'pulse-subtle': 'pulseSubtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'telemetry-scan': 'telemetryScan 4s linear infinite',
+      },
+      keyframes: {
+        pulseSubtle: {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.82', transform: 'scale(1.02)' },
+        },
+        telemetryScan: {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(1000%)' },
+        }
+      }
+    }
+  }
+};
+```
+
+---
+
+## 4. Typography Architecture & Hierarchy Standards
+
+The typography channels information along two concurrent frequencies: **The Structural Intent Layer** (Space Grotesk / Syne) and **The Precision Telemetry Layer** (JetBrains Mono).
+
+```
+LAYER 1: Precision Monospace  ───[ COMMIT SHAS / GRAPH EDGES / RUNTIME TELEMETRY / VECTORS ]
+LAYER 2: Geometric Structural ───[ SYSTEM AXIOMS / WORLD TITLES / CAPABILITY HEADERS ]
+LAYER 3: Neutral Interface    ───[ DOCUMENTATION / REASONING EXPLANATIONS / SYNAPSES ]
+```
+
+### 4.1 Hierarchy Specification Table
+
+| Hierarchy Token | Primary Font | Weight | Desktop | Mobile | Tracking | Line Height | Case | Semantic Scope |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `SYS-DISPLAY-XL` | Space Grotesk | 700 Bold | `64px` | `40px` | `-0.035em` | `1.05` | Title | Hero Platform Headers, Core Axioms |
+| `SYS-HEADER-L` | Space Grotesk | 600 Semi | `36px` | `28px` | `-0.025em` | `1.15` | Title | World Names, Capability Hubs |
+| `SYS-HEADER-M` | Space Grotesk | 600 Semi | `24px` | `20px` | `-0.015em` | `1.25` | Sentence | Module Titles, Repository Cards |
+| `SYS-BODY` | Inter | 400 Reg | `15px` | `14px` | `0` | `1.60` | Normal | Narrative Descriptions, Analysis |
+| `SYS-BODY-LEAD`| Inter | 500 Med | `18px` | `16px` | `-0.010em` | `1.50` | Normal | Vision Statements, Executive Summaries |
+| `TELEMETRY-HEAD`| JetBrains Mono| 600 Semi | `11px` | `10px` | `+0.14em` | `1.0` | UPPERCASE| Telemetry Labels, Badges, Status Pills |
+| `TELEMETRY-DATA`| JetBrains Mono| 400 Reg | `13px` | `12px` | `0` | `1.40` | Normal | Memory Registers, Latency, Vectors |
+| `PROVENANCE-HASH`| JetBrains Mono| 400 Reg | `10.5px`| `10px` | `+0.06em` | `1.0` | lowercase| Git Commit SHAs, Blob References |
+
+---
+
+## 5. System Worlds: Identity, Chromas & Emblems
+
+FEEXSYSTEMS orchestrates six sovereign child worlds within its World Model graph. In accordance with the canonical architecture, **KappaXchangefin** occupies the fintech infrastructure domain.
+
+```
+                         ┌─────────────────────────────────┐
+                         │       FEEXSYSTEMS CORE          │
+                         │    `feexsystems.codes`          │
+                         └────────────────┬────────────────┘
+                                          │
+       ┌───────────────┬──────────────────┼──────────────────┬───────────────┐
+       ▼               ▼                  ▼                  ▼               ▼
+ ┌───────────┐   ┌───────────┐      ┌───────────┐      ┌───────────┐   ┌───────────┐
+ │ 3WM SONIK │   │  HoloKai  │      │Yurrheeler │      │KappaXchan │   │ VYRA LABS │
+ │AI-DSP/Audio│  │Spatial 3D │      │Healthcare │      │gefin / ISO│   │Agent Media│
+ └───────────┘   └───────────┘      └───────────┘      └───────────┘   └───────────┘
+       │                                                                     │
+       └─────────────────────────┐                     ┌─────────────────────┘
+                                 ▼                     ▼
+                           ┌───────────┐         ┌───────────┐
+                           │ Persona OS│         │  Rental   │
+                           │  Runtime  │         │ Paradise  │
+                           └───────────┘         └───────────┘
+```
+
+### 5.1 System World Specifications Matrix
+
+| World System | Primary Chroma | Secondary Accent | Domain Specialization | Spatial Archetype | Mathematical Topology |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **KappaXchangefin** | `#00FF66` Emerald | `#003B15` | ISO 20022 Financial Infrastructure, Algorithmic Exchange | Hyper-Grid Vector Flow | Directed Acyclic Graph (DAG) |
+| **HoloKai** | `#7928CA` Deep Violet | `#B800FF` | Cultural Intelligence, 3D Worlds, Neural Photogrammetry | Geodesic Icosahedron | Spherical Non-Euclidean Grid |
+| **Yurrheeler AI** | `#00E5FF` Cyan-Blue | `#005180` | Multi-Agent Healthcare Reasoning, Clinical Protocol Safety | Synaptic Hex-Lattice | Probabilistic Markov Tree |
+| **3WM SONIK LABS** | `#FF0055` Magenta | `#660022` | AI-Native Audio, Neural DSP, Spectral Waveform Synthesis | Frequency Oscillation Matrix | Continuous Fourier Phase Space |
+| **VYRA LABS** | `#FF7700` Amber-Orange | `#803B00` | Conversational Agents, High-Context Autonomous Media | Waveform Resonance Node | Dynamic Context Memory Cascade |
+| **Rental Paradise** | `#0070F3` Cobalt | `#002D66` | Real-World Spatial Property Discovery, Digital Commerce | Orthogonal Wireframe Grid | Spatial $R\text{-Tree}$ Index |
+
+---
+
+### 5.2 Production SVG: The 6 System World Vector Emblems
+
+#### 1. KappaXchangefin (`icon-world-kappaxchangefin.svg`)
+*ISO 20022 Financial Matrix & Exchange Nodes.*
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="12" fill="#0A0E17" stroke="#1E293B" stroke-width="1.5" />
+  <path d="M16 48 L32 16 L48 48" stroke="#00FF66" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <line x1="22" y1="36" x2="42" y2="36" stroke="#00FF66" stroke-width="2.5" />
+  <circle cx="32" cy="16" r="3.5" fill="#FFFFFF" />
+  <circle cx="16" cy="48" r="3" fill="#00FF66" />
+  <circle cx="48" cy="48" r="3" fill="#00FF66" />
+  <path d="M26 28 L38 28" stroke="#00FF66" stroke-width="1" stroke-dasharray="2 2" />
+</svg>
+```
+
+#### 2. HoloKai (`icon-world-holokai.svg`)
+*Geodesic Spatial World Models & Cultural Intelligence.*
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="12" fill="#0A0E17" stroke="#1E293B" stroke-width="1.5" />
+  <polygon points="32,12 52,24 52,48 32,56 12,48 12,24" stroke="#7928CA" stroke-width="2.5" />
+  <line x1="32" y1="12" x2="32" y2="56" stroke="#B800FF" stroke-width="1.5" />
+  <line x1="12" y1="24" x2="52" y2="48" stroke="#7928CA" stroke-width="1.5" stroke-dasharray="2 2" />
+  <line x1="12" y1="48" x2="52" y2="24" stroke="#7928CA" stroke-width="1.5" stroke-dasharray="2 2" />
+  <circle cx="32" cy="34" r="4" fill="#00F5D4" />
+</svg>
+```
+
+#### 3. Yurrheeler AI (`icon-world-yurrheeler.svg`)
+*Bio-Electric Multi-Agent Healthcare Intelligence.*
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="12" fill="#0A0E17" stroke="#1E293B" stroke-width="1.5" />
+  <path d="M16 32 H24 L28 20 L36 44 L40 32 H48" stroke="#00E5FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="28" cy="20" r="2.5" fill="#FFFFFF" />
+  <circle cx="36" cy="44" r="2.5" fill="#00E5FF" />
+  <circle cx="32" cy="32" r="1.5" fill="#00F5D4" />
+</svg>
+```
+
+#### 4. 3WM SONIK LABS (`icon-world-3wm-sonik.svg`)
+*Neural DSP, Acoustic World Simulation & Audio Synthesis.*
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="12" fill="#0A0E17" stroke="#1E293B" stroke-width="1.5" />
+  <line x1="18" y1="32" x2="18" y2="32" stroke="#FF0055" stroke-width="4" stroke-linecap="round" />
+  <line x1="25" y1="22" x2="25" y2="42" stroke="#FF0055" stroke-width="4" stroke-linecap="round" />
+  <line x1="32" y1="14" x2="32" y2="50" stroke="#FF0055" stroke-width="4" stroke-linecap="round" />
+  <line x1="39" y1="26" x2="39" y2="38" stroke="#FF0055" stroke-width="4" stroke-linecap="round" />
+  <line x1="46" y1="30" x2="46" y2="34" stroke="#FF0055" stroke-width="4" stroke-linecap="round" />
+</svg>
+```
+
+#### 5. VYRA LABS (`icon-world-vyra.svg`)
+*Intelligent Conversational Systems & Media Agents.*
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="12" fill="#0A0E17" stroke="#1E293B" stroke-width="1.5" />
+  <circle cx="32" cy="32" r="18" stroke="#FF7700" stroke-width="2" stroke-dasharray="4 3" />
+  <circle cx="32" cy="32" r="8" fill="#FF7700" fill-opacity="0.2" stroke="#FF7700" stroke-width="2" />
+  <path d="M32 14 L32 20 M32 44 L32 50 M14 32 L20 32 M44 32 L50 32" stroke="#FF7700" stroke-width="2.5" stroke-linecap="round" />
+</svg>
+```
+
+#### 6. Rental Paradise (`icon-world-rentalparadise.svg`)
+*Orthogonal Spatial Discovery & Algorithmic Property Commerce.*
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="12" fill="#0A0E17" stroke="#1E293B" stroke-width="1.5" />
+  <rect x="18" y="18" width="28" height="28" stroke="#0070F3" stroke-width="2.5" />
+  <line x1="18" y1="32" x2="36" y2="32" stroke="#0070F3" stroke-width="2" />
+  <line x1="36" y1="18" x2="36" y2="46" stroke="#0070F3" stroke-width="2" />
+  <circle cx="28" cy="24" r="2" fill="#00F5D4" />
+</svg>
+```
+
+---
+
+## 6. Functional UI Telemetry Components
+
+These ready-to-mount TypeScript/React components enforce the canonical design system within client-facing applications.
+
+### 6.1 Evidence Provenance Chip (`EvidenceChip.tsx`)
+
+```tsx
+import React from 'react';
+
+interface EvidenceChipProps {
+  sha: string;
+  repo: string;
+  status?: 'verified' | 'syncing' | 'stale';
+  onClick?: () => void;
+}
+
+export const EvidenceChip: React.FC<EvidenceChipProps> = ({
+  sha,
+  repo,
+  status = 'verified',
+  onClick,
+}) => {
+  const shortSha = sha.slice(0, 7);
+
+  return (
+    <button
+      onClick={onClick}
+      className="group inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-[#0A0E17] border border-[#1E293B] hover:border-[#00F5D4]/60 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-feex-hud"
+    >
+      <span className="relative flex h-2 w-2">
+        {status === 'syncing' && (
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00F5D4] opacity-75" />
+        )}
+        <span
+          className={`relative inline-flex rounded-full h-2 w-2 ${
+            status === 'verified'
+              ? 'bg-[#00F5D4]'
+              : status === 'syncing'
+              ? 'bg-[#FFB703]'
+              : 'bg-[#64748B]'
+          }`}
+        />
+      </span>
+
+      <span className="font-mono text-[10px] font-semibold tracking-wider text-[#64748B] uppercase">
+        {repo}
+      </span>
+
+      <span className="font-mono text-xs text-[#F8FAFC] font-medium group-hover:text-[#00F5D4] transition-colors">
+        sha:{shortSha}
+      </span>
+
+      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#121826] text-[#00F5D4] border border-[#00F5D4]/20">
+        EVIDENCE
+      </span>
+    </button>
+  );
+};
+```
+
+---
+
+### 6.2 Telemetry HUD Panel (`WorldModelHUD.tsx`)
+
+```tsx
+import React from 'react';
+
+interface TelemetryStats {
+  entitiesCount: number;
+  edgesCount: number;
+  retrievalLatencyMs: number;
+  activeWorld: string;
+  syncSha: string;
+}
+
+export const WorldModelHUD: React.FC<TelemetryStats> = ({
+  entitiesCount,
+  edgesCount,
+  retrievalLatencyMs,
+  activeWorld,
+  syncSha,
+}) => {
+  return (
+    <div className="relative w-full max-w-md p-5 rounded-lg bg-[#0A0E17]/95 border border-[#1E293B] backdrop-blur-xl shadow-feex-hud font-mono">
+      {/* Precision Corner Mechanical Accents */}
+      <div className="absolute -top-px -left-px w-2.5 h-2.5 border-t-2 border-l-2 border-[#00F5D4]" />
+      <div className="absolute -top-px -right-px w-2.5 h-2.5 border-t-2 border-r-2 border-[#00F5D4]" />
+      <div className="absolute -bottom-px -left-px w-2.5 h-2.5 border-b-2 border-l-2 border-[#00F5D4]" />
+      <div className="absolute -bottom-px -right-px w-2.5 h-2.5 border-b-2 border-r-2 border-[#00F5D4]" />
+
+      {/* Header Bar */}
+      <div className="flex items-center justify-between pb-3.5 border-b border-[#1E293B] mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-sm bg-[#00F5D4] shadow-[0_0_8px_#00F5D4]" />
+          <span className="text-[11px] font-semibold tracking-widest text-[#94A3B8] uppercase">
+            WORLD MODEL · RUNTIME TELEMETRY
+          </span>
+        </div>
+        <span className="text-[10px] text-[#00F5D4] bg-[#00F5D4]/10 border border-[#00F5D4]/30 px-2 py-0.5 rounded">
+          LIVE STREAM
+        </span>
+      </div>
+
+      {/* Grid Content */}
+      <div className="space-y-2.5 text-xs">
+        <div className="flex justify-between items-center">
+          <span className="text-[#64748B]">CANONICAL_ENTITIES</span>
+          <span className="text-[#F8FAFC] font-semibold">{entitiesCount.toLocaleString()} NODES</span>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <span className="text-[#64748B]">TYPED_RELATIONSHIPS</span>
+          <span className="text-[#F8FAFC] font-semibold">{edgesCount.toLocaleString()} EDGES</span>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <span className="text-[#64748B]">RETRIEVAL_LATENCY</span>
+          <span className="text-[#00F5D4] font-medium">{retrievalLatencyMs.toFixed(1)}ms (HNSW_COSINE)</span>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <span className="text-[#64748B]">CURRENT_FOCUS</span>
+          <span className="text-[#FFB703] font-medium">{activeWorld}</span>
+        </div>
+
+        <div className="flex justify-between items-center pt-2 border-t border-[#1E293B]/70">
+          <span className="text-[#64748B]">PROVENANCE_ROOT</span>
+          <span className="text-[#94A3B8] text-[11px]">sha:{syncSha.slice(0, 10)}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+```
+
+---
+
+## 7. Spatial 3D & Shader Design Tokens (Three.js / WebGL)
+
+The Three.js planetary core communicates structural relationships as spatial information rather than passive decoration.
+
+```
+                  [ PERSONA CORE ]
+                         │
+        ┌────────────────┴────────────────┐
+        ▼                                 ▼
+ [ WORLD NODES ]                 [ CAPABILITY NODES ]
+        │                                 │
+        └───────────────┬─────────────────┘
+                        ▼
+               [ CONNECTION ARCS ]
+                 (Typed Edges)
+```
+
+```javascript
+// feex-spatial-engine-tokens.js
+import * as THREE from 'three';
+
+export const FEEX_SPATIAL_CONSTANTS = {
+  // Planetary Core Sphere Material Configuration
+  coreSphere: {
+    radius: 4.8,
+    segments: 64,
+    material: new THREE.MeshPhysicalMaterial({
+      color: 0x05070A,
+      emissive: 0x001428,
+      emissiveIntensity: 0.6,
+      roughness: 0.08,
+      metalness: 0.96,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.05,
+      reflectivity: 0.95,
+      wireframe: false
+    })
+  },
+
+  // Connection Arcs / Relationship Edge Colors
+  edgeRelationships: {
+    OWNS: { color: 0x00F5D4, opacity: 0.8, pulseSpeed: 2.0 },
+    IMPLEMENTS: { color: 0x0066FF, opacity: 0.7, pulseSpeed: 1.5 },
+    USES: { color: 0x7B2CBF, opacity: 0.6, pulseSpeed: 1.2 },
+    DEPENDS_ON: { color: 0xFFB703, opacity: 0.5, pulseSpeed: 1.0 },
+    EVOLVED_FROM: { color: 0x64748B, opacity: 0.4, pulseSpeed: 0.8 },
+  },
+
+  // Atmospheric Post-Processing Parameters
+  postProcessing: {
+    unrealBloom: {
+      exposure: 1.1,
+      threshold: 0.16,
+      strength: 1.55,
+      radius: 0.75,
+    },
+    chromaticAberration: {
+      offset: new THREE.Vector2(0.0012, 0.0012),
+    }
+  },
+
+  // Camera Spatial Transitions
+  cameraEasing: {
+    lerpFactor: 0.045,
+    orbitDistance: 18.0,
+    focusZoomDistance: 7.5,
+  }
+};
+```
+
+---
+
+## 8. Voice & Audio Telemetry Architecture
+
+FEEXSYSTEMS communicates state changes through discrete, non-fatiguing, micro-acoustic feedback loops calibrated around pure sine and saw waves.
+
+### 8.1 Sound Identity & Frequencies
+
+```
+STATE CHANGE                FREQUENCY / TIMBRE                   DURATION
+──────────────────────────────────────────────────────────────────────────
+Graph Node Query Lock       $440\text{ Hz} \to 880\text{ Hz}$ (Sine Cascade)     $80\text{ ms}$
+Evidence Verified (SHA)     $1200\text{ Hz}$ Pure Sine (Harmonic Resonance)     $45\text{ ms}$
+World Model Mutation        $220\text{ Hz} \to 330\text{ Hz}$ Dual Saw Wave      $110\text{ ms}$
+Anomaly / Webhook Failure   $180\text{ Hz}$ Damped Square Wave                   $140\text{ ms}$
+```
+
+---
+
+## 9. Engineering Lexicon & Voice Blueprint
+
+The brand's voice is authoritative, mathematically clear, architectural, and strictly devoid of marketing superlatives.
+
+### 9.1 Lexical Translation Rules
+
+| Unacceptable Term | Canonical Engineering Term | Architectural Reason |
+| :--- | :--- | :--- |
+| "Magical AI platform" | **"Autonomous Model-Backed Substrate"** | Replaces emotional mysticism with computational fact. |
+| "Fast vector search" | **"pgvector HNSW Cosine Indexing ($Top\text{-}K$)"** | Specifies the exact algorithmic indexing mechanism. |
+| "Client projects" | **"Sovereign System Worlds & Artifacts"** | Replaces transactional terminology with persistent graph entities. |
+| "Web app dashboard" | **"Planetary Persona OS HUD"** | Frames the UI as an interactive operating interface. |
+| "We believe / Vision" | **"System Axioms & Invariant Constraints"** | Anchors platform trajectory in provable logic. |
+
+---
+
+## 10. Canonical Badges & Shields for Repositories
+
+Use these standardized badges across the `README.md` files of all repositories within the `FeexSystems` ecosystem:
+
+```markdown
+<!-- FEEXSYSTEMS Canonical Identity Shields -->
+[![World Model](https://img.shields.io/badge/WORLD_MODEL-CANONICAL-00F5D4?style=for-the-badge&logo=codewars&logoColor=05070A)](https://feexsystems.codes)
+[![Persona OS](https://img.shields.io/badge/PERSONA_OS-v4.0_2026-0066FF?style=for-the-badge)](https://feexsystems.tech)
+[![Evidence Fabric](https://img.shields.io/badge/EVIDENCE-SHA_VERIFIED-FFB703?style=for-the-badge&logo=github&logoColor=05070A)](https://feexsystems.codes)
+[![Hybrid Retrieval](https://img.shields.io/badge/RETRIEVAL-PGVECTOR_HNSW-7B2CBF?style=for-the-badge)](https://feexsystems.codes)
+```
+
+---
+
+## 11. Asset Deployment & QA Verification Checklist
+
+Before publishing any client module, repository README, or spatial interface under the FEEXSYSTEMS namespace, certify the following constraints:
+
+- [ ] **Authoritative Grounding:** Does every displayed metric or card point to a canonical graph entity or commit SHA?
+- [ ] **Contrast Compliance:** Does all primary text meet the WCAG AAA requirement ($> 7:1$) against the `#05070A` canvas?
+- [ ] **Non-Scaling Strokes:** Do all embedded SVGs include `vector-effect="non-scaling-stroke"` for resolution independence?
+- [ ] **World Alignment:** Are the designated chromas used correctly (e.g., `#00FF66` for KappaXchangefin, `#7928CA` for HoloKai)?
+- [ ] **Dual-Channel Typography:** Is there strict separation between `Space Grotesk` (Identity/Headings) and `JetBrains Mono` (Telemetry/Data)?

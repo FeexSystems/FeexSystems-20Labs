@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEEXSYSTEMS — Living Engineering Intelligence Brand System & Asset Library</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            void: '#030508',
+            obsidian: '#080C12',
+            surface: {
+              subtle: '#0E141E',
+              card: '#121B27',
+              border: 'rgba(255, 255, 255, 0.08)',
+              hover: 'rgba(255, 255, 255, 0.12)'
+            },
+            feex: {
+              cyan: '#00F2FE',
+              teal: '#4FACFE',
+              emerald: '#00FFA3',
+              violet: '#8A2BE2',
+              electric: '#6366F1',
+              amber: '#FFB800',
+              crimson: '#FF3366',
+              ghost: '#94A3B8'
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          boxShadow: {
+            glow: '0 0 25px -5px rgba(0, 242, 254, 0.25)',
+            'glow-emerald': '0 0 25px -5px rgba(0, 255, 163, 0.25)',
+            'glow-violet': '0 0 25px -5px rgba(138, 43, 226, 0.25)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #030508;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* Grid backdrop */
+    .bg-cyber-grid {
+      background-size: 36px 36px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    }
+
+    .radial-noise {
+      background: radial-gradient(circle at 50% 0%, rgba(0, 242, 254, 0.08) 0%, transparent 70%),
+                  radial-gradient(circle at 85% 60%, rgba(138, 43, 226, 0.05) 0%, transparent 60%);
+    }
+
+    .hud-border {
+      position: relative;
+    }
+    .hud-border::before, .hud-border::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-color: rgba(0, 242, 254, 0.4);
+      pointer-events: none;
+    }
+    .hud-border::before {
+      top: -1px;
+      left: -1px;
+      border-top: 1.5px solid;
+      border-left: 1.5px solid;
+    }
+    .hud-border::after {
+      bottom: -1px;
+      right: -1px;
+      border-bottom: 1.5px solid;
+      border-right: 1.5px solid;
+    }
+  </style>
+</head>
+
+<body class="bg-void text-slate-200 font-sans antialiased selection:bg-feex-cyan/30 selection:text-white min-h-screen relative overflow-x-hidden">
+  
+  <!-- Subtle Background Canvas for Kinetic Particle Grid -->
+  <div class="fixed inset-0 bg-cyber-grid pointer-events-none z-0"></div>
+  <div class="fixed inset-0 radial-noise pointer-events-none z-0"></div>
+
+  <!-- Header / Navigation Bar -->
+  <header class="sticky top-0 z-50 border-b border-white/10 bg-void/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-feex-cyan/20 to-feex-violet/20 border border-feex-cyan/40 flex items-center justify-center shadow-glow">
+        <svg class="w-5 h-5 text-feex-cyan" viewBox="0 0 32 32" fill="none">
+          <polygon points="16,3 29,10.5 29,21.5 16,29 3,21.5 3,10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="16" cy="16" r="3.5" fill="currentColor"/>
+          <line x1="16" y1="3" x2="16" y2="12.5" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
+          <line x1="16" y1="19.5" x2="16" y2="29" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <span class="font-display font-extrabold tracking-widest text-lg text-white">FEEXSYSTEMS</span>
+          <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-feex-cyan/10 text-feex-cyan border border-feex-cyan/20">Brand OS v3.2</span>
+        </div>
+        <p class="text-xs text-slate-400 font-mono">Living Engineering Intelligence Platform Architecture</p>
+      </div>
+    </div>
+
+    <!-- Quick Navigation tabs -->
+    <nav class="hidden md:flex items-center space-x-1 bg-surface-subtle/80 p-1 rounded-lg border border-white/5 font-mono text-xs">
+      <a href="#identity" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-feex-cyan transition-colors">01. Identity</a>
+      <a href="#palette" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-feex-cyan transition-colors">02. Color Matrix</a>
+      <a href="#typography" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-feex-cyan transition-colors">03. Typography</a>
+      <a href="#subsystems" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-feex-cyan transition-colors">04. System Worlds</a>
+      <a href="#hud-glyphs" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-feex-cyan transition-colors">05. HUD Glyphs</a>
+      <a href="#evidence" class="px-3 py-1.5 rounded hover:bg-white/5 hover:text-feex-cyan transition-colors">06. Provenance Seals</a>
+    </nav>
+
+    <!-- Quick Action / Status -->
+    <div class="flex items-center space-x-3">
+      <div class="hidden sm:flex items-center space-x-2 text-[11px] font-mono text-slate-400 border border-white/10 px-3 py-1 rounded-full bg-surface-subtle">
+        <span class="inline-block w-2 h-2 rounded-full bg-feex-emerald animate-pulse"></span>
+        <span>TRUTH_MODEL: CANONICAL</span>
+      </div>
+      <button onclick="downloadAllManifest()" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-feex-cyan/10 hover:bg-feex-cyan/20 border border-feex-cyan/30 text-feex-cyan text-xs font-mono font-medium transition-all shadow-glow hover:scale-105 active:scale-95">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+        <span>EXPORT MANIFEST</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Header Overview -->
+  <section class="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-12">
+    <div class="hud-border bg-gradient-to-b from-surface-card to-obsidian border border-white/10 rounded-2xl p-8 md:p-12 relative overflow-hidden">
+      <!-- Glow ambient background -->
+      <div class="absolute -right-20 -top-20 w-96 h-96 bg-feex-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-feex-violet/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div class="max-w-3xl space-y-6 relative z-10">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-feex-teal">
+          <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+          <span>SPECS: WORLD MODEL = CANONICAL SOURCE OF TRUTH</span>
+        </div>
+        <h1 class="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-white leading-tight">
+          Visual Identity & Engineering Artifacts
+        </h1>
+        <p class="text-slate-300 text-base sm:text-lg leading-relaxed font-light">
+          A precision-calibrated, living design system engineered for <strong class="text-feex-cyan font-medium">FEEXSYSTEMS</strong>. Designed to bridge hyper-dimensional world simulation, digital twin telemetry, cryptographic evidence fabric, and spatial knowledge navigation.
+        </p>
+
+        <!-- Brand Principles Bar -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-white/10 font-mono text-xs">
+          <div>
+            <span class="text-slate-500 block uppercase text-[10px]">PHILOSOPHY</span>
+            <span class="text-white font-medium">Evidence > Claims</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block uppercase text-[10px]">TOPOLOGY</span>
+            <span class="text-white font-medium">Graph, Not List</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block uppercase text-[10px]">INTELLIGENCE</span>
+            <span class="text-white font-medium">Provider-Neutral</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block uppercase text-[10px]">RUN-STATE</span>
+            <span class="text-white font-medium">Spatial Meaning</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Body -->
+  <main class="relative z-10 max-w-7xl mx-auto px-6 space-y-24 pb-32">
+
+    <!-- 01. CORE IDENTITY & MARKS -->
+    <section id="identity" class="space-y-8 scroll-mt-24">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div>
+          <span class="font-mono text-xs text-feex-cyan tracking-widest uppercase">SECTION 01 // CORE TOKENS</span>
+          <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">Logomarks & System Insignias</h2>
+        </div>
+        <span class="font-mono text-xs text-slate-500">Vector SVG Standards</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Asset Card: The Primary Monogram -->
+        <div class="hud-border bg-surface-card border border-white/10 rounded-xl p-6 flex flex-col justify-between group hover:border-feex-cyan/50 transition-all">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-mono text-feex-cyan">01.1 // CORE MONOGRAM</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-400">Canonical Node</span>
+          </div>
+          
+          <!-- Vector Display Area -->
+          <div class="h-48 rounded-lg bg-obsidian/70 border border-white/5 flex items-center justify-center relative overflow-hidden group-hover:shadow-glow transition-all">
+            <div class="absolute inset-0 bg-cyber-grid opacity-30"></div>
+            <svg id="svg-monogram-primary" class="w-24 h-24 text-feex-cyan filter drop-shadow-[0_0_12px_rgba(0,242,254,0.4)]" viewBox="0 0 100 100" fill="none">
+              <!-- Geometric Hyper-Hexagon Node -->
+              <polygon points="50,10 88,32 88,76 50,98 12,76 12,32" stroke="url(#grad-cyan-teal)" stroke-width="4" stroke-linejoin="round" />
+              <!-- Orbital Rings -->
+              <ellipse cx="50" cy="50" rx="36" ry="14" stroke="#4FACFE" stroke-width="1.8" stroke-dasharray="4 3" transform="rotate(-25 50 50)" />
+              <ellipse cx="50" cy="50" rx="36" ry="14" stroke="#8A2BE2" stroke-width="1.8" stroke-dasharray="4 3" transform="rotate(25 50 50)" />
+              <!-- Inner Core Kernel -->
+              <circle cx="50" cy="50" r="9" fill="#030508" stroke="#00F2FE" stroke-width="3" />
+              <circle cx="50" cy="50" r="3.5" fill="#00FFA3" />
+              <!-- Gradients -->
+              <defs>
+                <linearGradient id="grad-cyan-teal" x1="12" y1="10" x2="88" y2="98" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#00F2FE"/>
+                  <stop offset="1" stop-color="#6366F1"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+
+          <div class="mt-4 space-y-3">
+            <h3 class="font-display font-semibold text-white">Canonical Hypernode</h3>
+            <p class="text-xs text-slate-400">Symbolizes the invariant core of the World Model surrounded by intersecting vector retrieval & digital twin states.</p>
+            <div class="flex items-center space-x-2 pt-2">
+              <button onclick="copySvgCode('svg-monogram-primary')" class="flex-1 py-1.5 text-xs font-mono rounded bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 flex items-center justify-center space-x-1.5 transition-all">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>Copy SVG</span>
+              </button>
+              <button onclick="downloadSvg('svg-monogram-primary', 'feexsystems-canonical-node.svg')" class="px-3 py-1.5 text-xs font-mono rounded bg-white/5 hover:bg-feex-cyan/20 hover:text-feex-cyan border border-white/10 transition-all">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset Card: Wordmark & Architecture Symbol -->
+        <div class="hud-border bg-surface-card border border-white/10 rounded-xl p-6 flex flex-col justify-between group hover:border-feex-teal/50 transition-all">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-mono text-feex-teal">01.2 // ARCHITECTURAL WORDMARK</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-400">Lockup</span>
+          </div>
+          
+          <div class="h-48 rounded-lg bg-obsidian/70 border border-white/5 flex flex-col items-center justify-center px-4 relative overflow-hidden group-hover:shadow-glow transition-all">
+            <div class="absolute inset-0 bg-cyber-grid opacity-30"></div>
+            <svg id="svg-wordmark-primary" class="w-full max-w-[240px] h-20" viewBox="0 0 320 80" fill="none">
+              <!-- Integrated Monogram -->
+              <polygon points="35,15 55,27 55,51 35,63 15,51 15,27" stroke="#00F2FE" stroke-width="2.5" />
+              <line x1="35" y1="15" x2="35" y2="63" stroke="#4FACFE" stroke-width="1.5" stroke-dasharray="3 2" />
+              <circle cx="35" cy="39" r="4.5" fill="#00FFA3" />
+              <!-- Wordmark Typography Vectorized -->
+              <text x="75" y="44" font-family="'Space Grotesk', sans-serif" font-weight="800" font-size="25" fill="#FFFFFF" letter-spacing="3.5">FEEXSYSTEMS</text>
+              <text x="76" y="60" font-family="'JetBrains Mono', monospace" font-weight="400" font-size="8.5" fill="#94A3B8" letter-spacing="4">LIVING ENGINEERING OS</text>
+              <!-- Telemetry mini dot -->
+              <circle cx="305" cy="38" r="2.5" fill="#00F2FE" />
+            </svg>
+          </div>
+
+          <div class="mt-4 space-y-3">
+            <h3 class="font-display font-semibold text-white">Full Architectural Lockup</h3>
+            <p class="text-xs text-slate-400">Primary banner mark for high-visibility interfaces, CLI headers, enterprise portals, and repository headers.</p>
+            <div class="flex items-center space-x-2 pt-2">
+              <button onclick="copySvgCode('svg-wordmark-primary')" class="flex-1 py-1.5 text-xs font-mono rounded bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 flex items-center justify-center space-x-1.5 transition-all">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>Copy SVG</span>
+              </button>
+              <button onclick="downloadSvg('svg-wordmark-primary', 'feexsystems-wordmark-lockup.svg')" class="px-3 py-1.5 text-xs font-mono rounded bg-white/5 hover:bg-feex-teal/20 hover:text-feex-teal border border-white/10 transition-all">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset Card: Isometric 3D Planetary Glyph -->
+        <div class="hud-border bg-surface-card border border-white/10 rounded-xl p-6 flex flex-col justify-between group hover:border-feex-violet/50 transition-all">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-mono text-feex-violet">01.3 // SPATIAL 3D CORE</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-400">World Model</span>
+          </div>
+          
+          <div class="h-48 rounded-lg bg-obsidian/70 border border-white/5 flex items-center justify-center relative overflow-hidden group-hover:shadow-glow-violet transition-all">
+            <div class="absolute inset-0 bg-cyber-grid opacity-30"></div>
+            <svg id="svg-spatial-core" class="w-24 h-24 filter drop-shadow-[0_0_12px_rgba(138,43,226,0.5)]" viewBox="0 0 100 100" fill="none">
+              <!-- Concentric Orthogonal Rings -->
+              <circle cx="50" cy="50" r="42" stroke="#8A2BE2" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.4"/>
+              <circle cx="50" cy="50" r="32" stroke="#4FACFE" stroke-width="1.8" opacity="0.6"/>
+              <!-- Axis Traversal Rays -->
+              <line x1="10" y1="50" x2="90" y2="50" stroke="#00F2FE" stroke-width="1" stroke-dasharray="2 3" opacity="0.5"/>
+              <line x1="50" y1="10" x2="50" y2="90" stroke="#00F2FE" stroke-width="1" stroke-dasharray="2 3" opacity="0.5"/>
+              <!-- Central Octahedron Projection -->
+              <polygon points="50,22 74,50 50,78 26,50" stroke="#00FFA3" stroke-width="2.5" fill="rgba(0, 255, 163, 0.08)" />
+              <polygon points="50,22 50,78" stroke="#00FFA3" stroke-width="1.5" />
+              <polygon points="26,50 74,50" stroke="#00FFA3" stroke-width="1.5" />
+              <circle cx="50" cy="50" r="4" fill="#FFFFFF" />
+            </svg>
+          </div>
+
+          <div class="mt-4 space-y-3">
+            <h3 class="font-display font-semibold text-white">Spatial Telemetry Core</h3>
+            <p class="text-xs text-slate-400">Used for Three.js spatial viewports, 3D planetary canvas anchors, and graph camera interaction points.</p>
+            <div class="flex items-center space-x-2 pt-2">
+              <button onclick="copySvgCode('svg-spatial-core')" class="flex-1 py-1.5 text-xs font-mono rounded bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 flex items-center justify-center space-x-1.5 transition-all">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>Copy SVG</span>
+              </button>
+              <button onclick="downloadSvg('svg-spatial-core', 'feexsystems-spatial-core.svg')" class="px-3 py-1.5 text-xs font-mono rounded bg-white/5 hover:bg-feex-violet/20 hover:text-feex-violet border border-white/10 transition-all">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 02. COLOR MATRIX & DESIGN TOKENS -->
+    <section id="palette" class="space-y-8 scroll-mt-24">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div>
+          <span class="font-mono text-xs text-feex-emerald tracking-widest uppercase">SECTION 02 // SPECTRAL SYSTEM</span>
+          <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">Chromatic Architecture & Tokens</h2>
+        </div>
+        <span class="font-mono text-xs text-slate-500">Photonic & Dark Matter Scale</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Cyan -->
+        <div class="hud-border bg-surface-card p-5 rounded-xl border border-white/10 space-y-3">
+          <div class="h-20 rounded-lg bg-feex-cyan shadow-glow flex items-end p-2.5">
+            <span class="text-[11px] font-mono font-bold text-void bg-white/90 px-1.5 py-0.5 rounded">#00F2FE</span>
+          </div>
+          <div>
+            <div class="flex items-center justify-between">
+              <h4 class="font-display font-semibold text-white text-sm">Hyper-Cyan</h4>
+              <button onclick="copyText('#00F2FE')" class="text-slate-400 hover:text-feex-cyan transition-colors" title="Copy Hex">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <p class="text-[11px] font-mono text-slate-400">Tokens: `feex.cyan`, `--core-runtime`</p>
+            <p class="text-xs text-slate-300 mt-1">Represents real-time truth, active runtime state, and live query focus.</p>
+          </div>
+        </div>
+
+        <!-- Emerald -->
+        <div class="hud-border bg-surface-card p-5 rounded-xl border border-white/10 space-y-3">
+          <div class="h-20 rounded-lg bg-feex-emerald shadow-glow-emerald flex items-end p-2.5">
+            <span class="text-[11px] font-mono font-bold text-void bg-white/90 px-1.5 py-0.5 rounded">#00FFA3</span>
+          </div>
+          <div>
+            <div class="flex items-center justify-between">
+              <h4 class="font-display font-semibold text-white text-sm">Evidence Green</h4>
+              <button onclick="copyText('#00FFA3')" class="text-slate-400 hover:text-feex-emerald transition-colors" title="Copy Hex">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <p class="text-[11px] font-mono text-slate-400">Tokens: `feex.emerald`, `--evidence-sha`</p>
+            <p class="text-xs text-slate-300 mt-1">Cryptographic commit hashes, verified facts, pgvector similarity pass.</p>
+          </div>
+        </div>
+
+        <!-- Violet -->
+        <div class="hud-border bg-surface-card p-5 rounded-xl border border-white/10 space-y-3">
+          <div class="h-20 rounded-lg bg-feex-violet shadow-glow-violet flex items-end p-2.5">
+            <span class="text-[11px] font-mono font-bold text-white bg-black/50 px-1.5 py-0.5 rounded">#8A2BE2</span>
+          </div>
+          <div>
+            <div class="flex items-center justify-between">
+              <h4 class="font-display font-semibold text-white text-sm">Deep Reasoning Violet</h4>
+              <button onclick="copyText('#8A2BE2')" class="text-slate-400 hover:text-feex-violet transition-colors" title="Copy Hex">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <p class="text-[11px] font-mono text-slate-400">Tokens: `feex.violet`, `--llm-interpreter`</p>
+            <p class="text-xs text-slate-300 mt-1">Inference channels, agent routing, tool-calling gateways, reasoning steps.</p>
+          </div>
+        </div>
+
+        <!-- Void Dark Matter -->
+        <div class="hud-border bg-surface-card p-5 rounded-xl border border-white/10 space-y-3">
+          <div class="h-20 rounded-lg bg-void border border-white/20 flex items-end p-2.5">
+            <span class="text-[11px] font-mono font-bold text-slate-300 bg-white/10 px-1.5 py-0.5 rounded">#030508</span>
+          </div>
+          <div>
+            <div class="flex items-center justify-between">
+              <h4 class="font-display font-semibold text-white text-sm">Void Matrix</h4>
+              <button onclick="copyText('#030508')" class="text-slate-400 hover:text-white transition-colors" title="Copy Hex">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <p class="text-[11px] font-mono text-slate-400">Tokens: `feex.void`, `--bg-substrate`</p>
+            <p class="text-xs text-slate-300 mt-1">Deep planetary field, high contrast foundation for HUD optical elements.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 03. TYPOGRAPHIC MATRIX -->
+    <section id="typography" class="space-y-8 scroll-mt-24">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div>
+          <span class="font-mono text-xs text-feex-teal tracking-widest uppercase">SECTION 03 // HIERARCHY</span>
+          <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">Precision Typography Hierarchy</h2>
+        </div>
+        <span class="font-mono text-xs text-slate-500">Engineered Font Trio</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Display Type: Space Grotesk -->
+        <div class="hud-border bg-surface-card p-6 rounded-xl border border-white/10 space-y-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-[10px] font-mono text-feex-cyan uppercase">DISPLAY / ARCHITECTURE</span>
+              <h3 class="font-display text-xl font-bold text-white">Space Grotesk</h3>
+            </div>
+            <span class="text-xs font-mono text-slate-500">700 / 800</span>
+          </div>
+          <div class="p-4 rounded bg-obsidian border border-white/5 space-y-2">
+            <p class="font-display text-2xl font-bold text-white tracking-tight">FEEXSYSTEMS · OS</p>
+            <p class="font-display text-lg font-medium text-slate-300">Living Engineering Intelligence</p>
+          </div>
+          <p class="text-xs text-slate-400">Constructivist geometric proportion. High horizontal tension built for world-model titles, system boundaries, and structural badges.</p>
+        </div>
+
+        <!-- Body Type: Plus Jakarta Sans -->
+        <div class="hud-border bg-surface-card p-6 rounded-xl border border-white/10 space-y-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-[10px] font-mono text-feex-emerald uppercase">HUMAN READING / UI</span>
+              <h3 class="font-display text-xl font-bold text-white">Plus Jakarta Sans</h3>
+            </div>
+            <span class="text-xs font-mono text-slate-500">300 / 400 / 500</span>
+          </div>
+          <div class="p-4 rounded bg-obsidian border border-white/5 space-y-2 font-sans">
+            <p class="text-sm text-slate-200 leading-relaxed font-normal">Each layer compounds context, allowing the engine to represent what exists and sense runtime mutations.</p>
+          </div>
+          <p class="text-xs text-slate-400">High-legibility humanist neo-grotesque optimized for dense metadata, vision notes, client documentation, and long-horizon briefings.</p>
+        </div>
+
+        <!-- Telemetry Type: JetBrains Mono -->
+        <div class="hud-border bg-surface-card p-6 rounded-xl border border-white/10 space-y-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-[10px] font-mono text-feex-amber uppercase">TELEMETRY / CODE</span>
+              <h3 class="font-display text-xl font-bold text-white">JetBrains Mono</h3>
+            </div>
+            <span class="text-xs font-mono text-slate-500">400 / 500 / 700</span>
+          </div>
+          <div class="p-4 rounded bg-obsidian border border-white/5 space-y-2 font-mono text-xs text-feex-cyan">
+            <p>0x7F2A..90B1 [EVIDENCE_PASS]</p>
+            <p class="text-slate-400">traversal(k=10, cosine:0.941)</p>
+          </div>
+          <p class="text-xs text-slate-400">Monospaced engine type with mathematical symbols, code ligatures, pgvector indices, and machine-verifiable SHA traces.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 04. SYSTEM WORLDS INSIGNIA SUITE -->
+    <section id="subsystems" class="space-y-8 scroll-mt-24">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div>
+          <span class="font-mono text-xs text-feex-cyan tracking-widest uppercase">SECTION 04 // SYSTEM WORLDS</span>
+          <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">Ecosystem Domain Emblems</h2>
+        </div>
+        <span class="font-mono text-xs text-slate-500">Canonical Subsystem Nodes</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- 1. KappaXchangefin -->
+        <div class="hud-border bg-surface-card border border-white/10 rounded-xl p-5 space-y-4 group hover:border-feex-emerald/40 transition-all">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-lg bg-obsidian border border-feex-emerald/30 flex items-center justify-center">
+              <svg id="svg-subsystem-kappa" class="w-7 h-7 text-feex-emerald" viewBox="0 0 32 32" fill="none">
+                <path d="M7 6V26M7 16L18 6M11 13L25 26" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="18" cy="6" r="2.5" fill="#00FFA3" />
+                <circle cx="25" cy="26" r="2.5" fill="#00FFA3" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-display font-bold text-white text-base">KappaXchangefin</h3>
+              <p class="text-[11px] font-mono text-feex-emerald">ISO 20022 Financial Infrastructure</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400">Fintech, multi-currency ledger engines, automated clearing house state machines and institutional settlement.</p>
+          <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] font-mono">
+            <span class="text-slate-500">TYPE: SYSTEM_WORLD</span>
+            <button onclick="copySvgCode('svg-subsystem-kappa')" class="text-feex-emerald hover:underline">Copy SVG</button>
+          </div>
+        </div>
+
+        <!-- 2. HoloKai -->
+        <div class="hud-border bg-surface-card border border-white/10 rounded-xl p-5 space-y-4 group hover:border-feex-cyan/40 transition-all">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-lg bg-obsidian border border-feex-cyan/30 flex items-center justify-center">
+              <svg id="svg-subsystem-holokai" class="w-7 h-7 text-feex-cyan" viewBox="0 0 32 32" fill="none">
+                <circle cx="16" cy="16" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="3 2" />
+                <polygon points="16,8 24,20 8,20" stroke="currentColor" stroke-width="2" fill="rgba(0, 242, 254, 0.1)"/>
+                <circle cx="16" cy="16" r="2" fill="#00F2FE" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-display font-bold text-white text-base">HoloKai</h3>
+              <p class="text-[11px] font-mono text-feex-cyan">Cultural Intelligence & 3D Models</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400">Spatial storytelling, world modeling pipelines, anthropological archival memory graphs.</p>
+          <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] font-mono">
+            <span class="text-slate-500">TYPE: SYSTEM_WORLD</span>
+            <button onclick="copySvgCode('svg-subsystem-holokai')" class="text-feex-cyan hover:underline">Copy SVG</button>
+          </div>
+        </div>
+
+        <!-- 3. Yurrheeler AI -->
+        <div class="hud-border bg-surface-card border border-white/10 rounded-xl p-5 space-y-4 group hover:border-feex-violet/40 transition-all">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-lg bg-obsidian border border-feex-violet/30 flex items-center justify-center">
+              <svg id="svg-subsystem-yurrheeler" class="w-7 h-7 text-feex-violet" viewBox="0 0 32 32" fill="none">
+                <rect x="6" y="6" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2" />
+                <path d="M16 11V21M11 16H21" stroke="#00F2FE" stroke-width="2" stroke-linecap="round" />
+                <circle cx="16" cy="16" r="2" fill="#8A2BE2"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-display font-bold text-white text-base">Yurrheeler AI</h3>
+              <p class="text-[11px] font-mono text-feex-violet">Multi-Agent Healthcare Intelligence</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400">Clinical knowledge networks, diagnostic reasoning agents, patient context safety boundaries.</p>
+          <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] font-mono">
+            <span class="text-slate-500">TYPE: SYSTEM_WORLD</span>
+            <button onclick="copySvgCode('svg-subsystem-yurrheeler')" class="text-feex-violet hover:underline">Copy SVG</button>
+          </div>
+        </div>
+
+        <!-- 4. 3WM SONIK LABS -->
+        <div class="hud-border bg-surface-card border border-white/10 rounded-xl p-5 space-y-4 group hover:border-feex-amber/40 transition-all">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-lg bg-obsidian border border-feex-amber/30 flex items-center justify-center">
+              <svg id="svg-subsystem-sonik" class="w-7 h-7 text-feex-amber" viewBox="0 0 32 32" fill="none">
+                <path d="M5 16H9L12 9L16 23L20 12L23 16H27" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-display font-bold text-white text-base">3WM SONIK LABS</h3>
+              <p class="text-[11px] font-mono text-feex-amber">AI-Native DSP & Sound Synthesis</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400">Dynamic spectral audio generation, neural soundscapes, and digital signal processing pipelines.</p>
+          <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] font-mono">
+            <span class="text-slate-500">TYPE: SYSTEM_WORLD</span>
+            <button onclick="copySvgCode('svg-subsystem-sonik')" class="text-feex-amber hover:underline">Copy SVG</button>
+          </div>
+        </div>
+
+        <!-- 5. VYRA LABS -->
+        <div class="hud-border bg-surface-card border border-white/10 rounded-xl p-5 space-y-4 group hover:border-feex-electric/40 transition-all">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-lg bg-obsidian border border-feex-electric/30 flex items-center justify-center">
+              <svg id="svg-subsystem-vyra" class="w-7 h-7 text-feex-electric" viewBox="0 0 32 32" fill="none">
+                <path d="M8 22L16 6L24 22L16 18L8 22Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <circle cx="16" cy="18" r="2.5" fill="#6366F1" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-display font-bold text-white text-base">VYRA LABS</h3>
+              <p class="text-[11px] font-mono text-feex-electric">Conversational Interfaces & Media</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400">Natural language telemetry, context-steering multimodal assistants, adaptive generative audio/video.</p>
+          <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] font-mono">
+            <span class="text-slate-500">TYPE: SYSTEM_WORLD</span>
+            <button onclick="copySvgCode('svg-subsystem-vyra')" class="text-feex-electric hover:underline">Copy SVG</button>
+          </div>
+        </div>
+
+        <!-- 6. Rental Paradise -->
+        <div class="hud-border bg-surface-card border border-white/10 rounded-xl p-5 space-y-4 group hover:border-slate-400 transition-all">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-lg bg-obsidian border border-white/20 flex items-center justify-center">
+              <svg id="svg-subsystem-rental" class="w-7 h-7 text-white" viewBox="0 0 32 32" fill="none">
+                <path d="M4 14L16 4L28 14V26H4V14Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <rect x="12" y="18" width="8" height="8" stroke="#00F2FE" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-display font-bold text-white text-base">Rental Paradise</h3>
+              <p class="text-[11px] font-mono text-slate-400">Spatial Property Discovery Platform</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400">Geo-spatial property inventory, real-time booking state synchronizer, verified digital agreements.</p>
+          <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] font-mono">
+            <span class="text-slate-500">TYPE: SYSTEM_WORLD</span>
+            <button onclick="copySvgCode('svg-subsystem-rental')" class="text-white hover:underline">Copy SVG</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 05. HUD TELEMETRY & GLYPH LIBRARY -->
+    <section id="hud-glyphs" class="space-y-8 scroll-mt-24">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div>
+          <span class="font-mono text-xs text-feex-amber tracking-widest uppercase">SECTION 05 // SYSTEM SIGNALS</span>
+          <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">HUD Glyphs & Graph Operators</h2>
+        </div>
+        <span class="font-mono text-xs text-slate-500">Modular Navigation UI</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+        
+        <!-- Glyph 1: Knowledge Graph Node -->
+        <div class="hud-border bg-surface-card p-4 rounded-xl border border-white/10 text-center space-y-3 hover:border-feex-cyan/40 transition-all">
+          <div class="h-14 flex items-center justify-center">
+            <svg id="glyph-graph" class="w-8 h-8 text-feex-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <circle cx="6" cy="6" r="3" />
+              <circle cx="18" cy="6" r="3" />
+              <circle cx="12" cy="18" r="3" />
+              <line x1="8.5" y1="7.5" x2="15.5" y2="7.5" />
+              <line x1="7.5" y1="8.5" x2="10.5" y2="15.5" />
+              <line x1="16.5" y1="8.5" x2="13.5" y2="15.5" />
+            </svg>
+          </div>
+          <div>
+            <span class="text-[10px] font-mono uppercase text-slate-400 block">K_GRAPH</span>
+            <span class="text-xs font-semibold text-white">Graph Traverser</span>
+          </div>
+          <button onclick="copySvgCode('glyph-graph')" class="w-full py-1 text-[10px] font-mono rounded bg-white/5 hover:bg-white/10 text-slate-300">Copy</button>
+        </div>
+
+        <!-- Glyph 2: Hybrid Retrieval -->
+        <div class="hud-border bg-surface-card p-4 rounded-xl border border-white/10 text-center space-y-3 hover:border-feex-emerald/40 transition-all">
+          <div class="h-14 flex items-center justify-center">
+            <svg id="glyph-retrieval" class="w-8 h-8 text-feex-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path d="M4 6h16M4 12h16M4 18h10" />
+              <circle cx="18" cy="18" r="2.5" fill="#00FFA3"/>
+            </svg>
+          </div>
+          <div>
+            <span class="text-[10px] font-mono uppercase text-slate-400 block">RETRIEVAL</span>
+            <span class="text-xs font-semibold text-white">Hybrid Query</span>
+          </div>
+          <button onclick="copySvgCode('glyph-retrieval')" class="w-full py-1 text-[10px] font-mono rounded bg-white/5 hover:bg-white/10 text-slate-300">Copy</button>
+        </div>
+
+        <!-- Glyph 3: Vector pgvector -->
+        <div class="hud-border bg-surface-card p-4 rounded-xl border border-white/10 text-center space-y-3 hover:border-feex-violet/40 transition-all">
+          <div class="h-14 flex items-center justify-center">
+            <svg id="glyph-pgvector" class="w-8 h-8 text-feex-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <rect x="3" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="14" width="7" height="7" rx="1"/>
+              <circle cx="6.5" cy="17.5" r="3.5" fill="rgba(138,43,226,0.2)" stroke="#8A2BE2"/>
+            </svg>
+          </div>
+          <div>
+            <span class="text-[10px] font-mono uppercase text-slate-400 block">EMBEDDING</span>
+            <span class="text-xs font-semibold text-white">pgvector HNSW</span>
+          </div>
+          <button onclick="copySvgCode('glyph-pgvector')" class="w-full py-1 text-[10px] font-mono rounded bg-white/5 hover:bg-white/10 text-slate-300">Copy</button>
+        </div>
+
+        <!-- Glyph 4: Digital Twin Sync -->
+        <div class="hud-border bg-surface-card p-4 rounded-xl border border-white/10 text-center space-y-3 hover:border-feex-cyan/40 transition-all">
+          <div class="h-14 flex items-center justify-center">
+            <svg id="glyph-twin" class="w-8 h-8 text-feex-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path d="M12 3v3m0 12v3M3 12h3m12 0h3" />
+              <circle cx="12" cy="12" r="5" stroke-dasharray="3 2" />
+            </svg>
+          </div>
+          <div>
+            <span class="text-[10px] font-mono uppercase text-slate-400 block">TWIN_SYNC</span>
+            <span class="text-xs font-semibold text-white">Runtime Telemetry</span>
+          </div>
+          <button onclick="copySvgCode('glyph-twin')" class="w-full py-1 text-[10px] font-mono rounded bg-white/5 hover:bg-white/10 text-slate-300">Copy</button>
+        </div>
+
+        <!-- Glyph 5: AI Navigator Gateway -->
+        <div class="hud-border bg-surface-card p-4 rounded-xl border border-white/10 text-center space-y-3 hover:border-feex-electric/40 transition-all">
+          <div class="h-14 flex items-center justify-center">
+            <svg id="glyph-navigator" class="w-8 h-8 text-feex-electric" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <polygon points="12 2 19 21 12 17 5 21 12 2" />
+            </svg>
+          </div>
+          <div>
+            <span class="text-[10px] font-mono uppercase text-slate-400 block">NAVIGATOR</span>
+            <span class="text-xs font-semibold text-white">Agent Router</span>
+          </div>
+          <button onclick="copySvgCode('glyph-navigator')" class="w-full py-1 text-[10px] font-mono rounded bg-white/5 hover:bg-white/10 text-slate-300">Copy</button>
+        </div>
+
+        <!-- Glyph 6: Webhook Ingest -->
+        <div class="hud-border bg-surface-card p-4 rounded-xl border border-white/10 text-center space-y-3 hover:border-feex-amber/40 transition-all">
+          <div class="h-14 flex items-center justify-center">
+            <svg id="glyph-webhook" class="w-8 h-8 text-feex-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+          </div>
+          <div>
+            <span class="text-[10px] font-mono uppercase text-slate-400 block">WEBHOOK</span>
+            <span class="text-xs font-semibold text-white">HMAC Listener</span>
+          </div>
+          <button onclick="copySvgCode('glyph-webhook')" class="w-full py-1 text-[10px] font-mono rounded bg-white/5 hover:bg-white/10 text-slate-300">Copy</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 06. EVIDENCE FABRIC PROVENANCE SEALS -->
+    <section id="evidence" class="space-y-8 scroll-mt-24">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div>
+          <span class="font-mono text-xs text-feex-emerald tracking-widest uppercase">SECTION 06 // PROVENANCE FABRIC</span>
+          <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">Cryptographic Badges & Provenance Seals</h2>
+        </div>
+        <span class="font-mono text-xs text-slate-500">Immutable Evidence Stamps</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Provenance Stamp 1: SHA-Backed Verification -->
+        <div class="hud-border bg-surface-card border border-white/10 rounded-xl p-6 relative overflow-hidden group hover:border-feex-emerald/50 transition-all">
+          <div class="flex items-start justify-between">
+            <div class="space-y-1">
+              <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-feex-emerald/10 text-feex-emerald border border-feex-emerald/20">TRUTH PROTOCOL ACTIVE</span>
+              <h3 class="font-display text-lg font-bold text-white">Deterministic Evidence Stamp</h3>
+            </div>
+            <span class="font-mono text-xs text-slate-500">ISO-CANONICAL</span>
+          </div>
+
+          <!-- Graphic Badge Representation -->
+          <div class="my-6 p-4 rounded-lg bg-obsidian border border-white/10 flex items-center space-x-4">
+            <div class="w-14 h-14 rounded-full bg-feex-emerald/10 border-2 border-feex-emerald/40 flex items-center justify-center shrink-0">
+              <svg class="w-7 h-7 text-feex-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            <div class="space-y-1 font-mono text-xs">
+              <div class="text-white font-medium flex items-center space-x-2">
+                <span>EVIDENCE_FABRIC_VERIFIED</span>
+                <span class="text-[10px] text-feex-emerald">✓ PASS</span>
+              </div>
+              <div class="text-slate-400 text-[11px]">SHA-256: 7e89bf2409cd11...5b8a</div>
+              <div class="text-[10px] text-slate-500">INGEST: GITHUB_BLOB_TREE // CANONICAL</div>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-400">Embeddable markdown badge used across repository documentation, production deployment pipelines, and artifact audits to demonstrate concrete provenance.</p>
+
+          <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+            <code class="text-[11px] font-mono text-slate-400 bg-black/40 px-2 py-1 rounded">![FEEX_VERIFIED](badge.svg)</code>
+            <button onclick="copyBadgeSnippet('deterministic')" class="text-xs font-mono text-feex-emerald hover:underline">Copy Markdown</button>
+          </div>
+        </div>
+
+        <!-- Provenance Stamp 2: World Model Invariant Ledger -->
+        <div class="hud-border bg-surface-card border border-white/10 rounded-xl p-6 relative overflow-hidden group hover:border-feex-cyan/50 transition-all">
+          <div class="flex items-start justify-between">
+            <div class="space-y-1">
+              <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-feex-cyan/10 text-feex-cyan border border-feex-cyan/20">SOVEREIGN GRAPH LEDGER</span>
+              <h3 class="font-display text-lg font-bold text-white">World Model Invariance Seal</h3>
+            </div>
+            <span class="font-mono text-xs text-slate-500">v3.2 COMPLIANT</span>
+          </div>
+
+          <!-- Graphic Badge Representation -->
+          <div class="my-6 p-4 rounded-lg bg-obsidian border border-white/10 flex items-center space-x-4">
+            <div class="w-14 h-14 rounded-full bg-feex-cyan/10 border-2 border-feex-cyan/40 flex items-center justify-center shrink-0">
+              <svg class="w-7 h-7 text-feex-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <div class="space-y-1 font-mono text-xs">
+              <div class="text-white font-medium flex items-center space-x-2">
+                <span>INVARIANT_WORLD_MODEL</span>
+                <span class="text-[10px] text-feex-cyan">CANONICAL</span>
+              </div>
+              <div class="text-slate-400 text-[11px]">PROVIDER_NEUTRAL: RESPONSES_API</div>
+              <div class="text-[10px] text-slate-500">EDGE_PGVECTOR // ZERO_HALLUCINATION</div>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-400">Certifies that client interactions query authoritative, immutable relational graphs while LLMs act solely as translation & reasoning bridges.</p>
+
+          <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+            <code class="text-[11px] font-mono text-slate-400 bg-black/40 px-2 py-1 rounded">![WORLD_MODEL_INVARIANT](seal.svg)</code>
+            <button onclick="copyBadgeSnippet('invariant')" class="text-xs font-mono text-feex-cyan hover:underline">Copy Markdown</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Live Toast Notification Container -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center space-x-2 px-4 py-2.5 rounded-lg bg-surface-card border border-feex-cyan/40 text-feex-cyan font-mono text-xs shadow-glow">
+    <i data-lucide="check" class="w-4 h-4 text-feex-cyan"></i>
+    <span id="toast-message">Asset payload copied to clipboard</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 bg-obsidian py-12 px-6 relative z-10 text-center text-xs font-mono text-slate-500 space-y-4">
+    <div class="flex items-center justify-center space-x-3">
+      <span class="w-2 h-2 rounded-full bg-feex-cyan"></span>
+      <span class="text-slate-300 font-display font-semibold tracking-wider">FEEXSYSTEMS · LIVING ENGINEERING INTELLIGENCE</span>
+      <span class="w-2 h-2 rounded-full bg-feex-emerald"></span>
+    </div>
+    <p>World Model = Source of Truth. Runtime state is separate from reasoning. © 2026 FEEXSYSTEMS.</p>
+  </footer>
+
+  <!-- Script logic for asset actions -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Show Toast
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      toastMsg.innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2500);
+    }
+
+    // Copy text
+    function copyText(val) {
+      navigator.clipboard.writeText(val).then(() => {
+        showToast(`Token [${val}] copied`);
+      });
+    }
+
+    // Copy SVG code
+    function copySvgCode(elementId) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        const serializer = new XMLSerializer();
+        const source = serializer.serializeToString(el);
+        navigator.clipboard.writeText(source).then(() => {
+          showToast(`Raw SVG XML copied`);
+        });
+      }
+    }
+
+    // Download SVG
+    function downloadSvg(elementId, filename) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        const serializer = new XMLSerializer();
+        const source = serializer.serializeToString(el);
+        const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast(`Downloaded ${filename}`);
+      }
+    }
+
+    // Copy badge markdown
+    function copyBadgeSnippet(type) {
+      let code = '';
+      if (type === 'deterministic') {
+        code = `[![FEEX Evidence](https://img.shields.io/badge/FEEX_EVIDENCE-VERIFIED_SHA-00FFA3?style=flat-square&logo=shield)](https://feexsystems.codes)`;
+      } else {
+        code = `[![World Model](https://img.shields.io/badge/WORLD_MODEL-CANONICAL_INVARIANT-00F2FE?style=flat-square&logo=cpu)](https://feexsystems.codes)`;
+      }
+      navigator.clipboard.writeText(code).then(() => {
+        showToast(`Shields.io markdown badge copied`);
+      });
+    }
+
+    // Export Complete Asset Manifest JSON
+    function downloadAllManifest() {
+      const manifest = {
+        name: "FEEXSYSTEMS Living Engineering Intelligence Brand System",
+        version: "3.2.0",
+        year: 2026,
+        principles: [
+          "World model = source of truth",
+          "Runtime state is separate from reasoning",
+          "Interfaces are queryable by design",
+          "Evidence, not claims"
+        ],
+        palette: {
+          void: "#030508",
+          obsidian: "#080C12",
+          cyan: "#00F2FE",
+          teal: "#4FACFE",
+          emerald: "#00FFA3",
+          violet: "#8A2BE2",
+          electric: "#6366F1",
+          amber: "#FFB800"
+        },
+        typography: {
+          display: "Space Grotesk (700/800)",
+          body: "Plus Jakarta Sans (300/400/500)",
+          telemetry: "JetBrains Mono (400/500/700)"
+        },
+        systemWorlds: [
+          "KappaXchangefin",
+          "HoloKai",
+          "Yurrheeler AI",
+          "3WM SONIK LABS",
+          "VYRA LABS",
+          "Rental Paradise"
+        ]
+      };
+      
+      const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "feexsystems-brand-manifest.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("Downloaded complete system manifest");
+    }
+  </script>
+</body>
+</html>

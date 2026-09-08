@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { feexProjects } from "@/lib/feex-ecosystem";
+import { FeexHorizontalLockup, FeexWorldBadge } from "@/components/FeexLogo";
 
 type WorldProject = {
   id: string;
@@ -91,13 +92,18 @@ export default function Projects() {
       <section className="relative overflow-hidden border-b border-border">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/.16),transparent_35%),radial-gradient(circle_at_bottom_left,hsl(160_80%_45%/.10),transparent_30%)]" />
         <div className="relative mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-28">
-          <div className="mb-8 flex items-center justify-between">
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <Link to="/" className="hover:text-foreground">FEEXSYSTEMS</Link>
-              <span>/</span>
-              <span className="text-foreground">Projects</span>
+          <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-4">
+              <Link to="/">
+                <FeexHorizontalLockup markSize={28} showSubtitle={false} />
+              </Link>
+              <span className="text-[#64748B] font-mono">/</span>
+              <span className="font-mono text-sm text-[#00F5D4] uppercase tracking-wider">
+                Projects
+              </span>
+              <FeexWorldBadge sha="sha-feex-projects" status="SYNC 100%" className="hidden sm:inline-flex" />
             </div>
-            <Button asChild size="sm" className="bg-emerald-500 font-semibold text-black hover:bg-emerald-400">
+            <Button asChild size="sm" className="bg-[#00F5D4] font-semibold text-black hover:bg-[#00F5D4]/80 shadow-feex-neon">
               <Link to="/world">
                 <Globe className="h-4 w-4 mr-1.5" />
                 Launch 3D Galaxy
@@ -105,9 +111,9 @@ export default function Projects() {
             </Button>
           </div>
           <div className="max-w-4xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#00F5D4]/20 bg-[#00F5D4]/10 px-4 py-1.5 text-xs font-mono text-[#00F5D4]">
               <Sparkles className="h-4 w-4" />
-              Living Engineering Intelligence
+              Living Engineering Intelligence · Canonical Systems
             </div>
             <h1 className="text-5xl font-black tracking-tight md:text-7xl">
               Explore the systems behind <span className="text-primary">FEEXSYSTEMS</span>.

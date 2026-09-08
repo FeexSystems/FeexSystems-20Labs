@@ -318,8 +318,8 @@ describe('useAuth Hook Logic', () => {
       expect(authHook.clearError).toBe(mockAuthStore.clearError);
     });
   });
-});  d
-escribe('Password Reset Functions', () => {
+
+  describe('Password Reset Functions', () => {
     it('should call forgot password and show success toast', async () => {
       mockAuthStore.forgotPassword.mockResolvedValueOnce(undefined);
 

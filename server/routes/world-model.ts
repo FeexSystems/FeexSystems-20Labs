@@ -65,9 +65,9 @@ router.get("/evidence/projects", async (_req: Request, res: Response) => {
 });
 
 // Artifact file content fetch and git blob SHA verification
-router.get("/evidence/:projectId/content", async (req: Request, res: Response) => {
+router.get(["/evidence/content", "/evidence/:projectId/content"], async (req: Request, res: Response) => {
   try {
-    const { projectId } = req.params;
+    const projectId = decodeURIComponent(String(req.query.projectId || req.params.projectId || "")).trim();
     const filePath = String(req.query.path || "").trim();
     if (!projectId || !filePath) {
       return res.status(400).json({ success: false, error: "Project ID and file path query are required" });
@@ -86,9 +86,9 @@ router.get("/evidence/:projectId/content", async (req: Request, res: Response) =
 });
 
 // Project-level evidence, artifacts, and event history
-router.get("/evidence/:projectId", async (req: Request, res: Response) => {
+router.get(["/evidence/detail", "/evidence/:projectId"], async (req: Request, res: Response) => {
   try {
-    const { projectId } = req.params;
+    const projectId = decodeURIComponent(String(req.query.projectId || req.params.projectId || "")).trim();
     if (!projectId) {
       return res.status(400).json({ success: false, error: "Project ID is required" });
     }

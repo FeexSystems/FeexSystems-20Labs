@@ -9,7 +9,7 @@ class EncryptionService {
   private key: Buffer;
 
   constructor() {
-    const encryptionKey = process.env.ENCRYPTION_KEY;
+    const encryptionKey = process.env.ENCRYPTION_KEY || (process.env.NODE_ENV !== 'production' ? 'feexsystems-dev-encryption-key-32-chars!' : undefined);
     if (!encryptionKey) {
       throw new Error('ENCRYPTION_KEY environment variable is required');
     }

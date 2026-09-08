@@ -68,13 +68,13 @@ function technologyCandidates(repo: GitHubRepo, files: TreeItem[], text: string)
     React: ["react", "react-dom"],
     TypeScript: ["typescript", "tsconfig.json"],
     Vite: ["vite"],
-    Next.js: ["next"],
-    Node.js: ["node", "express"],
+    "Next.js": ["next"],
+    "Node.js": ["node", "express"],
     PostgreSQL: ["postgres", "postgresql", "prisma"],
     Prisma: ["prisma"],
     Redis: ["redis", "ioredis"],
     Docker: ["docker", "dockerfile", "docker-compose"],
-    Three.js: ["three", "@react-three"],
+    "Three.js": ["three", "@react-three"],
     TailwindCSS: ["tailwind"],
     Supabase: ["supabase"],
     Python: ["python", "pyproject.toml", "requirements.txt"],
@@ -210,8 +210,16 @@ export function verifyGitHubSignature(rawBody: string, signature: string | undef
 
 export async function processWebhook(payload: any) {
   if (!payload?.repository?.full_name) throw new Error("Webhook payload missing repository");
-  const repo = await github(`/repos/${payload.repository.full_name}`) as GitHubRepo;
-  const changed = [...new Set([...(payload.commits || []).flatMap((c: any) => [...(c.added || []), ...(c.modified || []), ...(c.removed || [])]) )] as string[];
+  const repo = (await github(`/repos/${payload.repository.full_name}`)) as GitHubRepo;
+  const changed = Array.from(
+    new Set<string>(
+      (payload.commits || []).flatMap((c: any) => [
+        ...(c.added || []),
+        ...(c.modified || []),
+        ...(c.removed || []),
+      ])
+    )
+  );
   const result = await syncRepository(repo, changed.filter((p) => TEXT_EXTENSIONS.test(p)));
   await prisma.$executeRawUnsafe(`INSERT INTO world_model_events (id,project_id,event_type,commit_sha,changed_paths,payload) VALUES ($1,$2,'github_webhook',$3,$4::jsonb,$5::jsonb)`, id("webhook", `${repo.full_name}:${payload.after || Date.now()}`), result.projectId, payload.after || null, JSON.stringify(changed), JSON.stringify({ action: payload.action, ref: payload.ref }));
   return result;
