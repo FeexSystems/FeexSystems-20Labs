@@ -11,10 +11,6 @@ import {
   Text,
   Float,
   Billboard,
-  Edges,
-  Outlines,
-  Trail,
-  Loader,
 } from "@react-three/drei";
 import * as THREE from "three";
 import {
@@ -162,25 +158,6 @@ function NodeMesh({
             />
           )}
 
-          {/* Drei Edges: Geometric Wireframe Highlighting with threshold=2 so sphere latitude/longitude facets are outlined */}
-          <Edges
-            linewidth={isSelected ? 2.5 : isHovered ? 2 : 1}
-            color={isSelected ? "#00FFA3" : chroma.primary}
-            threshold={2}
-            transparent
-            opacity={isSelected ? 0.9 : isHovered ? 0.7 : 0.28}
-          />
-
-          {/* Drei Outlines: Inverted-Hull Silky Halo on all Project Worlds */}
-          {node.type === "project" && !isDimmed && (
-            <Outlines
-              thickness={isSelected ? 0.12 : node.isPinned ? 0.08 : 0.05}
-              color={isSelected ? "#00FFA3" : chroma.accent}
-              transparent
-              opacity={isSelected ? 0.95 : 0.55}
-              screenspace={false}
-            />
-          )}
         </mesh>
 
         {/* Volumetric Atmospheric Glow Halo */}
@@ -215,7 +192,6 @@ function NodeMesh({
             outlineWidth={0.08}
             outlineColor="#030508"
             outlineOpacity={0.9}
-            font="https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_al0618U14d.woff2"
           >
             {node.name}
           </Text>
@@ -228,7 +204,6 @@ function NodeMesh({
               anchorY="middle"
               outlineWidth={0.04}
               outlineColor="#030508"
-              font="https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_al0618U14d.woff2"
             >
               {node.domain.toUpperCase()}
             </Text>
@@ -239,7 +214,7 @@ function NodeMesh({
   );
 }
 
-// Animated Traveling Pulse along Links via Drei Trail
+// Animated Traveling Telemetry Pulse along Links
 function AnimatedPulseSphere({
   start,
   end,
@@ -264,12 +239,10 @@ function AnimatedPulseSphere({
   });
 
   return (
-    <Trail width={size * 2.2} color={color} length={8} decay={1.2} local={false}>
-      <mesh ref={pulseRef}>
-        <sphereGeometry args={[size, 16, 16]} />
-        <meshBasicMaterial color={color} />
-      </mesh>
-    </Trail>
+    <mesh ref={pulseRef}>
+      <sphereGeometry args={[size, 16, 16]} />
+      <meshBasicMaterial color={color} />
+    </mesh>
   );
 }
 
@@ -688,7 +661,7 @@ export default function SpatialWorld() {
           <>
             <Canvas
               camera={{ position: [0, 10, 28], fov: 55 }}
-              gl={{ antialias: true, alpha: false }}
+              gl={{ antialias: true, alpha: true }}
             >
               <Suspense fallback={null}>
                 <WorldScene
@@ -701,34 +674,6 @@ export default function SpatialWorld() {
                 />
               </Suspense>
             </Canvas>
-            <Loader
-              containerStyles={{
-                backgroundColor: "rgba(3, 5, 8, 0.95)",
-                backdropFilter: "blur(16px)",
-                zIndex: 100,
-              }}
-              innerStyles={{
-                width: "280px",
-                backgroundColor: "rgba(10, 14, 23, 0.85)",
-                border: "1px solid rgba(0, 245, 212, 0.35)",
-                borderRadius: "8px",
-                padding: "10px",
-              }}
-              barStyles={{
-                backgroundColor: "#00F5D4",
-                height: "4px",
-                borderRadius: "2px",
-                boxShadow: "0 0 12px #00F5D4",
-              }}
-              dataStyles={{
-                fontFamily: "JetBrains Mono, monospace",
-                fontSize: "11px",
-                color: "#00F5D4",
-                letterSpacing: "0.05em",
-                marginTop: "10px",
-              }}
-              dataInterpolation={(p) => `INITIALIZING SPATIAL WORLD: ${p.toFixed(0)}%`}
-            />
           </>
         ) : (
           <div className="flex h-full items-center justify-center">
@@ -765,7 +710,7 @@ export default function SpatialWorld() {
         <div className="h-6 w-px bg-[#1E293B]" />
         <div className="flex items-center gap-1.5 font-mono text-[10px] text-[#00F5D4]/90 bg-[#00F5D4]/10 px-2.5 py-1 rounded border border-[#00F5D4]/30">
           <Sparkles className="h-3.5 w-3.5 text-[#00FFA3] animate-pulse" />
-          <span>DREI: CameraControls • Grid • Gizmo • Outlines • Edges • Trail • Sparkles</span>
+          <span>DREI SUITE: CameraControls • Grid • Gizmo • Stars • Sparkles • Billboard • Float • Text</span>
         </div>
       </div>
 
