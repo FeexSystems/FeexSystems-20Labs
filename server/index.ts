@@ -21,6 +21,7 @@ import securityRoutes from "./routes/security";
 import teamRoutes from "./routes/teams";
 import adminRoutes from "./routes/admin";
 import worldModelRoutes from "./routes/world-model";
+import omniCommandRoutes from "./routes/omni-command";
 import { connectDatabase } from "./lib/database";
 import { createRedisClient } from "./lib/redis";
 import { aiService } from "./lib/services/ai.service";
@@ -97,6 +98,9 @@ export function createServer(): express.Application {
 
   // Living Engineering Intelligence — World Model API
   app.use("/api/world-model", worldModelRoutes);
+
+  // Omni-Command Interface (agent-driven Stage)
+  app.use("/api/world-model/omni-command", omniCommandRoutes);
 
   if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
     setupSentryErrorHandler(app);
@@ -196,6 +200,7 @@ export async function startServer() {
     console.log(`📊 Health check: http://localhost:${port}/health`);
     console.log(`🔗 API ping: http://localhost:${port}/api/ping`);
     console.log(`🌐 World Model API: http://localhost:${port}/api/world-model/projects`);
+    console.log(`🎛️  Omni-Command: http://localhost:${port}/api/world-model/omni-command`);
   });
   return httpServer;
 }
