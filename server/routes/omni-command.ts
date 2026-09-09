@@ -1,28 +1,20 @@
 import { Request, Response, Router } from "express";
 import { executeOmniCommand } from "../lib/services/omni-command.service";
-import type { OmniCommandRequest } from "@shared/orchestration";
+import { validateOmniRequest } from "@shared/orchestration-schema";
 
 const router = Router();
 
-/**
- * POST /api/world-model/omni-command
- * Body: { query: string, context?: OmniCommandContext }
- */
 router.post("/", async (req: Request, res: Response) => {
   try {
-    const body = req.body as OmniCommandRequest;
-    if (!body || typeof body.query !== "string") {
+    const parsed = validateOmniRequest(req.body);
+    if (!parsed.success || !parsed.data) {
       return res.status(400).json({
         success: false,
-        error: "Body must contain a string 'query' field",
+        error: parsed.error || "Invalid Omni-Command request",
       });
     }
 
-    const result = await executeOmniCommand({
-      query: body.query,
-      context: body.context,
-    });
-
+    const result = await executeOmniCommand(parsed.data);
     res.json({ success: true, data: result });
   } catch (error) {
     console.error("[omni-command] failed:", error);
@@ -33,20 +25,12 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-/**
- * POST /api/world-model/omni-command/stream
- * Server-Sent Events: streams reasoning_trace steps, then final payload.
- * Events:
- *   event: trace   data: ReasoningStep
- *   event: result  data: OmniCommandResponse
- *   event: error   data: { message }
- */
 router.post("/stream", async (req: Request, res: Response) => {
-  const body = req.body as OmniCommandRequest;
-  if (!body || typeof body.query !== "string") {
+  const parsed = validateOmniRequest(req.body);
+  if (!parsed.success || !parsed.data) {
     return res.status(400).json({
       success: false,
-      error: "Body must contain a string 'query' field",
+      error: parsed.error || "Invalid Omni-Command request",
     });
   }
 
@@ -60,10 +44,7 @@ router.post("/stream", async (req: Request, res: Response) => {
   };
 
   try {
-    const result = await executeOmniCommand(
-      { query: body.query, context: body.context },
-      (traceStep) => send("trace", traceStep)
-    );
+    const result = await executeOmniCommand(parsed.data, (traceStep) => send("trace", traceStep));
     send("result", result);
   } catch (error) {
     send("error", {

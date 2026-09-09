@@ -1,9 +1,9 @@
 /**
  * Omni-Command Service
  *
- * Grounds queries in the World Model, then asks an LLM to emit a strict
- * Orchestration Contract JSON. Falls back to deterministic heuristics when
- * no provider key is available.
+ * Grounds queries in the World Model, asks an LLM (with few-shot examples) to
+ * choose a UI directive, validates the full Orchestration Contract with Zod,
+ * and carries multi-turn context (focused nodes, previous intent).
  */
 
 import { randomUUID } from "crypto";
@@ -18,10 +18,8 @@ import type {
   OmniComponent,
 } from "@shared/orchestration";
 import { createEmptyStageResponse } from "@shared/orchestration";
-import {
-  getWorldModelGraph,
-  retrieveWorld,
-} from "./github-pinned.service";
+import { validateOmniResponse } from "@shared/orchestration-schema";
+import { getWorldModelGraph, retrieveWorld } from "./github-pinned.service";
 
 function nowIso() {
   return new Date().toISOString();
@@ -32,56 +30,90 @@ function step(
   message: string,
   durationMs?: number
 ): ReasoningStep {
-  return {
-    id: randomUUID(),
-    type,
-    message,
-    timestamp: nowIso(),
-    durationMs,
-  };
+  return { id: randomUUID(), type, message, timestamp: nowIso(), durationMs };
 }
 
 export type TraceCallback = (s: ReasoningStep) => void;
 
-function classifyIntent(query: string) {
+function classifyIntent(query: string, context?: OmniCommandRequest["context"]) {
   const q = query.toLowerCase();
-  const preferGraph = /architecture|graph|topology|relationship|connected|depends|uses|visualize|map|network/.test(q);
+  const focusFollowUp =
+    /zoom|focus|that node|this node|that project|expand|drill/.test(q) &&
+    (context?.focusedNodeIds?.length ?? 0) > 0;
+
+  const preferGraph =
+    focusFollowUp ||
+    /architecture|graph|topology|relationship|connected|depends|uses|visualize|map|network/.test(q);
   const preferMarkdown = /explain|how does|what is|documentation|describe|overview/.test(q);
   const preferEvidence = /evidence|prove|sha|commit|artifact|source|where is/.test(q);
   const preferMetrics = /health|latency|uptime|status|metrics|live|dashboard/.test(q);
-  let intent = "EXPLORE_WORLD_MODEL";
+
+  let intent = context?.previousIntent || "EXPLORE_WORLD_MODEL";
   if (preferMetrics) intent = "SHOW_METRICS";
   else if (preferGraph) intent = "VISUALIZE_ARCHITECTURE";
   else if (preferEvidence) intent = "SHOW_EVIDENCE";
   else if (preferMarkdown) intent = "EXPLAIN_CAPABILITY";
-  return { intent, preferGraph, preferMarkdown, preferEvidence, preferMetrics };
+  else if (focusFollowUp) intent = "FOCUS_NODE";
+
+  return { intent, preferGraph, preferMarkdown, preferEvidence, preferMetrics, focusFollowUp };
 }
 
-/** Call Gemini or OpenAI and force a JSON Orchestration Contract fragment */
+const DIRECTOR_SYSTEM = `You are the FEEXSYSTEMS Omni-Command director.
+Your job: choose the best Stage component for a grounded World Model query.
+
+Return ONLY valid JSON:
+{"component":"GraphVisualizer"|"MarkdownViewer"|"MetricsDashboard"|"EvidencePanel","layoutHint":"full"|"split","confidence":0.0-1.0,"rationale":"one short sentence"}
+
+Rules (strict):
+1. GraphVisualizer — architecture, topology, relationships, "show connected", multi-entity maps.
+2. MarkdownViewer — explanations, narratives, "what is", documentation digests.
+3. MetricsDashboard — health, latency, uptime, live status, dashboards.
+4. EvidencePanel — proof, SHA, artifacts, "where is it implemented", provenance.
+5. Never invent component names outside the enum.
+6. Prefer EvidencePanel over MarkdownViewer when the user asks for proof/SHA.
+7. If the user says "zoom/focus/that node" and context has focusedNodeIds → GraphVisualizer.
+8. confidence reflects how clear the mapping is (0.55–0.95).
+
+Few-shot examples:
+User: "Show me the backend architecture"
+→ {"component":"GraphVisualizer","layoutHint":"full","confidence":0.92,"rationale":"Architecture maps to graph topology"}
+
+User: "Which projects use PostgreSQL?"
+→ {"component":"GraphVisualizer","layoutHint":"full","confidence":0.88,"rationale":"Project–technology relationships"}
+
+User: "Explain the data pipeline"
+→ {"component":"MarkdownViewer","layoutHint":"full","confidence":0.9,"rationale":"Narrative explanation"}
+
+User: "Show evidence for Persona OS"
+→ {"component":"EvidencePanel","layoutHint":"full","confidence":0.93,"rationale":"Provenance and SHA-backed artifacts"}
+
+User: "Run a health check"
+→ {"component":"MetricsDashboard","layoutHint":"full","confidence":0.95,"rationale":"Live platform metrics"}
+
+User: "Zoom into that node" (context.focusedNodeIds present)
+→ {"component":"GraphVisualizer","layoutHint":"full","confidence":0.87,"rationale":"Focus follow-up on graph"}`;
+
 async function llmChooseDirective(args: {
   query: string;
   intent: string;
   groundedSummary: string;
   nodeSample: string;
+  context?: OmniCommandRequest["context"];
 }): Promise<{ component: OmniComponent; layoutHint?: string; confidence: number } | null> {
-  const system = `You are the FEEXSYSTEMS Omni-Command director.
-Return ONLY valid JSON matching:
-{"component":"GraphVisualizer"|"MarkdownViewer"|"MetricsDashboard"|"EvidencePanel","layoutHint":"full"|"split","confidence":0.0-1.0}
-Rules:
-- Prefer GraphVisualizer for architecture/relationships/topology.
-- Prefer MarkdownViewer for explanations and evidence narratives.
-- Prefer MetricsDashboard for health/latency/uptime/status.
-- Prefer EvidencePanel when the user asks for proof/SHA/artifacts.
-- Never invent components outside the enum.`;
+  const user = [
+    `Query: ${args.query}`,
+    `Intent hint: ${args.intent}`,
+    args.context?.previousIntent ? `Previous intent: ${args.context.previousIntent}` : null,
+    args.context?.focusedNodeIds?.length
+      ? `Focused nodes: ${args.context.focusedNodeIds.join(", ")}`
+      : null,
+    args.context?.lastQuery ? `Previous query: ${args.context.lastQuery}` : null,
+    `Grounded World Model summary:\n${args.groundedSummary}`,
+    `Sample nodes: ${args.nodeSample || "(none)"}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
 
-  const user = `Query: ${args.query}
-Intent hint: ${args.intent}
-Grounded World Model summary:
-${args.groundedSummary}
-Sample nodes:
-${args.nodeSample}`;
-
-  // Gemini first
   const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey) {
     try {
@@ -90,8 +122,12 @@ ${args.nodeSample}`;
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: `${system}\n\n${user}` }] }],
-          generationConfig: { temperature: 0.2, maxOutputTokens: 256, responseMimeType: "application/json" },
+          contents: [{ role: "user", parts: [{ text: `${DIRECTOR_SYSTEM}\n\n${user}` }] }],
+          generationConfig: {
+            temperature: 0.15,
+            maxOutputTokens: 320,
+            responseMimeType: "application/json",
+          },
         }),
       });
       if (res.ok) {
@@ -107,7 +143,6 @@ ${args.nodeSample}`;
     }
   }
 
-  // OpenAI fallback
   const openaiKey = process.env.OPENAI_API_KEY;
   if (openaiKey) {
     try {
@@ -119,10 +154,10 @@ ${args.nodeSample}`;
         },
         body: JSON.stringify({
           model: "gpt-4o-mini",
-          temperature: 0.2,
+          temperature: 0.15,
           response_format: { type: "json_object" },
           messages: [
-            { role: "system", content: system },
+            { role: "system", content: DIRECTOR_SYSTEM },
             { role: "user", content: user },
           ],
         }),
@@ -141,6 +176,30 @@ ${args.nodeSample}`;
   }
 
   return null;
+}
+
+function contextualSuggestions(
+  intent: string,
+  focusedIds: string[] | undefined,
+  anchors: EvidenceAnchor[]
+): string[] {
+  const base = [
+    "Show me the backend architecture",
+    "Which projects use PostgreSQL?",
+    "Run a health check on the platform",
+    "Show evidence for the knowledge graph",
+  ];
+  const extra: string[] = [];
+  if (focusedIds?.length) {
+    extra.push("Zoom into the focused node");
+    extra.push("Show evidence for this node");
+  }
+  if (anchors.some((a) => a.type === "project")) {
+    extra.push(`Explain ${anchors.find((a) => a.type === "project")!.label}`);
+  }
+  if (intent === "VISUALIZE_ARCHITECTURE") extra.push("List technologies in this graph");
+  if (intent === "SHOW_METRICS") extra.push("Show architecture again");
+  return [...extra, ...base].slice(0, 6);
 }
 
 export async function executeOmniCommand(
@@ -162,12 +221,25 @@ export async function executeOmniCommand(
   const query = req.query.trim();
   push(step("parse", `Parsing intent from: "${query.slice(0, 80)}${query.length > 80 ? "…" : ""}"`));
 
-  const classified = classifyIntent(query);
+  if (req.context?.focusedNodeIds?.length) {
+    push(step("parse", `Context focus: ${req.context.focusedNodeIds.join(", ")}`));
+  }
+  if (req.context?.previousIntent) {
+    push(step("parse", `Previous intent: ${req.context.previousIntent}`));
+  }
+
+  const classified = classifyIntent(query, req.context);
   push(step("parse", `Classified intent → ${classified.intent}`));
 
   try {
+    // Multi-turn: bias retrieval with focused node labels when present
+    const retrievalQuery =
+      classified.focusFollowUp && req.context?.focusedNodeIds?.length
+        ? `${query} ${req.context.focusedNodeIds.join(" ")}`
+        : query;
+
     const t0 = Date.now();
-    const navigatorResult = await retrieveWorld(query);
+    const navigatorResult = await retrieveWorld(retrievalQuery);
     push(
       step(
         "retrieve",
@@ -177,7 +249,7 @@ export async function executeOmniCommand(
     );
 
     let graph: any = null;
-    if (classified.preferGraph || !classified.preferMarkdown) {
+    if (classified.preferGraph || classified.focusFollowUp || !classified.preferMarkdown) {
       const t1 = Date.now();
       graph = await getWorldModelGraph();
       const nodeCount = Array.isArray(graph?.nodes) ? graph.nodes.length : 0;
@@ -208,12 +280,13 @@ export async function executeOmniCommand(
       .map((n: any) => `${n.id}:${n.name || n.label}`)
       .join(", ");
 
-    push(step("decide", "Asking model to choose UI directive (Orchestration Contract)…"));
+    push(step("decide", "Asking model to choose UI directive (few-shot Orchestration Contract)…"));
     const llmChoice = await llmChooseDirective({
       query,
       intent: classified.intent,
       groundedSummary,
       nodeSample,
+      context: req.context,
     });
 
     let component: OmniComponent =
@@ -222,7 +295,7 @@ export async function executeOmniCommand(
         ? "MetricsDashboard"
         : classified.preferEvidence
           ? "EvidencePanel"
-          : classified.preferGraph
+          : classified.preferGraph || classified.focusFollowUp
             ? "GraphVisualizer"
             : "MarkdownViewer");
 
@@ -241,30 +314,28 @@ export async function executeOmniCommand(
         props,
         layoutHint: "full",
       });
-    } else if (component === "GraphVisualizer" || component === "EvidencePanel" && graph) {
-      if (component === "EvidencePanel" && !classified.preferGraph) {
-        // evidence narrative
-        const props: MarkdownViewerProps = {
-          title: `Evidence for “${query}”`,
-          content: buildEvidenceMarkdown(navigatorResult),
-          evidence_anchors,
-        };
-        response = baseResponse(requestId, classified.intent, llmChoice?.confidence ?? 0.85, evidence_anchors, trace, req, {
-          component: "MarkdownViewer",
-          props,
-          layoutHint: "full",
-        });
-      } else {
-        const props = mapGraphToVisualizerProps(graph, navigatorResult);
-        push(step("render", `Rendering GraphVisualizer with ${props.nodes.length} nodes`));
-        response = baseResponse(requestId, classified.intent, llmChoice?.confidence ?? 0.9, evidence_anchors, trace, req, {
-          component: "GraphVisualizer",
-          props,
-          layoutHint: "full",
-        });
-        if (props.focusNodeId) {
-          response.context.focusedNodeIds = [props.focusNodeId];
-        }
+    } else if (component === "EvidencePanel" && !classified.preferGraph) {
+      const props: MarkdownViewerProps = {
+        title: `Evidence for “${query}”`,
+        content: buildEvidenceMarkdown(navigatorResult),
+        evidence_anchors,
+      };
+      response = baseResponse(requestId, classified.intent, llmChoice?.confidence ?? 0.85, evidence_anchors, trace, req, {
+        component: "MarkdownViewer",
+        props,
+        layoutHint: "full",
+      });
+    } else if (component === "GraphVisualizer" || classified.preferGraph || classified.focusFollowUp) {
+      const focusOverride = req.context?.focusedNodeIds?.[0];
+      const props = mapGraphToVisualizerProps(graph, navigatorResult, focusOverride);
+      push(step("render", `Rendering GraphVisualizer with ${props.nodes.length} nodes`));
+      response = baseResponse(requestId, classified.intent, llmChoice?.confidence ?? 0.9, evidence_anchors, trace, req, {
+        component: "GraphVisualizer",
+        props,
+        layoutHint: "full",
+      });
+      if (props.focusNodeId) {
+        response.context.focusedNodeIds = [props.focusNodeId];
       }
     } else {
       const explanation =
@@ -293,13 +364,29 @@ export async function executeOmniCommand(
       });
     }
 
+    response.context.lastQuery = query;
+    response.suggestions = contextualSuggestions(
+      classified.intent,
+      response.context.focusedNodeIds,
+      evidence_anchors
+    );
+
     response.reasoning_trace.push(step("render", `Omni-Command completed in ${Date.now() - started} ms`));
     onTrace?.(response.reasoning_trace[response.reasoning_trace.length - 1]);
+
+    // Option A: Zod gate
+    const validated = validateOmniResponse(response);
+    if (!validated.success) {
+      console.warn("[omni] Response failed Zod validation:", validated.error);
+      // still return best-effort but mark partial
+      response.status = "partial";
+    }
+
     return response;
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     push(step("tool", `Error: ${message}`));
-    return {
+    const errorResponse: OmniCommandResponse = {
       version: "1.0",
       requestId,
       intent: "ERROR",
@@ -308,11 +395,12 @@ export async function executeOmniCommand(
       groundedEvidenceCount: 0,
       reasoning_trace: trace,
       ui_directive: { component: "ErrorStage", props: { message } },
-      context: req.context ?? {},
+      context: { ...(req.context ?? {}), lastQuery: query },
       suggestions: ["Try a simpler query", "Show all projects", "Run a health check"],
       evidence_anchors: [],
       error: { code: "OMNI_COMMAND_FAILED", message, recoverable: true },
     };
+    return errorResponse;
   }
 }
 
@@ -334,20 +422,22 @@ function baseResponse(
     groundedEvidenceCount: evidence_anchors.length,
     reasoning_trace: [...trace],
     ui_directive,
-    context: { ...(req.context ?? {}), previousIntent: intent },
-    suggestions: [
-      "Show me the backend architecture",
-      "Which projects use PostgreSQL?",
-      "Run a health check on the platform",
-      "Show evidence for the knowledge graph",
-    ],
+    context: {
+      ...(req.context ?? {}),
+      previousIntent: intent,
+      focusedNodeIds: req.context?.focusedNodeIds,
+    },
+    suggestions: [],
     evidence_anchors,
   };
 }
 
-function mapGraphToVisualizerProps(graph: any, navigatorResult: any): GraphVisualizerProps {
+function mapGraphToVisualizerProps(
+  graph: any,
+  navigatorResult: any,
+  focusOverride?: string
+): GraphVisualizerProps {
   const rawNodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
-  // API returns `links`, not `edges`
   const rawEdges = Array.isArray(graph?.links)
     ? graph.links
     : Array.isArray(graph?.edges)
@@ -355,8 +445,9 @@ function mapGraphToVisualizerProps(graph: any, navigatorResult: any): GraphVisua
       : [];
 
   const focusId =
-    navigatorResult?.projects?.[0]?.id ??
-    rawNodes.find((n: any) => n.isPinned)?.id ??
+    focusOverride ||
+    navigatorResult?.projects?.[0]?.id ||
+    rawNodes.find((n: any) => n.isPinned)?.id ||
     rawNodes[0]?.id;
 
   const nodes = rawNodes.slice(0, 48).map((n: any, idx: number) => ({
@@ -415,7 +506,6 @@ function buildEvidenceMarkdown(navigatorResult: any): string {
 }
 
 async function buildMetricsProps(): Promise<MetricsDashboardProps> {
-  // Lightweight local health snapshot (same process)
   const points: MetricsDashboardProps["data_points"] = [];
   const now = Date.now();
   for (let i = 9; i >= 0; i--) {

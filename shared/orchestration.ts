@@ -1,13 +1,5 @@
 /**
  * FEEXSYSTEMS Omni-Command Orchestration Contract (v1.0)
- *
- * The frontend is a "dumb canvas". The agent returns this payload and the
- * Stage dynamically mounts the correct React component.
- *
- * Canonical principles preserved:
- * - World Model is authoritative
- * - Evidence, not claims
- * - Provider-neutral intelligence
  */
 
 export type OmniComponent =
@@ -31,7 +23,7 @@ export interface ReasoningStep {
   id: string;
   type: ReasoningStepType;
   message: string;
-  timestamp: string; // ISO-8601
+  timestamp: string;
   durationMs?: number;
 }
 
@@ -88,6 +80,8 @@ export interface OmniCommandContext {
   filters?: Record<string, string>;
   previousIntent?: string;
   sessionId?: string;
+  /** Last user query in this session (multi-turn) */
+  lastQuery?: string;
 }
 
 export interface OmniCommandRequest {
@@ -100,27 +94,21 @@ export interface OmniCommandResponse {
   requestId: string;
   intent: string;
   status: "success" | "partial" | "error";
-  confidence: number; // 0–1
+  confidence: number;
   groundedEvidenceCount: number;
-
   reasoning_trace: ReasoningStep[];
-
   ui_directive: {
     component: OmniComponent;
     props: GraphVisualizerProps | MarkdownViewerProps | MetricsDashboardProps | Record<string, unknown>;
     layoutHint?: "full" | "split" | "sidebar";
   };
-
   secondary_directive?: {
     component: OmniComponent;
     props: Record<string, unknown>;
   };
-
   context: OmniCommandContext;
-
   suggestions: string[];
   evidence_anchors: EvidenceAnchor[];
-
   error?: {
     code: string;
     message: string;
@@ -128,7 +116,6 @@ export interface OmniCommandResponse {
   };
 }
 
-/** Helper to create a minimal empty-stage response */
 export function createEmptyStageResponse(requestId: string): OmniCommandResponse {
   return {
     version: "1.0",
