@@ -66,3 +66,6 @@ Thumbs.db
 # Temporary directories
 .tmp
 .tmp/
+
+# Root screenshot artifacts
+/*.png

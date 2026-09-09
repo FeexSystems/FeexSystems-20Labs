@@ -27,3 +27,13 @@ When developing, extending, or maintaining 3D WebGL components in `client/` (esp
 
 5. **Branded Loading States**:
    - Place `@react-three/drei` `<Loader />` alongside the canvas container with glassmorphic obsidian styling and phosphor cyan progress telemetry.
+
+6. **Screen-Space Typography vs Troika Font Suspension**:
+   - In landing canvases and immediate above-the-fold 3D components, prefer `@react-three/drei` `<Html center>` with `distanceFactor` and pointer-events control over `<Text>`. This eliminates canvas blanking and suspension delays caused by Troika WebFont network loading.
+
+7. **Explicit Trail Target Anchoring**:
+   - When using `@react-three/drei` `<Trail>` on dynamically animated orbiting meshes or particles inside `useFrame`, always bind `target={meshRef}` explicitly so the ribbon geometry accurately tracks interpolated coordinates.
+
+8. **Industrial Developer Platform Aesthetics & Hairline Grids**:
+   - Ground 3D WebGL canvases with hairline matrix grids (`gap-px bg-gray-20`), wireframe cross-hatching (`.bg-diagonal-stripes`), and custom easing curves (`cubic-bezier(0.34, 1.56, 0.64, 1)`).
+
