@@ -6,6 +6,7 @@ import { ReasoningTrace } from "@/components/omni/ReasoningTrace";
 import { useOmniStore } from "@/stores/omniStore";
 import type { OmniCommandResponse, ReasoningStep } from "@shared/orchestration";
 import { Globe, Compass } from "lucide-react";
+import "reactflow/dist/style.css";
 
 async function streamOmniCommand(
   query: string,
@@ -19,7 +20,6 @@ async function streamOmniCommand(
   });
 
   if (!res.ok || !res.body) {
-    // Fallback to non-streaming endpoint
     const fallback = await fetch("/api/world-model/omni-command", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
