@@ -1,6 +1,32 @@
-import React from "react";
-import type { GraphVisualizerProps, GraphNode } from "../../../../shared/orchestration";
-import { Cpu, Database, Terminal, Cloud, Zap, Layers } from "lucide-react";
+import React, { useMemo } from "react";
+import type { GraphVisualizerProps, GraphNode } from "@shared/orchestration";
+import { Cpu, Database, Terminal, Cloud, Layers, Zap } from "lucide-react";
+
+// Optional reactflow — works when dependency is installed
+let ReactFlow: any = null;
+let Background: any = null;
+let Controls: any = null;
+let MarkerType: any = null;
+let Handle: any = null;
+let Position: any = null;
+let useNodesState: any = null;
+let useEdgesState: any = null;
+
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const rf = require("reactflow");
+  ReactFlow = rf.default || rf;
+  Background = rf.Background;
+  Controls = rf.Controls;
+  MarkerType = rf.MarkerType;
+  Handle = rf.Handle;
+  Position = rf.Position;
+  useNodesState = rf.useNodesState;
+  useEdgesState = rf.useEdgesState;
+  // CSS is imported by the page when reactflow is present
+} catch {
+  /* grid fallback */
+}
 
 const typeIcon = (type: string) => {
   switch (type) {
@@ -28,9 +54,7 @@ function NodeCard({ node, focused }: { node: GraphNode; focused?: boolean }) {
       }`}
     >
       <div className="flex items-center gap-2.5">
-        <div className="p-1.5 rounded-lg bg-zinc-800 border border-zinc-700">
-          {typeIcon(node.type)}
-        </div>
+        <div className="p-1.5 rounded-lg bg-zinc-800 border border-zinc-700">{typeIcon(node.type)}</div>
         <div className="min-w-0">
           <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider truncate">
             {node.group || node.type}
@@ -38,6 +62,81 @@ function NodeCard({ node, focused }: { node: GraphNode; focused?: boolean }) {
           <div className="text-sm font-medium text-zinc-100 truncate">{node.label}</div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function TechNode({ data }: { data: any }) {
+  return (
+    <div className="px-3 py-2 shadow-xl rounded-xl bg-zinc-900 border border-zinc-700 w-44 hover:border-indigo-500 transition-all">
+      {Handle && Position && (
+        <>
+          <Handle type="target" position={Position.Top} className="!w-2 !h-2 !bg-zinc-400 !border-none" />
+          <Handle type="source" position={Position.Bottom} className="!w-2 !h-2 !bg-zinc-400 !border-none" />
+        </>
+      )}
+      <div className="flex items-center gap-2">
+        <div className="p-1.5 rounded-lg bg-zinc-800 border border-zinc-700">{typeIcon(data.type)}</div>
+        <div className="min-w-0">
+          <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider truncate">
+            {data.group || data.type}
+          </div>
+          <div className="text-sm font-bold text-zinc-100 truncate">{data.label}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReactFlowGraph({ nodes, edges, focusNodeId }: GraphVisualizerProps) {
+  const initialNodes = useMemo(
+    () =>
+      nodes.map((n, idx) => ({
+        id: n.id,
+        type: "techNode",
+        position: n.position || { x: 80 + (idx % 5) * 220, y: 60 + Math.floor(idx / 5) * 160 },
+        data: { label: n.label, type: n.type, group: n.group },
+        style:
+          n.id === focusNodeId
+            ? { boxShadow: "0 0 0 2px rgba(99,102,241,0.6)" }
+            : undefined,
+      })),
+    [nodes, focusNodeId]
+  );
+
+  const initialEdges = useMemo(
+    () =>
+      edges.map((e, i) => ({
+        id: e.id || `e-${i}`,
+        source: e.source,
+        target: e.target,
+        label: e.label || e.relation,
+        animated: e.animated !== false,
+        style: { stroke: "#6366f1", strokeWidth: 1.5 },
+        markerEnd: MarkerType
+          ? { type: MarkerType.ArrowClosed, color: "#6366f1" }
+          : undefined,
+      })),
+    [edges]
+  );
+
+  const [rfNodes, , onNodesChange] = useNodesState(initialNodes);
+  const [rfEdges, , onEdgesChange] = useEdgesState(initialEdges);
+
+  return (
+    <div className="w-full h-full min-h-[420px]">
+      <ReactFlow
+        nodes={rfNodes}
+        edges={rfEdges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        nodeTypes={{ techNode: TechNode }}
+        fitView
+        className="bg-zinc-950"
+      >
+        {Background && <Background color="#27272a" gap={24} size={1} />}
+        {Controls && <Controls className="!bg-zinc-900 !border-zinc-800 !fill-zinc-400" />}
+      </ReactFlow>
     </div>
   );
 }
@@ -53,22 +152,34 @@ export function GraphVisualizer(props: GraphVisualizerProps) {
     );
   }
 
+  if (ReactFlow && useNodesState) {
+    return (
+      <div className="w-full h-full flex flex-col">
+        <div className="px-4 py-2 text-xs font-mono text-zinc-500 border-b border-zinc-900">
+          GraphVisualizer (React Flow) · {nodes.length} nodes · {edges.length} edges
+          {focusNodeId ? ` · focus ${focusNodeId}` : ""}
+        </div>
+        <div className="flex-1 min-h-0">
+          <ReactFlowGraph {...props} />
+        </div>
+      </div>
+    );
+  }
+
+  // Grid fallback when reactflow is not installed
   return (
     <div className="w-full h-full overflow-auto p-6 md:p-10">
       <div className="mb-4 flex items-center justify-between text-xs font-mono text-zinc-500">
         <span>
-          GraphVisualizer · {nodes.length} nodes · {edges.length} edges
+          GraphVisualizer (grid) · {nodes.length} nodes · {edges.length} edges
         </span>
         {focusNodeId && <span className="text-indigo-400">focus: {focusNodeId}</span>}
       </div>
-
-      {/* Simple responsive grid layout (force-directed can be added later with reactflow) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {nodes.map((n) => (
           <NodeCard key={n.id} node={n} focused={n.id === focusNodeId} />
         ))}
       </div>
-
       {edges.length > 0 && (
         <div className="mt-10 pt-6 border-t border-zinc-800">
           <h3 className="text-xs font-mono uppercase tracking-widest text-zinc-500 mb-3">

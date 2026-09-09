@@ -1,10 +1,9 @@
 import React from "react";
-import type { MarkdownViewerProps } from "../../../../shared/orchestration";
+import type { MarkdownViewerProps } from "@shared/orchestration";
 
 export function MarkdownViewer(props: MarkdownViewerProps) {
   const { title, content, evidence_anchors = [] } = props;
 
-  // Extremely lightweight markdown → HTML (headers + lists + code)
   const html = content
     .replace(/^### (.*$)/gim, "<h3 class='text-base font-semibold text-zinc-100 mt-4 mb-2'>$1</h3>")
     .replace(/^## (.*$)/gim, "<h2 class='text-lg font-bold text-white mt-5 mb-2'>$1</h2>")

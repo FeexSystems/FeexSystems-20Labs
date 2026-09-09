@@ -1,6 +1,6 @@
 import React from "react";
 import { ArrowRight, Loader2 } from "lucide-react";
-import type { ReasoningStep } from "../../../shared/orchestration";
+import type { ReasoningStep } from "@shared/orchestration";
 
 interface ReasoningTraceProps {
   steps: ReasoningStep[];
