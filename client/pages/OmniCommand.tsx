@@ -6,7 +6,6 @@ import { ReasoningTrace } from "@/components/omni/ReasoningTrace";
 import { useOmniStore } from "@/stores/omniStore";
 import type { OmniCommandResponse, ReasoningStep } from "@shared/orchestration";
 import { Globe, Compass } from "lucide-react";
-import "reactflow/dist/style.css";
 
 async function streamOmniCommand(
   query: string,
