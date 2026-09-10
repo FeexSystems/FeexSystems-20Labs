@@ -2,7 +2,7 @@
 
 ## Purpose
 
-FEEXSYSTEMS is the application hosted at `FeexSystems.codes`. Its purpose is to turn the FeexSystems engineering ecosystem into an evidence-backed, continuously synchronized World Model that people can explore through a SaaS interface and Navigator.
+FEEXSYSTEMS is the application hosted at `FeexSystems.codes`. Its purpose is to turn the FeexSystems engineering ecosystem into an evidence-backed, continuously synchronized World Model that people can explore through a SaaS interface, Navigator, Omni-Command Stage, and spatial experiences.
 
 ## System boundary
 
@@ -19,9 +19,9 @@ Evidence Fabric + relationships
         ↓
 Graph / vector retrieval
         ↓
-Navigator / reasoning
+Navigator / Omni director / reasoning
         ↓
-Project Explorer / spatial experience
+Project Explorer · Omni Stage · spatial experience
 ```
 
 The Persona OS project is a project represented inside FEEXSYSTEMS. It is not the parent application.
@@ -30,15 +30,15 @@ The Persona OS project is a project represented inside FEEXSYSTEMS. It is not th
 
 ### Experience
 
-Public landing page, project explorer, Navigator, command center and future spatial/voice interfaces.
+Public landing page, project explorer, Navigator, **Omni-Command Stage**, command center and future spatial/voice interfaces.
 
 ### Navigation
 
-A common navigation contract for search, project traversal, graph exploration, voice and direct links.
+A common navigation contract for search, project traversal, graph exploration, voice, deep links (`/omni?q=…`) and direct routes.
 
 ### Intelligence
 
-Provider-neutral model adapters, grounded retrieval, reasoning, summarization and controlled agents.
+Provider-neutral model adapters, grounded retrieval, the Omni **LLM director** (few-shot Orchestration Contract emission), reasoning, summarization and controlled agents.
 
 ### World Model
 
@@ -60,7 +60,7 @@ PostgreSQL/Prisma for durable state and Redis for caching/session workloads. pgv
 
 The persistent World Model is authoritative. Browser state, generated prose and LLM output are not authoritative data sources.
 
-A model may interpret or propose changes, but canonical mutations must pass through the World Model mutation path and retain provenance.
+A model may interpret or propose UI directives, but canonical mutations must pass through the World Model mutation path and retain provenance. Omni-Command responses are validated with Zod before the Stage mounts components.
 
 ## Runtime flow
 
@@ -72,8 +72,27 @@ A model may interpret or propose changes, but canonical mutations must pass thro
 6. Create or reconcile graph relationships.
 7. Record evidence and World Model events.
 8. Process future webhook changes incrementally.
-9. Retrieve grounded context for Navigator requests.
-10. Present explanations with paths/evidence where available.
+9. Retrieve grounded context for Navigator / Omni requests.
+10. Omni director selects a Stage component via Orchestration Contract (or heuristic fallback).
+11. Present explanations, graphs, or metrics with paths/evidence where available.
+
+## Omni-Command plane
+
+```text
+Query + multi-turn context
+    ↓
+retrieveWorld / getWorldModelGraph
+    ↓
+LLM director (Gemini → OpenAI) or heuristic
+    ↓
+Orchestration Contract (Zod)
+    ↓
+SSE trace + final payload
+    ↓
+ComponentRegistry → Stage canvas
+```
+
+See `docs/OMNI_COMMAND.md` for the contract and component registry.
 
 ## Future production evolution
 
@@ -94,7 +113,7 @@ Temporal event
     ↓
 Read-model refresh
     ↓
-Navigator
+Navigator / Omni-Command
 ```
 
 The browser should remain a projection of server state rather than the canonical persistence layer.

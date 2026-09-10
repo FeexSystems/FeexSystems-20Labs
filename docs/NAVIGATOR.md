@@ -41,6 +41,19 @@ Navigator must distinguish observed facts from inference. If evidence is missing
 
 The model provider is replaceable. Navigator depends on a stable World Model retrieval contract rather than a provider-specific database representation.
 
+## Relationship to Omni-Command
+
+Omni-Command (`/omni`) reuses the same grounded retrieval stack (`retrieveWorld`, World Model graph) but returns an **Orchestration Contract** so the UI can mount a Stage component (graph, markdown, metrics, evidence) instead of a fixed Navigator layout.
+
+| Concern | Navigator | Omni-Command |
+|---------|-----------|--------------|
+| Primary output | Answer + evidence | Answer + UI directive |
+| UI | Dedicated Navigator page | Dynamic Stage |
+| Streaming | Optional | SSE reasoning trace |
+| Multi-turn | Session-dependent | Explicit context chips + deep links |
+
+See `docs/OMNI_COMMAND.md` for the full Omni pipeline and contract.
+
 ## Future capabilities
 
 - pgvector semantic retrieval

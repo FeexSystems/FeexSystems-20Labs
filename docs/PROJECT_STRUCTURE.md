@@ -5,8 +5,13 @@ FEEXSYSTEMS is organized by responsibility rather than historical task numbers o
 ```text
 FeexSystems-Living-Intelligence-World/
 ├── client/        # React/Vite public and authenticated application
+│   ├── components/omni/   # Omni Stage, command bar, visualizers, context chips
+│   ├── pages/OmniCommand.tsx
+│   └── stores/omniStore.ts
 ├── server/        # API, World Model, ingestion and intelligence services
-├── shared/        # Shared types and contracts
+│   ├── routes/omni-command.ts
+│   └── lib/services/omni-command.service.ts
+├── shared/        # Shared types and contracts (orchestration + Zod schemas)
 ├── prisma/        # Database schema and migrations
 ├── docs/          # Canonical product, architecture and operations documentation
 ├── scripts/       # Maintained operational scripts only
@@ -30,4 +35,12 @@ FeexSystems-Living-Intelligence-World/
 
 ## Canonical product flow
 
-GitHub Organization → Repository Discovery → Persistent World Model → Evidence Fabric → Incremental Ingestion → Project Explorer → Navigator.
+```text
+GitHub Organization
+  → Repository Discovery
+  → Persistent World Model
+  → Evidence Fabric
+  → Incremental Ingestion
+  → Project Explorer
+  → Navigator / Omni-Command Stage
+```

@@ -32,6 +32,8 @@ Incremental GitHub Webhook
 World Model Mutation
         ↓
 Navigator Retrieval
+        ↓
+Omni-Command (agent → Stage UI)
 ```
 
 The World Model is authoritative. The LLM is an interpreter and reasoning layer; it does not silently create canonical facts.
@@ -49,6 +51,7 @@ The World Model is authoritative. The LLM is an interpreter and reasoning layer;
 - Incremental GitHub webhook ingestion with HMAC verification
 - World Model event history
 - Grounded Navigator API and public Navigator experience
+- **Omni-Command Interface** — natural-language command bar that mounts dynamic Stage components from a validated Orchestration Contract
 - Existing authentication, dashboard, billing, DevOps and security platform foundations
 
 ## Architecture
@@ -56,13 +59,13 @@ The World Model is authoritative. The LLM is an interpreter and reasoning layer;
 ```text
 ┌─────────────────────────────────────────────┐
 │ EXPERIENCE                                  │
-│ Landing · Projects · Navigator · 3D World  │
+│ Landing · Projects · Navigator · Omni · 3D │
 ├─────────────────────────────────────────────┤
 │ NAVIGATION                                  │
-│ Search · Graph traversal · Exploration     │
+│ Search · Graph traversal · Command Stage   │
 ├─────────────────────────────────────────────┤
 │ INTELLIGENCE                                │
-│ LLM · Agents · Reasoning · Explanation     │
+│ LLM director · Agents · Orchestration JSON │
 ├─────────────────────────────────────────────┤
 │ WORLD MODEL                                 │
 │ Projects · Artifacts · Technologies        │
@@ -89,27 +92,33 @@ The World Model is authoritative. The LLM is an interpreter and reasoning layer;
 7. **Human + machine** — the Persona is the builder; AI is the navigation and reasoning interface.
 8. **Autonomous, not uncontrolled** — mutations follow validation and provenance rules.
 9. **Browser as projection** — persistent server state is canonical; client state is a read model/cache.
+10. **Agent-driven Stage** — Omni-Command returns an Orchestration Contract; the UI mounts components, it does not invent World Model facts.
 
 ## Technology stack
 
-- **Frontend:** React 18, React Router 7, TypeScript, Vite, Tailwind CSS 3, Three.js (`@react-three/fiber` & `@react-three/drei`), Procedural GLSL Planetary Core Shaders, Radix UI, Lucide Icons
+- **Frontend:** React 18, React Router 7, TypeScript, Vite, Tailwind CSS 3, Three.js (`@react-three/fiber` & `@react-three/drei`), React Flow (Omni graph Stage), Zustand, Procedural GLSL Planetary Core Shaders, Radix UI, Lucide Icons
 - **Backend:** Express 5 server integrated with Vite dev server, TypeScript
 - **Database & Retrieval:** PostgreSQL 15+, Prisma ORM, pgvector semantic retrieval
 - **Cache & Queues:** Redis (ioredis), Bull queue
 - **Authentication:** JWT, refresh tokens, role-based access control (RBAC)
 - **Testing:** Vitest, MSW, Playwright E2E
 - **Infrastructure:** Docker / Docker Compose
-- **Intelligence & AI:** Provider-neutral model adapters (`aiService`), Gemini API (Interactions & Live), Evidence Fabric grounded retrieval
+- **Intelligence & AI:** Provider-neutral model adapters (`aiService`), Gemini / OpenAI Omni director, Evidence Fabric grounded retrieval, Zod Orchestration Contract validation
 
 ## Project structure
 
 ```text
 FeexSystems-Living-Intelligence-World/
-├── client/                  # Public SaaS UI, 3D Spatial World & authenticated application
-├── server/                  # Express 5 API, World Model, and ingestion services
-├── shared/                  # Shared TypeScript contracts and schema types
+├── client/                  # Public SaaS UI, Omni Stage, 3D Spatial World
+│   ├── components/omni/     # Command bar, Stage, visualizers, context chips
+│   ├── pages/OmniCommand.tsx
+│   └── stores/omniStore.ts
+├── server/                  # Express 5 API, World Model, Omni service
+│   ├── routes/omni-command.ts
+│   └── lib/services/omni-command.service.ts
+├── shared/                  # Orchestration contract types + Zod schemas
 ├── prisma/                  # Prisma schema and PostgreSQL migrations
-├── docs/                    # Architecture, World Model, Evidence Fabric & Brand library
+├── docs/                    # Architecture, World Model, Omni, Evidence, Brand
 ├── docker/                  # Container configuration
 └── .agents/                 # Antigravity agent rules, skills, and spatial standards
 ```
@@ -134,11 +143,21 @@ cp .env.example .env
 npm run dev
 ```
 
+Optional Omni LLM direction (heuristic fallback works without keys):
+
+```bash
+# .env
+GEMINI_API_KEY=...
+# or
+OPENAI_API_KEY=...
+```
+
 ### Useful commands
 
 ```bash
 npm run dev
 npm test
+npm test -- omni-command.schema
 npm run test:coverage
 npm run build
 npm run db:init
@@ -148,6 +167,17 @@ npm run db:studio
 npm run docker:dev
 npm run docker:down
 ```
+
+### Key UI routes
+
+| Route | Experience |
+|-------|------------|
+| `/` | Landing |
+| `/navigator` | Grounded Navigator |
+| `/omni` | Omni-Command Interface |
+| `/omni?q=Show+architecture` | Deep-link auto-execute |
+| `/world` | 3D Spatial World / Knowledge Galaxy |
+| `/evidence` | Source / evidence explorer |
 
 ## World Model synchronization
 
@@ -211,6 +241,38 @@ Grounded context
 Model reasoning / explanation
 ```
 
+## Omni-Command
+
+Omni-Command is the agent-driven Stage over the same World Model. The frontend is a “dumb canvas”: the agent returns a validated **Orchestration Contract** (`shared/orchestration.ts`) and the Stage mounts the matching component.
+
+```text
+Natural language
+   ↓
+Omni service (retrieveWorld + getWorldModelGraph)
+   ↓
+LLM director (few-shot) or heuristic fallback
+   ↓
+Orchestration Contract JSON (Zod-validated)
+   ↓
+Stage → GraphVisualizer | MarkdownViewer | MetricsDashboard | …
+```
+
+Example commands:
+
+```text
+Show me the backend architecture
+Which projects use PostgreSQL?
+Run a health check on the platform
+Show evidence for the knowledge graph
+```
+
+APIs:
+
+- `POST /api/world-model/omni-command` — full response
+- `POST /api/world-model/omni-command/stream` — SSE (`trace` → `result`)
+
+See **`docs/OMNI_COMMAND.md`** for the contract, multi-turn context, and component registry.
+
 ## Evidence model
 
 FEEXSYSTEMS treats provenance as a first-class system concern.
@@ -255,13 +317,15 @@ This enables future `Why?`, `Show evidence`, temporal reconstruction and depende
 - [x] Project → technology relationships
 - [x] Incremental webhook event ingestion
 - [x] Grounded Navigator endpoint
+- [x] Omni-Command Interface (Orchestration Contract + Stage)
+- [x] SSE reasoning trace + multi-turn context
+- [x] Source/evidence explorer (`/evidence`)
+- [x] Spatial graph reasoning & 3D Knowledge Galaxy (`/world`)
 - [ ] pgvector embeddings
 - [ ] Hybrid graph/vector ranking
 - [ ] Commit-level temporal reconstruction
-- [x] Source/evidence explorer (`/evidence`)
 - [ ] Automated GitHub webhook provisioning
 - [ ] Autonomous World Model maintenance
-- [x] Spatial graph reasoning & 3D Knowledge Galaxy (`/world`)
 - [ ] Voice navigation
 
 ## Documentation
@@ -271,6 +335,8 @@ This enables future `Why?`, `Show evidence`, temporal reconstruction and depende
 - `docs/EVIDENCE_FABRIC.md` — provenance and evidence lifecycle
 - `docs/GITHUB_INGESTION.md` — discovery, repository analysis and webhook synchronization
 - `docs/NAVIGATOR.md` — grounded retrieval and reasoning contract
+- `docs/OMNI_COMMAND.md` — Orchestration Contract, Stage components, streaming API
+- `docs/API.md` — public World Model and Omni endpoints
 - `docs/DEPLOYMENT.md` — production deployment and environment configuration
 
 ## Security
@@ -278,7 +344,7 @@ This enables future `Why?`, `Show evidence`, temporal reconstruction and depende
 - JWT authentication and refresh-token handling
 - Role-based access control
 - Rate limiting
-- Zod/input validation
+- Zod/input validation (including Omni Orchestration Contract)
 - Configurable CORS
 - GitHub webhook HMAC verification
 - Environment-based secret configuration
