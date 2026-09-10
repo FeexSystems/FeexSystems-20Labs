@@ -43,8 +43,8 @@ The World Model is authoritative. The LLM is an interpreter and reasoning layer;
 - Temporal reconstruction (state at commit / date)
 - Autonomous maintenance (re-sync, re-embed, orphan cleanup)
 - Grounded Navigator API and public Navigator experience
-- **Omni-Command Interface** — Orchestration Contract Stage (graph click-to-focus, CodeViewer)
-- **Voice navigation** — Web Speech API on Omni (see PR / docs)
+- **Omni-Command Interface** — Orchestration Contract Stage (graph click-to-focus, CodeViewer, SSE reasoning)
+- **Voice navigation** — Web Speech API mic on the Omni command bar (browser-side STT → same pipeline)
 - Authentication, dashboard, billing, DevOps and security platform foundations
 
 ## Architecture
@@ -104,11 +104,11 @@ The World Model is authoritative. The LLM is an interpreter and reasoning layer;
 FeexSystems-Living-Intelligence-World/
 ├── client/                 # SaaS UI, Omni Stage, 3D World
 │   ├── components/omni/
-│   ├── hooks/
+│   ├── hooks/useSpeechNavigation.ts
 │   └── pages/
 ├── server/
 │   ├── routes/world-model.ts
-│   ├── lib/services/       # github-pinned, embedding, hybrid, temporal, webhooks, maintenance
+│   ├── lib/services/       # github-pinned, embedding, hybrid, temporal, webhooks, maintenance, omni
 │   └── lib/world-model/    # discovery / sync / retrieve facades
 ├── shared/                 # Orchestration contract + Zod
 ├── prisma/
@@ -141,7 +141,8 @@ WORLD_MODEL_MAINTENANCE_ON_BOOT=true
 |-------|------------|
 | `/` | Landing |
 | `/navigator` | Hybrid grounded Navigator |
-| `/omni` | Omni-Command (+ voice when merged) |
+| `/omni` | Omni-Command (type or voice) |
+| `/omni?q=Show+architecture` | Deep-link auto-execute |
 | `/world` | 3D Knowledge Galaxy |
 | `/evidence` | Evidence explorer |
 
@@ -155,7 +156,7 @@ WORLD_MODEL_MAINTENANCE_ON_BOOT=true
 | POST | `/api/world-model/webhooks/provision` | Create/update GitHub hooks |
 | POST | `/api/world-model/maintenance/run` | Re-sync + cleanup |
 | POST | `/api/world-model/omni-command` | Orchestration Contract |
-| POST | `/api/world-model/omni-command/stream` | SSE |
+| POST | `/api/world-model/omni-command/stream` | SSE reasoning + result |
 
 ## Roadmap
 
@@ -174,7 +175,9 @@ WORLD_MODEL_MAINTENANCE_ON_BOOT=true
 - [x] Automated GitHub webhook provisioning
 - [x] Autonomous World Model maintenance
 - [x] Omni polish (graph focus, CodeViewer, contract eval tests)
-- [ ] Voice navigation on main (see open PR #15 if not merged)
+- [x] Voice navigation (Web Speech API on Omni)
+
+Phase III Living Engineering Intelligence is **complete on main**.
 
 ## Documentation
 
