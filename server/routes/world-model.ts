@@ -12,6 +12,21 @@ import {
 } from "../lib/services/github-pinned.service";
 import { retrieveWorldHybrid } from "../lib/services/hybrid-retrieval.service";
 import { reindexWorldModelEmbeddings, ensureEmbeddingTables } from "../lib/services/embedding.service";
+import {
+  reconstructProjectState,
+  listProjectEvents,
+} from "../lib/services/temporal-reconstruction.service";
+import {
+  provisionWebhooksForWorldModel,
+  createOrUpdateWorldModelWebhook,
+  listRepoWebhooks,
+  getConfiguredWebhookUrl,
+} from "../lib/services/webhook-provisioning.service";
+import {
+  runWorldModelMaintenance,
+  getLastMaintenanceReport,
+  isMaintenanceRunning,
+} from "../lib/services/world-model-maintenance.service";
 
 const router = Router();
 
@@ -37,11 +52,7 @@ router.get("/projects", async (_req: Request, res: Response) => {
 router.get("/graph", async (_req: Request, res: Response) => {
   try {
     const graph = await getWorldModelGraph();
-    res.json({
-      success: true,
-      source: "world-model-graph",
-      data: graph,
-    });
+    res.json({ success: true, source: "world-model-graph", data: graph });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -95,7 +106,41 @@ router.get(["/evidence/detail", "/evidence/:projectId"], async (req: Request, re
   }
 });
 
-/** Navigator — hybrid ranking when embeddings available */
+/** Temporal reconstruction — state at commit or date */
+router.get("/temporal/:projectId", async (req: Request, res: Response) => {
+  try {
+    const projectId = decodeURIComponent(String(req.params.projectId || "")).trim();
+    if (!projectId) {
+      return res.status(400).json({ success: false, error: "projectId is required" });
+    }
+    const snapshot = await reconstructProjectState({
+      projectId,
+      at: req.query.at ? String(req.query.at) : undefined,
+      commitSha: req.query.commit ? String(req.query.commit) : undefined,
+      limit: req.query.limit ? Number(req.query.limit) : 50,
+    });
+    res.json({ success: true, data: snapshot });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Temporal reconstruction failed",
+    });
+  }
+});
+
+router.get("/temporal/:projectId/events", async (req: Request, res: Response) => {
+  try {
+    const projectId = decodeURIComponent(String(req.params.projectId || "")).trim();
+    const events = await listProjectEvents(projectId, req.query.limit ? Number(req.query.limit) : 50);
+    res.json({ success: true, data: events });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Event listing failed",
+    });
+  }
+});
+
 router.get("/navigator", async (req: Request, res: Response) => {
   try {
     const q = String(req.query.q || "").trim();
@@ -104,10 +149,7 @@ router.get("/navigator", async (req: Request, res: Response) => {
     }
     const hybrid = String(req.query.hybrid || "true") !== "false";
     const result = hybrid ? await retrieveWorldHybrid(q) : await retrieveWorld(q);
-    res.json({
-      success: true,
-      data: result,
-    });
+    res.json({ success: true, data: result });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -136,7 +178,6 @@ router.post("/navigator", async (req: Request, res: Response) => {
 router.post("/sync/github-pinned", async (_req: Request, res: Response) => {
   try {
     const projects = await syncPinnedProjects();
-    // Best-effort embedding reindex after sync (non-blocking failure)
     let embeddings: unknown = null;
     try {
       embeddings = await reindexWorldModelEmbeddings();
@@ -160,7 +201,6 @@ router.post("/sync/github-pinned", async (_req: Request, res: Response) => {
   }
 });
 
-/** Rebuild pgvector embeddings for projects + technologies */
 router.post("/embeddings/reindex", async (_req: Request, res: Response) => {
   try {
     await ensureEmbeddingTables();
@@ -172,6 +212,79 @@ router.post("/embeddings/reindex", async (_req: Request, res: Response) => {
       error: error instanceof Error ? error.message : "Embedding reindex failed",
     });
   }
+});
+
+/** Provision GitHub webhooks for World Model repos */
+router.post("/webhooks/provision", async (req: Request, res: Response) => {
+  try {
+    const pinnedOnly = req.body?.pinnedOnly !== false;
+    const result = await provisionWebhooksForWorldModel({ pinnedOnly });
+    res.json({
+      success: true,
+      callbackUrl: getConfiguredWebhookUrl(),
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Webhook provisioning failed",
+    });
+  }
+});
+
+router.post("/webhooks/provision/:owner/:repo", async (req: Request, res: Response) => {
+  try {
+    const fullName = `${req.params.owner}/${req.params.repo}`;
+    const result = await createOrUpdateWorldModelWebhook(fullName);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Webhook provisioning failed",
+    });
+  }
+});
+
+router.get("/webhooks/:owner/:repo", async (req: Request, res: Response) => {
+  try {
+    const fullName = `${req.params.owner}/${req.params.repo}`;
+    const hooks = await listRepoWebhooks(fullName);
+    res.json({ success: true, data: hooks });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "List webhooks failed",
+    });
+  }
+});
+
+/** Autonomous maintenance */
+router.post("/maintenance/run", async (req: Request, res: Response) => {
+  try {
+    const report = await runWorldModelMaintenance({
+      skipSync: Boolean(req.body?.skipSync),
+      skipEmbed: Boolean(req.body?.skipEmbed),
+      eventRetentionDays: req.body?.eventRetentionDays
+        ? Number(req.body.eventRetentionDays)
+        : undefined,
+    });
+    res.json({ success: true, data: report });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Maintenance failed",
+    });
+  }
+});
+
+router.get("/maintenance/status", async (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    data: {
+      running: isMaintenanceRunning(),
+      lastRun: getLastMaintenanceReport(),
+    },
+  });
 });
 
 router.post("/webhook", async (req: RawRequest, res: Response) => {

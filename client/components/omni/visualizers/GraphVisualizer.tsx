@@ -1,8 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import type { GraphVisualizerProps, GraphNode } from "@shared/orchestration";
+import { useOmniStore } from "@/stores/omniStore";
 import { Cpu, Database, Terminal, Cloud, Layers, Zap } from "lucide-react";
 
-// Optional reactflow — works when dependency is installed
 let ReactFlow: any = null;
 let Background: any = null;
 let Controls: any = null;
@@ -23,7 +23,6 @@ try {
   Position = rf.Position;
   useNodesState = rf.useNodesState;
   useEdgesState = rf.useEdgesState;
-  // CSS is imported by the page when reactflow is present
 } catch {
   /* grid fallback */
 }
@@ -44,10 +43,20 @@ const typeIcon = (type: string) => {
   }
 };
 
-function NodeCard({ node, focused }: { node: GraphNode; focused?: boolean }) {
+function NodeCard({
+  node,
+  focused,
+  onFocus,
+}: {
+  node: GraphNode;
+  focused?: boolean;
+  onFocus?: (id: string) => void;
+}) {
   return (
-    <div
-      className={`px-3 py-2.5 rounded-xl bg-zinc-900 border w-44 transition-all ${
+    <button
+      type="button"
+      onClick={() => onFocus?.(node.id)}
+      className={`text-left px-3 py-2.5 rounded-xl bg-zinc-900 border w-44 transition-all ${
         focused
           ? "border-indigo-500 shadow-lg shadow-indigo-500/20"
           : "border-zinc-700 hover:border-zinc-500"
@@ -62,13 +71,23 @@ function NodeCard({ node, focused }: { node: GraphNode; focused?: boolean }) {
           <div className="text-sm font-medium text-zinc-100 truncate">{node.label}</div>
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 
 function TechNode({ data }: { data: any }) {
   return (
-    <div className="px-3 py-2 shadow-xl rounded-xl bg-zinc-900 border border-zinc-700 w-44 hover:border-indigo-500 transition-all">
+    <div
+      className={`px-3 py-2 shadow-xl rounded-xl bg-zinc-900 border w-44 hover:border-indigo-500 transition-all ${
+        data.focused ? "border-indigo-500" : "border-zinc-700"
+      }`}
+      onClick={() => data.onFocus?.(data.id)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") data.onFocus?.(data.id);
+      }}
+    >
       {Handle && Position && (
         <>
           <Handle type="target" position={Position.Top} className="!w-2 !h-2 !bg-zinc-400 !border-none" />
@@ -88,20 +107,32 @@ function TechNode({ data }: { data: any }) {
   );
 }
 
-function ReactFlowGraph({ nodes, edges, focusNodeId }: GraphVisualizerProps) {
+function ReactFlowGraph({
+  nodes,
+  edges,
+  focusNodeId,
+  onFocus,
+}: GraphVisualizerProps & { onFocus: (id: string) => void }) {
   const initialNodes = useMemo(
     () =>
       nodes.map((n, idx) => ({
         id: n.id,
         type: "techNode",
         position: n.position || { x: 80 + (idx % 5) * 220, y: 60 + Math.floor(idx / 5) * 160 },
-        data: { label: n.label, type: n.type, group: n.group },
+        data: {
+          id: n.id,
+          label: n.label,
+          type: n.type,
+          group: n.group,
+          focused: n.id === focusNodeId,
+          onFocus,
+        },
         style:
           n.id === focusNodeId
             ? { boxShadow: "0 0 0 2px rgba(99,102,241,0.6)" }
             : undefined,
       })),
-    [nodes, focusNodeId]
+    [nodes, focusNodeId, onFocus]
   );
 
   const initialEdges = useMemo(
@@ -123,6 +154,13 @@ function ReactFlowGraph({ nodes, edges, focusNodeId }: GraphVisualizerProps) {
   const [rfNodes, , onNodesChange] = useNodesState(initialNodes);
   const [rfEdges, , onEdgesChange] = useEdgesState(initialEdges);
 
+  const onNodeClick = useCallback(
+    (_: any, node: any) => {
+      if (node?.id) onFocus(node.id);
+    },
+    [onFocus]
+  );
+
   return (
     <div className="w-full h-full min-h-[420px]">
       <ReactFlow
@@ -130,6 +168,7 @@ function ReactFlowGraph({ nodes, edges, focusNodeId }: GraphVisualizerProps) {
         edges={rfEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onNodeClick={onNodeClick}
         nodeTypes={{ techNode: TechNode }}
         fitView
         className="bg-zinc-950"
@@ -143,6 +182,14 @@ function ReactFlowGraph({ nodes, edges, focusNodeId }: GraphVisualizerProps) {
 
 export function GraphVisualizer(props: GraphVisualizerProps) {
   const { nodes = [], edges = [], focusNodeId } = props;
+  const setContext = useOmniStore((s) => s.setContext);
+
+  const onFocus = useCallback(
+    (id: string) => {
+      setContext({ focusedNodeIds: [id] });
+    },
+    [setContext]
+  );
 
   if (!nodes.length) {
     return (
@@ -158,26 +205,26 @@ export function GraphVisualizer(props: GraphVisualizerProps) {
         <div className="px-4 py-2 text-xs font-mono text-zinc-500 border-b border-zinc-900">
           GraphVisualizer (React Flow) · {nodes.length} nodes · {edges.length} edges
           {focusNodeId ? ` · focus ${focusNodeId}` : ""}
+          <span className="text-zinc-600"> · click node to focus</span>
         </div>
         <div className="flex-1 min-h-0">
-          <ReactFlowGraph {...props} />
+          <ReactFlowGraph {...props} onFocus={onFocus} />
         </div>
       </div>
     );
   }
 
-  // Grid fallback when reactflow is not installed
   return (
     <div className="w-full h-full overflow-auto p-6 md:p-10">
       <div className="mb-4 flex items-center justify-between text-xs font-mono text-zinc-500">
         <span>
-          GraphVisualizer (grid) · {nodes.length} nodes · {edges.length} edges
+          GraphVisualizer (grid) · {nodes.length} nodes · {edges.length} edges · click to focus
         </span>
         {focusNodeId && <span className="text-indigo-400">focus: {focusNodeId}</span>}
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {nodes.map((n) => (
-          <NodeCard key={n.id} node={n} focused={n.id === focusNodeId} />
+          <NodeCard key={n.id} node={n} focused={n.id === focusNodeId} onFocus={onFocus} />
         ))}
       </div>
       {edges.length > 0 && (

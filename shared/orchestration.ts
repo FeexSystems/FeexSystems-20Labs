@@ -75,6 +75,14 @@ export interface MetricsDashboardProps {
   summary?: string;
 }
 
+export interface CodeViewerProps {
+  path: string;
+  language?: string;
+  content: string;
+  sha?: string;
+  startLine?: number;
+}
+
 export interface OmniCommandContext {
   focusedNodeIds?: string[];
   filters?: Record<string, string>;
@@ -99,7 +107,12 @@ export interface OmniCommandResponse {
   reasoning_trace: ReasoningStep[];
   ui_directive: {
     component: OmniComponent;
-    props: GraphVisualizerProps | MarkdownViewerProps | MetricsDashboardProps | Record<string, unknown>;
+    props:
+      | GraphVisualizerProps
+      | MarkdownViewerProps
+      | MetricsDashboardProps
+      | CodeViewerProps
+      | Record<string, unknown>;
     layoutHint?: "full" | "split" | "sidebar";
   };
   secondary_directive?: {
