@@ -1,6 +1,7 @@
 import React, { FormEvent } from "react";
 import { Terminal, ArrowRight, Loader2 } from "lucide-react";
 import { useOmniStore } from "@/stores/omniStore";
+import { ContextChips } from "./ContextChips";
 
 interface OmniCommandBarProps {
   onSubmit: (query: string) => void;
@@ -17,7 +18,7 @@ export function OmniCommandBar({ onSubmit, suggestions = [] }: OmniCommandBarPro
   };
 
   return (
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 z-30">
+    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 z-30">
       <form
         onSubmit={handleSubmit}
         className={`relative bg-zinc-900/90 backdrop-blur-xl border flex items-center shadow-2xl rounded-2xl transition-all duration-300 ${
@@ -58,9 +59,11 @@ export function OmniCommandBar({ onSubmit, suggestions = [] }: OmniCommandBarPro
         </div>
       </form>
 
+      <ContextChips />
+
       {suggestions.length > 0 && (
-        <div className="flex flex-wrap justify-center gap-2 mt-3 opacity-80">
-          {suggestions.slice(0, 4).map((s) => (
+        <div className="flex flex-wrap justify-center gap-2 mt-2 opacity-80">
+          {suggestions.slice(0, 5).map((s) => (
             <button
               key={s}
               type="button"

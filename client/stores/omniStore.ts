@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import type { OmniCommandResponse, OmniCommandContext, ReasoningStep } from "@shared/orchestration";
 
+function newSessionId() {
+  return `omni-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 interface OmniState {
   command: string;
   isProcessing: boolean;
@@ -23,7 +27,7 @@ export const useOmniStore = create<OmniState>((set) => ({
   isProcessing: false,
   payload: null,
   liveTrace: [],
-  context: {},
+  context: { sessionId: newSessionId() },
   history: [],
   setCommand: (command) => set({ command }),
   setProcessing: (isProcessing) => set({ isProcessing }),
@@ -41,6 +45,6 @@ export const useOmniStore = create<OmniState>((set) => ({
       isProcessing: false,
       payload: null,
       liveTrace: [],
-      context: {},
+      context: { sessionId: newSessionId() },
     }),
 }));
