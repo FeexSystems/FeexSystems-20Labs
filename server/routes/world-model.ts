@@ -10,6 +10,8 @@ import {
   syncPinnedProjects,
   verifyGitHubSignature,
 } from "../lib/services/github-pinned.service";
+import { retrieveWorldHybrid } from "../lib/services/hybrid-retrieval.service";
+import { reindexWorldModelEmbeddings, ensureEmbeddingTables } from "../lib/services/embedding.service";
 
 const router = Router();
 
@@ -48,14 +50,10 @@ router.get("/graph", async (_req: Request, res: Response) => {
   }
 });
 
-// Evidence list for all projects
 router.get("/evidence/projects", async (_req: Request, res: Response) => {
   try {
     const projects = await getAllProjectsEvidenceSummary();
-    res.json({
-      success: true,
-      data: projects,
-    });
+    res.json({ success: true, data: projects });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -64,7 +62,6 @@ router.get("/evidence/projects", async (_req: Request, res: Response) => {
   }
 });
 
-// Artifact file content fetch and git blob SHA verification
 router.get(["/evidence/content", "/evidence/:projectId/content"], async (req: Request, res: Response) => {
   try {
     const projectId = decodeURIComponent(String(req.query.projectId || req.params.projectId || "")).trim();
@@ -73,10 +70,7 @@ router.get(["/evidence/content", "/evidence/:projectId/content"], async (req: Re
       return res.status(400).json({ success: false, error: "Project ID and file path query are required" });
     }
     const result = await getArtifactContent(projectId, filePath);
-    res.json({
-      success: true,
-      data: result,
-    });
+    res.json({ success: true, data: result });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -85,7 +79,6 @@ router.get(["/evidence/content", "/evidence/:projectId/content"], async (req: Re
   }
 });
 
-// Project-level evidence, artifacts, and event history
 router.get(["/evidence/detail", "/evidence/:projectId"], async (req: Request, res: Response) => {
   try {
     const projectId = decodeURIComponent(String(req.query.projectId || req.params.projectId || "")).trim();
@@ -93,10 +86,7 @@ router.get(["/evidence/detail", "/evidence/:projectId"], async (req: Request, re
       return res.status(400).json({ success: false, error: "Project ID is required" });
     }
     const evidence = await getProjectEvidence(projectId);
-    res.json({
-      success: true,
-      data: evidence,
-    });
+    res.json({ success: true, data: evidence });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -105,13 +95,15 @@ router.get(["/evidence/detail", "/evidence/:projectId"], async (req: Request, re
   }
 });
 
+/** Navigator — hybrid ranking when embeddings available */
 router.get("/navigator", async (req: Request, res: Response) => {
   try {
     const q = String(req.query.q || "").trim();
     if (!q) {
       return res.status(400).json({ success: false, error: "Query parameter 'q' is required" });
     }
-    const result = await retrieveWorld(q);
+    const hybrid = String(req.query.hybrid || "true") !== "false";
+    const result = hybrid ? await retrieveWorldHybrid(q) : await retrieveWorld(q);
     res.json({
       success: true,
       data: result,
@@ -124,21 +116,60 @@ router.get("/navigator", async (req: Request, res: Response) => {
   }
 });
 
+router.post("/navigator", async (req: Request, res: Response) => {
+  try {
+    const q = String(req.body?.query || req.body?.q || "").trim();
+    if (!q) {
+      return res.status(400).json({ success: false, error: "Body field 'query' is required" });
+    }
+    const hybrid = req.body?.hybrid !== false;
+    const result = hybrid ? await retrieveWorldHybrid(q) : await retrieveWorld(q);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Navigator retrieval failed",
+    });
+  }
+});
+
 router.post("/sync/github-pinned", async (_req: Request, res: Response) => {
   try {
     const projects = await syncPinnedProjects();
+    // Best-effort embedding reindex after sync (non-blocking failure)
+    let embeddings: unknown = null;
+    try {
+      embeddings = await reindexWorldModelEmbeddings();
+    } catch {
+      embeddings = { skipped: true };
+    }
     res.json({
       success: true,
       source: "github-profile-pinned",
       synchronizedAt: new Date().toISOString(),
       projects,
       count: projects.length,
+      embeddings,
     });
   } catch (error) {
     console.error("GitHub pinned World Model sync failed:", error);
     res.status(502).json({
       success: false,
       error: error instanceof Error ? error.message : "GitHub synchronization failed",
+    });
+  }
+});
+
+/** Rebuild pgvector embeddings for projects + technologies */
+router.post("/embeddings/reindex", async (_req: Request, res: Response) => {
+  try {
+    await ensureEmbeddingTables();
+    const result = await reindexWorldModelEmbeddings();
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Embedding reindex failed",
     });
   }
 });

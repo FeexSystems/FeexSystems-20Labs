@@ -1,7 +1,7 @@
 /**
  * Omni-Command Service
  *
- * Grounds queries in the World Model, asks an LLM (with few-shot examples) to
+ * Grounds queries in the World Model (hybrid ranking), asks an LLM (with few-shot examples) to
  * choose a UI directive, validates the full Orchestration Contract with Zod,
  * and carries multi-turn context (focused nodes, previous intent).
  */
@@ -16,10 +16,7 @@ import type {
   MetricsDashboardProps,
   EvidenceAnchor,
   OmniComponent,
-} from "../../../shared/orchestration";
-import { createEmptyStageResponse } from "../../../shared/orchestration";
-import { validateOmniResponse } from "../../../shared/orchestration-schema";
-import { getWorldModelGraph, retrieveWorld } from "./github-pinned.service";
+
 
 function nowIso() {
   return new Date().toISOString();
@@ -232,18 +229,17 @@ export async function executeOmniCommand(
   push(step("parse", `Classified intent → ${classified.intent}`));
 
   try {
-    // Multi-turn: bias retrieval with focused node labels when present
     const retrievalQuery =
       classified.focusFollowUp && req.context?.focusedNodeIds?.length
         ? `${query} ${req.context.focusedNodeIds.join(" ")}`
         : query;
 
     const t0 = Date.now();
-    const navigatorResult = await retrieveWorld(retrievalQuery);
+    const navigatorResult = await retrieveWorldHybrid(retrievalQuery);
     push(
       step(
         "retrieve",
-        `Retrieved ${navigatorResult?.projects?.length ?? 0} projects, ${navigatorResult?.technologies?.length ?? 0} technologies, ${navigatorResult?.artifacts?.length ?? 0} artifacts`,
+        `Hybrid ${navigatorResult.ranking?.mode || "keyword-only"}: ${navigatorResult?.projects?.length ?? 0} projects, ${navigatorResult?.technologies?.length ?? 0} techs, ${navigatorResult.ranking?.vectorHits ?? 0} vector hits`,
         Date.now() - t0
       )
     );
@@ -374,11 +370,9 @@ export async function executeOmniCommand(
     response.reasoning_trace.push(step("render", `Omni-Command completed in ${Date.now() - started} ms`));
     onTrace?.(response.reasoning_trace[response.reasoning_trace.length - 1]);
 
-    // Option A: Zod gate
     const validated = validateOmniResponse(response);
     if (!validated.success) {
       console.warn("[omni] Response failed Zod validation:", validated.error);
-      // still return best-effort but mark partial
       response.status = "partial";
     }
 
@@ -386,7 +380,7 @@ export async function executeOmniCommand(
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     push(step("tool", `Error: ${message}`));
-    const errorResponse: OmniCommandResponse = {
+    return {
       version: "1.0",
       requestId,
       intent: "ERROR",
@@ -400,7 +394,6 @@ export async function executeOmniCommand(
       evidence_anchors: [],
       error: { code: "OMNI_COMMAND_FAILED", message, recoverable: true },
     };
-    return errorResponse;
   }
 }
 

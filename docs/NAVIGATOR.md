@@ -13,10 +13,12 @@ User query
    ↓
 Intent / entity extraction
    ↓
-World Model retrieval
-   ├── entity search
-   ├── relationship traversal
-   └── semantic vector search
+World Model retrieval (hybrid)
+   ├── keyword entity search
+   ├── relationship / graph evidence
+   └── pgvector semantic search
+   ↓
+Score fusion (keyword + vector + graph + recency)
    ↓
 Evidence attachment
    ↓
@@ -26,6 +28,8 @@ Model interpretation
    ↓
 Answer + evidence/path
 ```
+
+See `docs/EMBEDDINGS.md` for hybrid ranking weights and reindex API.
 
 ## Example queries
 
@@ -43,7 +47,7 @@ The model provider is replaceable. Navigator depends on a stable World Model ret
 
 ## Relationship to Omni-Command
 
-Omni-Command (`/omni`) reuses the same grounded retrieval stack (`retrieveWorld`, World Model graph) but returns an **Orchestration Contract** so the UI can mount a Stage component (graph, markdown, metrics, evidence) instead of a fixed Navigator layout.
+Omni-Command (`/omni`) reuses the same grounded retrieval stack but returns an **Orchestration Contract** so the UI can mount a Stage component (graph, markdown, metrics, evidence) instead of a fixed Navigator layout.
 
 | Concern | Navigator | Omni-Command |
 |---------|-----------|--------------|
@@ -56,8 +60,8 @@ See `docs/OMNI_COMMAND.md` for the full Omni pipeline and contract.
 
 ## Future capabilities
 
-- pgvector semantic retrieval
-- hybrid graph/vector rank fusion
+- [x] pgvector semantic retrieval
+- [x] hybrid graph/vector rank fusion
 - multi-hop path reasoning
 - evidence-aware answers
 - temporal queries
