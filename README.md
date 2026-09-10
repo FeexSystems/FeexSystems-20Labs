@@ -33,7 +33,7 @@ World Model Mutation
         ↓
 Navigator Retrieval
         ↓
-Omni-Command (agent → Stage UI)
+Omni-Command (agent → Stage UI) · Voice input
 ```
 
 The World Model is authoritative. The LLM is an interpreter and reasoning layer; it does not silently create canonical facts.
@@ -52,6 +52,7 @@ The World Model is authoritative. The LLM is an interpreter and reasoning layer;
 - World Model event history
 - Grounded Navigator API and public Navigator experience
 - **Omni-Command Interface** — natural-language command bar that mounts dynamic Stage components from a validated Orchestration Contract
+- **Voice navigation** — Web Speech API mic on Omni command bar (browser-side STT → same pipeline)
 - Existing authentication, dashboard, billing, DevOps and security platform foundations
 
 ## Architecture
@@ -62,7 +63,7 @@ The World Model is authoritative. The LLM is an interpreter and reasoning layer;
 │ Landing · Projects · Navigator · Omni · 3D │
 ├─────────────────────────────────────────────┤
 │ NAVIGATION                                  │
-│ Search · Graph traversal · Command Stage   │
+│ Search · Graph · Command Stage · Voice     │
 ├─────────────────────────────────────────────┤
 │ INTELLIGENCE                                │
 │ LLM director · Agents · Orchestration JSON │
@@ -96,7 +97,7 @@ The World Model is authoritative. The LLM is an interpreter and reasoning layer;
 
 ## Technology stack
 
-- **Frontend:** React 18, React Router 7, TypeScript, Vite, Tailwind CSS 3, Three.js (`@react-three/fiber` & `@react-three/drei`), React Flow (Omni graph Stage), Zustand, Procedural GLSL Planetary Core Shaders, Radix UI, Lucide Icons
+- **Frontend:** React 18, React Router 7, TypeScript, Vite, Tailwind CSS 3, Three.js (`@react-three/fiber` & `@react-three/drei`), React Flow (Omni graph Stage), Zustand, Web Speech API (voice), Procedural GLSL Planetary Core Shaders, Radix UI, Lucide Icons
 - **Backend:** Express 5 server integrated with Vite dev server, TypeScript
 - **Database & Retrieval:** PostgreSQL 15+, Prisma ORM, pgvector semantic retrieval
 - **Cache & Queues:** Redis (ioredis), Bull queue
@@ -111,6 +112,7 @@ The World Model is authoritative. The LLM is an interpreter and reasoning layer;
 FeexSystems-Living-Intelligence-World/
 ├── client/                  # Public SaaS UI, Omni Stage, 3D Spatial World
 │   ├── components/omni/     # Command bar, Stage, visualizers, context chips
+│   ├── hooks/useSpeechNavigation.ts
 │   ├── pages/OmniCommand.tsx
 │   └── stores/omniStore.ts
 ├── server/                  # Express 5 API, World Model, Omni service
@@ -118,7 +120,7 @@ FeexSystems-Living-Intelligence-World/
 │   └── lib/services/omni-command.service.ts
 ├── shared/                  # Orchestration contract types + Zod schemas
 ├── prisma/                  # Prisma schema and PostgreSQL migrations
-├── docs/                    # Architecture, World Model, Omni, Evidence, Brand
+├── docs/                    # Architecture, World Model, Omni, Voice, Evidence
 ├── docker/                  # Container configuration
 └── .agents/                 # Antigravity agent rules, skills, and spatial standards
 ```
@@ -174,7 +176,7 @@ npm run docker:down
 |-------|------------|
 | `/` | Landing |
 | `/navigator` | Grounded Navigator |
-| `/omni` | Omni-Command Interface |
+| `/omni` | Omni-Command Interface (+ voice mic) |
 | `/omni?q=Show+architecture` | Deep-link auto-execute |
 | `/world` | 3D Spatial World / Knowledge Galaxy |
 | `/evidence` | Source / evidence explorer |
@@ -246,7 +248,7 @@ Model reasoning / explanation
 Omni-Command is the agent-driven Stage over the same World Model. The frontend is a “dumb canvas”: the agent returns a validated **Orchestration Contract** (`shared/orchestration.ts`) and the Stage mounts the matching component.
 
 ```text
-Natural language
+Natural language (type or voice)
    ↓
 Omni service (retrieveWorld + getWorldModelGraph)
    ↓
@@ -271,7 +273,7 @@ APIs:
 - `POST /api/world-model/omni-command` — full response
 - `POST /api/world-model/omni-command/stream` — SSE (`trace` → `result`)
 
-See **`docs/OMNI_COMMAND.md`** for the contract, multi-turn context, and component registry.
+Voice: mic button on the command bar (Web Speech API). See **`docs/VOICE_NAVIGATION.md`** and **`docs/OMNI_COMMAND.md`**.
 
 ## Evidence model
 
@@ -321,12 +323,12 @@ This enables future `Why?`, `Show evidence`, temporal reconstruction and depende
 - [x] SSE reasoning trace + multi-turn context
 - [x] Source/evidence explorer (`/evidence`)
 - [x] Spatial graph reasoning & 3D Knowledge Galaxy (`/world`)
+- [x] Voice navigation (Web Speech → Omni)
 - [ ] pgvector embeddings
 - [ ] Hybrid graph/vector ranking
 - [ ] Commit-level temporal reconstruction
 - [ ] Automated GitHub webhook provisioning
 - [ ] Autonomous World Model maintenance
-- [ ] Voice navigation
 
 ## Documentation
 
@@ -336,6 +338,7 @@ This enables future `Why?`, `Show evidence`, temporal reconstruction and depende
 - `docs/GITHUB_INGESTION.md` — discovery, repository analysis and webhook synchronization
 - `docs/NAVIGATOR.md` — grounded retrieval and reasoning contract
 - `docs/OMNI_COMMAND.md` — Orchestration Contract, Stage components, streaming API
+- `docs/VOICE_NAVIGATION.md` — Web Speech API voice input for Omni
 - `docs/API.md` — public World Model and Omni endpoints
 - `docs/DEPLOYMENT.md` — production deployment and environment configuration
 
