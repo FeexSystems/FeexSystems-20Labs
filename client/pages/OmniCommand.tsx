@@ -1,5 +1,5 @@
-import React, { useCallback } from "react";
-import { Link } from "react-router-dom";
+import React, { useCallback, useEffect, useRef } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Stage } from "@/components/omni/Stage";
 import { OmniCommandBar } from "@/components/omni/OmniCommandBar";
 import { ReasoningTrace } from "@/components/omni/ReasoningTrace";
@@ -67,6 +67,9 @@ async function streamOmniCommand(
 }
 
 export default function OmniCommandPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const bootstrapped = useRef(false);
+
   const {
     isProcessing,
     setProcessing,
@@ -77,6 +80,7 @@ export default function OmniCommandPage() {
     clearTrace,
     context,
     setContext,
+    setCommand,
     pushHistory,
   } = useOmniStore();
 
@@ -85,11 +89,18 @@ export default function OmniCommandPage() {
       setProcessing(true);
       clearTrace();
       pushHistory(query);
+      setSearchParams({ q: query }, { replace: true });
 
       try {
         const data = await streamOmniCommand(query, context as any, appendTrace);
         setPayload(data);
-        if (data.context) setContext(data.context);
+        if (data.context) {
+          setContext({
+            ...data.context,
+            sessionId: context.sessionId || data.context.sessionId,
+            lastQuery: query,
+          });
+        }
       } catch (err) {
         setPayload({
           version: "1.0",
@@ -122,8 +133,31 @@ export default function OmniCommandPage() {
         setProcessing(false);
       }
     },
-    [context, setProcessing, setPayload, setContext, pushHistory, appendTrace, clearTrace]
+    [
+      context,
+      setProcessing,
+      setPayload,
+      setContext,
+      pushHistory,
+      appendTrace,
+      clearTrace,
+      setSearchParams,
+    ]
   );
+
+  // Deep-link: /omni?q=...
+  useEffect(() => {
+    if (bootstrapped.current) return;
+    const q = searchParams.get("q");
+    if (q?.trim()) {
+      bootstrapped.current = true;
+      setCommand(q.trim());
+      execute(q.trim());
+    } else {
+      bootstrapped.current = true;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const suggestions =
     payload?.suggestions?.length
@@ -160,7 +194,7 @@ export default function OmniCommandPage() {
         </nav>
       </header>
 
-      <div className="flex-1 relative w-full h-full pt-12 pb-32">
+      <div className="flex-1 relative w-full h-full pt-12 pb-40">
         <Stage payload={payload} />
         <ReasoningTrace steps={displayTrace} isProcessing={isProcessing} />
       </div>
