@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ export default function DevOpsPage() {
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
+    <DashboardLayout>
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -239,5 +241,6 @@ export default function DevOpsPage() {
         onOpenChange={setConnectRepoOpen}
       />
     </div>
+    </DashboardLayout>
   );
 }

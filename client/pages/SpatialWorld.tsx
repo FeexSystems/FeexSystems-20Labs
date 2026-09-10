@@ -14,14 +14,9 @@ import {
   Html,
   QuadraticBezierLine,
   AdaptiveDpr,
-  Bvh,
   useCursor,
   MeshTransmissionMaterial,
-  Preload,
-  useFBO,
-  PerformanceMonitor,
 } from "@react-three/drei";
-import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import {
   Boxes,
@@ -52,6 +47,7 @@ import {
   resolveWorldChroma,
 } from "@/components/webgl/PlanetaryCoreMaterial";
 import { TextScrambleMorph } from "@/components/motion/TextScrambleMorph";
+import { CursorDotTrail } from "@/components/framer";
 
 // ─────────────────────────────────────────────────────────────────────
 // Types & Interfaces (preserved exactly)
@@ -480,7 +476,6 @@ function NodeMesh({
             outlineWidth={0.08}
             outlineColor="#000000"
             outlineOpacity={0.95}
-            font="/fonts/GeistMono-Regular.woff"
           >
             {node.name}
           </Text>
@@ -742,15 +737,14 @@ function CameraIntro({ controlsRef }: { controlsRef: React.RefObject<CameraContr
   const hasAnimated = useRef(false);
 
   useEffect(() => {
-    if (!controlsRef.current || hasAnimated.current) return;
-    hasAnimated.current = true;
-
-    // Start from dramatic far position
-    controlsRef.current.setLookAt(0, 60, 80, 0, 0, 0, false);
-    // Swoop into default orbital view
-    setTimeout(() => {
-      controlsRef.current?.setLookAt(0, 10, 28, 0, 0, 0, true);
-    }, 100);
+    if (hasAnimated.current) return;
+    const timer = setTimeout(() => {
+      if (controlsRef.current && !hasAnimated.current) {
+        hasAnimated.current = true;
+        controlsRef.current.setLookAt(0, 14, 30, 0, 0, 0, false);
+      }
+    }, 50);
+    return () => clearTimeout(timer);
   }, [controlsRef]);
 
   return null;
@@ -767,7 +761,6 @@ function WorldScene({
   domainFilter,
   autoRotate,
   onSelectNode,
-  bloomDpr,
 }: {
   data: GraphData;
   selectedNode: GraphNode | null;
@@ -775,7 +768,6 @@ function WorldScene({
   domainFilter: string;
   autoRotate: boolean;
   onSelectNode: (node: GraphNode | null) => void;
-  bloomDpr: number;
 }) {
   const cameraControlsRef = useRef<CameraControls>(null);
 
@@ -858,10 +850,10 @@ function WorldScene({
   return (
     <>
       {/* Lighting */}
-      <ambientLight intensity={0.35} />
-      <pointLight position={[20, 20, 20]} intensity={1.8} color="#ffffff" />
-      <pointLight position={[-20, -15, -20]} intensity={0.6} color="#6366f1" />
-      <pointLight position={[0, 30, 0]} intensity={0.4} color="#00F5D4" />
+      <ambientLight intensity={0.7} />
+      <pointLight position={[20, 20, 20]} intensity={2.0} color="#ffffff" />
+      <pointLight position={[-20, -15, -20]} intensity={1.2} color="#6366f1" />
+      <pointLight position={[0, 30, 0]} intensity={0.8} color="#00F5D4" />
 
       {/* GPU Stippled Nebula Particle Field */}
       <StippledNebulaField count={6000} />
@@ -921,25 +913,23 @@ function WorldScene({
       })}
 
       {/* Nodes */}
-      <Bvh firstHitOnly>
-        {positionedNodes.map((node) => {
-          const isSelected = selectedNode?.id === node.id;
-          const matches = matchesSearch(node) && matchesDomain(node);
-          const isDimmed = !matches || (Boolean(selectedNode) && !isSelected);
+      {positionedNodes.map((node) => {
+        const isSelected = selectedNode?.id === node.id;
+        const matches = matchesSearch(node) && matchesDomain(node);
+        const isDimmed = !matches || (Boolean(selectedNode) && !isSelected);
 
-          return (
-            <NodeMesh
-              key={node.id}
-              node={node}
-              isSelected={isSelected}
-              isDimmed={isDimmed}
-              onClick={() => onSelectNode(isSelected ? null : node)}
-              onPointerOver={() => {}}
-              onPointerOut={() => {}}
-            />
-          );
-        })}
-      </Bvh>
+        return (
+          <NodeMesh
+            key={node.id}
+            node={node}
+            isSelected={isSelected}
+            isDimmed={isDimmed}
+            onClick={() => onSelectNode(isSelected ? null : node)}
+            onPointerOver={() => {}}
+            onPointerOut={() => {}}
+          />
+        );
+      })}
 
       {/* Camera Controls */}
       <CameraControls
@@ -961,17 +951,6 @@ function WorldScene({
           labelColor="#f8fafc"
         />
       </GizmoHelper>
-
-      {/* Post-Processing */}
-      <EffectComposer>
-        <Bloom
-          intensity={0.5}
-          luminanceThreshold={0.35}
-          luminanceSmoothing={0.9}
-          mipmapBlur
-        />
-        <Vignette offset={0.3} darkness={0.65} />
-      </EffectComposer>
     </>
   );
 }
@@ -1240,7 +1219,6 @@ export default function SpatialWorld() {
   const [domainFilter, setDomainFilter] = useState("all");
   const [autoRotate, setAutoRotate] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [bloomDpr, setBloomDpr] = useState(1);
   const fps = useFpsCounter();
 
   const loadGraph = async () => {
@@ -1296,6 +1274,9 @@ export default function SpatialWorld() {
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-[#000000] text-white font-mono select-none selection:bg-white selection:text-black">
+      {/* Interactive Cursor Trail */}
+      <CursorDotTrail dotColor="rgba(0, 245, 212, 0.4)" trailColor="rgba(123, 44, 191, 0.2)" />
+
       {/* Boot Sequence Overlay */}
       {booting && <BootSequence onComplete={() => setBooting(false)} />}
 
@@ -1352,6 +1333,14 @@ export default function SpatialWorld() {
           >
             {isFullscreen ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
           </button>
+          <Link
+            to="/omni"
+            className="h-9 px-3 rounded-[10px] bg-[#00f5d4]/10 border border-[#00f5d4]/30 text-[#00f5d4] hover:bg-[#00f5d4]/20 transition-colors flex items-center gap-1.5"
+            title="Open Omni-Command Stage"
+          >
+            <Sparkles className="size-3.5" />
+            <span className="hidden sm:inline">Omni Stage</span>
+          </Link>
           <Link
             to="/projects"
             className="h-9 px-3 rounded-[10px] bg-[#121212]/90 border border-white/10 text-white/70 hover:text-white hover:border-white/20 transition-colors flex items-center gap-1.5"
@@ -1439,14 +1428,10 @@ export default function SpatialWorld() {
       <div className="absolute inset-0 z-0">
         {graphData ? (
           <Canvas
-            camera={{ position: [0, 60, 80], fov: 55 }}
+            camera={{ position: [0, 14, 30], fov: 50 }}
             gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
           >
-            <PerformanceMonitor
-              onDecline={() => setBloomDpr(0.5)}
-              onIncline={() => setBloomDpr(1)}
-            />
-            <AdaptiveDpr pixelated />
+            <AdaptiveDpr pixelated={false} />
             <Suspense fallback={null}>
               <WorldScene
                 data={graphData}
@@ -1455,9 +1440,7 @@ export default function SpatialWorld() {
                 domainFilter={domainFilter}
                 autoRotate={autoRotate}
                 onSelectNode={(node) => setSelectedNode(node)}
-                bloomDpr={bloomDpr}
               />
-              <Preload all />
             </Suspense>
           </Canvas>
         ) : (

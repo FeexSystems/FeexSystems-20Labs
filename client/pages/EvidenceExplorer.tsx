@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { feexProjects } from "@/lib/feex-ecosystem";
 import { FeexWorldBadge } from "@/components/FeexLogo";
+import { FullWidthNav, AppleDock } from "@/components/framer";
 
 interface ProjectSummary {
   id: string;
@@ -230,68 +231,12 @@ export default function EvidenceExplorer() {
   const currentProject = projects.find((p) => p.id === selectedProjectId);
 
   return (
-    <main className="min-h-screen bg-[#000000] text-white antialiased font-mono selection:bg-white selection:text-black flex flex-col">
-      {/* 1. TECHNICAL STICKY HEADER */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#121212]/90 backdrop-blur-md">
-        <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
-          {/* Brand Lockup */}
-          <div className="flex items-center gap-4">
-            <Link
-              to="/"
-              className="flex items-center gap-2 text-base md:text-lg font-bold tracking-tight text-white hover:text-white/80 transition-colors"
-            >
-              <span className="size-3 bg-white rounded-none" />
-              <span>FEEXSYSTEMS</span>
-              <span className="text-white/40 text-xs hidden sm:inline">// EVIDENCE FABRIC</span>
-            </Link>
-            <span className="hidden lg:inline-block rounded-[10px] border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] text-white/70">
-              v2.4 LIVING WORLD
-            </span>
-            <FeexWorldBadge sha="sha-feex-evidence" status="VERIFIED 100%" className="hidden sm:inline-flex" />
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6 text-xs text-white/70">
-            <Link to="/" className="hover:text-white transition-colors">
-              Home
-            </Link>
-            <Link to="/projects" className="hover:text-white transition-colors">
-              Projects
-            </Link>
-            <Link to="/omni" className="hover:text-white transition-colors flex items-center gap-1.5">
-              <Terminal className="size-3.5 text-white/80" />
-              <span>Omni Command</span>
-            </Link>
-            <Link to="/navigator" className="hover:text-white transition-colors">
-              Navigator
-            </Link>
-            <Link to="/world" className="hover:text-white transition-colors">
-              3D World
-            </Link>
-          </nav>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-            <Link
-              to={`/navigator?q=${encodeURIComponent(currentProject?.name || "")}`}
-              className="inline-flex items-center gap-1.5 rounded-[10px] border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs text-white hover:bg-white/10 font-mono transition-colors"
-            >
-              <Compass className="size-3.5 text-white/70" />
-              <span>Ask Navigator</span>
-            </Link>
-            <Link
-              to="/world"
-              className="inline-flex items-center gap-2 rounded-[10px] bg-white px-4 py-1.5 text-xs font-semibold text-black hover:bg-white/90 transition-all shadow-sm"
-            >
-              <Globe className="size-3.5" />
-              <span>Launch 3D</span>
-            </Link>
-          </div>
-        </div>
-      </header>
+    <main className="min-h-screen bg-[#000000] text-white antialiased font-mono selection:bg-white selection:text-black flex flex-col relative pb-28">
+      {/* 1. TECHNICAL CANONICAL NAVIGATION */}
+      <FullWidthNav />
 
       {/* 2. MAIN WORKBENCH LAYOUT: 3 COLUMNS */}
-      <div className="flex-1 mx-auto max-w-7xl w-full grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] divide-y lg:divide-y-0 lg:divide-x divide-white/10">
+      <div className="flex-1 mx-auto max-w-7xl w-full grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] divide-y lg:divide-y-0 lg:divide-x divide-white/10 pt-20">
         {/* Left Column: Project Selector & File Tree */}
         <aside className="p-5 flex flex-col gap-4 bg-[#000000] overflow-y-auto max-h-[calc(100vh-65px)]">
           {/* Project Selector Dropdown */}
@@ -648,6 +593,11 @@ export default function EvidenceExplorer() {
           </div>
         </div>
       </footer>
+
+      {/* Floating Interactive Quick Dock */}
+      <div className="fixed bottom-6 inset-x-0 flex justify-center z-40 pointer-events-auto">
+        <AppleDock />
+      </div>
     </main>
   );
 }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -108,6 +109,7 @@ export default function ProfilePage() {
   };
 
   return (
+    <DashboardLayout>
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -542,5 +544,6 @@ export default function ProfilePage() {
         </TabsContent>
       </Tabs>
     </div>
+    </DashboardLayout>
   );
 }

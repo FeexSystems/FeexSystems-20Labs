@@ -6,6 +6,7 @@ import { ReasoningTrace } from "@/components/omni/ReasoningTrace";
 import { useOmniStore } from "@/stores/omniStore";
 import type { OmniCommandResponse, ReasoningStep } from "@shared/orchestration";
 import { Globe, Compass, Boxes, FileCode } from "lucide-react";
+import { FullWidthNav } from "@/components/framer";
 
 async function streamOmniCommand(
   query: string,
@@ -174,42 +175,9 @@ export default function OmniCommandPage() {
   return (
     <div className="relative w-full h-screen bg-[#000000] text-white antialiased font-mono overflow-hidden flex flex-col selection:bg-white selection:text-black">
       {/* Global Technical Header */}
-      <header className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-5 md:px-8 py-3.5 bg-[#121212]/90 backdrop-blur-md border-b border-white/10">
-        <div className="flex items-center gap-4">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-sm md:text-base font-bold tracking-tight text-white hover:text-white/80 transition-colors"
-          >
-            <span className="size-2.5 bg-white rounded-none" />
-            <span>FEEXSYSTEMS</span>
-            <span className="text-white/40 text-xs hidden sm:inline">// OMNI STAGE</span>
-          </Link>
-          <span className="hidden lg:inline-block rounded-[10px] border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] text-white/70">
-            v2.4 LIVING WORLD
-          </span>
-        </div>
+      <FullWidthNav />
 
-        <nav className="flex items-center gap-2 sm:gap-4 text-xs font-mono text-white/70">
-          <Link to="/projects" className="hover:text-white transition-colors flex items-center gap-1.5 px-2 py-1">
-            <Boxes size={12} className="text-white/60" /> <span className="hidden sm:inline">Projects</span>
-          </Link>
-          <Link to="/navigator" className="hover:text-white transition-colors flex items-center gap-1.5 px-2 py-1">
-            <Compass size={12} className="text-white/60" /> <span className="hidden sm:inline">Navigator</span>
-          </Link>
-          <Link to="/evidence" className="hover:text-white transition-colors flex items-center gap-1.5 px-2 py-1">
-            <FileCode size={12} className="text-white/60" /> <span className="hidden sm:inline">Evidence</span>
-          </Link>
-          <Link
-            to="/world"
-            className="inline-flex items-center gap-1.5 rounded-[10px] bg-white px-3 py-1.5 text-xs font-semibold text-black hover:bg-white/90 transition-all shadow-sm ml-1"
-          >
-            <Globe size={12} />
-            <span>Launch 3D</span>
-          </Link>
-        </nav>
-      </header>
-
-      <div className="flex-1 relative w-full h-full pt-16 pb-40">
+      <div className="flex-1 relative w-full h-full pt-20 pb-40">
         <Stage payload={payload} />
         <ReasoningTrace steps={displayTrace} isProcessing={isProcessing} />
       </div>

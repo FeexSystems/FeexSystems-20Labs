@@ -84,6 +84,8 @@ const App = () => (
                   <Route path="/evidence" element={<Public><EvidenceExplorer /></Public>} />
                   <Route path="/evidence/:projectId" element={<Public><EvidenceExplorer /></Public>} />
                   <Route path="/omni" element={<Public><OmniCommand /></Public>} />
+                  <Route path="/lab" element={<Navigate to="/" replace />} />
+                  <Route path="/components" element={<Navigate to="/" replace />} />
 
                   {/* Guest-only Authentication routes */}
                   <Route path="/login" element={<GuestOnly><Login /></GuestOnly>} />

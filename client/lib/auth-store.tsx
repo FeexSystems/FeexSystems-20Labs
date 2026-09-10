@@ -53,8 +53,6 @@ interface AuthActions {
   verifyEmail: (token: string) => Promise<void>;
   resendVerificationEmail: (email: string) => Promise<void>;
   uploadProfileImage: (file: File) => Promise<string>;
-  verifyEmail: (token: string) => Promise<void>;
-  resendVerificationEmail: (email: string) => Promise<void>;
 }
 
 type AuthStore = AuthState & AuthActions;

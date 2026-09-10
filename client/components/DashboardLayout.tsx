@@ -33,7 +33,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Terminal,
-  Zap
+  Zap,
+  Globe
 } from 'lucide-react';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { ConnectionStatusIndicator } from '@/components/realtime/RealtimeStatusIndicator';
@@ -43,14 +44,18 @@ interface DashboardLayoutProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, description: 'Overview & stats' },
+  { name: 'Dashboard Overview', href: '/dashboard', icon: LayoutDashboard, description: 'Overview & stats' },
+  { name: 'Spatial Galaxy', href: '/world', icon: Globe, description: '3D Knowledge Graph' },
   { name: 'Omni Command', href: '/omni', icon: Terminal, description: 'World Model Stage' },
   { name: 'AI Services', href: '/dashboard/ai', icon: Bot, description: 'AI-powered tools' },
+];
+
+const subNavigation = [
   { name: 'DevOps', href: '/dashboard/devops', icon: Code, description: 'CI/CD & deployments' },
   { name: 'Security', href: '/dashboard/security', icon: Shield, description: 'Scans & compliance' },
   { name: 'Teams', href: '/dashboard/teams', icon: Users, description: 'Team management' },
-  { name: 'Billing', href: '/dashboard/billing', icon: CreditCard, description: 'Plans & invoices' },
   { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3, description: 'Usage insights' },
+  { name: 'Billing', href: '/dashboard/billing', icon: CreditCard, description: 'Plans & invoices' },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings, description: 'Preferences' },
 ];
 
@@ -73,7 +78,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const handleLogout = () => {
     logout();
-    navigate('/auth');
+    navigate('/login');
   };
 
   const handleBack = () => {
@@ -116,20 +121,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       )}
 
       {/* Sidebar */}
-      <div className={`
-        fixed inset-y-0 left-0 z-50 bg-card border-r border-border transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 bg-card border-r border-border transform transition-all duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         ${sidebarCollapsed ? 'w-16' : 'w-64'}
       `}>
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 items-center justify-between px-4 border-b border-border">
             <div className="flex items-center space-x-2">
-              <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Zap className="w-5 h-5 text-white" />
+              <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                <Zap className="w-5 h-5 text-black" />
               </div>
               {!sidebarCollapsed && (
-                <span className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                <span className="text-lg font-bold text-white">
                   FeexSystems
                 </span>
               )}
@@ -169,7 +174,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     key={item.name}
                     variant={active ? 'secondary' : 'ghost'}
                     className={`w-full ${sidebarCollapsed ? 'justify-center px-2' : 'justify-start'} h-10 ${active
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20'
+                      ? 'bg-white/10 text-white border border-white/30 hover:bg-white/20'
                       : 'hover:bg-muted/50'
                       }`}
                     onClick={() => {
@@ -178,7 +183,39 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     }}
                     title={sidebarCollapsed ? item.name : undefined}
                   >
-                    <Icon className={`h-4 w-4 ${sidebarCollapsed ? '' : 'mr-3'} ${active ? 'text-emerald-400' : ''}`} />
+                    <Icon className={`h-4 w-4 ${sidebarCollapsed ? '' : 'mr-3'} ${active ? 'text-white' : ''}`} />
+                    {!sidebarCollapsed && (
+                      <span className="truncate">{item.name}</span>
+                    )}
+                  </Button>
+                );
+              })}
+            </div>
+
+            <div className="pt-4 mt-4 border-t border-border space-y-1">
+              {!sidebarCollapsed && (
+                <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Services
+                </div>
+              )}
+              {subNavigation.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.href);
+                return (
+                  <Button
+                    key={item.name}
+                    variant={active ? 'secondary' : 'ghost'}
+                    className={`w-full ${sidebarCollapsed ? 'justify-center px-2' : 'justify-start'} h-10 ${active
+                      ? 'bg-white/10 text-white border border-white/30 hover:bg-white/20'
+                      : 'hover:bg-muted/50'
+                      }`}
+                    onClick={() => {
+                      navigate(item.href);
+                      setSidebarOpen(false);
+                    }}
+                    title={sidebarCollapsed ? item.name : undefined}
+                  >
+                    <Icon className={`h-4 w-4 ${sidebarCollapsed ? '' : 'mr-3'} ${active ? 'text-white' : ''}`} />
                     {!sidebarCollapsed && (
                       <span className="truncate">{item.name}</span>
                     )}
@@ -201,24 +238,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       const Icon = item.icon;
                       const active = isActive(item.href);
                       return (
-                        <Button
-                          key={item.name}
-                          variant={active ? 'secondary' : 'ghost'}
-                          className={`w-full ${sidebarCollapsed ? 'justify-center px-2' : 'justify-start'} h-10 ${active
-                            ? 'bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20'
-                            : 'hover:bg-muted/50'
-                            }`}
-                          onClick={() => {
-                            navigate(item.href);
-                            setSidebarOpen(false);
-                          }}
-                          title={sidebarCollapsed ? item.name : undefined}
-                        >
-                          <Icon className={`h-4 w-4 ${sidebarCollapsed ? '' : 'mr-3'} ${active ? 'text-orange-400' : ''}`} />
-                          {!sidebarCollapsed && (
-                            <span className="truncate">{item.name}</span>
-                          )}
-                        </Button>
+                          <Button
+                            key={item.name}
+                            variant={active ? 'secondary' : 'ghost'}
+                            className={`w-full ${sidebarCollapsed ? 'justify-center px-2' : 'justify-start'} h-10 ${active
+                              ? 'bg-white/10 text-white border border-white/30 hover:bg-white/20'
+                              : 'hover:bg-muted/50'
+                              }`}
+                            onClick={() => {
+                              navigate(item.href);
+                              setSidebarOpen(false);
+                            }}
+                            title={sidebarCollapsed ? item.name : undefined}
+                          >
+                            <Icon className={`h-4 w-4 ${sidebarCollapsed ? '' : 'mr-3'} ${active ? 'text-white' : ''}`} />
+                            {!sidebarCollapsed && (
+                              <span className="truncate">{item.name}</span>
+                            )}
+                          </Button>
                       );
                     })}
                   </div>
@@ -235,7 +272,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <Button variant="ghost" className="w-full h-10 p-0">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={user?.profileImageUrl} alt={user?.firstName} />
-                      <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-xs">
+                      <AvatarFallback className="bg-white text-black text-xs">
                         {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
@@ -268,7 +305,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="flex items-center space-x-3">
                 <Avatar className="h-9 w-9">
                   <AvatarImage src={user?.profileImageUrl} alt={user?.firstName} />
-                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm">
+                  <AvatarFallback className="bg-white text-black text-sm">
                     {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
@@ -308,7 +345,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             )}
           </div>
         </div>
-      </div>
+      </aside>
 
       {/* Main content */}
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64'}`}>
@@ -359,8 +396,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <Badge
               variant="outline"
               className={`hidden sm:inline-flex ${user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN'
-                ? 'border-orange-500/50 text-orange-400 bg-orange-500/10'
-                : 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10'
+                ? 'border-white/50 text-white bg-white/10'
+                : 'border-white/50 text-white bg-white/10'
                 }`}
             >
               {user?.role}
@@ -384,7 +421,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
           <div className="p-4 space-y-3">
             <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+              <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
               <div className="flex-1">
                 <p className="text-sm font-medium">New team invitation</p>
                 <p className="text-xs text-muted-foreground">You've been invited to join Team Alpha</p>
@@ -392,7 +429,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
             </div>
             <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+              <div className="w-2 h-2 bg-white/60 rounded-full mt-2"></div>
               <div className="flex-1">
                 <p className="text-sm font-medium">Security scan completed</p>
                 <p className="text-xs text-muted-foreground">Vulnerability scan for repo/backend completed</p>
@@ -400,7 +437,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
             </div>
             <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
+              <div className="w-2 h-2 bg-white/30 rounded-full mt-2"></div>
               <div className="flex-1">
                 <p className="text-sm font-medium">Usage limit warning</p>
                 <p className="text-xs text-muted-foreground">You're approaching your AI requests limit</p>

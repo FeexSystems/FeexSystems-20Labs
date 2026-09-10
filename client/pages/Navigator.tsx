@@ -14,6 +14,13 @@ import {
 } from "lucide-react";
 import { FeexWorldBadge } from "@/components/FeexLogo";
 import { TextScrambleMorph } from "@/components/motion/TextScrambleMorph";
+import {
+  FullWidthNav,
+  CursorDotTrail,
+  MagneticGlowButton,
+  BtcMonoBadge,
+  AppleDock,
+} from "@/components/framer";
 
 // Lazy-load Drei 3D Navigator Hero
 const DreiNavigatorHero = lazy(() => import("@/components/webgl/DreiNavigatorHero"));
@@ -106,63 +113,12 @@ export default function Navigator() {
   }, [initialQuery]);
 
   return (
-    <main className="min-h-screen bg-[#000000] text-white antialiased font-mono selection:bg-white selection:text-black">
-      {/* 1. TECHNICAL STICKY HEADER */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#121212]/90 backdrop-blur-md">
-        <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
-          {/* Brand Lockup */}
-          <div className="flex items-center gap-4">
-            <Link
-              to="/"
-              className="flex items-center gap-2 text-base md:text-lg font-bold tracking-tight text-white hover:text-white/80 transition-colors"
-            >
-              <span className="size-3 bg-white rounded-none" />
-              <span>FEEXSYSTEMS</span>
-              <span className="text-white/40 text-xs hidden sm:inline">// NAVIGATOR</span>
-            </Link>
-            <span className="hidden lg:inline-block rounded-[10px] border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] text-white/70">
-              v2.4 LIVING WORLD
-            </span>
-          </div>
+    <main className="min-h-screen bg-[#000000] text-white antialiased font-mono selection:bg-white selection:text-black relative">
+      {/* Interactive Cursor Trail */}
+      <CursorDotTrail dotColor="rgba(0, 245, 212, 0.6)" trailColor="rgba(123, 44, 191, 0.3)" />
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6 text-xs text-white/70">
-            <Link to="/" className="hover:text-white transition-colors">
-              Home
-            </Link>
-            <Link to="/projects" className="hover:text-white transition-colors">
-              Projects
-            </Link>
-            <Link to="/omni" className="hover:text-white transition-colors flex items-center gap-1.5">
-              <Terminal className="size-3.5 text-white/80" />
-              <span>Omni Command</span>
-            </Link>
-            <Link to="/evidence" className="hover:text-white transition-colors">
-              Evidence
-            </Link>
-            <Link to="/world" className="hover:text-white transition-colors">
-              3D World
-            </Link>
-          </nav>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-            <Link
-              to="/projects"
-              className="inline-flex items-center gap-1.5 rounded-[10px] border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs text-white hover:bg-white/10 font-mono transition-colors"
-            >
-              <span>View Projects</span>
-            </Link>
-            <Link
-              to="/world"
-              className="inline-flex items-center gap-2 rounded-[10px] bg-white px-4 py-1.5 text-xs font-semibold text-black hover:bg-white/90 transition-all shadow-sm"
-            >
-              <Globe className="size-3.5" />
-              <span>Launch 3D</span>
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* 1. SLIDING GLASSMORPHIC NAVBAR */}
+      <FullWidthNav />
 
       {/* 2. DREI 3D GROUNDED EVIDENCE HERO */}
       <Suspense
@@ -191,7 +147,8 @@ export default function Navigator() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <BtcMonoBadge hash="sha-feex-evidence-retrieval-v2" blockHeight={894210} label="EVIDENCE PROOF" />
             <FeexWorldBadge sha="sha-feex-grounded-retrieval" status="VERIFIED 100%" />
           </div>
         </div>
@@ -229,10 +186,12 @@ export default function Navigator() {
               />
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button
+              <MagneticGlowButton
                 type="submit"
                 disabled={loading}
-                className="px-6 h-11 rounded-[10px] bg-white hover:bg-neutral-200 text-black font-semibold text-xs font-mono flex items-center justify-center gap-2 transition-all shrink-0"
+                variant="primary"
+                glowColor="rgba(0, 245, 212, 0.4)"
+                className="px-6 h-11 rounded-[10px] text-xs font-mono"
               >
                 {loading ? (
                   <>
@@ -245,7 +204,7 @@ export default function Navigator() {
                     <ArrowRight className="size-3.5" />
                   </>
                 )}
-              </button>
+              </MagneticGlowButton>
               <Link
                 to={`/omni?q=${encodeURIComponent(q || "Show me the backend architecture")}`}
                 className="px-4 h-11 rounded-[10px] border border-white/15 bg-white/5 hover:bg-white/10 text-white text-xs font-mono flex items-center justify-center gap-1.5 transition-colors shrink-0"
@@ -428,14 +387,15 @@ export default function Navigator() {
                       {result.artifacts.map((art) => (
                         <div
                           key={art.id}
-                          className="rounded-[10px] border border-white/10 bg-black/60 p-3 font-mono text-xs flex flex-col gap-1 hover:border-white/20 transition-colors"
+                          className="rounded-[10px] border border-white/10 bg-black/60 p-3 font-mono text-xs flex flex-col gap-1.5 hover:border-white/20 transition-colors"
                         >
                           <div className="flex items-center justify-between text-white/40">
-                            <span className="text-[10px] uppercase text-white/60 font-semibold">{art.kind}</span>
-                            <TextScrambleMorph
-                              text={art.sha.slice(0, 8)}
-                              className="text-[10px] text-white/40 font-mono"
-                              speed={30}
+                            <span className="text-[10px] uppercase text-cyan-400 font-semibold">{art.kind}</span>
+                            <BtcMonoBadge
+                              label={art.sha.slice(0, 8)}
+                              sublabel="SHA-256"
+                              status="confirmed"
+                              size="sm"
                             />
                           </div>
                           <div className="text-white truncate font-medium">
@@ -468,6 +428,9 @@ export default function Navigator() {
           </div>
         </div>
       </footer>
+
+      {/* 6. FLOATING MACOS APP DOCK */}
+      <AppleDock />
     </main>
   );
 }

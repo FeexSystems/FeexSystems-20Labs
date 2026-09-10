@@ -23,6 +23,14 @@ import { FeexHorizontalLockup, FeexWorldBadge } from "@/components/FeexLogo";
 import { CursorSpotlightCard } from "@/components/motion/CursorSpotlightCard";
 import { LinkPreviewCard } from "@/components/media/LinkPreviewCard";
 import { InfiniteMarqueeTicker } from "@/components/carousel/InfiniteMarqueeTicker";
+import {
+  FullWidthNav,
+  AppleDock,
+  BtcMonoBadge,
+  MagneticGlowButton,
+  SkeletonLoader,
+  PillCarousel,
+} from "@/components/framer";
 
 // Lazy-load Drei 3D Topology Hero for maximum initial bundle performance
 const DreiProjectsHero = lazy(() => import("@/components/webgl/DreiProjectsHero"));
@@ -44,6 +52,7 @@ export default function Projects() {
   const [query, setQuery] = useState("");
   const [activeDomain, setActiveDomain] = useState("ALL");
   const [projects, setProjects] = useState<WorldProject[]>([]);
+  const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState("");
 
@@ -56,6 +65,8 @@ export default function Projects() {
       setProjects(d.projects || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "World Model unavailable");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,83 +119,29 @@ export default function Projects() {
   }, [fallback, query, activeDomain]);
 
   return (
-    <main className="min-h-screen bg-[#000000] text-white antialiased font-mono selection:bg-white selection:text-black">
-      {/* 1. TECHNICAL STICKY HEADER */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#121212]/90 backdrop-blur-md">
-        <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
-          {/* Brand Lockup */}
-          <div className="flex items-center gap-4">
-            <Link
-              to="/"
-              className="flex items-center gap-2 text-base md:text-lg font-bold tracking-tight text-white hover:text-white/80 transition-colors"
-            >
-              <span className="size-3 bg-white rounded-none" />
-              <span>FEEXSYSTEMS</span>
-              <span className="text-white/40 text-xs hidden sm:inline">// PROJECTS</span>
-            </Link>
-            <span className="hidden lg:inline-block rounded-[10px] border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] text-white/70">
-              v2.4 LIVING WORLD
-            </span>
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6 text-xs text-white/70">
-            <Link to="/" className="hover:text-white transition-colors">
-              Home
-            </Link>
-            <Link to="/navigator" className="hover:text-white transition-colors">
-              Navigator
-            </Link>
-            <Link to="/omni" className="hover:text-white transition-colors flex items-center gap-1.5">
-              <Terminal className="size-3.5 text-white/80" />
-              <span>Omni Command</span>
-            </Link>
-            <Link to="/evidence" className="hover:text-white transition-colors">
-              Evidence
-            </Link>
-            <Link to="/world" className="hover:text-white transition-colors">
-              3D World
-            </Link>
-          </nav>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={sync}
-              disabled={syncing}
-              className="inline-flex items-center gap-1.5 rounded-[10px] border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white hover:bg-white/10 font-mono transition-colors"
-            >
-              <RefreshCw className={`size-3.5 ${syncing ? "animate-spin text-white" : "text-white/70"}`} />
-              <span>{syncing ? "Syncing..." : "Sync GitHub"}</span>
-            </button>
-            <Link
-              to="/world"
-              className="inline-flex items-center gap-2 rounded-[10px] bg-white px-4 py-1.5 text-xs font-semibold text-black hover:bg-white/90 transition-all shadow-sm"
-            >
-              <Globe className="size-3.5" />
-              <span>Launch 3D</span>
-            </Link>
-          </div>
-        </div>
-      </header>
+    <main className="min-h-screen bg-[#000000] text-white antialiased font-mono selection:bg-white selection:text-black relative pb-28">
+      {/* 1. TECHNICAL CANONICAL NAVIGATION */}
+      <FullWidthNav />
 
       {/* 2. DREI 3D TOPOLOGY HERO */}
-      <Suspense
-        fallback={
-          <div className="h-52 w-full bg-black flex items-center justify-center font-mono text-xs text-white/40">
-            Initializing 3D Topology Scene...
-          </div>
-        }
-      >
-        <DreiProjectsHero />
-      </Suspense>
+      <div className="pt-20">
+        <Suspense
+          fallback={
+            <div className="h-52 w-full bg-black flex items-center justify-center font-mono text-xs text-white/40">
+              Initializing 3D Topology Scene...
+            </div>
+          }
+        >
+          <DreiProjectsHero />
+        </Suspense>
+      </div>
 
       {/* 3. HERO TITLES & INDUSTRIAL CONTROL STATS */}
       <section className="container mx-auto max-w-7xl px-5 md:px-8 pt-10 pb-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/10 pb-8">
           <div>
             <div className="inline-flex items-center gap-2 rounded-[10px] border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70 mb-4">
-              <span className="size-1.5 rounded-full bg-white animate-pulse" />
+              <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse" />
               <span>//01 — EXPLORATION ENGINE · CANONICAL MATRIX</span>
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
@@ -196,9 +153,24 @@ export default function Projects() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="rounded-[10px] border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/80 font-mono">
-              STATUS: ACTIVE 100%
-            </span>
+            <MagneticGlowButton
+              onClick={sync}
+              glowColor="rgba(0, 245, 212, 0.4)"
+              className="px-4 py-2 text-xs font-mono rounded-[10px] border border-white/20 bg-white/5 text-white hover:bg-white/10 flex items-center gap-2"
+            >
+              <RefreshCw className={`size-3.5 ${syncing ? "animate-spin text-cyan-400" : "text-white/70"}`} />
+              <span>{syncing ? "Syncing GitHub..." : "Sync GitHub"}</span>
+            </MagneticGlowButton>
+
+            <Link to="/world">
+              <MagneticGlowButton
+                glowColor="rgba(255, 255, 255, 0.6)"
+                className="px-5 py-2 text-xs font-bold font-mono rounded-[10px] bg-white text-black hover:bg-white/90 flex items-center gap-2 shadow-lg"
+              >
+                <Globe className="size-3.5" />
+                <span>Launch 3D World</span>
+              </MagneticGlowButton>
+            </Link>
           </div>
         </div>
 
@@ -304,136 +276,152 @@ export default function Projects() {
 
       {/* 5. PROJECT CARD MATRIX GRID WITH LINK PREVIEW */}
       <section className="container mx-auto max-w-7xl px-5 md:px-8 py-6 pb-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {visible.map((p, idx) => {
-            const shortRepo = p.repository.split("/").pop();
-            const language = p.metadata?.language || "TypeScript";
+        {loading ? (
+          <div className="py-12">
+            <SkeletonLoader variant="cyber" count={6} className="max-w-7xl mx-auto" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {visible.map((p, idx) => {
+              const shortRepo = p.repository.split("/").pop();
+              const language = p.metadata?.language || "TypeScript";
 
-            return (
-              <div
-                key={p.id}
-                className="group relative rounded-[20px] border border-white/10 bg-[#121212] hover:border-white/30 p-6 flex flex-col justify-between transition-all duration-200 shadow-xl"
-              >
-                <div>
-                  {/* Top Bar: Language + Index */}
-                  <div className="flex items-center justify-between text-xs font-mono text-white/40 border-b border-white/10 pb-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="size-1.5 rounded-full bg-white" />
-                      <span className="text-white font-medium">{language}</span>
+              return (
+                <div
+                  key={p.id}
+                  className="group relative rounded-[20px] border border-white/10 bg-[#121212] hover:border-white/30 p-6 flex flex-col justify-between transition-all duration-200 shadow-xl"
+                >
+                  <div>
+                    {/* Top Bar: Language + Index */}
+                    <div className="flex items-center justify-between text-xs font-mono text-white/40 border-b border-white/10 pb-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <span className="size-1.5 rounded-full bg-cyan-400" />
+                        <span className="text-white font-medium">{language}</span>
+                      </div>
+                      <span className="text-[11px] text-white/40">0{idx + 1} // REPO</span>
                     </div>
-                    <span className="text-[11px] text-white/40">0{idx + 1} // REPO</span>
-                  </div>
 
-                  {/* Project Name with Rich Link Preview Card */}
-                  <LinkPreviewCard
-                    url={p.url}
-                    title={p.name}
-                    description={p.description || "Engineering project discovered and anchored in the FEEXSYSTEMS Living World Model."}
-                  >
-                    <h3 className="text-lg font-bold text-white tracking-tight group-hover:text-white/80 transition-colors cursor-pointer inline-block">
-                      {p.name}
-                    </h3>
-                  </LinkPreviewCard>
-
-                  {/* Repository slug */}
-                  <div className="mt-1 font-mono text-xs text-white/40 truncate">
-                    feexsystems/{shortRepo}
-                  </div>
-
-                  {/* Description */}
-                  <p className="mt-3 text-xs text-white/60 leading-relaxed line-clamp-3">
-                    {p.description || "Engineering project discovered and anchored in the FEEXSYSTEMS Living World Model."}
-                  </p>
-
-                  {/* Topics Pills */}
-                  <div className="mt-4 flex flex-wrap gap-1.5">
-                    {(p.metadata?.topics || ["AI", "Systems", "WebGL"]).slice(0, 4).map((topic) => (
-                      <span
-                        key={topic}
-                        className="px-2 py-0.5 rounded-[6px] text-[10px] font-mono bg-black/60 border border-white/10 text-white/50"
-                      >
-                        {topic}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Interactive 3D Presentation Preview */}
-                  <div className="mt-4 rounded-[10px] border border-white/10 bg-black/60 relative overflow-hidden">
-                    <div className="absolute top-2 left-2.5 z-10 text-[9px] font-mono text-white/50 flex items-center gap-1.5 pointer-events-none">
-                      <span className="size-1 rounded-full bg-white animate-pulse" />
-                      <span>3D TILT // DREI TOPOLOGY</span>
-                    </div>
-                    <Suspense
-                      fallback={
-                        <div className="h-28 flex items-center justify-center font-mono text-[10px] text-white/40">
-                          Initializing 3D Artifact...
-                        </div>
-                      }
+                    {/* Project Name with Rich Link Preview Card */}
+                    <LinkPreviewCard
+                      url={p.url}
+                      title={p.name}
+                      description={p.description || "Engineering project discovered and anchored in the FEEXSYSTEMS Living World Model."}
                     >
-                      <ProjectMini3DCard
-                        domain={p.description?.includes("Med") ? "Healthcare" : p.name?.includes("Xchange") ? "Finance" : p.name?.includes("Labs") ? "Research" : "Intelligence"}
-                        isPinned={idx < 2}
-                        color="#ffffff"
+                      <h3 className="text-lg font-bold text-white tracking-tight group-hover:text-cyan-300 transition-colors cursor-pointer inline-block">
+                        {p.name}
+                      </h3>
+                    </LinkPreviewCard>
+
+                    {/* Repository slug */}
+                    <div className="mt-1 font-mono text-xs text-white/40 truncate">
+                      feexsystems/{shortRepo}
+                    </div>
+
+                    {/* Cryptographic Evidence Badge */}
+                    <div className="mt-3">
+                      <BtcMonoBadge
+                        label="CANONICAL ENTITY"
+                        sublabel={`ID: ${p.id.slice(0, 10)}...`}
+                        status="confirmed"
+                        size="sm"
                       />
-                    </Suspense>
+                    </div>
+
+                    {/* Description */}
+                    <p className="mt-3 text-xs text-white/60 leading-relaxed line-clamp-3">
+                      {p.description || "Engineering project discovered and anchored in the FEEXSYSTEMS Living World Model."}
+                    </p>
+
+                    {/* Topics Pills */}
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      {(p.metadata?.topics || ["AI", "Systems", "WebGL"]).slice(0, 4).map((topic) => (
+                        <span
+                          key={topic}
+                          className="px-2 py-0.5 rounded-[6px] text-[10px] font-mono bg-black/60 border border-white/10 text-white/50"
+                        >
+                          {topic}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Interactive 3D Presentation Preview */}
+                    <div className="mt-4 rounded-[10px] border border-white/10 bg-black/60 relative overflow-hidden">
+                      <div className="absolute top-2 left-2.5 z-10 text-[9px] font-mono text-white/50 flex items-center gap-1.5 pointer-events-none">
+                        <span className="size-1 rounded-full bg-cyan-400 animate-pulse" />
+                        <span>3D TILT // DREI TOPOLOGY</span>
+                      </div>
+                      <Suspense
+                        fallback={
+                          <div className="h-28 flex items-center justify-center font-mono text-[10px] text-white/40">
+                            Initializing 3D Artifact...
+                          </div>
+                        }
+                      >
+                        <ProjectMini3DCard
+                          domain={p.description?.includes("Med") ? "Healthcare" : p.name?.includes("Xchange") ? "Finance" : p.name?.includes("Labs") ? "Research" : "Intelligence"}
+                          isPinned={idx < 2}
+                          color="#ffffff"
+                        />
+                      </Suspense>
+                    </div>
+                  </div>
+
+                  {/* Bottom Actions Bar */}
+                  <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5 text-xs font-mono">
+                      <Link
+                        to={`/navigator?q=${encodeURIComponent(p.name)}`}
+                        className="inline-flex items-center gap-1 text-white/60 hover:text-white transition-colors"
+                        title="Explore in AI Navigator"
+                      >
+                        <Compass className="size-3 text-white/80" />
+                        <span>Nav</span>
+                      </Link>
+                      <span className="text-white/20">|</span>
+                      <Link
+                        to={`/omni?q=${encodeURIComponent(`Show me ${p.name} architecture`)}`}
+                        className="inline-flex items-center gap-1 text-white/60 hover:text-white transition-colors"
+                        title="Open in Omni-Command Stage"
+                      >
+                        <Terminal className="size-3 text-white/80" />
+                        <span>Omni</span>
+                      </Link>
+                      <span className="text-white/20">|</span>
+                      <Link
+                        to={`/evidence/${encodeURIComponent(p.id)}`}
+                        className="inline-flex items-center gap-1 text-white/60 hover:text-white transition-colors"
+                        title="View Evidence Provenance"
+                      >
+                        <FileCode className="size-3 text-white/80" />
+                        <span>Evidence</span>
+                      </Link>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to={`/world?focus=${encodeURIComponent(p.id)}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-mono rounded-[10px] bg-white/5 border border-white/10 hover:border-white/30 text-white transition-colors"
+                      >
+                        <Globe className="size-3 text-white" />
+                        <span>3D</span>
+                      </Link>
+                      <a
+                        href={p.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center p-1.5 rounded-[10px] bg-white/5 border border-white/10 hover:border-white/30 text-white/60 hover:text-white transition-colors"
+                      >
+                        <ExternalLink className="size-3.5" />
+                      </a>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        )}
 
-                {/* Bottom Actions Bar */}
-                <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2.5 text-xs font-mono">
-                    <Link
-                      to={`/navigator?q=${encodeURIComponent(p.name)}`}
-                      className="inline-flex items-center gap-1 text-white/60 hover:text-white transition-colors"
-                      title="Explore in AI Navigator"
-                    >
-                      <Compass className="size-3 text-white/80" />
-                      <span>Nav</span>
-                    </Link>
-                    <span className="text-white/20">|</span>
-                    <Link
-                      to={`/omni?q=${encodeURIComponent(`Show me ${p.name} architecture`)}`}
-                      className="inline-flex items-center gap-1 text-white/60 hover:text-white transition-colors"
-                      title="Open in Omni-Command Stage"
-                    >
-                      <Terminal className="size-3 text-white/80" />
-                      <span>Omni Command</span>
-                    </Link>
-                    <span className="text-white/20">|</span>
-                    <Link
-                      to={`/evidence/${encodeURIComponent(p.id)}`}
-                      className="inline-flex items-center gap-1 text-white/60 hover:text-white transition-colors"
-                      title="View Evidence Provenance"
-                    >
-                      <FileCode className="size-3 text-white/80" />
-                      <span>Evidence</span>
-                    </Link>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Link
-                      to={`/world?focus=${encodeURIComponent(p.id)}`}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-mono rounded-[10px] bg-white/5 border border-white/10 hover:border-white/30 text-white transition-colors"
-                    >
-                      <Globe className="size-3 text-white" />
-                      <span>3D</span>
-                    </Link>
-                    <a
-                      href={p.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center p-1.5 rounded-[10px] bg-white/5 border border-white/10 hover:border-white/30 text-white/60 hover:text-white transition-colors"
-                    >
-                      <ExternalLink className="size-3.5" />
-                    </a>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {!visible.length && (
+        {!loading && !visible.length && (
           <div className="mt-8 p-12 rounded-[20px] border border-dashed border-white/10 text-center font-mono text-xs text-white/40">
             No projects found matching current filter query.
           </div>
@@ -453,6 +441,11 @@ export default function Projects() {
           </div>
         </div>
       </footer>
+
+      {/* Floating Interactive Quick Dock */}
+      <div className="fixed bottom-6 inset-x-0 flex justify-center z-40 pointer-events-auto">
+        <AppleDock />
+      </div>
     </main>
   );
 }

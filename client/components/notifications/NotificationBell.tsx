@@ -40,7 +40,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
           {/* Connection status indicator */}
           <div 
             className={`absolute bottom-0 right-0 w-2 h-2 rounded-full ${
-              isConnected ? 'bg-green-500' : 'bg-gray-400'
+              isConnected ? 'bg-white' : 'bg-white/30'
             }`}
             title={isConnected ? 'Connected' : 'Disconnected'}
           />

@@ -55,15 +55,15 @@ export function RealtimeStatusIndicator({
     
     switch (status.status) {
       case 'completed':
-        return <CheckCircle className={`${getIconSize()} text-green-500`} />;
+        return <CheckCircle className={`${getIconSize()} text-white`} />;
       case 'failed':
-        return <XCircle className={`${getIconSize()} text-red-500`} />;
+        return <XCircle className={`${getIconSize()} text-white/40`} />;
       case 'cancelled':
-        return <Pause className={`${getIconSize()} text-yellow-500`} />;
+        return <Pause className={`${getIconSize()} text-white/50`} />;
       case 'running':
-        return <Loader2 className={`${getIconSize()} text-blue-500 animate-spin`} />;
+        return <Loader2 className={`${getIconSize()} text-white animate-spin`} />;
       case 'pending':
-        return <Clock className={`${getIconSize()} text-yellow-500`} />;
+        return <Clock className={`${getIconSize()} text-white/50`} />;
       default:
         return <AlertTriangle className={`${getIconSize()} text-muted-foreground`} />;
     }
@@ -233,13 +233,13 @@ export function ConnectionStatusIndicator({ className }: { className?: string })
         <TooltipTrigger asChild>
           <div className={`flex items-center space-x-1 ${className}`}>
             {isConnected ? (
-              <Wifi className="h-4 w-4 text-green-500" />
+              <Wifi className="h-4 w-4 text-white" />
             ) : (
-              <WifiOff className="h-4 w-4 text-red-500" />
+              <WifiOff className="h-4 w-4 text-white/40" />
             )}
             <div 
               className={`w-2 h-2 rounded-full ${
-                isConnected ? 'bg-green-500' : 'bg-red-500'
+                isConnected ? 'bg-white' : 'bg-white/40'
               }`}
             />
           </div>

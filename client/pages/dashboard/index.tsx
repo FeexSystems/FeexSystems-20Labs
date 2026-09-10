@@ -173,29 +173,29 @@ export default function DashboardPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-      case 'warning': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-      case 'error': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-      case 'info': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+      case 'success': return 'bg-white text-black dark:bg-white/10 dark:text-white';
+      case 'warning': return 'bg-white text-black dark:bg-white/10 dark:text-white';
+      case 'error': return 'bg-white text-black dark:bg-white/10 dark:text-white';
+      case 'info': return 'bg-white text-black dark:bg-white/10 dark:text-white';
+      default: return 'bg-white text-black dark:bg-white/10 dark:text-white';
     }
   };
 
   const getProjectStatus = (status: string) => {
     switch (status) {
-      case 'active': return { label: 'Active', color: 'bg-green-500' };
-      case 'review': return { label: 'In Review', color: 'bg-yellow-500' };
-      case 'development': return { label: 'Development', color: 'bg-blue-500' };
-      default: return { label: 'Unknown', color: 'bg-gray-500' };
+      case 'active': return { label: 'Active', color: 'bg-white text-black' };
+      case 'review': return { label: 'In Review', color: 'bg-white/80 text-black' };
+      case 'development': return { label: 'Development', color: 'bg-white/60 text-black' };
+      default: return { label: 'Unknown', color: 'bg-white/40 text-black' };
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'critical': return 'text-red-500 bg-red-100 dark:bg-red-900/30';
-      case 'high': return 'text-orange-500 bg-orange-100 dark:bg-orange-900/30';
-      case 'medium': return 'text-yellow-500 bg-yellow-100 dark:bg-yellow-900/30';
-      default: return 'text-gray-500 bg-gray-100 dark:bg-gray-900/30';
+      case 'critical': return 'text-white bg-white/20 dark:bg-white/20';
+      case 'high': return 'text-white bg-white/10 dark:bg-white/10';
+      case 'medium': return 'text-white/80 bg-white/5 dark:bg-white/5';
+      default: return 'text-white/60 bg-transparent dark:bg-transparent';
     }
   };
 
@@ -210,8 +210,8 @@ export default function DashboardPage() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-sm px-3 py-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse" />
+            <Badge variant="outline" className="text-sm px-3 py-1 border-white/20 text-white">
+              <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse" />
               All Systems Operational
             </Badge>
           </div>
@@ -219,80 +219,80 @@ export default function DashboardPage() {
 
         {/* Quick Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+          <Card className="bg-gradient-to-br from-white/10 to-white/5 border-white/20">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <Folder className="w-8 h-8 text-primary" />
-                <TrendingUp className="w-4 h-4 text-green-500" />
+                <Folder className="w-8 h-8 text-white" />
+                <TrendingUp className="w-4 h-4 text-white/80" />
               </div>
-              <p className="text-2xl font-bold mt-2">{metrics.totalProjects}</p>
+              <p className="text-2xl font-bold mt-2 text-white">{metrics.totalProjects}</p>
               <p className="text-xs text-muted-foreground">Active projects</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
+          <Card className="bg-gradient-to-br from-white/10 to-white/5 border-white/20">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <Zap className="w-8 h-8 text-blue-500" />
-                <span className="text-xs text-green-500">+15%</span>
+                <Zap className="w-8 h-8 text-white" />
+                <span className="text-xs text-white/80">+15%</span>
               </div>
-              <p className="text-2xl font-bold mt-2">{metrics.apiCalls.current.toLocaleString()}</p>
+              <p className="text-2xl font-bold mt-2 text-white">{metrics.apiCalls.current.toLocaleString()}</p>
               <p className="text-xs text-muted-foreground">API Calls</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/20">
+          <Card className="bg-gradient-to-br from-white/10 to-white/5 border-white/20">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <Globe className="w-8 h-8 text-purple-500" />
-                <span className="text-xs text-green-500">+8%</span>
+                <Globe className="w-8 h-8 text-white" />
+                <span className="text-xs text-white/80">+8%</span>
               </div>
-              <p className="text-2xl font-bold mt-2">{metrics.storageUsed.current} GB</p>
+              <p className="text-2xl font-bold mt-2 text-white">{metrics.storageUsed.current} GB</p>
               <p className="text-xs text-muted-foreground">Of {metrics.storageUsed.limit} GB limit</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-500/10 to-orange-500/5 border-orange-500/20">
+          <Card className="bg-gradient-to-br from-white/10 to-white/5 border-white/20">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <Users className="w-8 h-8 text-orange-500" />
+                <Users className="w-8 h-8 text-white" />
                 <span className="text-xs text-muted-foreground">+1 new</span>
               </div>
-              <p className="text-2xl font-bold mt-2">{metrics.teamMembers}</p>
+              <p className="text-2xl font-bold mt-2 text-white">{metrics.teamMembers}</p>
               <p className="text-xs text-muted-foreground">Active users</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border-emerald-500/20">
+          <Card className="bg-gradient-to-br from-white/10 to-white/5 border-white/20">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <Play className="w-8 h-8 text-emerald-500" />
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                <Play className="w-8 h-8 text-white" />
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
               </div>
-              <p className="text-2xl font-bold mt-2">{metrics.activeDeployments}</p>
+              <p className="text-2xl font-bold mt-2 text-white">{metrics.activeDeployments}</p>
               <p className="text-xs text-muted-foreground">Running now</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-teal-500/10 to-teal-500/5 border-teal-500/20">
+          <Card className="bg-gradient-to-br from-white/10 to-white/5 border-white/20">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <Shield className="w-8 h-8 text-teal-500" />
-                <CheckCircle className="w-4 h-4 text-green-500" />
+                <Shield className="w-8 h-8 text-white" />
+                <CheckCircle className="w-4 h-4 text-white/80" />
               </div>
-              <p className="text-2xl font-bold mt-2">{metrics.securityScore}%</p>
+              <p className="text-2xl font-bold mt-2 text-white">{metrics.securityScore}%</p>
               <p className="text-xs text-muted-foreground">Security score</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Account Status Card */}
-        <Card className="border-primary/30 bg-gradient-to-r from-card to-primary/5">
+        <Card className="border-white/20 bg-white/5">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
+                <div className="p-3 rounded-full bg-white/10">
+                  <CheckCircle className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Account Status</h3>
@@ -302,20 +302,20 @@ export default function DashboardPage() {
               <div className="flex flex-col md:flex-row gap-4 md:items-center">
                 <div className="text-right">
                   <p className="text-sm font-medium">Current Plan</p>
-                  <p className="text-xl font-bold text-primary">Professional</p>
+                  <p className="text-xl font-bold text-white">Professional</p>
                 </div>
-                <div className="border-l pl-4 hidden md:block">
+                <div className="border-l border-white/10 pl-4 hidden md:block">
                   <p className="text-sm text-muted-foreground">Role</p>
-                  <Badge>User</Badge>
+                  <Badge variant="outline" className="border-white/20 text-white">User</Badge>
                 </div>
-                <div className="border-l pl-4 hidden md:block">
+                <div className="border-l border-white/10 pl-4 hidden md:block">
                   <p className="text-sm text-muted-foreground">Monthly Usage</p>
                   <div className="flex items-center gap-2">
                     <Progress value={23.5} className="w-24 h-2" />
                     <span className="text-sm">2,350 / 10,000 API calls</span>
                   </div>
                 </div>
-                <Button variant="outline" className="ml-4">
+                <Button variant="outline" className="ml-4 border-white/20 text-white hover:bg-white hover:text-black">
                   Upgrade Plan
                 </Button>
               </div>
@@ -325,7 +325,7 @@ export default function DashboardPage() {
 
         {/* Tabs for Dashboard Sections */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid border border-white/10 bg-black">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
@@ -337,10 +337,10 @@ export default function DashboardPage() {
           <TabsContent value="overview" className="space-y-6">
             <div className="grid gap-6 lg:grid-cols-3">
               {/* Performance Chart */}
-              <Card className="lg:col-span-2">
+              <Card className="lg:col-span-2 border-white/10 bg-black">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5" />
+                    <BarChart3 className="w-5 h-5 text-white" />
                     Weekly Performance
                   </CardTitle>
                   <CardDescription>API requests, deployments, and scans over the past week</CardDescription>
@@ -351,17 +351,17 @@ export default function DashboardPage() {
                       <div key={day.day} className="flex-1 flex flex-col items-center gap-1">
                         <div className="w-full flex flex-col gap-1" style={{ height: '200px' }}>
                           <div
-                            className="w-full bg-primary/80 rounded-t"
+                            className="w-full bg-white rounded-t"
                             style={{ height: `${(day.requests / 2500) * 100}%` }}
                             title={`${day.requests} requests`}
                           />
                           <div
-                            className="w-full bg-emerald-500"
+                            className="w-full bg-white/60"
                             style={{ height: `${(day.deployments / 15) * 50}px` }}
                             title={`${day.deployments} deployments`}
                           />
                           <div
-                            className="w-full bg-orange-500 rounded-b"
+                            className="w-full bg-white/30 rounded-b"
                             style={{ height: `${(day.scans / 10) * 30}px` }}
                             title={`${day.scans} scans`}
                           />
@@ -372,15 +372,15 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex justify-center gap-6 mt-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-primary/80 rounded" />
+                      <div className="w-3 h-3 bg-white rounded" />
                       <span className="text-sm">API Requests</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-emerald-500 rounded" />
+                      <div className="w-3 h-3 bg-white/60 rounded" />
                       <span className="text-sm">Deployments</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-orange-500 rounded" />
+                      <div className="w-3 h-3 bg-white/30 rounded" />
                       <span className="text-sm">Scans</span>
                     </div>
                   </div>
@@ -489,7 +489,7 @@ export default function DashboardPage() {
               {projects.map((project) => {
                 const status = getProjectStatus(project.status);
                 return (
-                  <Card key={project.id} className="hover:border-primary/50 transition cursor-pointer">
+                  <Card key={project.id} className="hover:border-white/50 transition cursor-pointer">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
@@ -499,7 +499,7 @@ export default function DashboardPage() {
                           <div>
                             <CardTitle className="text-lg flex items-center gap-2">
                               {project.name}
-                              {project.starred && <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />}
+                              {project.starred && <Star className="w-4 h-4 fill-white text-white" />}
                             </CardTitle>
                             <CardDescription>{project.description}</CardDescription>
                           </div>
@@ -525,7 +525,7 @@ export default function DashboardPage() {
                             <Code className="w-4 h-4 inline mr-1" />
                             {project.deployments} deployments
                           </span>
-                          <span className={project.issues > 0 ? 'text-yellow-500' : 'text-green-500'}>
+                          <span className={project.issues > 0 ? 'text-white/80' : 'text-white/40'}>
                             <AlertTriangle className="w-4 h-4 inline mr-1" />
                             {project.issues} issues
                           </span>
@@ -583,7 +583,7 @@ export default function DashboardPage() {
                 <div className="space-y-4">
                   {upcomingTasks.map((task) => (
                     <div key={task.id} className="flex items-center gap-4 p-4 rounded-lg border hover:bg-muted/30 transition">
-                      <input type="checkbox" className="w-5 h-5 rounded border-primary" />
+                      <input type="checkbox" className="w-5 h-5 rounded border-white" />
                       <div className="flex-1">
                         <p className="font-medium">{task.title}</p>
                         <p className="text-sm text-muted-foreground">{task.project}</p>
