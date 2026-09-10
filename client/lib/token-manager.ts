@@ -199,17 +199,20 @@ class TokenManager {
         attempts++;
 
         // If it's a 401 error and we haven't exceeded max retries, try to refresh
-        if (error.status === 401 && attempts <= maxRetries) {
-          console.log(`🔄 Received 401, attempting token refresh (attempt ${attempts}/${maxRetries + 1})`);
+        if (error?.status === 401) {
+          if (attempts <= maxRetries) {
+            console.log(`🔄 Received 401, attempting token refresh (attempt ${attempts}/${maxRetries + 1})`);
 
-          try {
-            const newTokens = await this.refreshTokens();
-            currentTokens = newTokens;
-            continue; // Retry with new token
-          } catch (refreshError) {
-            console.error('Token refresh failed during retry:', refreshError);
-            throw refreshError;
+            try {
+              const newTokens = await this.refreshTokens();
+              currentTokens = newTokens;
+              continue; // Retry with new token
+            } catch (refreshError) {
+              console.error('Token refresh failed during retry:', refreshError);
+              throw refreshError;
+            }
           }
+          throw new Error('Max retry attempts exceeded');
         }
 
         // If not a 401 or exceeded retries, throw the error

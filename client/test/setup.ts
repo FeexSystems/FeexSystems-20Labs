@@ -1,4 +1,5 @@
 import { beforeAll, afterEach, afterAll, vi } from 'vitest';
+import '@testing-library/jest-dom';
 
 // Mock DOM environment setup
 Object.defineProperty(window, 'matchMedia', {

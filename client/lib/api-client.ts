@@ -125,7 +125,7 @@ class ApiClient {
       }
 
       // Handle empty responses
-      const contentType = response.headers.get('content-type');
+      const contentType = response.headers?.get ? response.headers.get('content-type') : null;
       if (!contentType || response.status === 204) {
         return {} as T;
       }
@@ -157,7 +157,7 @@ class ApiClient {
     let errorDetails: any;
 
     try {
-      const contentType = response.headers.get('content-type');
+      const contentType = response.headers?.get ? response.headers.get('content-type') : null;
       if (contentType && contentType.includes('application/json')) {
         const errorData = await response.json();
         errorMessage = errorData.message || errorData.error || errorMessage;

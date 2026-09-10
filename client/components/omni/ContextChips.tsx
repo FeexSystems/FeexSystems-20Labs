@@ -11,17 +11,17 @@ export function ContextChips() {
   }
 
   return (
-    <div className="flex flex-wrap justify-center gap-2 mt-2 max-w-3xl mx-auto px-4">
+    <div className="flex flex-wrap justify-center gap-2 mt-2 max-w-3xl mx-auto px-4 font-mono">
       {focused.map((id) => (
         <span
           key={id}
-          className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2 py-1 rounded-md bg-indigo-500/15 border border-indigo-500/30 text-indigo-300"
+          className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-[10px] bg-white/10 border border-white/20 text-white"
         >
-          <Crosshair size={10} />
+          <Crosshair size={10} className="text-white/70" />
           focus:{id.length > 24 ? id.slice(0, 24) + "…" : id}
           <button
             type="button"
-            className="hover:text-white"
+            className="hover:text-white/70 ml-0.5"
             onClick={() =>
               setContext({
                 focusedNodeIds: focused.filter((f) => f !== id),
@@ -34,14 +34,14 @@ export function ContextChips() {
         </span>
       ))}
       {context.previousIntent && (
-        <span className="text-[11px] font-mono px-2 py-1 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-400">
+        <span className="text-[11px] font-mono px-2.5 py-1 rounded-[10px] bg-[#121212] border border-white/10 text-white/60">
           intent:{context.previousIntent}
         </span>
       )}
       {focused.length > 0 && (
         <button
           type="button"
-          className="text-[11px] font-mono px-2 py-1 rounded-md bg-zinc-900 border border-zinc-700 text-zinc-500 hover:text-zinc-200"
+          className="text-[11px] font-mono px-2.5 py-1 rounded-[10px] bg-[#121212] border border-white/10 text-white/40 hover:text-white hover:border-white/30 transition-colors"
           onClick={() => setContext({ focusedNodeIds: [] })}
         >
           clear focus

@@ -3,28 +3,11 @@ import { vi } from 'vitest';
 import { render, renderHook, act, waitFor } from '@testing-library/react';
 import { AuthStoreProvider } from '@/lib/auth-store';
 import { mockApiResponses } from '../mocks/api';
+import { createMockUser, createMockTokens } from './mock-factories';
 
-// Re-export testing utilities
+// Re-export testing utilities and mock factories
 export { render, renderHook, act, waitFor };
-
-// Helper function to create mock user data
-export const createMockUser = (overrides = {}) => ({
-  id: 'test-user-id',
-  email: 'test@example.com',
-  firstName: 'Test',
-  lastName: 'User',
-  role: 'USER' as const,
-  emailVerified: true,
-  ...overrides,
-});
-
-// Helper function to create mock auth tokens
-export const createMockTokens = (overrides = {}) => ({
-  accessToken: 'mock-access-token',
-  refreshToken: 'mock-refresh-token',
-  expiresIn: 3600,
-  ...overrides,
-});
+export { createMockUser, createMockTokens };
 
 // Helper function to create mock auth state
 export const createMockAuthState = (overrides = {}) => ({

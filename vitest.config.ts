@@ -1,6 +1,17 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
+import fs from 'fs';
+
+// Configure Temp Fallback on Windows to prevent EPERM issues
+if (process.platform === 'win32') {
+  const localTemp = path.resolve(__dirname, '.temp');
+  if (!fs.existsSync(localTemp)) {
+    fs.mkdirSync(localTemp, { recursive: true });
+  }
+  process.env.TEMP = localTemp;
+  process.env.TMP = localTemp;
+}
 
 export default defineConfig({
   plugins: [react()],

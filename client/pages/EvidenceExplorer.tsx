@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
-  ArrowLeft,
-  Boxes,
   CheckCircle2,
   ChevronDown,
   Clock,
@@ -11,9 +9,7 @@ import {
   ExternalLink,
   FileCode,
   FileText,
-  Filter,
   FolderGit2,
-  GitBranch,
   GitCommit,
   Globe,
   Layers,
@@ -21,14 +17,10 @@ import {
   Search,
   ShieldAlert,
   ShieldCheck,
-  Sparkles,
+  Terminal,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { feexProjects } from "@/lib/feex-ecosystem";
-import { FeexHorizontalLockup, FeexWorldBadge } from "@/components/FeexLogo";
+import { FeexWorldBadge } from "@/components/FeexLogo";
 
 interface ProjectSummary {
   id: string;
@@ -238,114 +230,134 @@ export default function EvidenceExplorer() {
   const currentProject = projects.find((p) => p.id === selectedProjectId);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Top Header Bar */}
-      <header className="border-b border-[#1E293B] bg-[#0A0E17]/85 px-6 py-4 backdrop-blur-xl sticky top-0 z-20">
-        <div className="mx-auto max-w-7xl flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4 flex-wrap">
-            <Link to="/" className="flex items-center gap-2">
-              <FeexHorizontalLockup markSize={28} showSubtitle={false} />
+    <main className="min-h-screen bg-[#000000] text-white antialiased font-mono selection:bg-white selection:text-black flex flex-col">
+      {/* 1. TECHNICAL STICKY HEADER */}
+      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#121212]/90 backdrop-blur-md">
+        <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
+          {/* Brand Lockup */}
+          <div className="flex items-center gap-4">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-base md:text-lg font-bold tracking-tight text-white hover:text-white/80 transition-colors"
+            >
+              <span className="size-3 bg-white rounded-none" />
+              <span>FEEXSYSTEMS</span>
+              <span className="text-white/40 text-xs hidden sm:inline">// EVIDENCE FABRIC</span>
             </Link>
-            <span className="text-[#64748B] font-mono">/</span>
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-[#00FFA3]" />
-              <span className="font-mono text-sm text-[#00F5D4] uppercase tracking-wider">
-                Evidence_Explorer
-              </span>
-            </div>
+            <span className="hidden lg:inline-block rounded-[10px] border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] text-white/70">
+              v2.4 LIVING WORLD
+            </span>
             <FeexWorldBadge sha="sha-feex-evidence" status="VERIFIED 100%" className="hidden sm:inline-flex" />
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="border-[#1E293B] bg-[#121826]/70">
-              <Link to="/world">
-                <Globe className="h-4 w-4 mr-1.5 text-[#00FFA3]" />
-                3D World
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="border-[#1E293B] bg-[#121826]/70">
-              <Link to="/projects">
-                <Boxes className="h-4 w-4 mr-1.5 text-[#0066FF]" />
-                Projects
-              </Link>
-            </Button>
-            <Button asChild size="sm" className="bg-[#00F5D4] font-semibold text-black hover:bg-[#00F5D4]/80 shadow-feex-neon">
-              <Link to={`/navigator?q=${encodeURIComponent(currentProject?.name || "")}`}>
-                <Compass className="h-4 w-4 mr-1.5" />
-                Ask Navigator
-              </Link>
-            </Button>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-6 text-xs text-white/70">
+            <Link to="/" className="hover:text-white transition-colors">
+              Home
+            </Link>
+            <Link to="/projects" className="hover:text-white transition-colors">
+              Projects
+            </Link>
+            <Link to="/omni" className="hover:text-white transition-colors flex items-center gap-1.5">
+              <Terminal className="size-3.5 text-white/80" />
+              <span>Omni Command</span>
+            </Link>
+            <Link to="/navigator" className="hover:text-white transition-colors">
+              Navigator
+            </Link>
+            <Link to="/world" className="hover:text-white transition-colors">
+              3D World
+            </Link>
+          </nav>
+
+          {/* Actions */}
+          <div className="flex items-center gap-3">
+            <Link
+              to={`/navigator?q=${encodeURIComponent(currentProject?.name || "")}`}
+              className="inline-flex items-center gap-1.5 rounded-[10px] border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs text-white hover:bg-white/10 font-mono transition-colors"
+            >
+              <Compass className="size-3.5 text-white/70" />
+              <span>Ask Navigator</span>
+            </Link>
+            <Link
+              to="/world"
+              className="inline-flex items-center gap-2 rounded-[10px] bg-white px-4 py-1.5 text-xs font-semibold text-black hover:bg-white/90 transition-all shadow-sm"
+            >
+              <Globe className="size-3.5" />
+              <span>Launch 3D</span>
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Workbench Layout: 3 Columns */}
-      <div className="flex-1 mx-auto max-w-7xl w-full grid grid-cols-1 lg:grid-cols-[300px_1fr_320px] divide-y lg:divide-y-0 lg:divide-x divide-border">
+      {/* 2. MAIN WORKBENCH LAYOUT: 3 COLUMNS */}
+      <div className="flex-1 mx-auto max-w-7xl w-full grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] divide-y lg:divide-y-0 lg:divide-x divide-white/10">
         {/* Left Column: Project Selector & File Tree */}
-        <aside className="p-4 flex flex-col gap-4 bg-card/20 overflow-y-auto max-h-[calc(100vh-73px)]">
+        <aside className="p-5 flex flex-col gap-4 bg-[#000000] overflow-y-auto max-h-[calc(100vh-65px)]">
           {/* Project Selector Dropdown */}
           <div>
-            <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold block mb-2">
-              Target Project World
+            <label className="text-xs uppercase tracking-wider text-white/40 font-semibold block mb-2">
+              // Target World
             </label>
             <div className="relative">
               <select
                 value={selectedProjectId}
                 onChange={(e) => setSelectedProjectId(e.target.value)}
-                className="w-full h-11 rounded-xl border border-border bg-card px-3.5 pr-8 text-sm font-medium text-foreground appearance-none focus:outline-none focus:border-emerald-500"
+                className="w-full h-11 rounded-[10px] border border-white/10 bg-[#121212] px-3.5 pr-8 text-xs font-mono text-white appearance-none focus:outline-none focus:border-white/30"
               >
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
+                  <option key={p.id} value={p.id} className="bg-[#121212] text-white">
                     {p.name} ({p.repository.split("/").pop()})
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
             </div>
           </div>
 
           {/* Project Quick Facts */}
           {currentProject && (
-            <div className="rounded-xl border border-border/70 bg-card/40 p-3.5 space-y-2 text-xs">
-              <div className="flex items-center justify-between text-muted-foreground">
+            <div className="rounded-[20px] border border-white/10 bg-[#121212] p-4 space-y-2 text-xs">
+              <div className="flex items-center justify-between text-white/40">
                 <span>Repository</span>
                 <a
                   href={currentProject.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-primary transition flex items-center gap-1"
+                  className="hover:text-white transition flex items-center gap-1 text-white/60"
                 >
                   <FolderGit2 className="h-3.5 w-3.5" />
                 </a>
               </div>
-              <div className="font-mono text-emerald-400 font-semibold break-all">
+              <div className="font-mono text-white font-semibold break-all">
                 {currentProject.repository}
               </div>
-              <div className="flex items-center justify-between pt-1 border-t border-border/50 text-muted-foreground">
+              <div className="flex items-center justify-between pt-2 border-t border-white/10 text-white/40">
                 <span>Total Artifacts</span>
-                <Badge variant="outline" className="text-[10px]">
-                  {projectDetails?.counts?.artifacts || currentProject.artifactCount || 0} files
-                </Badge>
+                <span className="rounded-[10px] border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-white/70">
+                  {projectDetails?.artifacts?.length || currentProject.artifactCount || 0} files
+                </span>
               </div>
             </div>
           )}
 
           {/* Search File Filter */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <Input
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+            <input
+              type="text"
               value={fileSearchQuery}
               onChange={(e) => setFileSearchQuery(e.target.value)}
               placeholder="Filter artifact files..."
-              className="h-9 pl-9 text-xs"
+              className="w-full h-10 pl-9 pr-3 rounded-[10px] border border-white/10 bg-[#121212] text-xs font-mono text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
             />
           </div>
 
           {/* Categorized File Tree */}
-          <div className="flex-1 space-y-4 overflow-y-auto">
+          <div className="flex-1 space-y-4 overflow-y-auto pr-1">
             {loadingDetails ? (
-              <div className="p-8 text-center text-xs text-muted-foreground">
-                <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-emerald-400" />
+              <div className="p-8 text-center text-xs text-white/40">
+                <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-white/60" />
                 Retrieving repository artifacts...
               </div>
             ) : (
@@ -353,9 +365,9 @@ export default function EvidenceExplorer() {
                 {/* 1. Manifests */}
                 {groupedArtifacts.manifests.length > 0 && (
                   <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 px-1 flex items-center justify-between">
-                      <span>Manifests & Config</span>
-                      <span>({groupedArtifacts.manifests.length})</span>
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-white/40 mb-2 px-1 flex items-center justify-between">
+                      <span>// Manifests & Config</span>
+                      <span className="text-[10px] text-white/30">({groupedArtifacts.manifests.length})</span>
                     </div>
                     <div className="space-y-1">
                       {groupedArtifacts.manifests.map((art) => (
@@ -365,14 +377,14 @@ export default function EvidenceExplorer() {
                             setSelectedArtifact(art);
                             setSearchParams({ path: art.path });
                           }}
-                          className={`w-full text-left rounded-lg px-2.5 py-1.5 text-xs flex items-center justify-between transition ${
+                          className={`w-full text-left rounded-[10px] px-3 py-2 text-xs flex items-center justify-between transition-all ${
                             selectedArtifact?.id === art.id
-                              ? "bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/30"
-                              : "hover:bg-card text-muted-foreground hover:text-foreground"
+                              ? "bg-white text-black font-semibold shadow-sm"
+                              : "text-white/60 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10"
                           }`}
                         >
                           <span className="font-mono truncate">{art.path}</span>
-                          <span className="text-[10px] text-amber-400">spec</span>
+                          <span className={`text-[10px] ${selectedArtifact?.id === art.id ? "text-black/60 font-mono" : "text-white/40"}`}>spec</span>
                         </button>
                       ))}
                     </div>
@@ -382,9 +394,9 @@ export default function EvidenceExplorer() {
                 {/* 2. Documentation */}
                 {groupedArtifacts.docs.length > 0 && (
                   <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 px-1 flex items-center justify-between">
-                      <span>Documentation</span>
-                      <span>({groupedArtifacts.docs.length})</span>
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-white/40 mb-2 px-1 flex items-center justify-between">
+                      <span>// Documentation</span>
+                      <span className="text-[10px] text-white/30">({groupedArtifacts.docs.length})</span>
                     </div>
                     <div className="space-y-1">
                       {groupedArtifacts.docs.map((art) => (
@@ -394,15 +406,15 @@ export default function EvidenceExplorer() {
                             setSelectedArtifact(art);
                             setSearchParams({ path: art.path });
                           }}
-                          className={`w-full text-left rounded-lg px-2.5 py-1.5 text-xs flex items-center justify-between transition ${
+                          className={`w-full text-left rounded-[10px] px-3 py-2 text-xs flex items-center justify-between transition-all ${
                             selectedArtifact?.id === art.id
-                              ? "bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/30"
-                              : "hover:bg-card text-muted-foreground hover:text-foreground"
+                              ? "bg-white text-black font-semibold shadow-sm"
+                              : "text-white/60 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10"
                           }`}
                         >
                           <span className="font-mono truncate flex items-center gap-1.5">
-                            <FileText className="h-3 w-3" />
-                            {art.path}
+                            <FileText className="h-3 w-3 shrink-0" />
+                            <span className="truncate">{art.path}</span>
                           </span>
                         </button>
                       ))}
@@ -413,9 +425,9 @@ export default function EvidenceExplorer() {
                 {/* 3. Source Files */}
                 {groupedArtifacts.sources.length > 0 && (
                   <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 px-1 flex items-center justify-between">
-                      <span>Source Files</span>
-                      <span>({groupedArtifacts.sources.length})</span>
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-white/40 mb-2 px-1 flex items-center justify-between">
+                      <span>// Source Files</span>
+                      <span className="text-[10px] text-white/30">({groupedArtifacts.sources.length})</span>
                     </div>
                     <div className="space-y-1">
                       {groupedArtifacts.sources.map((art) => (
@@ -425,15 +437,15 @@ export default function EvidenceExplorer() {
                             setSelectedArtifact(art);
                             setSearchParams({ path: art.path });
                           }}
-                          className={`w-full text-left rounded-lg px-2.5 py-1.5 text-xs flex items-center justify-between transition ${
+                          className={`w-full text-left rounded-[10px] px-3 py-2 text-xs flex items-center justify-between transition-all ${
                             selectedArtifact?.id === art.id
-                              ? "bg-emerald-500/15 text-emerald-300 font-semibold border border-emerald-500/30"
-                              : "hover:bg-card text-muted-foreground hover:text-foreground"
+                              ? "bg-white text-black font-semibold shadow-sm"
+                              : "text-white/60 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10"
                           }`}
                         >
                           <span className="font-mono truncate flex items-center gap-1.5">
-                            <FileCode className="h-3 w-3" />
-                            {art.path}
+                            <FileCode className="h-3 w-3 shrink-0" />
+                            <span className="truncate">{art.path}</span>
                           </span>
                         </button>
                       ))}
@@ -446,40 +458,47 @@ export default function EvidenceExplorer() {
         </aside>
 
         {/* Center Column: Code & Integrity Inspector */}
-        <main className="p-6 flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-73px)]">
+        <main className="p-6 flex flex-col gap-4 bg-[#000000] overflow-y-auto max-h-[calc(100vh-65px)]">
           {/* Cryptographic SHA Integrity Header */}
           {artifactContent ? (
-            <div className="hud-bracket rounded-lg border border-[#1E293B] bg-[#0A0E17]/80 p-5 space-y-4 shadow-feex-hud backdrop-blur-md">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border/60">
+            <div className="rounded-[20px] border border-white/10 bg-[#121212] p-6 space-y-4 shadow-2xl">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-white/10">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-base font-bold text-foreground">
+                    <span className="font-mono text-base font-bold text-white">
                       {artifactContent.path}
                     </span>
-                    <Badge variant="outline" className="text-xs uppercase">
+                    <span className="rounded-[10px] border border-white/10 bg-white/5 px-2 py-0.5 text-xs uppercase text-white/70">
                       {artifactContent.kind}
-                    </Badge>
+                    </span>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">
+                  <div className="text-xs text-white/40 mt-1">
                     Size: {artifactContent.size} bytes · Language: {artifactContent.language}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={handleCopyCode} className="h-8 text-xs">
-                    <Copy className="h-3.5 w-3.5 mr-1.5" />
-                    {copied ? "Copied!" : "Copy"}
-                  </Button>
-                  <Button asChild variant="outline" size="sm" className="h-8 text-xs">
-                    <a href={artifactContent.blobUrl} target="_blank" rel="noreferrer">
-                      GitHub <ExternalLink className="h-3.5 w-3.5 ml-1" />
-                    </a>
-                  </Button>
+                  <button
+                    onClick={handleCopyCode}
+                    className="inline-flex items-center gap-1.5 rounded-[10px] border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white hover:bg-white/10 font-mono transition-colors"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    <span>{copied ? "Copied!" : "Copy"}</span>
+                  </button>
+                  <a
+                    href={artifactContent.blobUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-[10px] border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white hover:bg-white/10 font-mono transition-colors"
+                  >
+                    <span>GitHub</span>
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
                 </div>
               </div>
 
               {/* SHA Cryptographic Verification Pill */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs rounded-xl bg-background/60 p-3 border border-border">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs rounded-[10px] bg-black/60 p-3 border border-white/10">
                 <div className="flex items-center gap-2">
                   {artifactContent.verified ? (
                     <>
@@ -495,28 +514,28 @@ export default function EvidenceExplorer() {
                     </>
                   )}
                 </div>
-                <div className="font-mono text-[11px] text-muted-foreground truncate max-w-md">
-                  SHA: <span className="text-foreground">{artifactContent.expectedSha}</span>
+                <div className="font-mono text-[11px] text-white/40 truncate max-w-md">
+                  SHA: <span className="text-white">{artifactContent.expectedSha}</span>
                 </div>
               </div>
 
               {/* Code Content Window with Line Numbers */}
-              <div className="relative rounded-xl border border-border bg-black/90 font-mono text-xs overflow-x-auto">
+              <div className="relative rounded-[20px] border border-white/10 bg-black font-mono text-xs overflow-x-auto">
                 {loadingContent ? (
-                  <div className="p-12 text-center text-muted-foreground">
-                    <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-emerald-400" />
+                  <div className="p-12 text-center text-white/40">
+                    <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-white/60" />
                     Calculating cryptographic hash and verifying content...
                   </div>
                 ) : (
                   <div className="p-4 flex text-white/90">
                     {/* Line numbers */}
-                    <div className="select-none pr-4 text-white/30 text-right font-mono border-r border-white/10 mr-4">
+                    <div className="select-none pr-4 text-white/20 text-right font-mono border-r border-white/10 mr-4">
                       {artifactContent.content.split("\n").map((_, i) => (
                         <div key={i}>{i + 1}</div>
                       ))}
                     </div>
                     {/* Code text */}
-                    <pre className="flex-1 overflow-x-auto">
+                    <pre className="flex-1 overflow-x-auto font-mono text-xs text-white/80 leading-relaxed">
                       <code>{artifactContent.content}</code>
                     </pre>
                   </div>
@@ -524,61 +543,61 @@ export default function EvidenceExplorer() {
               </div>
             </div>
           ) : (
-            <div className="p-16 text-center text-muted-foreground rounded-2xl border border-dashed border-border">
-              <FileCode className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-              <h3 className="font-semibold text-foreground">No artifact selected</h3>
-              <p className="text-xs mt-1">Select an artifact file from the left hierarchy to inspect.</p>
+            <div className="p-16 text-center text-white/40 rounded-[20px] border border-dashed border-white/10 bg-[#121212]/40">
+              <FileCode className="h-10 w-10 mx-auto mb-3 text-white/20" />
+              <h3 className="font-semibold text-white font-mono">No artifact selected</h3>
+              <p className="text-xs mt-1 text-white/40">Select an artifact file from the left hierarchy to inspect.</p>
             </div>
           )}
         </main>
 
         {/* Right Column: Evidence Ledger & Event Timeline */}
-        <aside className="p-4 flex flex-col gap-6 bg-card/20 overflow-y-auto max-h-[calc(100vh-73px)]">
+        <aside className="p-5 flex flex-col gap-6 bg-[#000000] overflow-y-auto max-h-[calc(100vh-65px)]">
           {/* Discovery Evidence */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-400" />
-              Evidence Provenance Ledger
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white/40 mb-3 flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 text-white/80" />
+              <span>// Evidence Ledger</span>
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {projectDetails?.evidence?.length ? (
                 projectDetails.evidence.slice(0, 5).map((ev) => (
-                  <div key={ev.id} className="rounded-xl border border-border/70 bg-card/40 p-3 text-xs space-y-1">
-                    <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                      <Badge variant="outline" className="text-[9px]">
+                  <div key={ev.id} className="rounded-[10px] border border-white/10 bg-[#121212] p-3 text-xs space-y-1 hover:border-white/20 transition-colors">
+                    <div className="flex items-center justify-between text-[10px] text-white/40">
+                      <span className="rounded-[10px] border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] text-white/70 uppercase">
                         {ev.evidenceType}
-                      </Badge>
+                      </span>
                       <span>{new Date(ev.observedAt).toLocaleDateString()}</span>
                     </div>
-                    <div className="font-mono text-[11px] text-foreground truncate">{ev.sourceRef || "provenance"}</div>
+                    <div className="font-mono text-[11px] text-white truncate">{ev.sourceRef || "provenance"}</div>
                     <a
                       href={ev.sourceUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[10px] text-primary hover:underline flex items-center gap-1 mt-1 truncate"
+                      className="text-[10px] text-white/50 hover:text-white hover:underline flex items-center gap-1 mt-1 truncate"
                     >
                       {ev.sourceUrl} <ExternalLink className="h-2.5 w-2.5 inline" />
                     </a>
                   </div>
                 ))
               ) : (
-                <p className="text-xs text-muted-foreground">No direct discovery evidence logged.</p>
+                <p className="text-xs text-white/40">No direct discovery evidence logged.</p>
               )}
             </div>
           </div>
 
           {/* Temporal Event Timeline */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-primary" />
-              Temporal Event Log
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white/40 mb-3 flex items-center gap-1.5">
+              <Clock className="h-4 w-4 text-white/80" />
+              <span>// Temporal Event Log</span>
             </h3>
             <div className="space-y-2.5">
               {projectDetails?.events?.length ? (
                 projectDetails.events.slice(0, 6).map((ev) => (
-                  <div key={ev.id} className="border-l-2 border-primary/40 pl-3 py-1 text-xs space-y-1">
-                    <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                      <span className="font-semibold text-foreground">{ev.eventType}</span>
+                  <div key={ev.id} className="border-l-2 border-white/20 pl-3 py-1 text-xs space-y-1">
+                    <div className="flex items-center justify-between text-[10px] text-white/40">
+                      <span className="font-semibold text-white">{ev.eventType}</span>
                       <span>{new Date(ev.occurredAt).toLocaleTimeString()}</span>
                     </div>
                     {ev.commitSha && (
@@ -590,7 +609,7 @@ export default function EvidenceExplorer() {
                   </div>
                 ))
               ) : (
-                <div className="border-l-2 border-border pl-3 text-xs text-muted-foreground">
+                <div className="border-l-2 border-white/10 pl-3 text-xs text-white/40">
                   Initial discovery event recorded.
                 </div>
               )}
@@ -600,21 +619,35 @@ export default function EvidenceExplorer() {
           {/* Connected Technologies */}
           {projectDetails?.technologies && projectDetails.technologies.length > 0 && (
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
-                <Layers className="h-4 w-4 text-indigo-400" />
-                Connected Technologies
+              <h3 className="text-xs font-bold uppercase tracking-wider text-white/40 mb-3 flex items-center gap-1.5">
+                <Layers className="h-4 w-4 text-white/80" />
+                <span>// Connected Technologies</span>
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {projectDetails.technologies.map((t: any) => (
-                  <Badge key={t.id || t.name} variant="secondary" className="text-[10px]">
+                  <span key={t.id || t.name} className="rounded-[10px] border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-mono text-white/70">
                     {t.name}
-                  </Badge>
+                  </span>
                 ))}
               </div>
             </div>
           )}
         </aside>
       </div>
-    </div>
+
+      {/* 3. TECHNICAL FOOTER */}
+      <footer className="border-t border-white/10 py-10 bg-black text-xs font-mono text-white/60">
+        <div className="container mx-auto max-w-7xl px-5 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="size-2.5 bg-white rounded-none" />
+            <span className="font-bold text-white uppercase tracking-wider">FEEXSYSTEMS</span>
+            <span className="text-white/40">// Evidence Fabric Ledger</span>
+          </div>
+          <div className="text-white/40">
+            © 2026 FEEXSYSTEMS. Cryptographic SHA-256 Verified & SOC 2 Type II Audited.
+          </div>
+        </div>
+      </footer>
+    </main>
   );
 }

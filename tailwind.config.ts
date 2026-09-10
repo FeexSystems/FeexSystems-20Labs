@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      screens: {
+        tablet: "810px",
+        desktop: "1200px",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -191,9 +195,9 @@ export default {
         "176": "44rem",
       },
       fontFamily: {
-        sans: ["Plus Jakarta Sans", "Inter", "system-ui", "-apple-system", "sans-serif"],
-        display: ["Space Grotesk", "system-ui", "-apple-system", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"],
+        sans: ["'Geist Mono'", "Plus Jakarta Sans", "Inter", "system-ui", "-apple-system", "sans-serif"],
+        display: ["'Geist Mono'", "Space Grotesk", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["'Geist Mono'", "JetBrains Mono", "monospace"],
       },
       transitionTimingFunction: {
         "custom-out": "cubic-bezier(0.215, 0.61, 0.355, 1)",

@@ -14,11 +14,11 @@ describe('TokenManager', () => {
     mockRefreshCallback = vi.fn();
     mockExpiredCallback = vi.fn();
     
-    // Mock tokens that expire in 1 hour
+    // Mock tokens that expire in 1 hour (epoch seconds)
     mockTokens = {
       accessToken: 'mock-access-token',
       refreshToken: 'mock-refresh-token',
-      expiresIn: Date.now() + (60 * 60 * 1000), // 1 hour from now
+      expiresIn: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
       tokenType: 'Bearer',
     };
 
@@ -39,7 +39,7 @@ describe('TokenManager', () => {
     it('should return true for expired tokens', () => {
       const expiredTokens = {
         ...mockTokens,
-        expiresIn: Date.now() - 1000, // 1 second ago
+        expiresIn: Math.floor(Date.now() / 1000) - 1, // 1 second ago
       };
       
       const result = tokenManager.isTokenExpired(expiredTokens);
@@ -49,7 +49,7 @@ describe('TokenManager', () => {
     it('should return true for tokens expiring within buffer time', () => {
       const soonToExpireTokens = {
         ...mockTokens,
-        expiresIn: Date.now() + (2 * 60 * 1000), // 2 minutes from now
+        expiresIn: Math.floor(Date.now() / 1000) + 120, // 2 minutes from now
       };
       
       const result = tokenManager.isTokenExpired(soonToExpireTokens, 5); // 5 minute buffer
@@ -76,13 +76,13 @@ describe('TokenManager', () => {
     it('should refresh and return new token for expired tokens', async () => {
       const expiredTokens = {
         ...mockTokens,
-        expiresIn: Date.now() - 1000,
+        expiresIn: Math.floor(Date.now() / 1000) - 1,
       };
 
       const newTokens = {
         ...mockTokens,
         accessToken: 'new-access-token',
-        expiresIn: Date.now() + (60 * 60 * 1000),
+        expiresIn: Math.floor(Date.now() / 1000) + 3600,
       };
 
       mockRefreshCallback.mockResolvedValue(newTokens);
@@ -95,7 +95,7 @@ describe('TokenManager', () => {
     it('should return null if refresh fails', async () => {
       const expiredTokens = {
         ...mockTokens,
-        expiresIn: Date.now() - 1000,
+        expiresIn: Math.floor(Date.now() / 1000) - 1,
       };
 
       mockRefreshCallback.mockRejectedValue(new Error('Refresh failed'));
@@ -125,10 +125,11 @@ describe('TokenManager', () => {
     });
 
     it('should refresh token when timer expires', async () => {
+      const nowSeconds = Math.floor(Date.now() / 1000);
       const newTokens = {
         ...mockTokens,
         accessToken: 'refreshed-token',
-        expiresIn: Date.now() + (60 * 60 * 1000),
+        expiresIn: nowSeconds + 3600,
       };
 
       mockRefreshCallback.mockResolvedValue(newTokens);
@@ -136,13 +137,13 @@ describe('TokenManager', () => {
       // Tokens that expire in 4 minutes (less than 5 minute buffer)
       const soonToExpireTokens = {
         ...mockTokens,
-        expiresIn: Date.now() + (4 * 60 * 1000),
+        expiresIn: nowSeconds + 240,
       };
 
       tokenManager.startAutoRefresh(soonToExpireTokens);
 
       // Fast-forward time to trigger refresh
-      await vi.runAllTimersAsync();
+      await vi.advanceTimersByTimeAsync(1000);
 
       expect(mockRefreshCallback).toHaveBeenCalledOnce();
     });
@@ -150,10 +151,11 @@ describe('TokenManager', () => {
 
   describe('refreshTokens', () => {
     it('should call refresh callback and return new tokens', async () => {
+      const nowSeconds = Math.floor(Date.now() / 1000);
       const newTokens = {
         ...mockTokens,
         accessToken: 'new-token',
-        expiresIn: Date.now() + (60 * 60 * 1000),
+        expiresIn: nowSeconds + 3600,
       };
 
       mockRefreshCallback.mockResolvedValue(newTokens);
@@ -171,10 +173,11 @@ describe('TokenManager', () => {
     });
 
     it('should deduplicate concurrent refresh requests', async () => {
+      const nowSeconds = Math.floor(Date.now() / 1000);
       const newTokens = {
         ...mockTokens,
         accessToken: 'new-token',
-        expiresIn: Date.now() + (60 * 60 * 1000),
+        expiresIn: nowSeconds + 3600,
       };
 
       mockRefreshCallback.mockImplementation(() => 
@@ -187,7 +190,7 @@ describe('TokenManager', () => {
       const promise3 = tokenManager.refreshTokens();
 
       // Fast-forward time to resolve promises
-      await vi.runAllTimersAsync();
+      await vi.advanceTimersByTimeAsync(150);
 
       const [result1, result2, result3] = await Promise.all([promise1, promise2, promise3]);
 
@@ -212,6 +215,7 @@ describe('TokenManager', () => {
     });
 
     it('should refresh token and retry on 401 error', async () => {
+      const nowSeconds = Math.floor(Date.now() / 1000);
       const mockRequestFn = vi.fn()
         .mockRejectedValueOnce({ status: 401 })
         .mockResolvedValueOnce('success');
@@ -219,7 +223,7 @@ describe('TokenManager', () => {
       const newTokens = {
         ...mockTokens,
         accessToken: 'new-token',
-        expiresIn: Date.now() + (60 * 60 * 1000),
+        expiresIn: nowSeconds + 3600,
       };
 
       mockRefreshCallback.mockResolvedValue(newTokens);
@@ -278,7 +282,7 @@ describe('TokenManager', () => {
     it('should return 0 for expired tokens', () => {
       const expiredTokens = {
         ...mockTokens,
-        expiresIn: Date.now() - 1000,
+        expiresIn: Math.floor(Date.now() / 1000) - 1,
       };
 
       const result = tokenManager.getTimeUntilExpiration(expiredTokens);

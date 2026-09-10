@@ -32,6 +32,7 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
+  Terminal,
   Zap
 } from 'lucide-react';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
@@ -43,6 +44,7 @@ interface DashboardLayoutProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, description: 'Overview & stats' },
+  { name: 'Omni Command', href: '/omni', icon: Terminal, description: 'World Model Stage' },
   { name: 'AI Services', href: '/dashboard/ai', icon: Bot, description: 'AI-powered tools' },
   { name: 'DevOps', href: '/dashboard/devops', icon: Code, description: 'CI/CD & deployments' },
   { name: 'Security', href: '/dashboard/security', icon: Shield, description: 'Scans & compliance' },

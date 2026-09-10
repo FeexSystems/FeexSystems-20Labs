@@ -2,6 +2,7 @@
  * Zod schemas for the Omni-Command Orchestration Contract (v1.0)
  */
 import { z } from "zod";
+import type { OmniCommandRequest } from "./orchestration";
 
 export const ReasoningStepSchema = z.object({
   id: z.string(),
@@ -88,11 +89,11 @@ export function validateOmniResponse(raw: unknown): {
 
 export function validateOmniRequest(raw: unknown): {
   success: boolean;
-  data?: z.infer<typeof OmniCommandRequestSchema>;
+  data?: OmniCommandRequest;
   error?: string;
 } {
   const result = OmniCommandRequestSchema.safeParse(raw);
-  if (result.success) return { success: true, data: result.data };
+  if (result.success) return { success: true, data: result.data as OmniCommandRequest };
   return {
     success: false,
     error: result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),

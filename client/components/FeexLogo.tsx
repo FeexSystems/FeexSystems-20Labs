@@ -164,20 +164,20 @@ export function FeexWorldBadge({
 }) {
   return (
     <div
-      className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#121826]/80 border border-[#1E293B] text-xs font-mono shadow-sm backdrop-blur-md ${className}`}
+      className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-[10px] bg-[#121212] border border-white/10 text-xs font-mono shadow-sm backdrop-blur-md ${className}`}
     >
-      <span className="relative flex h-2 w-2">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00F5D4] opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00F5D4]"></span>
+      <span className="relative flex h-1.5 w-1.5">
+        <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
       </span>
-      <span className="text-[#64748B] uppercase tracking-wider text-[10px]">
+      <span className="text-white/40 uppercase tracking-wider text-[10px]">
         EVIDENCE:
       </span>
-      <span className="text-[#F8FAFC] font-medium hover:text-[#00F5D4] cursor-pointer transition-colors">
+      <span className="text-white font-medium hover:text-white/80 cursor-pointer transition-colors">
         {sha}
       </span>
-      <span className="text-[#64748B]">|</span>
-      <span className="text-[#00F5D4] text-[10px] font-semibold">{status}</span>
+      <span className="text-white/20">|</span>
+      <span className="text-white/80 text-[10px] font-semibold">{status}</span>
     </div>
   );
 }

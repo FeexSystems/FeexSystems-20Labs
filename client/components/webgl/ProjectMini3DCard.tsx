@@ -12,7 +12,7 @@ interface ProjectMini3DCardProps {
 function MiniArtifact({
   domain = "Intelligence",
   isPinned = false,
-  color = "#00F5D4",
+  color = "#ffffff",
 }: ProjectMini3DCardProps) {
   const meshRef = useRef<THREE.Mesh>(null!);
 
@@ -38,7 +38,7 @@ function MiniArtifact({
           <dodecahedronGeometry args={[1, 0]} />
         )}
         <meshStandardMaterial
-          color="#040406"
+          color="#121212"
           roughness={0.2}
           metalness={0.85}
         />
@@ -55,7 +55,7 @@ function MiniArtifact({
 export function ProjectMini3DCard({
   domain = "Intelligence",
   isPinned = false,
-  color = "#00F5D4",
+  color = "#ffffff",
   className = "",
 }: ProjectMini3DCardProps & { className?: string }) {
   return (
@@ -65,7 +65,7 @@ export function ProjectMini3DCard({
         gl={{ antialias: true, alpha: true }}
       >
         <ambientLight intensity={0.8} />
-        <pointLight position={[3, 3, 3]} intensity={1.5} color={color} />
+        <pointLight position={[3, 3, 3]} intensity={1.5} color="#ffffff" />
         <pointLight position={[-3, -3, -3]} intensity={0.6} color="#ffffff" />
         
         <PresentationControls

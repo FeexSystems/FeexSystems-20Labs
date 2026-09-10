@@ -1,19 +1,17 @@
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   CameraControls,
   GizmoHelper,
   GizmoViewport,
   Grid,
-  Stars,
   Sparkles as DreiSparkles,
   Text,
   Float,
   Billboard,
   Trail,
   Html,
-  CatmullRomLine,
   QuadraticBezierLine,
   AdaptiveDpr,
   Bvh,
@@ -21,14 +19,15 @@ import {
   MeshTransmissionMaterial,
   Preload,
   useFBO,
+  PerformanceMonitor,
 } from "@react-three/drei";
+import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import {
   Boxes,
   Compass,
   ExternalLink,
   FileCode,
-  Filter,
   GitBranch,
   Layers,
   Maximize2,
@@ -38,11 +37,13 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Terminal,
   X,
+  Activity,
+  Globe,
+  Cpu,
+  Radio,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   PlanetaryCoreShaderMaterial,
   AtmosphereHalo,
@@ -50,7 +51,11 @@ import {
   EquatorialTelemetryRing,
   resolveWorldChroma,
 } from "@/components/webgl/PlanetaryCoreMaterial";
-import { FeexMasterMark, FeexHorizontalLockup, FeexWorldBadge } from "@/components/FeexLogo";
+import { TextScrambleMorph } from "@/components/motion/TextScrambleMorph";
+
+// ─────────────────────────────────────────────────────────────────────
+// Types & Interfaces (preserved exactly)
+// ─────────────────────────────────────────────────────────────────────
 
 interface GraphNode {
   id: string;
@@ -84,20 +89,28 @@ interface GraphData {
   };
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Domain Chromas (preserved exactly)
+// ─────────────────────────────────────────────────────────────────────
+
 const DOMAIN_COLORS: Record<string, string> = {
-  Intelligence: "#10b981", // emerald
-  Healthcare: "#06b6d4", // cyan
-  Finance: "#f59e0b", // amber
-  Research: "#a855f7", // purple
-  Platform: "#3b82f6", // blue
-  WorldModels: "#ec4899", // pink
+  Intelligence: "#10b981",
+  Healthcare: "#06b6d4",
+  Finance: "#f59e0b",
+  Research: "#a855f7",
+  Platform: "#3b82f6",
+  WorldModels: "#ec4899",
 };
 
 function getNodeColor(node: GraphNode): string {
-  if (node.type === "technology") return "#6366f1"; // indigo
+  if (node.type === "technology") return "#6366f1";
   if (node.domain && DOMAIN_COLORS[node.domain]) return DOMAIN_COLORS[node.domain];
   return "#10b981";
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// Canonical Initial Graph (preserved exactly)
+// ─────────────────────────────────────────────────────────────────────
 
 const CANONICAL_INITIAL_GRAPH: GraphData = {
   nodes: [
@@ -204,7 +217,137 @@ const CANONICAL_INITIAL_GRAPH: GraphData = {
   },
 };
 
-// 3D Node Sphere with Procedural GLSL Planetary Core Shaders + Drei Edges & Outlines
+// ─────────────────────────────────────────────────────────────────────
+// GLSL: Stippled Nebula Environment Particles
+// ─────────────────────────────────────────────────────────────────────
+
+const NEBULA_VERTEX = /* glsl */ `
+  uniform float uTime;
+  attribute float aSize;
+  attribute float aPhase;
+  varying float vAlpha;
+
+  void main() {
+    vec3 pos = position;
+    // Organic floating drift
+    pos.x += sin(uTime * 0.12 + aPhase * 6.28) * 1.8;
+    pos.y += cos(uTime * 0.09 + aPhase * 3.14) * 1.2;
+    pos.z += sin(uTime * 0.07 + aPhase * 4.71) * 1.5;
+
+    vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
+    gl_Position = projectionMatrix * mvPos;
+    gl_PointSize = aSize * (80.0 / -mvPos.z);
+    gl_PointSize = clamp(gl_PointSize, 0.5, 6.0);
+
+    float dist = length(mvPos.xyz);
+    vAlpha = smoothstep(120.0, 20.0, dist) * (0.3 + 0.7 * aSize / 3.0);
+  }
+`;
+
+const NEBULA_FRAGMENT = /* glsl */ `
+  varying float vAlpha;
+
+  void main() {
+    float d = distance(gl_PointCoord, vec2(0.5));
+    if (d > 0.5) discard;
+    float strength = 1.0 - smoothstep(0.1, 0.5, d);
+    gl_FragColor = vec4(1.0, 1.0, 1.0, strength * vAlpha * 0.6);
+  }
+`;
+
+function StippledNebulaField({ count = 6000 }: { count?: number }) {
+  const matRef = useRef<THREE.ShaderMaterial>(null);
+
+  const { positions, sizes, phases } = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    const sz = new Float32Array(count);
+    const ph = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      // Distribute in a large sphere with hollow center
+      const r = 15 + Math.random() * 85;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      pos[i * 3 + 2] = r * Math.cos(phi);
+      sz[i] = 0.4 + Math.random() * 2.2;
+      ph[i] = Math.random();
+    }
+    return { positions: pos, sizes: sz, phases: ph };
+  }, [count]);
+
+  const uniforms = useMemo(
+    () => ({ uTime: { value: 0 } }),
+    []
+  );
+
+  useFrame((_, delta) => {
+    if (matRef.current) matRef.current.uniforms.uTime.value += delta;
+  });
+
+  return (
+    <points>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-aSize" args={[sizes, 1]} />
+        <bufferAttribute attach="attributes-aPhase" args={[phases, 1]} />
+      </bufferGeometry>
+      <shaderMaterial
+        ref={matRef}
+        vertexShader={NEBULA_VERTEX}
+        fragmentShader={NEBULA_FRAGMENT}
+        uniforms={uniforms}
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Selection Shockwave Ring — expands from node on click
+// ─────────────────────────────────────────────────────────────────────
+
+function SelectionShockwave({
+  position,
+  color,
+}: {
+  position: [number, number, number];
+  color: string;
+}) {
+  const ringRef = useRef<THREE.Mesh>(null);
+  const [scale, setScale] = useState(0.1);
+  const [opacity, setOpacity] = useState(1.0);
+
+  useFrame((_, delta) => {
+    if (scale < 8) {
+      setScale((s) => s + delta * 12);
+      setOpacity((o) => Math.max(0, o - delta * 1.8));
+    }
+  });
+
+  if (opacity <= 0) return null;
+
+  return (
+    <mesh ref={ringRef} position={position} rotation={[-Math.PI / 2, 0, 0]} scale={[scale, scale, 1]}>
+      <ringGeometry args={[0.9, 1.0, 64]} />
+      <meshBasicMaterial
+        color={color}
+        transparent
+        opacity={opacity}
+        side={THREE.DoubleSide}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Breathing Node Mesh with Planetary Core + Shockwave
+// ─────────────────────────────────────────────────────────────────────
+
 function NodeMesh({
   node,
   isSelected,
@@ -222,28 +365,40 @@ function NodeMesh({
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [showShockwave, setShowShockwave] = useState(false);
   const chroma = useMemo(() => resolveWorldChroma(node.name, node.domain), [node]);
   const size = node.type === "project" ? (node.isPinned ? 1.7 : 1.3) : 0.85;
+  // Phase offset derived from position for desynchronized breathing
+  const phaseOffset = useMemo(() => {
+    const p = node.position || [0, 0, 0];
+    return (p[0] + p[1] + p[2]) * 0.5;
+  }, [node.position]);
 
-  // Drei useCursor declarative cursor control
   useCursor(isHovered, "pointer", "auto");
 
   useFrame((state) => {
     if (!meshRef.current) return;
-    if (isSelected) {
-      const scale = 1 + Math.sin(state.clock.elapsedTime * 4) * 0.12;
-      meshRef.current.scale.set(scale, scale, scale);
-    }
+    // Breathing scale pulse — all nodes breathe gently, selected breathe stronger
+    const breathe = isSelected
+      ? 1 + Math.sin(state.clock.elapsedTime * 4) * 0.12
+      : 1 + Math.sin(state.clock.elapsedTime * 1.2 + phaseOffset) * 0.04;
+    meshRef.current.scale.setScalar(breathe);
   });
+
+  const handleClick = useCallback(() => {
+    setShowShockwave(true);
+    setTimeout(() => setShowShockwave(false), 800);
+    onClick();
+  }, [onClick]);
 
   return (
     <group position={node.position || [0, 0, 0]}>
-      <Float speed={1.2} rotationIntensity={0.25} floatIntensity={0.35}>
+      <Float speed={1.0} rotationIntensity={0.2} floatIntensity={0.3}>
         <mesh
           ref={meshRef}
           onClick={(e) => {
             e.stopPropagation();
-            onClick();
+            handleClick();
           }}
           onPointerOver={(e) => {
             e.stopPropagation();
@@ -266,103 +421,114 @@ function NodeMesh({
             <meshStandardMaterial
               color={chroma.primary}
               emissive={chroma.primary}
-              emissiveIntensity={isSelected ? 0.9 : isDimmed ? 0.1 : 0.45}
-              roughness={0.2}
-              metalness={0.8}
+              emissiveIntensity={isSelected ? 1.2 : isDimmed ? 0.08 : 0.5}
+              roughness={0.15}
+              metalness={0.85}
               transparent
-              opacity={isDimmed ? 0.2 : 0.95}
+              opacity={isDimmed ? 0.15 : 0.95}
             />
           )}
         </mesh>
 
-        {/* Drei Refractive Frosted Transmission Shell on Selected Worlds */}
+        {/* Crystalline Transmission Shell on selected */}
         {isSelected && !isDimmed && (
-          <mesh scale={1.2}>
-            <sphereGeometry args={[size, 32, 32]} />
+          <mesh scale={1.25}>
+            <sphereGeometry args={[size, 48, 48]} />
             <MeshTransmissionMaterial
               backside
-              samples={4}
-              thickness={0.22}
-              chromaticAberration={0.06}
-              anisotropy={0.12}
-              distortion={0.15}
+              samples={6}
+              thickness={0.3}
+              chromaticAberration={0.08}
+              anisotropy={0.15}
+              distortion={0.2}
               color={chroma.primary}
-              roughness={0.12}
-              transmission={0.92}
+              roughness={0.08}
+              transmission={0.94}
             />
           </mesh>
         )}
 
-        {/* Volumetric Atmospheric Glow Halo */}
+        {/* Volumetric Atmospheric Glow */}
         {!isDimmed && node.type === "project" && (
           <AtmosphereHalo
             color={chroma.primary}
             radius={size}
-            fresnelPower={isSelected ? 2.5 : 3.2}
+            fresnelPower={isSelected ? 2.2 : 3.5}
           />
         )}
 
-        {/* Cryptographic Wireframe Lattice for Pinned or Selected Worlds */}
+        {/* Cryptographic Wireframe Lattice */}
         {(node.isPinned || isSelected) && !isDimmed && (
           <CryptographicLattice radius={size} color={chroma.accent} />
         )}
 
-        {/* Equatorial Telemetry Orbit Ring */}
+        {/* Equatorial Telemetry Ring */}
         {(node.isPinned || isSelected) && !isDimmed && (
           <EquatorialTelemetryRing radius={size} color={chroma.primary} />
         )}
 
-        {/* Billboard Text Labels with Dynamic Typography & Domain Tags */}
-        <Billboard follow={true} lockX={false} lockY={false} lockZ={false}>
+        {/* Billboard Labels */}
+        <Billboard follow lockX={false} lockY={false} lockZ={false}>
           <Text
             position={[0, size + 1.1, 0]}
-            fontSize={node.type === "project" ? 0.7 : 0.45}
+            fontSize={node.type === "project" ? 0.65 : 0.42}
             maxWidth={9}
             lineHeight={1.1}
-            color={isDimmed ? "#64748b" : "#f8fafc"}
+            color={isDimmed ? "#475569" : "#f8fafc"}
             anchorX="center"
             anchorY="middle"
             outlineWidth={0.08}
-            outlineColor="#030508"
-            outlineOpacity={0.9}
+            outlineColor="#000000"
+            outlineOpacity={0.95}
+            font="/fonts/GeistMono-Regular.woff"
           >
             {node.name}
           </Text>
           {node.domain && !isDimmed && (
             <Text
-              position={[0, size + 0.6, 0]}
-              fontSize={0.28}
+              position={[0, size + 0.55, 0]}
+              fontSize={0.26}
               color={chroma.primary}
               anchorX="center"
               anchorY="middle"
               outlineWidth={0.04}
-              outlineColor="#030508"
+              outlineColor="#000000"
             >
               {node.domain.toUpperCase()}
             </Text>
           )}
         </Billboard>
 
-        {/* Drei Screen-Space Vector Badge on Focused/Selected World */}
+        {/* Screen-space Focus Badge */}
         {isSelected && (
           <Html center distanceFactor={18} className="pointer-events-none select-none">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#040406]/90 border border-[#00F5D4] text-[9px] font-mono text-[#00F5D4] uppercase tracking-widest whitespace-nowrap shadow-[0_0_15px_rgba(0,245,212,0.4)]">
-              <span className="size-1.5 rounded-full bg-[#00F5D4] animate-ping" />
-              FOCUS NODE // {node.domain || "SYSTEM"}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-[#121212]/95 border border-white/20 text-[9px] font-mono text-white uppercase tracking-widest whitespace-nowrap shadow-2xl backdrop-blur-xl">
+              <span className="size-1.5 rounded-full bg-white animate-pulse" />
+              <span>FOCUS // {node.domain || "SYSTEM"}</span>
+              <span className="text-white/40">·</span>
+              <span className="text-emerald-400">{node.artifactCount || 0} artifacts</span>
             </div>
           </Html>
         )}
       </Float>
+
+      {/* Selection Shockwave Ring */}
+      {showShockwave && node.position && (
+        <SelectionShockwave position={[0, 0, 0]} color={chroma.primary} />
+      )}
     </group>
   );
 }
 
-// Animated Traveling Telemetry Pulse along Arched Spline Conduits with Drei Trail
-function AnimatedPulseSphere({
+// ─────────────────────────────────────────────────────────────────────
+// Animated Data-Stream Traveling Pulse with Trail
+// ─────────────────────────────────────────────────────────────────────
+
+function DataStreamPulse({
   curve,
   color,
   speed = 0.7,
-  size = 0.08,
+  size = 0.07,
 }: {
   curve: THREE.Curve<THREE.Vector3>;
   color: string;
@@ -379,21 +545,60 @@ function AnimatedPulseSphere({
 
   return (
     <Trail
-      width={1.4}
-      length={7}
+      width={1.8}
+      length={8}
       color={color}
       attenuation={(t) => t * t}
       target={pulseRef}
     >
       <mesh ref={pulseRef}>
-        <sphereGeometry args={[size, 16, 16]} />
+        <sphereGeometry args={[size, 12, 12]} />
         <meshBasicMaterial color={color} />
       </mesh>
     </Trail>
   );
 }
 
-// 3D Arched Conduits with Drei QuadraticBezierLine and Dynamic Telemetry Pulses
+// Secondary reverse-direction pulse for richer data streams
+function DataStreamPulseReverse({
+  curve,
+  color,
+  speed = 0.5,
+  size = 0.05,
+}: {
+  curve: THREE.Curve<THREE.Vector3>;
+  color: string;
+  speed?: number;
+  size?: number;
+}) {
+  const pulseRef = useRef<THREE.Mesh>(null!);
+
+  useFrame(({ clock }) => {
+    if (!pulseRef.current) return;
+    const t = 1 - ((clock.getElapsedTime() * speed + 0.5) % 1);
+    curve.getPoint(t, pulseRef.current.position);
+  });
+
+  return (
+    <Trail
+      width={1.0}
+      length={5}
+      color={color}
+      attenuation={(t) => t * t * t}
+      target={pulseRef}
+    >
+      <mesh ref={pulseRef}>
+        <sphereGeometry args={[size, 8, 8]} />
+        <meshBasicMaterial color={color} />
+      </mesh>
+    </Trail>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Enhanced Connection Conduit with dual data streams
+// ─────────────────────────────────────────────────────────────────────
+
 function ConnectionLine({
   start,
   end,
@@ -410,9 +615,8 @@ function ConnectionLine({
     const p1 = new THREE.Vector3(...start);
     const p2 = new THREE.Vector3(...end);
     const dist = p1.distanceTo(p2);
-    // Lift midpoint along Y-axis to form elegant arched conduit
     const m = p1.clone().lerp(p2, 0.5);
-    m.y += Math.min(dist * 0.16, 1.8);
+    m.y += Math.min(dist * 0.2, 2.5);
     const spline = new THREE.QuadraticBezierCurve3(p1, m, p2);
     return {
       mid: [m.x, m.y, m.z] as [number, number, number],
@@ -420,10 +624,9 @@ function ConnectionLine({
     };
   }, [start, end]);
 
-  // Animate dash offset for streaming energetic beam flow
   useFrame((_, delta) => {
     if (lineRef.current?.material) {
-      lineRef.current.material.dashOffset -= delta * (isHighlighted ? 4.5 : 1.8);
+      lineRef.current.material.dashOffset -= delta * (isHighlighted ? 5.0 : 2.0);
     }
   });
 
@@ -434,66 +637,129 @@ function ConnectionLine({
         start={start}
         end={end}
         mid={mid}
-        lineWidth={isHighlighted ? 3.0 : 1.6}
-        color={isHighlighted ? "#00FFA3" : "#00B4D8"}
-        dashed={true}
-        dashScale={2.5}
-        dashSize={1.4}
-        gapSize={0.8}
+        lineWidth={isHighlighted ? 3.5 : 1.4}
+        color={isHighlighted ? "#00FFA3" : "#ffffff"}
+        dashed
+        dashScale={3.0}
+        dashSize={1.2}
+        gapSize={1.0}
         transparent
-        opacity={isHighlighted ? 0.95 : isDimmed ? 0.05 : 0.45}
+        opacity={isHighlighted ? 0.9 : isDimmed ? 0.03 : 0.25}
       />
-      {/* Streaming telemetry pulse traveling along the arched conduit */}
+
+      {/* Primary data stream pulse */}
       {!isDimmed && (
-        <AnimatedPulseSphere
+        <DataStreamPulse
           curve={curve}
-          color={isHighlighted ? "#00FFA3" : "#00F5D4"}
-          speed={isHighlighted ? 1.4 : 0.65}
-          size={isHighlighted ? 0.12 : 0.07}
+          color={isHighlighted ? "#00FFA3" : "#ffffff"}
+          speed={isHighlighted ? 1.6 : 0.6}
+          size={isHighlighted ? 0.12 : 0.06}
+        />
+      )}
+
+      {/* Reverse pulse on highlighted edges for bidirectional flow */}
+      {isHighlighted && (
+        <DataStreamPulseReverse
+          curve={curve}
+          color="#00F5D4"
+          speed={0.9}
+          size={0.08}
         />
       )}
     </group>
   );
 }
 
-// 3D Holographic Floor Radar Projector using Drei useFBO
-function HolographicFloorRadar() {
-  const radarTarget = useFBO(256, 256);
-  const sweepRef = useRef<THREE.Mesh>(null!);
+// ─────────────────────────────────────────────────────────────────────
+// Enhanced Holographic Floor with Pulse Emanation Rings
+// ─────────────────────────────────────────────────────────────────────
 
-  useFrame((_, delta) => {
-    if (sweepRef.current) {
-      sweepRef.current.rotation.z -= delta * 0.9;
+function HolographicFloor() {
+  const sweepRef = useRef<THREE.Mesh>(null!);
+  const pulseRing1Ref = useRef<THREE.Mesh>(null!);
+  const pulseRing2Ref = useRef<THREE.Mesh>(null!);
+
+  useFrame((state, delta) => {
+    if (sweepRef.current) sweepRef.current.rotation.z -= delta * 0.7;
+
+    // Expanding pulse rings
+    const t1 = (state.clock.elapsedTime * 0.4) % 1;
+    const t2 = ((state.clock.elapsedTime * 0.4) + 0.5) % 1;
+
+    if (pulseRing1Ref.current) {
+      const s = 2 + t1 * 22;
+      pulseRing1Ref.current.scale.set(s, s, 1);
+      (pulseRing1Ref.current.material as THREE.MeshBasicMaterial).opacity = (1 - t1) * 0.25;
+    }
+    if (pulseRing2Ref.current) {
+      const s = 2 + t2 * 22;
+      pulseRing2Ref.current.scale.set(s, s, 1);
+      (pulseRing2Ref.current.material as THREE.MeshBasicMaterial).opacity = (1 - t2) * 0.2;
     }
   });
 
   return (
-    <group position={[0, -8.85, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      {/* Outer Tactical Reticle Ring */}
+    <group position={[0, -9, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      {/* Outer Reticle */}
       <mesh>
-        <ringGeometry args={[19.8, 20.0, 64]} />
-        <meshBasicMaterial color="#00F5D4" opacity={0.35} transparent side={THREE.DoubleSide} depthWrite={false} />
+        <ringGeometry args={[19.8, 20.0, 96]} />
+        <meshBasicMaterial color="#ffffff" opacity={0.15} transparent side={THREE.DoubleSide} depthWrite={false} />
       </mesh>
       {/* Mid Ring */}
       <mesh>
-        <ringGeometry args={[9.9, 10.0, 64]} />
-        <meshBasicMaterial color="#00F5D4" opacity={0.2} transparent side={THREE.DoubleSide} depthWrite={false} />
+        <ringGeometry args={[9.9, 10.0, 96]} />
+        <meshBasicMaterial color="#ffffff" opacity={0.08} transparent side={THREE.DoubleSide} depthWrite={false} />
       </mesh>
-      {/* Target FBO Projection Surface */}
+      {/* Inner Ring */}
       <mesh>
-        <circleGeometry args={[20, 64]} />
-        <meshBasicMaterial map={radarTarget.texture} color="#00F5D4" opacity={0.05} transparent side={THREE.DoubleSide} depthWrite={false} />
+        <ringGeometry args={[4.9, 5.0, 96]} />
+        <meshBasicMaterial color="#ffffff" opacity={0.06} transparent side={THREE.DoubleSide} depthWrite={false} />
+      </mesh>
+      {/* Expanding Pulse Ring 1 */}
+      <mesh ref={pulseRing1Ref}>
+        <ringGeometry args={[0.95, 1.0, 64]} />
+        <meshBasicMaterial color="#ffffff" opacity={0.2} transparent side={THREE.DoubleSide} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+      {/* Expanding Pulse Ring 2 */}
+      <mesh ref={pulseRing2Ref}>
+        <ringGeometry args={[0.95, 1.0, 64]} />
+        <meshBasicMaterial color="#ffffff" opacity={0.15} transparent side={THREE.DoubleSide} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
       {/* Sweeping Radar Arc */}
       <mesh ref={sweepRef}>
-        <ringGeometry args={[0.5, 20, 32, 1, 0, Math.PI / 4]} />
-        <meshBasicMaterial color="#00F5D4" opacity={0.09} transparent side={THREE.DoubleSide} depthWrite={false} />
+        <ringGeometry args={[0.5, 20, 48, 1, 0, Math.PI / 5]} />
+        <meshBasicMaterial color="#ffffff" opacity={0.04} transparent side={THREE.DoubleSide} depthWrite={false} />
       </mesh>
     </group>
   );
 }
 
-// Spatial Scene graph layout with CameraControls, Infinite Cybernetic Grid, and GizmoViewport
+// ─────────────────────────────────────────────────────────────────────
+// Camera Intro Swoop Animation
+// ─────────────────────────────────────────────────────────────────────
+
+function CameraIntro({ controlsRef }: { controlsRef: React.RefObject<CameraControls | null> }) {
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    if (!controlsRef.current || hasAnimated.current) return;
+    hasAnimated.current = true;
+
+    // Start from dramatic far position
+    controlsRef.current.setLookAt(0, 60, 80, 0, 0, 0, false);
+    // Swoop into default orbital view
+    setTimeout(() => {
+      controlsRef.current?.setLookAt(0, 10, 28, 0, 0, 0, true);
+    }, 100);
+  }, [controlsRef]);
+
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// World Scene — main 3D composition
+// ─────────────────────────────────────────────────────────────────────
+
 function WorldScene({
   data,
   selectedNode,
@@ -501,6 +767,7 @@ function WorldScene({
   domainFilter,
   autoRotate,
   onSelectNode,
+  bloomDpr,
 }: {
   data: GraphData;
   selectedNode: GraphNode | null;
@@ -508,10 +775,11 @@ function WorldScene({
   domainFilter: string;
   autoRotate: boolean;
   onSelectNode: (node: GraphNode | null) => void;
+  bloomDpr: number;
 }) {
   const cameraControlsRef = useRef<CameraControls>(null);
 
-  // Position nodes radially in 3D space
+  // Position nodes radially (preserved)
   const positionedNodes = useMemo(() => {
     const projectNodes = data.nodes.filter((n) => n.type === "project");
     const techNodes = data.nodes.filter((n) => n.type === "technology");
@@ -520,7 +788,6 @@ function WorldScene({
     const radiusProjects = 14;
     const radiusTechs = 8;
 
-    // Distribute project nodes in an outer ring with varying Y
     projectNodes.forEach((node, i) => {
       const angle = (i / Math.max(projectNodes.length, 1)) * Math.PI * 2;
       const y = Math.sin(i * 1.7) * 4;
@@ -534,7 +801,6 @@ function WorldScene({
       });
     });
 
-    // Distribute technology nodes in an inner cluster
     techNodes.forEach((node, i) => {
       const angle = (i / Math.max(techNodes.length, 1)) * Math.PI * 2 + 0.5;
       const y = Math.cos(i * 1.3) * 3;
@@ -557,27 +823,19 @@ function WorldScene({
     return map;
   }, [positionedNodes]);
 
-  // Smooth Camera transition when a node is selected
+  // Smooth Camera to selected node (preserved)
   useEffect(() => {
     if (selectedNode && selectedNode.position && cameraControlsRef.current) {
       const [x, y, z] = selectedNode.position;
       const dist = selectedNode.type === "project" ? 6 : 4;
-      cameraControlsRef.current.setLookAt(
-        x,
-        y + 2,
-        z + dist,
-        x,
-        y,
-        z,
-        true // animated transition
-      );
+      cameraControlsRef.current.setLookAt(x, y + 2, z + dist, x, y, z, true);
     }
   }, [selectedNode]);
 
-  // Handle auto-rotate via azimuthAngle in useFrame
-  useFrame((_, delta) => {
+  // Cinematic auto-rotate with gentle vertical bob
+  useFrame((state, delta) => {
     if (autoRotate && cameraControlsRef.current && !selectedNode) {
-      cameraControlsRef.current.azimuthAngle += 0.15 * delta;
+      cameraControlsRef.current.azimuthAngle += 0.12 * delta;
     }
   });
 
@@ -599,41 +857,45 @@ function WorldScene({
 
   return (
     <>
-      <ambientLight intensity={0.6} />
-      <pointLight position={[20, 20, 20]} intensity={1.5} />
-      <pointLight position={[-20, -20, -20]} intensity={0.8} color="#06b6d4" />
-      <Stars radius={120} depth={60} count={5000} factor={4} saturation={0.6} fade speed={0.8} />
+      {/* Lighting */}
+      <ambientLight intensity={0.35} />
+      <pointLight position={[20, 20, 20]} intensity={1.8} color="#ffffff" />
+      <pointLight position={[-20, -15, -20]} intensity={0.6} color="#6366f1" />
+      <pointLight position={[0, 30, 0]} intensity={0.4} color="#00F5D4" />
 
-      {/* Drei Sparkles: Holographic Cyber Particles throughout Spatial Void */}
+      {/* GPU Stippled Nebula Particle Field */}
+      <StippledNebulaField count={6000} />
+
+      {/* Drei Sparkles — close-range luminous motes */}
       <DreiSparkles
-        count={160}
-        scale={[50, 25, 50]}
-        size={3.5}
-        speed={0.4}
-        opacity={0.65}
-        color="#00F5D4"
+        count={120}
+        scale={[45, 25, 45]}
+        size={2.5}
+        speed={0.3}
+        opacity={0.5}
+        color="#ffffff"
       />
 
-      {/* Cybernetic Infinite Coordinate Grid */}
+      {/* Cybernetic Grid Floor */}
       <Grid
         position={[0, -9, 0]}
         args={[160, 160]}
         cellSize={2.5}
-        cellThickness={1.0}
-        cellColor="#1E293B"
+        cellThickness={0.8}
+        cellColor="#1a1a2e"
         sectionSize={10}
-        sectionThickness={1.8}
-        sectionColor="#00F5D4"
-        fadeDistance={140}
-        fadeStrength={1.2}
+        sectionThickness={1.4}
+        sectionColor="#ffffff"
+        fadeDistance={100}
+        fadeStrength={1.5}
         infiniteGrid
         followCamera
       />
 
-      {/* Holographic Tactical Floor Radar Projector */}
-      <HolographicFloorRadar />
+      {/* Holographic Floor Radar */}
+      <HolographicFloor />
 
-      {/* Connection Links */}
+      {/* Connection Lines */}
       {data.links.map((link) => {
         const sourceNode = nodeMap.get(link.source);
         const targetNode = nodeMap.get(link.target);
@@ -658,9 +920,8 @@ function WorldScene({
         );
       })}
 
-      {/* Accelerated Raycasting Bvh for Instant Hover/Click Detection */}
+      {/* Nodes */}
       <Bvh firstHitOnly>
-        {/* Nodes */}
         {positionedNodes.map((node) => {
           const isSelected = selectedNode?.id === node.id;
           const matches = matchesSearch(node) && matchesDomain(node);
@@ -680,28 +941,45 @@ function WorldScene({
         })}
       </Bvh>
 
-      {/* Production Drei CameraControls with smooth damping */}
+      {/* Camera Controls */}
       <CameraControls
         ref={cameraControlsRef}
         makeDefault
         minDistance={4}
         maxDistance={60}
         dollySpeed={0.8}
-        smoothTime={0.35}
+        smoothTime={0.4}
       />
 
-      {/* Drei Gizmo Orientation Viewport */}
+      {/* Camera Intro Swoop */}
+      <CameraIntro controlsRef={cameraControlsRef} />
+
+      {/* Orientation Gizmo */}
       <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
         <GizmoViewport
-          axisColors={["#00F5D4", "#00FFA3", "#7B2CBF"]}
+          axisColors={["#ffffff", "#ffffff", "#ffffff"]}
           labelColor="#f8fafc"
         />
       </GizmoHelper>
+
+      {/* Post-Processing */}
+      <EffectComposer>
+        <Bloom
+          intensity={0.5}
+          luminanceThreshold={0.35}
+          luminanceSmoothing={0.9}
+          mipmapBlur
+        />
+        <Vignette offset={0.3} darkness={0.65} />
+      </EffectComposer>
     </>
   );
 }
 
-// 2D Top-Down Galaxy Radar Mini-Map
+// ─────────────────────────────────────────────────────────────────────
+// Galaxy Radar Mini-Map (redesigned)
+// ─────────────────────────────────────────────────────────────────────
+
 function GalaxyRadarMiniMap({
   nodes,
   selectedNode,
@@ -714,11 +992,21 @@ function GalaxyRadarMiniMap({
   const [sweepAngle, setSweepAngle] = useState(0);
   const [isExpanded, setIsExpanded] = useState(true);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
+  const [showScanPulse, setShowScanPulse] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setSweepAngle((prev) => (prev + 3.5) % 360);
+      setSweepAngle((prev) => (prev + 3) % 360);
     }, 35);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Scan pulse every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowScanPulse(true);
+      setTimeout(() => setShowScanPulse(false), 1200);
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
@@ -726,69 +1014,76 @@ function GalaxyRadarMiniMap({
     return (
       <button
         onClick={() => setIsExpanded(true)}
-        className="flex items-center gap-2 border border-gray-20 bg-[#090a0f]/90 px-3 py-1.5 text-[10px] text-gray-40 hover:text-[#00F5D4] hover:border-[#00F5D4]/40 backdrop-blur-xl transition-colors shadow-token-md"
+        className="flex items-center gap-2 rounded-[10px] border border-white/10 bg-[#121212]/90 px-3 py-1.5 text-[10px] text-white/60 hover:text-white hover:border-white/30 backdrop-blur-xl transition-colors shadow-xl"
       >
-        <Compass className="size-3 text-[#00F5D4] animate-spin" style={{ animationDuration: "12s" }} />
-        <span>EXPAND RADAR</span>
+        <Compass className="size-3 text-white animate-spin" style={{ animationDuration: "12s" }} />
+        <span>EXPAND RADAR // 360°</span>
       </button>
     );
   }
 
   return (
-    <div className="relative w-48 border border-gray-20 bg-[#090a0f]/95 backdrop-blur-2xl p-2.5 font-mono select-none shadow-2xl transition-all">
-      <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-gray-20/60 text-[9px] tracking-wider text-gray-40 uppercase">
+    <div className="relative w-48 rounded-[20px] border border-white/10 bg-[#121212]/95 backdrop-blur-2xl p-3 font-mono select-none shadow-2xl transition-all">
+      <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 text-[9px] tracking-wider text-white/50 uppercase">
         <div className="flex items-center gap-1.5">
-          <span className="size-1.5 rounded-full bg-[#00F5D4] animate-ping" />
-          <span className="text-[#00F5D4] font-bold">GALAXY RADAR</span>
+          <span className="size-1.5 rounded-full bg-white animate-pulse" />
+          <span className="text-white font-bold">GALAXY RADAR</span>
         </div>
         <button
           onClick={() => setIsExpanded(false)}
-          className="text-gray-40 hover:text-white text-[10px] px-1"
+          className="text-white/40 hover:text-white text-[10px] px-1"
           title="Minimize radar"
         >
           ─
         </button>
       </div>
 
-      <div className="relative w-44 h-44 mx-auto rounded-full bg-black/60 border border-[#00F5D4]/30 overflow-hidden flex items-center justify-center">
-        {/* Radar concentric range rings */}
-        <div className="absolute size-36 rounded-full border border-cyan-500/20" />
-        <div className="absolute size-24 rounded-full border border-cyan-500/25" />
-        <div className="absolute size-12 rounded-full border border-cyan-500/30" />
+      <div className="relative w-40 h-40 mx-auto rounded-full bg-black/80 border border-white/10 overflow-hidden flex items-center justify-center">
+        {/* Concentric range rings */}
+        <div className="absolute size-32 rounded-full border border-white/[0.06]" />
+        <div className="absolute size-20 rounded-full border border-white/[0.06]" />
+        <div className="absolute size-10 rounded-full border border-white/[0.06]" />
 
-        {/* Cardinal Markers */}
-        <span className="absolute top-1 text-[8px] text-[#00F5D4]/60 font-bold">N</span>
-        <span className="absolute bottom-1 text-[8px] text-gray-40 font-bold">S</span>
-        <span className="absolute left-1.5 text-[8px] text-gray-40 font-bold">W</span>
-        <span className="absolute right-1.5 text-[8px] text-gray-40 font-bold">E</span>
+        {/* Scan pulse ring */}
+        {showScanPulse && (
+          <div className="absolute size-2 rounded-full border-2 border-white/40 animate-ping" />
+        )}
 
-        {/* Radar crosshairs */}
-        <div className="absolute w-36 h-px bg-cyan-500/20" />
-        <div className="absolute h-36 w-px bg-cyan-500/20" />
+        {/* Cardinal markers */}
+        <span className="absolute top-1 text-[7px] text-white/50 font-bold">N</span>
+        <span className="absolute bottom-1 text-[7px] text-white/20 font-bold">S</span>
+        <span className="absolute left-1.5 text-[7px] text-white/20 font-bold">W</span>
+        <span className="absolute right-1.5 text-[7px] text-white/20 font-bold">E</span>
 
-        {/* Sweeping radar scanner ray */}
+        {/* Crosshairs */}
+        <div className="absolute w-32 h-px bg-white/[0.06]" />
+        <div className="absolute h-32 w-px bg-white/[0.06]" />
+
+        {/* Sweeping radar ray */}
         <div
-          className="absolute w-20 h-px origin-left bg-gradient-to-r from-transparent to-[#00F5D4] pointer-events-none opacity-90 shadow-[0_0_8px_#00F5D4]"
-          style={{ transform: `rotate(${sweepAngle}deg)` }}
-        />
-        {/* Radar sweep sector faint trail */}
-        <div
-          className="absolute w-20 h-20 origin-bottom-left pointer-events-none opacity-15"
+          className="absolute w-18 h-px origin-left pointer-events-none"
           style={{
-            transform: `rotate(${sweepAngle - 45}deg)`,
-            background: "conic-gradient(from 0deg, rgba(0, 245, 212, 0.4) 0deg, transparent 45deg)",
+            transform: `rotate(${sweepAngle}deg)`,
+            background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7))",
+          }}
+        />
+        {/* Sweep trail */}
+        <div
+          className="absolute w-18 h-18 origin-bottom-left pointer-events-none opacity-[0.06]"
+          style={{
+            transform: `rotate(${sweepAngle - 40}deg)`,
+            background: "conic-gradient(from 0deg, rgba(255, 255, 255, 0.5) 0deg, transparent 40deg)",
           }}
         />
 
-        {/* Projected Node Blips */}
+        {/* Domain-colored Node Blips */}
         {nodes.map((n) => {
           const x = n.position ? n.position[0] : 0;
           const z = n.position ? n.position[2] : 0;
-          // Map [-20, 20] range to [12%, 88%]
           const left = 50 + (x / 24) * 38;
           const top = 50 + (z / 24) * 38;
           const isSelected = selectedNode?.id === n.id;
-          const chroma = resolveWorldChroma(n.name, n.domain);
+          const blipColor = getNodeColor(n);
 
           return (
             <button
@@ -799,28 +1094,28 @@ function GalaxyRadarMiniMap({
               title={n.name}
               className={`absolute size-2 -ml-1 -mt-1 rounded-full transition-all cursor-pointer ${
                 isSelected
-                  ? "ring-2 ring-white ring-offset-1 ring-offset-black scale-150 z-30 animate-pulse"
+                  ? "ring-2 ring-white ring-offset-1 ring-offset-black scale-[2] z-30"
                   : n.type === "project"
-                  ? "hover:scale-150 z-20"
-                  : "hover:scale-125 z-10 opacity-75"
+                  ? "hover:scale-[2] z-20"
+                  : "hover:scale-150 z-10 opacity-60"
               }`}
               style={{
-                backgroundColor: isSelected ? "#00FFA3" : chroma.primary,
                 left: `${Math.max(10, Math.min(90, left))}%`,
                 top: `${Math.max(10, Math.min(90, top))}%`,
-                boxShadow: isSelected ? `0 0 6px ${chroma.primary}` : undefined,
+                backgroundColor: isSelected ? "#ffffff" : blipColor,
+                boxShadow: isSelected ? `0 0 8px ${blipColor}` : "none",
               }}
             />
           );
         })}
       </div>
 
-      {/* Target Info or Coordinates Footer */}
-      <div className="mt-2 pt-1.5 border-t border-gray-20/60 text-[9px] text-gray-40 flex items-center justify-between">
+      {/* Radar Footer */}
+      <div className="mt-2 pt-1.5 border-t border-white/10 text-[9px] text-white/50 flex items-center justify-between">
         <span className="truncate max-w-[110px] text-white">
-          {hoveredNode ? hoveredNode.name : selectedNode ? selectedNode.name : "ACQ: ACTIVE"}
+          {hoveredNode ? hoveredNode.name : selectedNode ? selectedNode.name : "SCANNING"}
         </span>
-        <span className="text-[#00F5D4] text-[8px]">
+        <span className="text-white/30 text-[8px]">
           {hoveredNode?.position
             ? `${hoveredNode.position[0].toFixed(0)},${hoveredNode.position[2].toFixed(0)}`
             : "360°"}
@@ -830,14 +1125,123 @@ function GalaxyRadarMiniMap({
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Immersive Boot Sequence Loading State
+// ─────────────────────────────────────────────────────────────────────
+
+function BootSequence({ onComplete }: { onComplete: () => void }) {
+  const [lines, setLines] = useState<string[]>([]);
+  const bootLines = [
+    "> initializing GLSL planetary cores...",
+    "> synthesizing domain-warped shaders...",
+    "> mapping knowledge topology graph...",
+    "> computing node positions (N=13)...",
+    "> establishing edge conduit streams...",
+    "> calibrating holographic radar projector...",
+    "> enabling bloom post-processing pipeline...",
+    "✓ FEEXSYSTEMS SPATIAL WORLD ONLINE",
+  ];
+
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < bootLines.length) {
+        setLines((prev) => [...prev, bootLines[i]]);
+        i++;
+      } else {
+        clearInterval(interval);
+        setTimeout(onComplete, 600);
+      }
+    }, 180);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 z-50 bg-black flex items-center justify-center">
+      <div className="max-w-lg w-full px-8">
+        {/* Brand */}
+        <div className="flex items-center gap-3 mb-8">
+          <span className="size-3 bg-white rounded-none" />
+          <span className="text-white font-mono text-sm font-bold tracking-tight">FEEXSYSTEMS</span>
+          <span className="text-white/30 font-mono text-xs">// SPATIAL WORLD</span>
+        </div>
+
+        {/* Terminal Lines */}
+        <div className="font-mono text-xs space-y-1.5">
+          {lines.map((line, idx) => (
+            <div
+              key={idx}
+              className={`transition-opacity duration-300 ${
+                line.startsWith("✓")
+                  ? "text-emerald-400 font-bold"
+                  : "text-white/60"
+              }`}
+            >
+              {line}
+            </div>
+          ))}
+          {/* Blinking cursor */}
+          {lines.length < bootLines.length && (
+            <span className="inline-block w-2 h-4 bg-white/70 animate-pulse" />
+          )}
+        </div>
+
+        {/* Progress bar */}
+        <div className="mt-6 h-px w-full bg-white/10 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-white transition-all duration-300"
+            style={{ width: `${(lines.length / bootLines.length) * 100}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Live FPS Counter Hook
+// ─────────────────────────────────────────────────────────────────────
+
+function useFpsCounter() {
+  const [fps, setFps] = useState(60);
+  const frames = useRef(0);
+  const lastTime = useRef(performance.now());
+
+  useEffect(() => {
+    let raf: number;
+    const loop = () => {
+      frames.current++;
+      const now = performance.now();
+      if (now - lastTime.current >= 1000) {
+        setFps(frames.current);
+        frames.current = 0;
+        lastTime.current = now;
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return fps;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Main Component
+// ─────────────────────────────────────────────────────────────────────
+
 export default function SpatialWorld() {
+  const [searchParams] = useSearchParams();
   const [graphData, setGraphData] = useState<GraphData>(CANONICAL_INITIAL_GRAPH);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [booting, setBooting] = useState(true);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [domainFilter, setDomainFilter] = useState("all");
   const [autoRotate, setAutoRotate] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [bloomDpr, setBloomDpr] = useState(1);
+  const fps = useFpsCounter();
 
   const loadGraph = async () => {
     setLoading(true);
@@ -848,7 +1252,7 @@ export default function SpatialWorld() {
         setGraphData(json.data);
       }
     } catch (e) {
-      console.warn("Could not fetch live graph, using fallback", e);
+      console.warn("Could not fetch live graph, using canonical fallback", e);
     } finally {
       setLoading(false);
     }
@@ -857,6 +1261,17 @@ export default function SpatialWorld() {
   useEffect(() => {
     loadGraph();
   }, []);
+
+  // Deep-link: /world?focus=<nodeId>
+  useEffect(() => {
+    const focusId = searchParams.get("focus");
+    if (focusId && graphData) {
+      const target = graphData.nodes.find(
+        (n) => n.id === focusId || n.id === decodeURIComponent(focusId)
+      );
+      if (target) setSelectedNode(target);
+    }
+  }, [searchParams, graphData]);
 
   const domains = useMemo(() => {
     if (!graphData) return [];
@@ -880,58 +1295,81 @@ export default function SpatialWorld() {
   };
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#040406] text-white select-none">
-      {/* Structural Industrial Wireframe Cross-Hatch Depth */}
-      <div className="bg-diagonal-stripes absolute inset-0 z-10 opacity-10 pointer-events-none" />
+    <div className="relative h-screen w-screen overflow-hidden bg-[#000000] text-white font-mono select-none selection:bg-white selection:text-black">
+      {/* Boot Sequence Overlay */}
+      {booting && <BootSequence onComplete={() => setBooting(false)} />}
 
-      {/* Top Floating HUD Bar */}
-      <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4 md:p-6 pointer-events-none">
-        <div className="flex items-center gap-4 pointer-events-auto">
-          <Link
-            to="/"
-            className="flex items-center gap-3 border border-gray-20 bg-[#090a0f]/90 px-4 py-2 text-sm font-semibold backdrop-blur-xl shadow-token-md transition hover:border-[#00F5D4]/50 hover:bg-[#090a0f]"
-          >
-            <FeexHorizontalLockup markSize={24} showSubtitle={false} />
-            <span className="text-gray-40 font-mono">/</span>
-            <span className="text-[#00F5D4] font-mono text-xs tracking-wider uppercase">
-              SPATIAL_GALAXY_3D
+      {/* ═══════════════ TOP HUD HEADER ═══════════════ */}
+      <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4 md:p-5 pointer-events-none">
+        {/* Left: Brand + Telemetry */}
+        <div className="flex items-center gap-3 pointer-events-auto">
+          <div className="flex items-center gap-3 border border-white/10 bg-[#121212]/90 rounded-[20px] px-4 py-2.5 backdrop-blur-xl shadow-2xl transition hover:border-white/25">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-tight text-white hover:text-white/80 transition-colors"
+            >
+              <span className="size-2.5 bg-white rounded-none" />
+              <TextScrambleMorph text="FEEXSYSTEMS" className="text-white" speed={25} />
+              <span className="text-white/30 text-[10px] hidden sm:inline">// 3D WORLD</span>
+            </Link>
+            <span className="hidden lg:inline-block rounded-[10px] border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-white/50">
+              v2.4
             </span>
-          </Link>
-          <FeexWorldBadge
-            sha="sha-feex-spatial"
-            status="ACTIVE 100%"
-            className="hidden lg:inline-flex"
-          />
+          </div>
+
+          {/* Live Telemetry Strip */}
+          <div className="hidden md:flex items-center gap-3 border border-white/10 bg-[#121212]/90 rounded-[20px] px-4 py-2 backdrop-blur-xl shadow-2xl text-[10px] text-white/50">
+            <span className="flex items-center gap-1.5">
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-white/70">NODES: {graphData?.nodes.length || 0}</span>
+            </span>
+            <span className="text-white/15">·</span>
+            <span className="text-white/50">EDGES: {graphData?.links.length || 0}</span>
+            <span className="text-white/15">·</span>
+            <span className={fps > 45 ? "text-emerald-400" : fps > 25 ? "text-amber-400" : "text-red-400"}>
+              {fps} FPS
+            </span>
+          </div>
         </div>
 
+        {/* Right: Controls */}
         <div className="flex items-center gap-2 pointer-events-auto font-mono text-xs">
           <button
             onClick={() => setAutoRotate(!autoRotate)}
-            className={`h-9 px-3 border transition-colors flex items-center gap-1.5 ${
-              autoRotate 
-                ? "bg-[#090a0f] text-[#00F5D4] border-[#00F5D4]/60" 
-                : "bg-[#090a0f] text-gray-40 border-gray-20 hover:text-white"
+            className={`h-9 px-3 rounded-[10px] border transition-colors flex items-center gap-1.5 ${
+              autoRotate
+                ? "bg-white/10 text-white border-white/30"
+                : "bg-[#121212]/90 text-white/60 border-white/10 hover:text-white hover:border-white/20"
             }`}
           >
-            <RotateCw className={`size-3.5 ${autoRotate ? "animate-spin text-[#00F5D4]" : ""}`} />
+            <RotateCw className={`size-3.5 ${autoRotate ? "animate-spin text-white" : ""}`} style={autoRotate ? { animationDuration: "4s" } : undefined} />
             <span className="hidden md:inline">Orbit</span>
           </button>
           <button
             onClick={toggleFullscreen}
-            className="h-9 px-3 bg-[#090a0f] border border-gray-20 text-gray-40 hover:text-white transition-colors flex items-center justify-center"
+            className="h-9 px-3 rounded-[10px] bg-[#121212]/90 border border-white/10 text-white/60 hover:text-white hover:border-white/20 transition-colors flex items-center justify-center"
+            title="Toggle Fullscreen"
           >
             {isFullscreen ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
           </button>
           <Link
             to="/projects"
-            className="h-9 px-3 bg-[#090a0f] border border-gray-20 text-gray-40 hover:text-white transition-colors flex items-center gap-1.5"
+            className="h-9 px-3 rounded-[10px] bg-[#121212]/90 border border-white/10 text-white/70 hover:text-white hover:border-white/20 transition-colors flex items-center gap-1.5"
           >
-            <Boxes className="size-3.5 text-yellow" />
+            <Boxes className="size-3.5 text-white/60" />
             <span className="hidden sm:inline">Projects</span>
           </Link>
           <Link
+            to="/omni"
+            className="h-9 px-3 rounded-[10px] bg-white/5 border border-white/15 text-white hover:bg-white/10 transition-colors flex items-center gap-1.5"
+            title="Launch Omni-Command Stage"
+          >
+            <Terminal className="size-3.5 text-white/80" />
+            <span className="hidden sm:inline">Omni Stage</span>
+          </Link>
+          <Link
             to="/navigator"
-            className="h-9 px-3.5 bg-white text-black font-semibold hover:bg-gray-90 transition-colors flex items-center gap-1.5"
+            className="h-9 px-3.5 rounded-[10px] bg-white text-black font-semibold hover:bg-white/90 transition-colors flex items-center gap-1.5 shadow-sm"
           >
             <Compass className="size-3.5" />
             <span>Navigator</span>
@@ -939,88 +1377,101 @@ export default function SpatialWorld() {
         </div>
       </header>
 
-      {/* Search & Filter Toolbar */}
-      <div className="absolute top-20 left-4 md:left-6 z-20 flex flex-col gap-2 pointer-events-auto max-w-sm w-full font-mono text-xs">
-        <div className="relative border border-gray-20 bg-[#090a0f]/90">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-gray-40" />
+      {/* ═══════════════ SEARCH & FILTER TOOLBAR ═══════════════ */}
+      <div className="absolute top-[72px] left-4 md:left-5 z-20 flex flex-col gap-2 pointer-events-auto max-w-sm w-full font-mono text-xs">
+        <div className="relative border border-white/10 rounded-[20px] bg-[#121212]/90 backdrop-blur-xl shadow-2xl p-1.5 flex items-center">
+          <Search className="size-3.5 text-white/30 ml-3 shrink-0" />
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="search node // e.g. Persona..."
-            className="w-full h-10 bg-transparent pl-9 pr-8 text-xs text-white placeholder:text-gray-60 focus:outline-none"
+            className="w-full h-8 bg-transparent pl-2 pr-8 text-xs text-white placeholder:text-white/30 focus:outline-none font-mono caret-white"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-40 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
             >
               <X className="size-3.5" />
             </button>
           )}
         </div>
 
-        {/* Domain Filter Chips */}
-        <div className="flex flex-wrap gap-1 pt-1">
+        {/* Domain Filter Chips with signal bars */}
+        <div className="flex flex-wrap gap-1.5 pt-0.5">
           <button
             onClick={() => setDomainFilter("all")}
-            className={`px-2.5 py-1 text-[11px] border transition-all ${
+            className={`px-3 py-1 rounded-[10px] text-[11px] font-mono border transition-all ${
               domainFilter === "all"
-                ? "bg-white text-black font-bold border-white"
-                : "bg-[#090a0f]/80 text-gray-40 border-gray-20 hover:text-white"
+                ? "bg-white text-black font-bold border-white shadow-sm"
+                : "bg-[#121212]/90 text-white/60 border-white/10 hover:text-white hover:border-white/25"
             }`}
           >
             All Systems
           </button>
-          {domains.map((dom) => (
-            <button
-              key={dom}
-              onClick={() => setDomainFilter(dom)}
-              className={`px-2.5 py-1 text-[11px] border transition-all ${
-                domainFilter === dom
-                  ? "bg-[#00F5D4] text-black font-bold border-[#00F5D4]"
-                  : "bg-[#090a0f]/80 text-gray-40 border-gray-20 hover:text-white"
-              }`}
-            >
-              {dom}
-            </button>
-          ))}
+          {domains.map((dom) => {
+            const domCount = graphData?.nodes.filter((n) => n.domain === dom).length || 0;
+            return (
+              <button
+                key={dom}
+                onClick={() => setDomainFilter(dom)}
+                className={`px-3 py-1 rounded-[10px] text-[11px] font-mono border transition-all flex items-center gap-1.5 ${
+                  domainFilter === dom
+                    ? "bg-white text-black font-bold border-white shadow-sm"
+                    : "bg-[#121212]/90 text-white/60 border-white/10 hover:text-white hover:border-white/25"
+                }`}
+              >
+                <span
+                  className="size-1.5 rounded-full"
+                  style={{ backgroundColor: DOMAIN_COLORS[dom] || "#ffffff" }}
+                />
+                <span>{dom}</span>
+                <span className={`text-[9px] ${domainFilter === dom ? "text-black/50" : "text-white/30"}`}>
+                  {domCount}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* 3D WebGL Canvas */}
+      {/* ═══════════════ 3D WEBGL CANVAS ═══════════════ */}
       <div className="absolute inset-0 z-0">
         {graphData ? (
-          <>
-            <Canvas
-              camera={{ position: [0, 10, 28], fov: 55 }}
-              gl={{ antialias: true, alpha: true }}
-            >
-              <AdaptiveDpr pixelated />
-              <Suspense fallback={null}>
-                <WorldScene
-                  data={graphData}
-                  selectedNode={selectedNode}
-                  searchQuery={searchQuery}
-                  domainFilter={domainFilter}
-                  autoRotate={autoRotate}
-                  onSelectNode={(node) => setSelectedNode(node)}
-                />
-                <Preload all />
-              </Suspense>
-            </Canvas>
-          </>
+          <Canvas
+            camera={{ position: [0, 60, 80], fov: 55 }}
+            gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+          >
+            <PerformanceMonitor
+              onDecline={() => setBloomDpr(0.5)}
+              onIncline={() => setBloomDpr(1)}
+            />
+            <AdaptiveDpr pixelated />
+            <Suspense fallback={null}>
+              <WorldScene
+                data={graphData}
+                selectedNode={selectedNode}
+                searchQuery={searchQuery}
+                domainFilter={domainFilter}
+                autoRotate={autoRotate}
+                onSelectNode={(node) => setSelectedNode(node)}
+                bloomDpr={bloomDpr}
+              />
+              <Preload all />
+            </Suspense>
+          </Canvas>
         ) : (
           <div className="flex h-full items-center justify-center">
             <div className="text-center font-mono">
-              <RefreshCw className="size-8 animate-spin text-[#00F5D4] mx-auto mb-3" />
-              <p className="text-gray-40 text-xs">Synthesizing GLSL Planetary Cores...</p>
+              <RefreshCw className="size-8 animate-spin text-white/40 mx-auto mb-3" />
+              <p className="text-white/30 text-xs">Synthesizing GLSL Planetary Cores...</p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Bottom Floating Control HUD & Radar Mini-Map */}
-      <div className="absolute bottom-6 left-6 z-20 hidden md:flex flex-col gap-3 pointer-events-auto font-mono">
+      {/* ═══════════════ BOTTOM HUD + RADAR ═══════════════ */}
+      <div className="absolute bottom-6 left-5 z-20 hidden md:flex flex-col gap-3 pointer-events-auto font-mono">
         {/* Galaxy Radar Mini-Map */}
         <GalaxyRadarMiniMap
           nodes={graphData?.nodes || []}
@@ -1029,127 +1480,162 @@ export default function SpatialWorld() {
         />
 
         {/* Bottom Stats HUD */}
-        <div className="flex items-center gap-6 border border-gray-20 bg-[#090a0f]/90 px-5 py-3 text-xs backdrop-blur-xl shadow-token-md">
+        <div className="flex items-center gap-5 rounded-[20px] border border-white/10 bg-[#121212]/90 px-5 py-3 text-xs backdrop-blur-xl shadow-2xl">
           <div>
-            <span className="text-gray-40 text-[10px] uppercase block">Projects / Worlds</span>
-            <span className="text-sm font-bold text-[#00F5D4]">
+            <span className="text-white/30 text-[10px] uppercase block">// WORLDS</span>
+            <span className="text-sm font-bold text-white">
               {graphData?.stats.totalProjects || 0}
             </span>
           </div>
-          <div className="h-6 w-px bg-gray-20" />
+          <div className="h-6 w-px bg-white/10" />
           <div>
-            <span className="text-gray-40 text-[10px] uppercase block">Technologies</span>
-            <span className="text-sm font-bold text-yellow">
+            <span className="text-white/30 text-[10px] uppercase block">// TECH</span>
+            <span className="text-sm font-bold text-white">
               {graphData?.stats.totalTechnologies || 0}
             </span>
           </div>
-          <div className="h-6 w-px bg-gray-20" />
+          <div className="h-6 w-px bg-white/10" />
           <div>
-            <span className="text-gray-40 text-[10px] uppercase block">Graph Edges</span>
+            <span className="text-white/30 text-[10px] uppercase block">// EDGES</span>
             <span className="text-sm font-bold text-white">
               {graphData?.stats.totalLinks || 0}
             </span>
           </div>
-          <div className="h-6 w-px bg-gray-20" />
-          <div className="flex items-center gap-1.5 text-[10px] text-[#00F5D4] bg-[#00F5D4]/10 px-2.5 py-1 border border-[#00F5D4]/30">
-            <Sparkles className="size-3 text-[#00F5D4] animate-pulse" />
-            <span>FEEX SPATIAL GALAXY // LIVING WORLD MODEL 3D // 60 FPS</span>
+          <div className="h-6 w-px bg-white/10" />
+          <div className="flex items-center gap-2 text-[10px] text-white/50 border border-white/10 rounded-[10px] bg-white/[0.03] px-2.5 py-1">
+            <span className="size-1.5 rounded-full bg-white animate-pulse" />
+            <span>FEEX SPATIAL GALAXY // 3D TOPOLOGY</span>
           </div>
         </div>
       </div>
 
-      {/* Slide-over Node Inspector Drawer */}
+      {/* ═══════════════ NODE INSPECTOR DRAWER ═══════════════ */}
       {selectedNode && (
-        <aside className="absolute right-0 top-0 bottom-0 z-30 w-full max-w-md border-l border-gray-20 bg-[#090a0f]/95 p-6 shadow-2xl backdrop-blur-2xl overflow-y-auto font-mono text-xs animate-in slide-in-from-right duration-200">
-          <div className="flex items-start justify-between pb-4 border-b border-gray-20">
-            <div className="flex items-center gap-3">
-              <div
-                className="size-10 flex items-center justify-center font-bold border bg-black"
-                style={{
-                  borderColor: resolveWorldChroma(selectedNode.name, selectedNode.domain).primary,
-                  color: resolveWorldChroma(selectedNode.name, selectedNode.domain).primary,
-                }}
+        <aside className="absolute right-0 top-0 bottom-0 z-30 w-full max-w-md border-l border-white/10 bg-[#121212]/95 shadow-2xl backdrop-blur-3xl overflow-y-auto font-mono text-xs animate-in slide-in-from-right duration-300">
+          {/* Inspector Header */}
+          <div className="sticky top-0 z-10 bg-[#121212]/95 backdrop-blur-xl border-b border-white/10 p-5">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="size-11 rounded-[10px] flex items-center justify-center font-bold border border-white/15 bg-black text-white">
+                  {selectedNode.type === "project" ? (
+                    <Boxes className="size-5" />
+                  ) : (
+                    <Layers className="size-5" />
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] uppercase tracking-widest text-white/40">
+                      {resolveWorldChroma(selectedNode.name, selectedNode.domain).tag || "WORLD_ENTITY"}
+                    </span>
+                    <span className="flex items-center gap-1 text-[9px] text-emerald-400">
+                      <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      LIVE
+                    </span>
+                  </div>
+                  <h2 className="text-base font-bold text-white tracking-tight mt-0.5">
+                    {selectedNode.name}
+                  </h2>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedNode(null)}
+                className="p-2 text-white/40 hover:bg-white/10 rounded-[8px] hover:text-white transition-colors"
               >
-                {selectedNode.type === "project" ? (
-                  <Boxes className="size-5" />
-                ) : (
-                  <Layers className="size-5" />
-                )}
-              </div>
-              <div>
-                <span className="text-[10px] uppercase tracking-wider text-[#00F5D4]">
-                  {resolveWorldChroma(selectedNode.name, selectedNode.domain).tag || "WORLD_ENTITY"}
-                </span>
-                <h2 className="text-base font-display font-medium text-white tracking-wide">
-                  {selectedNode.name}
-                </h2>
-              </div>
+                <X className="size-4" />
+              </button>
             </div>
-            <button
-              onClick={() => setSelectedNode(null)}
-              className="p-1.5 text-gray-40 hover:bg-neutral-800 hover:text-white transition-colors"
-            >
-              <X className="size-4" />
-            </button>
           </div>
 
-          <div className="mt-6 space-y-6">
-            {/* Live Telemetry Provenance Badge */}
-            <FeexWorldBadge
-              sha={selectedNode.id ? `sha-${selectedNode.id.substring(0, 7)}` : "sha-canonical"}
-              status="VERIFIED 100%"
-            />
-
-            {selectedNode.description && (
-              <div>
-                <h4 className="text-[10px] uppercase tracking-wider text-gray-40 mb-2">
-                  Observed Description
-                </h4>
-                <p className="text-xs text-gray-30 leading-relaxed bg-[#040406] p-4 border border-gray-20">
-                  {selectedNode.description}
-                </p>
+          <div className="p-5 space-y-5">
+            {/* Provenance SHA Badge with TextScrambleMorph */}
+            <div className="rounded-[10px] border border-white/10 bg-black/60 px-4 py-2.5 flex items-center justify-between">
+              <span className="text-[10px] text-white/30 uppercase tracking-wider">// PROVENANCE</span>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="size-3 text-emerald-400" />
+                <TextScrambleMorph
+                  text={selectedNode.id ? `sha-${selectedNode.id.substring(0, 12)}` : "sha-canonical"}
+                  className="text-[11px] text-white font-semibold"
+                  speed={20}
+                />
               </div>
-            )}
+            </div>
 
+            {/* Domain + Language Grid */}
             {selectedNode.type === "project" && (
               <>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="border border-gray-20 bg-[#040406] p-3">
-                    <span className="text-[10px] uppercase text-gray-40 block">Domain</span>
-                    <span className="text-xs font-semibold text-[#00F5D4] mt-1 block">
-                      {selectedNode.domain || "Engineering"}
-                    </span>
+                  <div className="rounded-[10px] border border-white/10 bg-black/60 p-3.5">
+                    <span className="text-[10px] uppercase text-white/30 block">Domain</span>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span
+                        className="size-2 rounded-full"
+                        style={{ backgroundColor: DOMAIN_COLORS[selectedNode.domain || ""] || "#ffffff" }}
+                      />
+                      <span className="text-xs font-semibold text-white">
+                        {selectedNode.domain || "Engineering"}
+                      </span>
+                    </div>
                   </div>
-                  <div className="border border-gray-20 bg-[#040406] p-3">
-                    <span className="text-[10px] uppercase text-gray-40 block">Primary Language</span>
-                    <span className="text-xs font-semibold text-white mt-1 block">
+                  <div className="rounded-[10px] border border-white/10 bg-black/60 p-3.5">
+                    <span className="text-[10px] uppercase text-white/30 block">Language</span>
+                    <span className="text-xs font-semibold text-white mt-1.5 block">
                       {selectedNode.language || "TypeScript"}
                     </span>
                   </div>
                 </div>
 
-                {selectedNode.repository && (
-                  <div className="border border-gray-20 bg-[#040406] p-4">
-                    <div className="flex items-center justify-between text-[10px] text-gray-40 mb-1">
-                      <span>Repository Provenance</span>
-                      <ShieldCheck className="size-3.5 text-emerald-400" />
-                    </div>
-                    <div className="font-mono text-xs text-emerald-400 font-semibold break-all">
-                      {selectedNode.repository}
-                    </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-[10px] border border-white/10 bg-black/60 p-3.5">
+                    <span className="text-[10px] uppercase text-white/30 block">Artifacts</span>
+                    <span className="text-lg font-bold text-white mt-1 block">
+                      {selectedNode.artifactCount || 0}
+                    </span>
                   </div>
-                )}
+                  <div className="rounded-[10px] border border-white/10 bg-black/60 p-3.5">
+                    <span className="text-[10px] uppercase text-white/30 block">Status</span>
+                    <span className="text-xs font-semibold text-emerald-400 mt-1.5 block flex items-center gap-1.5">
+                      <Activity className="size-3" />
+                      ACTIVE
+                    </span>
+                  </div>
+                </div>
               </>
             )}
 
+            {/* Description */}
+            {selectedNode.description && (
+              <div>
+                <h4 className="text-[10px] uppercase tracking-wider text-white/30 mb-2">
+                  // Observed Description
+                </h4>
+                <p className="text-xs text-white/70 leading-relaxed rounded-[10px] bg-black/60 p-4 border border-white/10">
+                  {selectedNode.description}
+                </p>
+              </div>
+            )}
+
+            {/* Repository */}
+            {selectedNode.repository && (
+              <div className="rounded-[10px] border border-white/10 bg-black/60 p-4">
+                <div className="flex items-center justify-between text-[10px] text-white/30 mb-1.5">
+                  <span>Repository Provenance</span>
+                  <ShieldCheck className="size-3 text-white/60" />
+                </div>
+                <div className="font-mono text-xs text-white font-semibold break-all">
+                  {selectedNode.repository}
+                </div>
+              </div>
+            )}
+
             {/* Action Buttons */}
-            <div className="pt-4 space-y-2">
+            <div className="pt-3 space-y-2.5">
               {selectedNode.type === "project" && (
                 <Link
                   to={`/evidence/${encodeURIComponent(selectedNode.id || selectedNode.name)}`}
-                  className="w-full h-10 border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 flex items-center justify-center gap-2 transition-colors"
+                  className="w-full h-10 rounded-[10px] border border-white/15 bg-white/5 hover:bg-white/10 text-white flex items-center justify-center gap-2 transition-colors font-semibold"
                 >
-                  <FileCode className="size-4" />
+                  <FileCode className="size-4 text-white/80" />
                   <span>Inspect Evidence Provenance</span>
                 </Link>
               )}
@@ -1158,7 +1644,7 @@ export default function SpatialWorld() {
                   href={selectedNode.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full h-10 bg-white hover:bg-gray-90 text-black font-semibold flex items-center justify-center gap-2 transition-colors"
+                  className="w-full h-10 rounded-[10px] bg-white hover:bg-white/90 text-black font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"
                 >
                   <span>Inspect GitHub Source</span>
                   <ExternalLink className="size-3.5" />
@@ -1166,10 +1652,17 @@ export default function SpatialWorld() {
               )}
               <Link
                 to={`/navigator?q=${encodeURIComponent(selectedNode.name)}`}
-                className="w-full h-10 border border-gray-20 bg-[#040406] hover:bg-neutral-900 text-white flex items-center justify-center gap-2 transition-colors"
+                className="w-full h-10 rounded-[10px] border border-white/10 bg-white/5 hover:bg-white/10 text-white flex items-center justify-center gap-2 transition-colors"
               >
-                <Compass className="size-4 text-[#00F5D4]" />
+                <Compass className="size-4 text-white/80" />
                 <span>Query in AI Navigator</span>
+              </Link>
+              <Link
+                to={`/omni?q=${encodeURIComponent(`Show me ${selectedNode.name} architecture and evidence`)}`}
+                className="w-full h-10 rounded-[10px] border border-white/10 bg-white/5 hover:bg-white/10 text-white flex items-center justify-center gap-2 transition-colors"
+              >
+                <Terminal className="size-4 text-white/80" />
+                <span>Command in Omni Stage</span>
               </Link>
             </div>
           </div>

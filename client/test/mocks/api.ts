@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { createMockUser, createMockTokens } from '../utils/test-utils';
+import { createMockUser, createMockTokens } from '../utils/mock-factories';
 
 // Mock API responses
 export const mockApiResponses = {

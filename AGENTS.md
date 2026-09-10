@@ -50,6 +50,8 @@ FeexSystems-Living-Intelligence-World/
 - `/projects` — Public project explorer with GitHub sync action
 - `/navigator` — AI-grounded Navigator interface with evidence provenance
 - `/world` — Full-screen 3D Spatial Knowledge Galaxy with node inspector
+- `/evidence` — Evidence Fabric Ledger with cryptographic commit SHAs
+- `/omni` — Agent-driven Omni-Command Stage with live reasoning trace
 
 ### Authenticated Experience
 - `/dashboard` — Platform overview & operations
@@ -66,6 +68,8 @@ FeexSystems-Living-Intelligence-World/
 - `GET /api/world-model/graph` — 3D/2D node & edge graph topology
 - `GET /api/world-model/evidence/:projectId` — Evidence provenance ledger
 - `GET /api/world-model/navigator?q=<query>` — Grounded retrieval with AI explanation
+- `POST /api/world-model/omni-command` — Omni-Command orchestration contract
+- `POST /api/world-model/omni-command/stream` — Omni-Command streaming SSE trace
 - `POST /api/world-model/sync/github-pinned` — Trigger GitHub profile sync
 - `POST /api/world-model/webhook` — GitHub webhook receiver with HMAC SHA-256 verification
 

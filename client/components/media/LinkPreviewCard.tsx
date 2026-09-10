@@ -46,23 +46,23 @@ export function LinkPreviewCard({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 350, damping: 25 }}
-              className="w-72 overflow-hidden rounded-lg border border-gray-20 bg-[#090a0f]/95 p-3 shadow-2xl backdrop-blur-2xl"
+              className="w-72 overflow-hidden rounded-[20px] border border-white/10 bg-[#121212]/95 p-3.5 shadow-2xl backdrop-blur-2xl font-mono text-white selection:bg-white selection:text-black"
             >
               {/* Optional Thumbnail Image */}
               {imageSrc && (
-                <div className="relative mb-2 aspect-video w-full overflow-hidden rounded border border-gray-20/60 bg-black">
+                <div className="relative mb-2 aspect-video w-full overflow-hidden rounded-[10px] border border-white/10 bg-black">
                   <img src={imageSrc} alt={title} className="size-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 </div>
               )}
 
               {/* Card Meta Header */}
-              <div className="flex items-center justify-between text-[9px] text-[#00F5D4] mb-1">
+              <div className="flex items-center justify-between text-[9px] text-white/70 mb-1">
                 <span className="flex items-center gap-1">
-                  <Sparkles className="size-2.5 text-[#00F5D4]" />
+                  <Sparkles className="size-2.5 text-white/80" />
                   {badge}
                 </span>
-                <span className="text-gray-40 flex items-center gap-0.5">
+                <span className="text-white/40 flex items-center gap-0.5">
                   <GitBranch className="size-2.5" />
                   MAIN
                 </span>
@@ -70,7 +70,7 @@ export function LinkPreviewCard({
 
               {/* Title & Description */}
               <h4 className="text-xs font-bold text-white tracking-tight truncate">{title}</h4>
-              <p className="text-[10px] text-gray-40 mt-1 line-clamp-2 leading-relaxed">
+              <p className="text-[10px] text-white/50 mt-1 line-clamp-2 leading-relaxed">
                 {description}
               </p>
 
@@ -79,7 +79,7 @@ export function LinkPreviewCard({
                 href={url}
                 target={url.startsWith("http") ? "_blank" : undefined}
                 rel="noreferrer"
-                className="mt-2.5 flex items-center justify-between pt-2 border-t border-gray-20/60 text-[10px] text-gray-40 hover:text-[#00F5D4] transition-colors"
+                className="mt-2.5 flex items-center justify-between pt-2 border-t border-white/10 text-[10px] text-white/40 hover:text-white transition-colors"
               >
                 <span className="truncate max-w-[180px]">{url.replace(/^https?:\/\//, "")}</span>
                 <ExternalLink className="size-3" />

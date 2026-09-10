@@ -42,13 +42,13 @@ export function InfiniteMarqueeTicker({
   return (
     <div
       className={cn(
-        "relative w-full overflow-hidden border-y border-gray-20/80 bg-[#06080d]/90 py-2.5 font-mono select-none backdrop-blur-md",
+        "relative w-full overflow-hidden border-y border-white/10 bg-[#121212]/90 py-2.5 font-mono select-none backdrop-blur-md",
         className
       )}
     >
       {/* Side gradient fades */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-[#040406] to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-[#040406] to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-black to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-black to-transparent" />
 
       {/* Marquee Track */}
       <div
@@ -63,21 +63,21 @@ export function InfiniteMarqueeTicker({
         {duplicatedItems.map((item, idx) => (
           <div
             key={`${item.id}-${idx}`}
-            className="flex items-center gap-2.5 text-xs text-gray-40 border-r border-gray-20/60 pr-8 whitespace-nowrap"
+            className="flex items-center gap-2.5 text-xs text-white/60 border-r border-white/10 pr-8 whitespace-nowrap"
           >
             {item.type === "commit" ? (
-              <GitCommit className="size-3.5 text-[#00FFA3]" />
+              <GitCommit className="size-3.5 text-white/80" />
             ) : item.type === "tech" ? (
-              <Layers className="size-3.5 text-[#00F5D4]" />
+              <Layers className="size-3.5 text-white/80" />
             ) : (
-              <Zap className="size-3.5 text-yellow" />
+              <Zap className="size-3.5 text-white/80" />
             )}
 
             <span className="font-bold text-white tracking-tight">{item.label}</span>
-            {item.sublabel && <span className="text-gray-40 text-[11px]">[{item.sublabel}]</span>}
+            {item.sublabel && <span className="text-white/40 text-[11px]">[{item.sublabel}]</span>}
 
             {item.status && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[#00F5D4]">
+              <span className="text-[9px] px-1.5 py-0.5 rounded-[6px] bg-white/5 border border-white/10 text-white/70">
                 {item.status}
               </span>
             )}
