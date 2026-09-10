@@ -29,6 +29,7 @@ import { securityService } from "./lib/services/security.service";
 import { securityCronService } from "./lib/services/security-cron.service";
 import { initializeDeploymentWebSocket } from "./lib/services/deployment-websocket.service";
 import { syncPinnedProjects } from "./lib/services/github-pinned.service";
+import { startWorldModelMaintenanceScheduler } from "./lib/services/world-model-maintenance.service";
 
 dotenv.config();
 
@@ -60,7 +61,6 @@ export function createServer(): express.Application {
     typeof value === "bigint" ? value.toString() : value
   );
 
-  // Capture rawBody on request for HMAC verification
   app.use(
     express.json({
       limit: "10mb",
@@ -72,16 +72,13 @@ export function createServer(): express.Application {
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
   app.use("/uploads", express.static("uploads"));
 
-  // Health check endpoints
   app.get("/health", handleHealthCheck);
   app.get("/health/ready", handleReadinessCheck);
   app.get("/health/live", handleLivenessCheck);
 
-  // Demo and Chat endpoints
   app.use("/api/demo", handleDemo);
   app.use("/api/chat", handleChat);
 
-  // Authentication & User management
   const useMockAuth = process.env.USE_MOCK_AUTH === "true";
   app.use("/api/auth", useMockAuth ? mockAuthRoutes : authRoutes);
   app.use("/api/users", userRoutes);
@@ -89,17 +86,13 @@ export function createServer(): express.Application {
   app.use("/api/billing", billingRoutes);
   app.use("/api/subscriptions", subscriptionRoutes);
 
-  // Platform & Security services
   app.use("/api/ai", aiRoutes);
   app.use("/api/devops", devopsRoutes);
   app.use("/api/security", securityRoutes);
   app.use("/api/teams", teamRoutes);
   app.use("/api/admin", adminRoutes);
 
-  // Living Engineering Intelligence — World Model API
   app.use("/api/world-model", worldModelRoutes);
-
-  // Omni-Command Interface (agent-driven Stage)
   app.use("/api/world-model/omni-command", omniCommandRoutes);
 
   if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
@@ -124,7 +117,6 @@ export function createServer(): express.Application {
     });
   }
 
-  // 404 handler for API routes
   app.use("/api", (_req, res) =>
     res.status(404).json({
       success: false,
@@ -137,7 +129,6 @@ export function createServer(): express.Application {
     })
   );
 
-  // Global error handler
   app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error("Unhandled error:", error);
     res.status(500).json({
@@ -179,6 +170,13 @@ export async function initializeInfrastructure() {
     await aiService.initialize().catch((err) => console.warn("⚠️ AI Service init deferred:", err));
     await securityService.initialize().catch((err) => console.warn("⚠️ Security Service init deferred:", err));
     await securityCronService.initialize().catch((err) => console.warn("⚠️ Security Cron Service init deferred:", err));
+
+    try {
+      startWorldModelMaintenanceScheduler();
+    } catch (e) {
+      console.warn("⚠️ World Model maintenance scheduler skipped:", e);
+    }
+
     console.log("✅ Infrastructure initialized successfully");
   } catch (error) {
     console.error("❌ Infrastructure initialization failed:", error);
