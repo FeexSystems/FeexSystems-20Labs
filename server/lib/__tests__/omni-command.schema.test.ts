@@ -3,8 +3,8 @@ import {
   validateOmniRequest,
   validateOmniResponse,
   OmniCommandResponseSchema,
-} from "@shared/orchestration-schema";
-import { createEmptyStageResponse } from "@shared/orchestration";
+} from "../../../shared/orchestration-schema";
+import { createEmptyStageResponse } from "../../../shared/orchestration";
 
 describe("OmniCommandRequestSchema", () => {
   it("accepts a valid query", () => {

@@ -16,9 +16,9 @@ import type {
   MetricsDashboardProps,
   EvidenceAnchor,
   OmniComponent,
-} from "@shared/orchestration";
-import { createEmptyStageResponse } from "@shared/orchestration";
-import { validateOmniResponse } from "@shared/orchestration-schema";
+} from "../../../shared/orchestration";
+import { createEmptyStageResponse } from "../../../shared/orchestration";
+import { validateOmniResponse } from "../../../shared/orchestration-schema";
 import { getWorldModelGraph, retrieveWorld } from "./github-pinned.service";
 
 function nowIso() {
