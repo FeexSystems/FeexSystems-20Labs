@@ -2,13 +2,14 @@ import { SecurityScanner, ScanTarget, ScanConfiguration, ScanResults, Vulnerabil
 import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import { join } from 'path';
+import os from 'os';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Security Scan Processor Service - Executes actual security scans
  */
 export class SecurityScanProcessorService {
-  private tempDir = join(process.cwd(), 'temp', 'security-scans');
+  private tempDir = join(os.tmpdir(), 'feex-security-scans');
 
   constructor() {
     this.ensureTempDirectory();

@@ -2,6 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
+import { globalErrorHandler } from '@/lib/error-handler';
 
 interface Props {
   children: ReactNode;
@@ -35,6 +36,17 @@ class ErrorBoundary extends Component<Props, State> {
     };
   }
 
+  componentDidUpdate(prevProps: Props) {
+    if (this.state.hasError && prevProps.children !== this.props.children) {
+      this.setState({
+        hasError: false,
+        error: null,
+        errorInfo: null,
+        errorId: null,
+      });
+    }
+  }
+
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
 
@@ -44,6 +56,15 @@ class ErrorBoundary extends Component<Props, State> {
 
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
+    }
+
+    try {
+      globalErrorHandler.captureException(error, {
+        componentStack: errorInfo.componentStack,
+        errorId: this.state.errorId,
+      });
+    } catch {
+      // Ignore in tests or offline
     }
 
     this.logErrorToService(error, errorInfo);
@@ -60,7 +81,7 @@ class ErrorBoundary extends Component<Props, State> {
       url: window.location.href,
     };
 
-    if (process.env.NODE_ENV === 'development') {
+    if (Boolean(import.meta.env?.DEV)) {
       console.group('🐛 Error Report');
       console.error('Error ID:', errorReport.errorId);
       console.error('Message:', errorReport.message);
@@ -97,12 +118,16 @@ class ErrorBoundary extends Component<Props, State> {
       url: window.location.href,
     };
 
-    navigator.clipboard.writeText(JSON.stringify(errorDetails, null, 2)).then(() => {
+    navigator.clipboard.writeText(JSON.stringify(errorDetails)).then(() => {
       console.log('Error details copied to clipboard');
     });
   };
 
   render() {
+    const isDev = typeof process !== 'undefined' && process?.env?.NODE_ENV
+      ? process.env.NODE_ENV === 'development'
+      : Boolean(import.meta.env?.DEV);
+
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
@@ -148,7 +173,7 @@ class ErrorBoundary extends Component<Props, State> {
                 </Button>
               </div>
 
-              {process.env.NODE_ENV === 'development' && this.state.error && (
+              {isDev && this.state.error && (
                 <details className="mt-6">
                   <summary className="cursor-pointer text-sm font-medium mb-2 flex items-center gap-2">
                     <Bug className="h-4 w-4" />

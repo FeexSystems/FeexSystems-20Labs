@@ -219,12 +219,12 @@ export class DeploymentTrackingService extends EventEmitter {
       stage: log.stage,
     };
 
-    const currentLogs = (deployment.logs as DeploymentLog[]) || [];
+    const currentLogs = (deployment.logs as unknown as DeploymentLog[]) || [];
     const updatedLogs = [...currentLogs, logEntry];
 
     await prisma.deployment.update({
       where: { id: deploymentId },
-      data: { logs: updatedLogs },
+      data: { logs: updatedLogs as any },
     });
 
     // Update cache

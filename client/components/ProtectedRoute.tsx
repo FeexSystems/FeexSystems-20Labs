@@ -3,8 +3,8 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/lib/auth-store';
 import { AlertCircle, Shield } from 'lucide-react';
 
-// BETA MODE: Set to true to allow free access without login
-const BETA_MODE = true;
+// BETA MODE: Set to false to strictly enforce authentication
+const BETA_MODE = false;
 
 interface ProtectedRouteProps {
   children: ReactNode;

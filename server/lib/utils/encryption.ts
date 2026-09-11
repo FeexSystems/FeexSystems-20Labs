@@ -9,9 +9,9 @@ class EncryptionService {
   private key: Buffer;
 
   constructor() {
-    const encryptionKey = process.env.ENCRYPTION_KEY || (process.env.NODE_ENV !== 'production' ? 'feexsystems-dev-encryption-key-32-chars!' : undefined);
+    const encryptionKey = process.env.ENCRYPTION_KEY || process.env.JWT_SECRET || (process.env.NODE_ENV !== 'production' ? 'feexsystems-dev-encryption-key-32-chars!' : undefined);
     if (!encryptionKey) {
-      throw new Error('ENCRYPTION_KEY environment variable is required');
+      throw new Error('ENCRYPTION_KEY or JWT_SECRET environment variable is required');
     }
     
     // Derive a consistent key from the environment variable
@@ -24,7 +24,7 @@ class EncryptionService {
   encrypt(text: string): string {
     try {
       const iv = crypto.randomBytes(IV_LENGTH);
-      const cipher = crypto.createCipher(ALGORITHM, this.key);
+      const cipher = crypto.createCipheriv(ALGORITHM, this.key, iv);
       cipher.setAAD(Buffer.from('devops-tokens'));
 
       let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -52,7 +52,7 @@ class EncryptionService {
       const tag = combined.subarray(IV_LENGTH, IV_LENGTH + TAG_LENGTH);
       const encrypted = combined.subarray(IV_LENGTH + TAG_LENGTH);
 
-      const decipher = crypto.createDecipher(ALGORITHM, this.key);
+      const decipher = crypto.createDecipheriv(ALGORITHM, this.key, iv);
       decipher.setAAD(Buffer.from('devops-tokens'));
       decipher.setAuthTag(tag);
 

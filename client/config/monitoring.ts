@@ -2,8 +2,8 @@
 export const monitoringConfig = {
   sentry: {
     // Sample rates for different event types
-    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-    profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    tracesSampleRate: Boolean(import.meta.env?.PROD) ? 0.1 : 1.0,
+    profilesSampleRate: Boolean(import.meta.env?.PROD) ? 0.1 : 1.0,
     
     // Environments to enable monitoring
     enabledEnvironments: ['production', 'staging'],

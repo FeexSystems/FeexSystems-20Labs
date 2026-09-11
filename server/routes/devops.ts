@@ -379,8 +379,8 @@ router.post('/pipelines', authMiddleware, async (req, res) => {
       userId,
       {
         name: pipelineData.name,
-        stages: pipelineData.stages,
-        triggers: pipelineData.triggers,
+        stages: pipelineData.stages as any,
+        triggers: pipelineData.triggers as any,
         environment: pipelineData.environment,
       }
     );
@@ -524,7 +524,7 @@ router.put('/pipelines/:id', authMiddleware, async (req, res) => {
     const updates = pipelineUpdateSchema.parse(req.body);
     const userId = req.user!.id;
     
-    const pipeline = await pipelineService.updatePipeline(pipelineId, userId, updates);
+    const pipeline = await pipelineService.updatePipeline(pipelineId, userId, updates as any);
     
     res.json({
       success: true,
@@ -1241,7 +1241,7 @@ router.post('/webhooks/:provider', async (req, res) => {
     const payload = webhookPayloadSchema.parse(req.body);
     const rawPayload = JSON.stringify(req.body);
     
-    await repositoryService.handleWebhook(provider, payload, signature as string, rawPayload);
+    await repositoryService.handleWebhook(provider, payload as any, signature as string, rawPayload);
     
     res.json({
       success: true,

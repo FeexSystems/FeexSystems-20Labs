@@ -13,6 +13,7 @@ const mockUseAuthStore = {
 
 vi.mock('@/lib/auth-store', () => ({
   useAuthStore: () => mockUseAuthStore,
+  AuthStoreProvider: ({ children }: any) => children,
 }));
 
 // Mock react-router-dom Navigate component

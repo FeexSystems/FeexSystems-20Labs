@@ -14,7 +14,7 @@ const ALERT_THRESHOLDS = {
 // Custom alert conditions
 export const configureAlerts = () => {
   // Monitor error rates
-  Sentry.addGlobalEventProcessor((event) => {
+  Sentry.addEventProcessor((event) => {
     if (event.type === 'error') {
       const errorType = event.exception?.values?.[0]?.type;
       
@@ -70,7 +70,7 @@ const notifyTeam = async (priority: 'critical' | 'high' | 'medium', event: Sentr
 
 // Performance monitoring thresholds
 export const configurePerformanceAlerts = () => {
-  Sentry.addGlobalEventProcessor((event) => {
+  Sentry.addEventProcessor((event) => {
     if (event.type === 'transaction') {
       const duration = event.timestamp - (event.start_timestamp || 0);
       

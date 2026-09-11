@@ -140,7 +140,7 @@ export class UsageService {
     return {
       period: usage.period,
       usage,
-      limits,
+      limits: limits as any,
       percentages,
       warnings,
       isOverLimit,

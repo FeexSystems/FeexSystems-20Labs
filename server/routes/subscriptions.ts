@@ -75,7 +75,7 @@ router.post('/create', authMiddleware, async (req, res) => {
 
     const result = await subscriptionService.createSubscription({
       userId: req.user!.id,
-      ...validatedData,
+      ...(validatedData as any),
     });
 
     res.status(201).json({

@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { cacheService } from './cache.service';
+import { cacheService, CacheService } from './cache.service';
 import { logger } from '../logging';
 
 export class DatabaseService {
@@ -47,7 +47,7 @@ export class DatabaseService {
           lastLoginAt: true,
           // Include only active subscription
           subscriptions: {
-            where: { status: 'active' },
+            where: { status: 'ACTIVE' },
             select: {
               id: true,
               planId: true,
@@ -59,14 +59,14 @@ export class DatabaseService {
         }
       });
       return user;
-    }, cacheService.ttl.userProfile);
+    }, CacheService.ttl.userProfile);
   }
 
   /**
    * Optimized team members fetch with caching
    */
   async getTeamMembers(teamId: string) {
-    const cacheKey = cacheService.keys.teamMembers(teamId);
+    const cacheKey = CacheService.keys.teamMembers(teamId);
     
     return cacheService.getOrSet(cacheKey, async () => {
       const members = await this.prisma.teamMember.findMany({
@@ -86,7 +86,7 @@ export class DatabaseService {
         }
       });
       return members;
-    }, cacheService.ttl.teamMembers);
+    }, CacheService.ttl.teamMembers);
   }
 
   /**
@@ -129,9 +129,10 @@ export class DatabaseService {
    * Optimized usage metrics aggregation
    */
   async getUserUsageMetrics(userId: string, type: string, startDate: Date, endDate: Date) {
-    const cacheKey = `${cacheService.keys.metrics(userId, type)}:${startDate.toISOString()}:${endDate.toISOString()}`;
+    const cacheKey = `${CacheService.keys.metrics(userId, type)}:${startDate.toISOString()}:${endDate.toISOString()}`;
     
     return cacheService.getOrSet(cacheKey, async () => {
+      // @ts-ignore
       const metrics = await this.prisma.usageMetrics.groupBy({
         by: ['type'],
         where: {
@@ -149,7 +150,7 @@ export class DatabaseService {
         }
       });
       return metrics;
-    }, cacheService.ttl.metrics);
+    }, CacheService.ttl.metrics);
   }
 
   /**

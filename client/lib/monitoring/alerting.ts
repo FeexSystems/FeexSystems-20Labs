@@ -20,7 +20,7 @@ export const errorSeverityMap = {
 export const alertChannels = {
   slack: {
     enabled: true,
-    webhook: process.env.SLACK_WEBHOOK_URL,
+    webhook: typeof process !== 'undefined' ? process.env?.SLACK_WEBHOOK_URL : (import.meta as any).env?.VITE_SLACK_WEBHOOK_URL,
     channel: '#monitoring-alerts',
   },
   email: {
@@ -29,8 +29,8 @@ export const alertChannels = {
   },
   pagerduty: {
     enabled: true,
-    apiKey: process.env.PAGERDUTY_API_KEY,
-    serviceId: process.env.PAGERDUTY_SERVICE_ID,
+    apiKey: typeof process !== 'undefined' ? process.env?.PAGERDUTY_API_KEY : (import.meta as any).env?.VITE_PAGERDUTY_API_KEY,
+    serviceId: typeof process !== 'undefined' ? process.env?.PAGERDUTY_SERVICE_ID : (import.meta as any).env?.VITE_PAGERDUTY_SERVICE_ID,
   },
 };
 

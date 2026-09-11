@@ -196,45 +196,52 @@ export interface SystemWorldChroma {
 
 export const CANONICAL_WORLD_CHROMAS: Record<string, SystemWorldChroma> = {
   kappaxchangefin: {
-    primary: "#00FFA3", // Terminal Emerald
-    secondary: "#0066FF",
-    accent: "#FFFFFF",
+    primary: "#FFFFFF", // High-Contrast Monochrome White
+    secondary: "#A1A1AA", // Zinc 400
+    accent: "#E4E4E7", // Zinc 200
+    voidColor: "#09090B",
     tag: "FINANCIAL_INFRASTRUCTURE",
   },
   holokai: {
-    primary: "#00F2FE", // Cyan
-    secondary: "#7928CA", // Deep Ultraviolet
-    accent: "#80E5FF",
+    primary: "#F4F4F5", // High-Contrast Platinum White
+    secondary: "#71717A", // Zinc 500
+    accent: "#FFFFFF",
+    voidColor: "#000000",
     tag: "CULTURAL_INTELLIGENCE",
   },
   yurrheeler: {
-    primary: "#8A2BE2", // Quantum Violet
-    secondary: "#00E5FF", // Bio-Electric Cyan
+    primary: "#E4E4E7", // Silver Zinc
+    secondary: "#52525B", // Deep Zinc 600
     accent: "#FFFFFF",
+    voidColor: "#09090B",
     tag: "HEALTHCARE_INTELLIGENCE",
   },
   sonik: {
-    primary: "#FF0055", // Neon Magenta / Amber
-    secondary: "#FFB800",
-    accent: "#00FFA3",
+    primary: "#FFFFFF", // Pure White Luminescence
+    secondary: "#3F3F46", // Charcoal Zinc 700
+    accent: "#D4D4D8", // Silver Chrome
+    voidColor: "#000000",
     tag: "NEURAL_DSP_AUDIO",
   },
   vyra: {
-    primary: "#FF7700", // Solar Flare Amber
-    secondary: "#6366F1",
-    accent: "#00F2FE",
+    primary: "#D4D4D8", // Light Zinc
+    secondary: "#27272A", // Dark Charcoal 800
+    accent: "#FFFFFF",
+    voidColor: "#09090B",
     tag: "CONVERSATIONAL_INTELLIGENCE",
   },
   rental: {
-    primary: "#0070F3", // Oceanic Cobalt
-    secondary: "#00F5D4",
-    accent: "#FFFFFF",
+    primary: "#F4F4F5", // Stark White
+    secondary: "#71717A", // Zinc
+    accent: "#E4E4E7",
+    voidColor: "#000000",
     tag: "SPATIAL_COMMERCE",
   },
   default: {
-    primary: "#00F5D4", // Phosphor Cyan
-    secondary: "#0066FF", // Ion Azure
-    accent: "#7B2CBF", // Quantum Violet
+    primary: "#FFFFFF", // High-Contrast Monochrome White
+    secondary: "#71717A", // Slate/Zinc Midtone
+    accent: "#E4E4E7", // High Silver Accent
+    voidColor: "#000000",
     tag: "CANONICAL_WORLD_MODEL",
   },
 };

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { io, Socket } from "socket.io-client";
 
 interface VRSceneProps {
   onVRReady?: (vrSupported: boolean) => void;
@@ -11,7 +10,6 @@ export function VRScene({ onVRReady }: VRSceneProps) {
   const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const socketRef = useRef<Socket | null>(null);
   const panelsRef = useRef<THREE.Mesh[]>([]);
   const [vrSupported, setVRSupported] = useState(false);
   const [selectedPanelIndex, setSelectedPanelIndex] = useState(0);
@@ -147,36 +145,31 @@ export function VRScene({ onVRReady }: VRSceneProps) {
 
     panelsRef.current = panels;
 
-    // Fetch GitHub data for capabilities panel
-    async function fetchGitHubData() {
+    // Fetch World Model project data from the canonical server API
+    async function fetchWorldModelProjects() {
       try {
-        const response = await fetch(
-          "https://api.github.com/users/FeexSystems/repos",
-          {
-            headers: { Accept: "application/vnd.github.v3+json" },
-          },
-        );
-        const repos = await response.json();
+        const response = await fetch("/api/world-model/projects");
+        if (!response.ok) throw new Error(`World Model responded ${response.status}`);
+        const json = await response.json();
+        const projects: any[] = json.projects || [];
         const capabilitiesPanel = panels.find(
           (p) => p.userData.id === "capabilities-panel",
         );
-        if (repos.length > 0 && capabilitiesPanel) {
-          const repoNames = repos
+        if (projects.length > 0 && capabilitiesPanel) {
+          const names = projects
             .slice(0, 3)
-            .map((repo: any) => repo.name)
+            .map((p: any) => p.name || p.fullName || "Project")
             .join("\n");
-          const newTexture = createTextTexture(`Capabilities\n${repoNames}`);
-          (capabilitiesPanel.material as THREE.MeshBasicMaterial).map =
-            newTexture;
-          (capabilitiesPanel.material as THREE.MeshBasicMaterial).needsUpdate =
-            true;
+          const newTexture = createTextTexture(`Capabilities\n${names}`);
+          (capabilitiesPanel.material as THREE.MeshBasicMaterial).map = newTexture;
+          (capabilitiesPanel.material as THREE.MeshBasicMaterial).needsUpdate = true;
         }
       } catch (error) {
-        console.error("GitHub API Error:", error);
+        console.warn("World Model projects fetch failed — VR panel will show placeholder:", error);
       }
     }
 
-    fetchGitHubData();
+    fetchWorldModelProjects();
 
     // Camera position
     camera.position.set(0, 1.5, 0);

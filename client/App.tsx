@@ -35,6 +35,7 @@ import AdminHealth from "./pages/admin/health";
 import AdminSecurity from "./pages/admin/security";
 import AdminAuditLogs from "./pages/admin/audit-logs";
 import AdminSubscriptions from "./pages/admin/subscriptions";
+import { Bushfeexer } from "@/components/Bushfeexer";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -76,14 +77,16 @@ const App = () => (
             >
               <AuthProvider>
                 <Routes>
-                  {/* Public World Model & Showcase Experience (accessible to all) */}
+                  {/* Public World Model & Showcase Experience: 3D Galaxy, Omni Command, Projects & Landing */}
                   <Route path="/" element={<Public><Index /></Public>} />
-                  <Route path="/projects" element={<Public><Projects /></Public>} />
-                  <Route path="/navigator" element={<Public><Navigator /></Public>} />
                   <Route path="/world" element={<Public><SpatialWorld /></Public>} />
-                  <Route path="/evidence" element={<Public><EvidenceExplorer /></Public>} />
-                  <Route path="/evidence/:projectId" element={<Public><EvidenceExplorer /></Public>} />
                   <Route path="/omni" element={<Public><OmniCommand /></Public>} />
+                  <Route path="/projects" element={<Public><Projects /></Public>} />
+
+                  {/* Authenticated Intelligence & Evidence Services */}
+                  <Route path="/navigator" element={<Protected><Navigator /></Protected>} />
+                  <Route path="/evidence" element={<Protected><EvidenceExplorer /></Protected>} />
+                  <Route path="/evidence/:projectId" element={<Protected><EvidenceExplorer /></Protected>} />
                   <Route path="/lab" element={<Navigate to="/" replace />} />
                   <Route path="/components" element={<Navigate to="/" replace />} />
 
@@ -130,6 +133,8 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </AuthProvider>
+              {/* Global chat widget — visible on all pages */}
+              <Bushfeexer />
             </ErrorBoundary>
           </BrowserRouter>
         </TooltipProvider>

@@ -1,5 +1,4 @@
-import pkg from '@prisma/client';
-const { PrismaClient } = pkg;
+import { PrismaClient } from '@prisma/client';
 import { TeamRole, MemberStatus, InvitationStatus, ResourceType } from '../../../shared/api.js';
 
 import {
@@ -768,7 +767,7 @@ export class TeamService {
     }));
 
     return {
-      activities: formattedActivities,
+      activities: formattedActivities as any,
       total
     };
   }

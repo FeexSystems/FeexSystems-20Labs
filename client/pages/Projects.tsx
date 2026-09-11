@@ -23,6 +23,7 @@ import { FeexHorizontalLockup, FeexWorldBadge } from "@/components/FeexLogo";
 import { CursorSpotlightCard } from "@/components/motion/CursorSpotlightCard";
 import { LinkPreviewCard } from "@/components/media/LinkPreviewCard";
 import { InfiniteMarqueeTicker } from "@/components/carousel/InfiniteMarqueeTicker";
+import { useGitHubAuthGuard } from "@/components/GitHubAuthGuard";
 import {
   FullWidthNav,
   AppleDock,
@@ -52,6 +53,7 @@ const DOMAIN_FILTERS = ["ALL", "INTELLIGENCE", "HEALTHCARE", "FINANCE", "RESEARC
 export default function Projects() {
   const [query, setQuery] = useState("");
   const [activeDomain, setActiveDomain] = useState("ALL");
+  const { handleGitHubClick, GitHubAuthModal } = useGitHubAuthGuard();
   const [projects, setProjects] = useState<WorldProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -364,7 +366,7 @@ export default function Projects() {
                     {/* Interactive 3D Presentation Preview */}
                     <div className="mt-4 rounded-[10px] border border-white/10 bg-black/60 relative overflow-hidden">
                       <div className="absolute top-2 left-2.5 z-10 text-[9px] font-mono text-white/50 flex items-center gap-1.5 pointer-events-none">
-                        <span className="size-1 rounded-full bg-cyan-400 animate-pulse" />
+                        <span className="size-1 rounded-full bg-white animate-pulse" />
                         <span>3D TILT // DREI TOPOLOGY</span>
                       </div>
                       <Suspense
@@ -422,14 +424,13 @@ export default function Projects() {
                         <Globe className="size-3 text-white" />
                         <span>3D</span>
                       </Link>
-                      <a
-                        href={p.url}
-                        target="_blank"
-                        rel="noreferrer"
+                      <button
+                        onClick={() => handleGitHubClick(p.url)}
+                        title="GitHub Repository (Requires Authentication)"
                         className="inline-flex items-center p-1.5 rounded-[10px] bg-white/5 border border-white/10 hover:border-white/30 text-white/60 hover:text-white transition-colors"
                       >
                         <ExternalLink className="size-3.5" />
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -463,6 +464,9 @@ export default function Projects() {
       <div className="fixed bottom-6 inset-x-0 flex justify-center z-40 pointer-events-auto">
         <AppleDock />
       </div>
+
+      {/* GitHub Auth Required Modal */}
+      {GitHubAuthModal}
     </main>
   );
 }

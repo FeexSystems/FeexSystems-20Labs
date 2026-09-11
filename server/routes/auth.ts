@@ -10,19 +10,21 @@ import {
 import {
   registerUserSchema,
   loginUserSchema,
+  RegisterUserInput,
+  LoginUserInput,
+} from '../lib/validations/user';
+import {
   refreshTokenSchema,
   emailVerificationSchema,
   passwordResetRequestSchema,
   passwordResetSchema,
   changePasswordSchema,
-  RegisterUserInput,
-  LoginUserInput,
   RefreshTokenInput,
   EmailVerificationInput,
   PasswordResetRequestInput,
   PasswordResetInput,
-  ChangePasswordInput
-} from '../lib/validations/user';
+  ChangePasswordInput,
+} from '../lib/validations/auth';
 import { AuthError } from '../lib/auth';
 
 const router = Router();

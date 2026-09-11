@@ -41,7 +41,7 @@ export const fileUploadSchema = z.object({
   filename: z.string().min(1, 'Filename is required'),
   mimetype: z.string().min(1, 'MIME type is required'),
   size: z.number().int().positive('File size must be positive'),
-  buffer: z.instanceof(Buffer, 'Invalid file buffer'),
+  buffer: z.instanceof(Buffer, { message: 'Invalid file buffer' }),
 });
 
 // Image upload validation schema

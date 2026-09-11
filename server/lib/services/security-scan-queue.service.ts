@@ -70,7 +70,7 @@ export class SecurityScanQueueService {
       
       try {
         // Update scan status to running
-        await securityScanRequestService.updateScanStatus(scanId, 'running', {
+        await securityScanRequestService.updateScanStatus(scanId, 'RUNNING' as any, {
           startedAt: new Date()
         });
 
@@ -100,7 +100,7 @@ export class SecurityScanQueueService {
         job.progress(95);
 
         // Update scan with results
-        const completedScan = await securityScanRequestService.updateScanStatus(scanId, 'completed', {
+        const completedScan = await securityScanRequestService.updateScanStatus(scanId, 'COMPLETED', {
           completedAt: new Date(),
           results
         });
@@ -125,7 +125,7 @@ export class SecurityScanQueueService {
         console.error(`❌ Security scan failed: ${scanId}`, error);
         
         // Update scan status to failed
-        await securityScanRequestService.updateScanStatus(scanId, 'failed', {
+        await securityScanRequestService.updateScanStatus(scanId, 'FAILED', {
           completedAt: new Date()
         });
 
@@ -194,7 +194,7 @@ export class SecurityScanQueueService {
     const failedReason = job.failedReason;
 
     return {
-      status: state,
+      status: state.toUpperCase(),
       progress: typeof progress === 'number' ? progress : undefined,
       error: failedReason || undefined
     };
@@ -213,7 +213,7 @@ export class SecurityScanQueueService {
       await job.remove();
       
       // Update scan status in database
-      await securityScanRequestService.updateScanStatus(scanId, 'failed', {
+      await securityScanRequestService.updateScanStatus(scanId, 'FAILED' as any, {
         completedAt: new Date()
       });
       

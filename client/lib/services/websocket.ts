@@ -40,9 +40,9 @@ class WebSocketService {
 
         this.isConnecting = true;
 
-        const socketUrl = process.env.NODE_ENV === 'production'
+        const socketUrl = import.meta.env.PROD
             ? window.location.origin
-            : 'http://localhost:3001';
+            : (window.location.origin || 'http://localhost:8080');
 
         this.socket = io(socketUrl, {
             auth: {

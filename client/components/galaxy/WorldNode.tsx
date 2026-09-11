@@ -156,8 +156,8 @@ export function WorldNode({
 
         {isSelected && (
           <Html center distanceFactor={18} className="pointer-events-none select-none">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#040406]/90 border border-[#00F5D4] text-[9px] font-mono text-[#00F5D4] uppercase tracking-widest whitespace-nowrap shadow-[0_0_15px_rgba(0,245,212,0.4)]">
-              <span className="size-1.5 rounded-full bg-[#00F5D4] animate-ping" />
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#040406]/90 border border-white text-[9px] font-mono text-white uppercase tracking-widest whitespace-nowrap shadow-[0_0_15px_rgba(255,255,255,0.35)]">
+              <span className="size-1.5 rounded-full bg-white animate-ping" />
               FOCUS · {node.domain || node.type}
             </div>
           </Html>

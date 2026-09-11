@@ -1,8 +1,11 @@
 import { Request, Response, Router } from "express";
 import { executeOmniCommand } from "../lib/services/omni-command.service";
 import { validateOmniRequest } from "../../shared/orchestration-schema";
+import { hardQueryRateLimiter } from "../lib/middleware/production-security";
 
 const router = Router();
+
+router.use(hardQueryRateLimiter);
 
 router.post("/", async (req: Request, res: Response) => {
   try {

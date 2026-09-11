@@ -2,9 +2,9 @@ import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
 
 export const initializeSentry = () => {
-  if (process.env.NODE_ENV === 'production') {
+  if (Boolean(import.meta.env?.PROD)) {
     Sentry.init({
-      dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+      dsn: (import.meta as any).env?.VITE_SENTRY_DSN || (typeof process !== 'undefined' ? process.env?.NEXT_PUBLIC_SENTRY_DSN : undefined),
       integrations: [new BrowserTracing()],
       // Performance Monitoring
       tracesSampleRate: 1.0, // Capture 100% of the transactions
@@ -12,7 +12,7 @@ export const initializeSentry = () => {
       // Adjust in production
       profilesSampleRate: 1.0,
       // Only enable in production
-      enabled: process.env.NODE_ENV === 'production',
+      enabled: Boolean(import.meta.env?.PROD),
       // Before an error is sent to Sentry, this code will be called
       beforeSend(event) {
         // Check if we have an error message
@@ -66,7 +66,7 @@ export const logError = (error: Error, context: Record<string, any> = {}) => {
   });
 
   // Also log to console in development
-  if (process.env.NODE_ENV !== 'production') {
+  if (!import.meta.env?.PROD) {
     console.error('[Error]:', error);
     if (Object.keys(context).length) {
       console.error('[Error Context]:', context);

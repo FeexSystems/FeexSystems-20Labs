@@ -342,8 +342,12 @@ export class SecurityCronService {
   private getNextRunTime(cronExpression: string): Date {
     try {
       const task = cron.schedule(cronExpression, () => {}, { scheduled: false });
-      const nextDate = task.nextDate();
-      task.destroy();
+      const nextDate = (task as any).nextDate();
+      if ((task as any).destroy) {
+        (task as any).destroy();
+      } else if ((task as any).stop) {
+        (task as any).stop();
+      }
       return nextDate.toDate();
     } catch (error) {
       // Fallback to 1 hour from now

@@ -8,7 +8,7 @@ import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { PrismaInstrumentation } from '@prisma/instrumentation';
 import { RedisInstrumentation } from '@opentelemetry/instrumentation-redis';
-import { logger } from './logging';
+import { logger } from '../logging';
 
 class MonitoringService {
   private tracerProvider: NodeTracerProvider;
@@ -16,7 +16,7 @@ class MonitoringService {
   constructor() {
     // Create and configure TraceProvider
     this.tracerProvider = new NodeTracerProvider({
-      resource: new Resource({
+      resource: new (Resource as any)({
         [SemanticResourceAttributes.SERVICE_NAME]: 'feexsystems-api',
         [SemanticResourceAttributes.SERVICE_VERSION]: process.env.npm_package_version || '1.0.0',
         environment: process.env.NODE_ENV || 'development'

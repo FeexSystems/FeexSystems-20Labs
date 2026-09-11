@@ -92,7 +92,7 @@ router.post('/',
       }
 
       const userId = req.user!.id;
-      const team = await teamService.createTeam(userId, validation.data);
+      const team = await teamService.createTeam(userId, validation.data as any);
 
       res.status(201).json({
         success: true,
@@ -312,7 +312,7 @@ router.post('/:id/invite',
         });
       }
 
-      const invitation = await teamService.inviteTeamMember(id, userId, validation.data);
+      const invitation = await teamService.inviteTeamMember(id, userId, validation.data as any);
 
       res.status(201).json({
         success: true,
@@ -441,7 +441,7 @@ router.put('/:id/members/:memberId',
         });
       }
 
-      const member = await teamService.updateMemberRole(teamId, memberId, userId, validation.data);
+      const member = await teamService.updateMemberRole(teamId, memberId, userId, validation.data as any);
 
       res.json({
         success: true,
@@ -608,7 +608,7 @@ router.post('/:id/workspaces',
         });
       }
 
-      const workspace = await teamService.createWorkspace(teamId, userId, validation.data);
+      const workspace = await teamService.createWorkspace(teamId, userId, validation.data as any);
 
       res.status(201).json({
         success: true,
@@ -664,7 +664,7 @@ router.put('/workspaces/:workspaceId',
         });
       }
 
-      const workspace = await teamService.updateWorkspace(workspaceId, userId, validation.data);
+      const workspace = await teamService.updateWorkspace(workspaceId, userId, validation.data as any);
 
       res.json({
         success: true,
@@ -789,7 +789,7 @@ router.post('/:id/resources',
         });
       }
 
-      const resourceShare = await teamService.shareResource(teamId, userId, validation.data);
+      const resourceShare = await teamService.shareResource(teamId, userId, validation.data as any);
 
       res.status(201).json({
         success: true,

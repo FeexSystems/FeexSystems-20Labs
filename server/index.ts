@@ -42,6 +42,9 @@ try {
 export function createServer(): express.Application {
   const app = express();
 
+  // Trust reverse proxy (Cloud Run, Firebase Hosting, Google Cloud Load Balancer)
+  app.set("trust proxy", 1);
+
   if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
     initializeSentry(app);
   }
@@ -109,7 +112,7 @@ export function createServer(): express.Application {
   );
 
   if (process.env.NODE_ENV === "production") {
-    const spaPath = path.resolve(__dirname, "..", "spa");
+    const spaPath = path.resolve(process.cwd(), "dist", "spa");
     app.use(express.static(spaPath));
     app.use((req, res, next) => {
       if (req.originalUrl.startsWith("/api/")) return next();

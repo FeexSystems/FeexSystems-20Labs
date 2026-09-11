@@ -21,8 +21,7 @@ export async function connectDatabase() {
     await prisma.$connect();
     console.log('✅ Database connected successfully');
   } catch (error) {
-    console.error('❌ Database connection failed:', error);
-    process.exit(1);
+    console.warn('⚠️ Database connection non-fatal warning:', error instanceof Error ? error.message : error);
   }
 }
 

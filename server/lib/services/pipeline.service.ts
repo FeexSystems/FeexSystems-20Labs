@@ -39,8 +39,8 @@ export class PipelineService extends EventEmitter {
       data: {
         repositoryId,
         name: pipelineData.name,
-        stages: pipelineData.stages,
-        triggers: pipelineData.triggers,
+        stages: pipelineData.stages as any,
+        triggers: pipelineData.triggers as any,
         environment: pipelineData.environment || {},
         status: 'ACTIVE',
       },
@@ -120,8 +120,8 @@ export class PipelineService extends EventEmitter {
       where: { id: pipelineId },
       data: {
         ...(updates.name && { name: updates.name }),
-        ...(updates.stages && { stages: updates.stages }),
-        ...(updates.triggers && { triggers: updates.triggers }),
+        ...(updates.stages && { stages: updates.stages as any }),
+        ...(updates.triggers && { triggers: updates.triggers as any }),
         ...(updates.environment && { environment: updates.environment }),
         ...(updates.status && { status: updates.status.toUpperCase() as any }),
       },

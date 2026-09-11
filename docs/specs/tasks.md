@@ -291,12 +291,6 @@
     - _Requirements: 6.3, 7.2_
 
 - [ ] 12. Implement mobile responsiveness and PWA features
-<<<<<<< HEAD
-
-
-
-
-
   - [x] 12.1 Enhance mobile responsiveness
     - Optimize all UI components for mobile devices
     - Implement touch-friendly interactions and gestures

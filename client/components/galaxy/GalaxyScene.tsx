@@ -28,15 +28,15 @@ function HolographicFloorRadar() {
     <group position={[0, -9.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <mesh>
         <ringGeometry args={[19.8, 20, 64]} />
-        <meshBasicMaterial color="#00F5D4" opacity={0.3} transparent side={THREE.DoubleSide} depthWrite={false} />
+        <meshBasicMaterial color="#FFFFFF" opacity={0.25} transparent side={THREE.DoubleSide} depthWrite={false} />
       </mesh>
       <mesh>
         <ringGeometry args={[9.9, 10, 64]} />
-        <meshBasicMaterial color="#00F5D4" opacity={0.18} transparent side={THREE.DoubleSide} depthWrite={false} />
+        <meshBasicMaterial color="#A1A1AA" opacity={0.15} transparent side={THREE.DoubleSide} depthWrite={false} />
       </mesh>
       <mesh ref={sweepRef}>
         <ringGeometry args={[0.5, 20, 32, 1, 0, Math.PI / 4]} />
-        <meshBasicMaterial color="#00F5D4" opacity={0.08} transparent side={THREE.DoubleSide} depthWrite={false} />
+        <meshBasicMaterial color="#FFFFFF" opacity={0.06} transparent side={THREE.DoubleSide} depthWrite={false} />
       </mesh>
     </group>
   );
@@ -114,19 +114,19 @@ export function GalaxyScene({
   return (
     <>
       <AdaptiveDpr pixelated />
-      <ambientLight intensity={0.55} />
-      <pointLight position={[22, 18, 18]} intensity={1.35} />
-      <pointLight position={[-18, -14, -16]} intensity={0.75} color="#06b6d4" />
-      <pointLight position={[0, 24, 0]} intensity={0.4} color="#00F5D4" />
+      <ambientLight intensity={0.65} />
+      <pointLight position={[22, 18, 18]} intensity={1.4} color="#FFFFFF" />
+      <pointLight position={[-18, -14, -16]} intensity={0.7} color="#E4E4E7" />
+      <pointLight position={[0, 24, 0]} intensity={0.5} color="#FFFFFF" />
 
-      <Stars radius={130} depth={70} count={preset.stars} factor={4} saturation={0.55} fade speed={0.7} />
+      <Stars radius={130} depth={70} count={preset.stars} factor={4} saturation={0} fade speed={0.7} />
       <DreiSparkles
         count={preset.sparkles}
         scale={[48, 24, 48]}
         size={3.2}
         speed={0.35}
-        opacity={0.55}
-        color="#00F5D4"
+        opacity={0.6}
+        color="#FFFFFF"
       />
 
       <Grid
@@ -134,10 +134,10 @@ export function GalaxyScene({
         args={[160, 160]}
         cellSize={2.5}
         cellThickness={0.9}
-        cellColor="#1E293B"
+        cellColor="#27272A"
         sectionSize={10}
         sectionThickness={1.6}
-        sectionColor="#00F5D4"
+        sectionColor="#71717A"
         fadeDistance={130}
         fadeStrength={1.15}
         infiniteGrid
@@ -195,7 +195,7 @@ export function GalaxyScene({
       />
       <GizmoHelper alignment="bottom-right" margin={[72, 72]}>
         <GizmoViewport
-          axisColors={["#00F5D4", "#00FFA3", "#7B2CBF"]}
+          axisColors={["#FFFFFF", "#A1A1AA", "#52525B"]}
           labelColor="white"
         />
       </GizmoHelper>

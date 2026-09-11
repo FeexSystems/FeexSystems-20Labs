@@ -12,7 +12,7 @@ declare global {
   namespace Express {
     interface Request {
       adminContext?: {
-        role: UserRole;
+        role: UserRoleType;
         permissions: AdminPermissions;
         sessionId: string;
         lastActivity: Date;
@@ -39,7 +39,7 @@ export interface AdminPermissions {
 /**
  * Get admin permissions based on role
  */
-export const getAdminPermissions = (role: UserRole): AdminPermissions => {
+export const getAdminPermissions = (role: UserRoleType): AdminPermissions => {
   switch (role) {
     case UserRole.SUPER_ADMIN:
       return {

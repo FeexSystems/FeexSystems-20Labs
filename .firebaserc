@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "feexsystems-prod",
+    "prod": "feexsystems-prod",
+    "staging": "feexsystems-staging"
+  }
+}

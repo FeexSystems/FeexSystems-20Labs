@@ -1,7 +1,7 @@
 import express from 'express';
 import { z } from 'zod';
 import { authMiddleware } from '../lib/middleware/auth.middleware';
-import { rateLimitMiddleware } from '../lib/middleware/rate-limit.middleware';
+import { rateLimit } from 'express-rate-limit';
 import { securityService } from '../lib/services/security.service';
 import {
   securityScanRequestSchema,
@@ -25,7 +25,7 @@ router.use(authMiddleware);
  * Initiate a new security scan
  */
 router.post('/scan',
-  rateLimitMiddleware({ windowMs: 60 * 1000, max: 10 }), // 10 scans per minute
+  rateLimit({ windowMs: 60 * 1000, limit: 10 }), // 10 scans per minute
   async (req, res) => {
     try {
       // Validate request body
@@ -68,7 +68,7 @@ router.post('/scan',
       // Submit the scan
       const result = await securityService.submitScan({
         userId,
-        target,
+        target: target as any,
         scanType,
         configuration: sanitizedConfig,
         scheduledAt: scheduledDate,
@@ -689,7 +689,7 @@ router.put('/admin/scanner/:id', async (req, res) => {
  * Create a recurring scan schedule
  */
 router.post('/schedule',
-  rateLimitMiddleware({ windowMs: 60 * 1000, max: 5 }), // 5 schedules per minute
+  rateLimit({ windowMs: 60 * 1000, limit: 5 }), // 5 schedules per minute
   async (req, res) => {
     try {
       const { target, scanType, cronExpression, configuration, isActive } = req.body;

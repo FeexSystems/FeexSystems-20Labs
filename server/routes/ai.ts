@@ -1,7 +1,8 @@
 import express from 'express';
 import { z } from 'zod';
 import { authMiddleware } from '../lib/middleware/auth.middleware';
-import { rateLimitMiddleware } from '../lib/middleware/rate-limit.middleware';
+import { rateLimit } from 'express-rate-limit';
+import { hardQueryRateLimiter } from '../lib/middleware/production-security';
 import { aiService } from '../lib/services/ai.service';
 import { aiAnalyticsService } from '../lib/services/ai-analytics.service';
 import { aiRequestSchema } from '../lib/validations/ai';
@@ -76,7 +77,7 @@ router.get('/services/:category', async (req, res) => {
  * Submit a new AI request
  */
 router.post('/request', 
-  rateLimitMiddleware({ windowMs: 60 * 1000, max: 30 }), // 30 requests per minute
+  hardQueryRateLimiter,
   async (req, res) => {
     try {
       // Validate request body

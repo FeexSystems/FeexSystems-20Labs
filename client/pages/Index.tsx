@@ -58,6 +58,9 @@ import {
   ScrollZoomReveal,
   SushCinematicCarousel,
   PillCarousel,
+} from "@/components/framer";
+import { GitHubGuardLink } from "@/components/GitHubAuthGuard";
+import {
   SequentialCarousel,
   CinematicVideo,
   TheaterVideoPlayer,
@@ -654,9 +657,9 @@ export default function Index() {
                 </div>
                 <div className="border border-white/10 rounded-lg p-3 bg-white/[0.02]">
                   <div className="text-white/40 text-[10px] uppercase">GitHub</div>
-                  <a href="https://github.com/FeexSystems" target="_blank" rel="noreferrer" className="text-white font-medium hover:underline truncate mt-1 block">
+                  <GitHubGuardLink href="https://github.com/FeexSystems" className="text-white font-medium hover:underline truncate mt-1 block">
                     github.com/FeexSystems
-                  </a>
+                  </GitHubGuardLink>
                 </div>
                 <div className="border border-white/10 rounded-lg p-3 bg-white/[0.02]">
                   <div className="text-white/40 text-[10px] uppercase">Email</div>
@@ -2325,14 +2328,12 @@ export default function Index() {
               <div className="text-white font-semibold text-xs tracking-wider uppercase">Resources</div>
               <ul className="space-y-2 text-xs">
                 <li>
-                  <a
+                  <GitHubGuardLink
                     href="https://github.com/FeexSystems"
-                    target="_blank"
-                    rel="noreferrer"
                     className="hover:text-white transition-colors"
                   >
                     GitHub Organization
-                  </a>
+                  </GitHubGuardLink>
                 </li>
                 <li>
                   <a href="mailto:contact@feexsystems.com" className="hover:text-white transition-colors">

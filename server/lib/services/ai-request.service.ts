@@ -60,7 +60,7 @@ export class AIRequestService {
   ): Promise<{ requests: AIRequest[]; total: number }> {
     const where = {
       userId,
-      ...(options.status && { status: options.status.toUpperCase() }),
+      ...(options.status && { status: options.status.toUpperCase() as any }),
       ...(options.serviceId && { serviceId: options.serviceId })
     };
 

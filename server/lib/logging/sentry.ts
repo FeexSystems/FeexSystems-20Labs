@@ -2,49 +2,45 @@ import * as Sentry from '@sentry/node';
 import { Express } from 'express';
 
 export const initializeSentry = async (app: Express) => {
+  const sentryAny = Sentry as any;
   // Build default integrations
-  const integrations: any[] = [
-    new Sentry.Integrations.Http({ tracing: true }),
-    new Sentry.Integrations.Express({ app }),
-  ];
+  const integrations: any[] = [];
+  if (sentryAny.Integrations?.Http) integrations.push(new sentryAny.Integrations.Http({ tracing: true }));
+  if (sentryAny.Integrations?.Express) integrations.push(new sentryAny.Integrations.Express({ app }));
 
-  // Try to dynamically load the profiling integration. This prevents
-  // bundlers (like Vite) from statically importing the module during
-  // dev config resolution where the profiling package may not be present
-  // or may have different ESM/CJS shapes.
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const profiling = await import('@sentry/profiling-node');
+    const profiling = (await import('@sentry/profiling-node')) as any;
     if (profiling && profiling.ProfilingIntegration) {
       integrations.push(new profiling.ProfilingIntegration());
+    } else if (profiling && profiling.nodeProfilingIntegration) {
+      integrations.push(profiling.nodeProfilingIntegration());
     }
-  } catch (err) {
-    // Profiling integration optional — continue without it
-    // eslint-disable-next-line no-console
+  } catch (err: any) {
     console.warn('Sentry profiling integration not available:', err?.message || err);
   }
 
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     integrations,
-    // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring
-    // We recommend adjusting this value in production
     tracesSampleRate: 1.0,
-    // Set profilesSampleRate to 1.0 to profile all transactions
-    // We recommend adjusting this value in production
     profilesSampleRate: 1.0,
   });
 
-  // The request handler must be the first middleware on the app
-  app.use(Sentry.Handlers.requestHandler());
-
-  // TracingHandler creates a trace for every incoming request
-  app.use(Sentry.Handlers.tracingHandler());
+  if (sentryAny.Handlers?.requestHandler) {
+    app.use(sentryAny.Handlers.requestHandler());
+  }
+  if (sentryAny.Handlers?.tracingHandler) {
+    app.use(sentryAny.Handlers.tracingHandler());
+  }
 };
 
 export const setupSentryErrorHandler = (app: Express) => {
-  // The error handler must be registered before any other error middleware and after all controllers
-  app.use(Sentry.Handlers.errorHandler());
+  const sentryAny = Sentry as any;
+  if (typeof sentryAny.setupExpressErrorHandler === 'function') {
+    sentryAny.setupExpressErrorHandler(app);
+  } else if (sentryAny.Handlers?.errorHandler) {
+    app.use(sentryAny.Handlers.errorHandler());
+  }
 
   // Optional fallthrough error handler
   app.use((err: any, req: any, res: any, next: any) => {

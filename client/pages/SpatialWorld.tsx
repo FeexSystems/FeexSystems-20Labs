@@ -14,12 +14,14 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Smartphone,
   X,
 } from "lucide-react";
 import { FeexHorizontalLockup, FeexWorldBadge } from "@/components/FeexLogo";
 import { GalaxyScene } from "@/components/galaxy/GalaxyScene";
 import type { GalaxyQuality, GraphData, GraphNode } from "@/components/galaxy/types";
 import { QUALITY_PRESETS } from "@/components/galaxy/types";
+import { useGitHubAuthGuard } from "@/components/GitHubAuthGuard";
 
 const CANONICAL_INITIAL_GRAPH: GraphData = {
   nodes: [
@@ -54,7 +56,7 @@ const CANONICAL_INITIAL_GRAPH: GraphData = {
       name: "KappaXchangeFin",
       type: "project",
       repository: "FeexSystems/kappaxchangefin",
-      description: "Financial infrastructure within the FEEXSYSTEMS ecosystem.",
+      description: "Financial intelligence exchange platform with live algorithmic pipelines.",
       url: "https://github.com/FeexSystems/kappaxchangefin",
       isPinned: true,
       domain: "Finance",
@@ -67,60 +69,71 @@ const CANONICAL_INITIAL_GRAPH: GraphData = {
       name: "HoloKai Systems Labs",
       type: "project",
       repository: "FeexSystems/HoloKai-Systems-Labs",
-      description: "Civilization intelligence and knowledge interfaces.",
+      description: "Civilization and spatial intelligence engineering lab repository.",
       url: "https://github.com/FeexSystems/HoloKai-Systems-Labs",
-      domain: "Research",
+      isPinned: true,
+      domain: "Cultural",
       language: "TypeScript",
       artifactCount: 8,
-      val: 24,
+      val: 36,
     },
     {
       id: "github:FeexSystems/VYRA-LABS",
-      name: "VYRA Labs",
+      name: "VYRA Labs Platform",
       type: "project",
       repository: "FeexSystems/VYRA-LABS",
-      description: "Experimental systems laboratory.",
+      description: "Living intelligence systems, agents, and conversational runtime.",
       url: "https://github.com/FeexSystems/VYRA-LABS",
-      domain: "Research",
+      isPinned: true,
+      domain: "Conversational",
       language: "TypeScript",
-      artifactCount: 8,
-      val: 24,
+      artifactCount: 11,
+      val: 36,
     },
     {
       id: "github:FeexSystems/3WM-SONIK-LABS",
-      name: "3WM SONIK Labs",
+      name: "3WM Sonik Labs",
       type: "project",
       repository: "FeexSystems/3WM-SONIK-LABS",
-      description: "Three-world-model research laboratory.",
+      description: "Spatial audio, DSP neural pipelines, and acoustic engineering platform.",
       url: "https://github.com/FeexSystems/3WM-SONIK-LABS",
-      domain: "Intelligence",
+      isPinned: true,
+      domain: "Audio",
       language: "TypeScript",
       artifactCount: 9,
-      val: 24,
+      val: 36,
     },
-    { id: "tech:typescript", name: "TypeScript", type: "technology", val: 16 },
-    { id: "tech:threejs", name: "Three.js", type: "technology", val: 14 },
-    { id: "tech:react", name: "React", type: "technology", val: 16 },
-    { id: "tech:ai", name: "AI", type: "technology", val: 18 },
-    { id: "tech:postgresql", name: "PostgreSQL", type: "technology", val: 15 },
-    { id: "tech:webgl", name: "WebGL", type: "technology", val: 14 },
-    { id: "tech:worldmodels", name: "World Models", type: "technology", val: 16 },
+    { id: "tech:threejs", name: "Three.js", type: "technology", domain: "Rendering", val: 18 },
+    { id: "tech:typescript", name: "TypeScript", type: "technology", domain: "Language", val: 20 },
+    { id: "tech:react", name: "React 18", type: "technology", domain: "Frontend", val: 22 },
+    { id: "tech:express", name: "Express 5", type: "technology", domain: "Backend", val: 18 },
+    { id: "tech:prisma", name: "Prisma ORM", type: "technology", domain: "Database", val: 16 },
+    { id: "tech:redis", name: "Redis", type: "technology", domain: "Cache", val: 14 },
+    { id: "tech:gemini", name: "Gemini AI", type: "technology", domain: "Intelligence", val: 20 },
   ],
   links: [
-    { id: "rel:1", source: "github:FeexSystems/FEEXSYSTEMS-Persona-Digital-Portfolio", target: "tech:threejs", relation: "USES" },
-    { id: "rel:2", source: "github:FeexSystems/FEEXSYSTEMS-Persona-Digital-Portfolio", target: "tech:webgl", relation: "USES" },
-    { id: "rel:3", source: "github:FeexSystems/yurrheeler-med-advisor", target: "tech:react", relation: "USES" },
-    { id: "rel:4", source: "github:FeexSystems/yurrheeler-med-advisor", target: "tech:ai", relation: "USES" },
-    { id: "rel:5", source: "github:FeexSystems/kappaxchangefin", target: "tech:postgresql", relation: "USES" },
-    { id: "rel:6", source: "github:FeexSystems/3WM-SONIK-LABS", target: "tech:worldmodels", relation: "USES" },
-    { id: "rel:7", source: "github:FeexSystems/3WM-SONIK-LABS", target: "tech:ai", relation: "USES" },
-    { id: "rel:8", source: "github:FeexSystems/HoloKai-Systems-Labs", target: "tech:ai", relation: "USES" },
+    { id: "l1", source: "github:FeexSystems/FEEXSYSTEMS-Persona-Digital-Portfolio", target: "tech:threejs" },
+    { id: "l2", source: "github:FeexSystems/FEEXSYSTEMS-Persona-Digital-Portfolio", target: "tech:react" },
+    { id: "l3", source: "github:FeexSystems/yurrheeler-med-advisor", target: "tech:gemini" },
+    { id: "l4", source: "github:FeexSystems/yurrheeler-med-advisor", target: "tech:typescript" },
+    { id: "l5", source: "github:FeexSystems/kappaxchangefin", target: "tech:redis" },
+    { id: "l6", source: "github:FeexSystems/kappaxchangefin", target: "tech:prisma" },
+    { id: "l7", source: "github:FeexSystems/HoloKai-Systems-Labs", target: "tech:threejs" },
+    { id: "l8", source: "github:FeexSystems/VYRA-LABS", target: "tech:gemini" },
+    { id: "l9", source: "github:FeexSystems/3WM-SONIK-LABS", target: "tech:threejs" },
   ],
-  stats: { totalProjects: 6, totalTechnologies: 7, totalLinks: 8 },
+  stats: {
+    totalProjects: 6,
+    totalTechnologies: 7,
+    totalLinks: 9,
+  },
 };
 
 function detectDefaultQuality(): GalaxyQuality {
-  if (typeof window === "undefined") return "balanced";
+  if (typeof window === "undefined") return "performance";
+  const isSmallDevice = window.innerWidth < 768;
+  if (isSmallDevice) return "performance";
+
   const cores = navigator.hardwareConcurrency || 4;
   const mem = (navigator as any).deviceMemory || 4;
   if (cores <= 4 || mem <= 4) return "performance";
@@ -138,6 +151,43 @@ export default function SpatialWorld() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [quality, setQuality] = useState<GalaxyQuality>(() => detectDefaultQuality());
 
+  // Mobile & Orientation state
+  const [isMobile, setIsMobile] = useState(false);
+  const [orientation, setOrientation] = useState<"portrait" | "landscape">("landscape");
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [contextLost, setContextLost] = useState(false);
+
+  // GitHub Auth Guard hook
+  const { handleGitHubClick, GitHubAuthModal } = useGitHubAuthGuard();
+
+  // Temporal Lens State
+  const [temporalEvents, setTemporalEvents] = useState<any[]>([]);
+  const [selectedCommit, setSelectedCommit] = useState<string | null>(null);
+  const [loadingTemporal, setLoadingTemporal] = useState(false);
+
+  // Dynamic mobile & orientation detection
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window === "undefined") return;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const mobile = w < 768;
+      setIsMobile(mobile);
+      setOrientation(h > w ? "portrait" : "landscape");
+      if (mobile && quality === "cinematic") {
+        setQuality("performance");
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
+  }, [quality]);
+
   const loadGraph = async () => {
     setLoading(true);
     try {
@@ -154,6 +204,26 @@ export default function SpatialWorld() {
   useEffect(() => {
     loadGraph();
   }, []);
+
+  useEffect(() => {
+    if (selectedNode?.type === "project") {
+      setLoadingTemporal(true);
+      fetch(`/api/world-model/temporal/${encodeURIComponent(selectedNode.id)}/events?limit=20`)
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.success && json.data) {
+            setTemporalEvents(json.data);
+            if (json.data.length > 0) {
+              setSelectedCommit(json.data[0].commit);
+            }
+          }
+        })
+        .finally(() => setLoadingTemporal(false));
+    } else {
+      setTemporalEvents([]);
+      setSelectedCommit(null);
+    }
+  }, [selectedNode]);
 
   const domains = useMemo(() => {
     const set = new Set<string>();
@@ -173,32 +243,47 @@ export default function SpatialWorld() {
     }
   };
 
-  const dpr = QUALITY_PRESETS[quality].dpr;
+  // Safe capped DPR for mobile devices
+  const dpr = useMemo(() => {
+    if (isMobile) {
+      return [1, Math.min(window.devicePixelRatio || 1, 1.25)] as [number, number];
+    }
+    return QUALITY_PRESETS[quality].dpr;
+  }, [isMobile, quality]);
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#040406] text-white select-none">
+    <div className="relative h-screen w-screen overflow-hidden bg-black text-white select-none font-mono">
       <div className="bg-diagonal-stripes absolute inset-0 z-10 opacity-10 pointer-events-none" />
 
-      <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4 md:p-6 pointer-events-none">
-        <div className="flex items-center gap-4 pointer-events-auto">
+      {/* Header Bar */}
+      <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-3 md:p-6 pointer-events-none">
+        <div className="flex items-center gap-3 pointer-events-auto">
           <Link
             to="/"
-            className="flex items-center gap-3 border border-gray-20 bg-[#090a0f]/90 px-4 py-2 text-sm font-semibold backdrop-blur-xl transition hover:border-[#00F5D4]/50"
+            className="flex items-center gap-2.5 border border-white/20 bg-black/90 px-3 py-1.5 text-xs font-semibold backdrop-blur-xl transition hover:border-white"
           >
-            <FeexHorizontalLockup markSize={24} showSubtitle={false} />
-            <span className="text-gray-40 font-mono">/</span>
-            <span className="text-[#00F5D4] font-mono text-xs tracking-wider uppercase">
-              KNOWLEDGE_GALAXY_HQ
+            <FeexHorizontalLockup markSize={20} showSubtitle={false} />
+            <span className="text-white/40">/</span>
+            <span className="text-white font-mono text-[11px] tracking-wider uppercase">
+              KNOWLEDGE_GALAXY
             </span>
           </Link>
-          <FeexWorldBadge sha="sha-galaxy-hq" status="HQ ACTIVE" className="hidden lg:inline-flex" />
+          <FeexWorldBadge sha="sha-galaxy-hq" status="MONOCHROME" className="hidden sm:inline-flex" />
         </div>
 
-        <div className="flex items-center gap-2 pointer-events-auto font-mono text-xs">
+        <div className="flex items-center gap-1.5 pointer-events-auto font-mono text-xs">
+          {/* Mobile Orientation indicator */}
+          {isMobile && (
+            <span className="hidden xs:inline-flex items-center gap-1 px-2 py-1 text-[9px] border border-white/10 bg-black/80 text-white/50">
+              <Smartphone className="size-2.5" />
+              {orientation.toUpperCase()}
+            </span>
+          )}
+
           <select
             value={quality}
             onChange={(e) => setQuality(e.target.value as GalaxyQuality)}
-            className="h-9 px-2 border border-gray-20 bg-[#090a0f]/90 text-[#00F5D4] outline-none"
+            className="h-8 md:h-9 px-2 border border-white/20 bg-black/90 text-white text-xs outline-none"
             title="Render quality"
           >
             {(Object.keys(QUALITY_PRESETS) as GalaxyQuality[]).map((k) => (
@@ -207,49 +292,85 @@ export default function SpatialWorld() {
               </option>
             ))}
           </select>
+
           <button
             onClick={() => setAutoRotate(!autoRotate)}
-            className={`h-9 px-3 border flex items-center gap-1.5 transition-colors ${
+            className={`h-8 md:h-9 px-2.5 border flex items-center gap-1 transition-colors text-xs ${
               autoRotate
-                ? "bg-[#090a0f] text-[#00F5D4] border-[#00F5D4]/40"
-                : "bg-[#090a0f]/80 text-gray-40 border-gray-20"
+                ? "bg-white text-black border-white font-semibold"
+                : "bg-black/90 text-white/60 border-white/20"
             }`}
           >
-            <RotateCw className={`size-3.5 ${autoRotate ? "animate-spin" : ""}`} style={{ animationDuration: "4s" }} />
+            <RotateCw className={`size-3 ${autoRotate ? "animate-spin" : ""}`} style={{ animationDuration: "4s" }} />
             <span className="hidden sm:inline">ORBIT</span>
           </button>
+
           <button
             onClick={loadGraph}
-            className="h-9 px-3 border border-gray-20 bg-[#090a0f]/90 text-gray-40 hover:text-[#00F5D4] flex items-center gap-1.5"
+            className="h-8 md:h-9 px-2.5 border border-white/20 bg-black/90 text-white/60 hover:text-white flex items-center gap-1.5"
+            title="Refresh Knowledge Graph"
           >
-            <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`size-3 ${loading ? "animate-spin" : ""}`} />
           </button>
+
           <button
             onClick={toggleFullscreen}
-            className="h-9 px-3 border border-gray-20 bg-[#090a0f]/90 text-gray-40 hover:text-white"
+            className="h-8 md:h-9 px-2.5 border border-white/20 bg-black/90 text-white/60 hover:text-white"
+            title="Toggle Fullscreen"
           >
-            {isFullscreen ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
+            {isFullscreen ? <Minimize2 className="size-3" /> : <Maximize2 className="size-3" />}
           </button>
         </div>
       </header>
 
-      <div className="absolute top-20 left-4 z-20 w-full max-w-xs space-y-2 pointer-events-auto md:left-6">
+      {/* Mobile Search Toggle */}
+      {isMobile && !isSearchExpanded && !selectedNode && (
+        <div className="absolute top-14 left-3 z-20 pointer-events-auto">
+          <button
+            onClick={() => setIsSearchExpanded(true)}
+            className="h-8 px-3 rounded-full border border-white/20 bg-black/90 text-xs font-mono text-white/80 flex items-center gap-2 shadow-lg backdrop-blur-md"
+          >
+            <Search className="size-3 text-white" />
+            <span>Filter Galaxy</span>
+          </button>
+        </div>
+      )}
+
+      {/* Search & Domain Filter Deck */}
+      <div
+        className={`z-20 space-y-2 pointer-events-auto transition-all ${
+          isMobile
+            ? isSearchExpanded
+              ? "absolute top-14 inset-x-3 max-w-none bg-black/95 p-3 rounded-xl border border-white/20 shadow-2xl backdrop-blur-xl"
+              : "hidden"
+            : "absolute top-20 left-4 md:left-6 w-full max-w-xs"
+        }`}
+      >
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-gray-40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-white/40" />
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter galaxy…"
-            className="w-full h-10 pl-9 pr-3 border border-gray-20 bg-[#090a0f]/90 text-sm font-mono text-white placeholder:text-gray-40 outline-none focus:border-[#00F5D4]/50"
+            className="w-full h-9 pl-9 pr-8 border border-white/20 bg-black/90 text-xs font-mono text-white placeholder:text-white/40 outline-none focus:border-white"
           />
+          {isMobile && isSearchExpanded && (
+            <button
+              onClick={() => setIsSearchExpanded(false)}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
+            >
+              <X className="size-3.5" />
+            </button>
+          )}
         </div>
+
         <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => setDomainFilter("all")}
-            className={`px-2 py-1 text-[10px] font-mono uppercase border ${
+            className={`px-2 py-0.5 text-[10px] font-mono uppercase border ${
               domainFilter === "all"
-                ? "border-[#00F5D4] text-[#00F5D4]"
-                : "border-gray-20 text-gray-40"
+                ? "border-white bg-white text-black font-semibold"
+                : "border-white/20 text-white/60 hover:text-white"
             }`}
           >
             All
@@ -258,98 +379,179 @@ export default function SpatialWorld() {
             <button
               key={d}
               onClick={() => setDomainFilter(d)}
-              className={`px-2 py-1 text-[10px] font-mono uppercase border ${
-                domainFilter === d ? "border-[#00F5D4] text-[#00F5D4]" : "border-gray-20 text-gray-40"
+              className={`px-2 py-0.5 text-[10px] font-mono uppercase border ${
+                domainFilter === d
+                  ? "border-white bg-white text-black font-semibold"
+                  : "border-white/20 text-white/60 hover:text-white"
               }`}
             >
               {d}
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-3 text-[10px] font-mono text-gray-40 border border-gray-20 bg-[#090a0f]/80 px-3 py-2">
-          <Boxes className="size-3 text-[#00F5D4]" />
+
+        <div className="flex items-center gap-3 text-[10px] font-mono text-white/50 border border-white/20 bg-black/90 px-3 py-1.5">
+          <Boxes className="size-3 text-white" />
           <span>{graphData.stats.totalProjects} worlds</span>
           <span>·</span>
           <span>{graphData.stats.totalTechnologies} tech</span>
           <span>·</span>
           <span>{graphData.stats.totalLinks} links</span>
-          <Sparkles className="size-3 text-[#00FFA3] ml-auto" />
-          <span className="text-[#00FFA3]">{QUALITY_PRESETS[quality].label}</span>
+          <Sparkles className="size-3 text-white ml-auto" />
+          <span className="text-white/70">{QUALITY_PRESETS[quality].label}</span>
         </div>
       </div>
 
+      {/* 3D WebGL Canvas Viewport */}
       <div className="absolute inset-0 z-0">
-        <Canvas
-          dpr={dpr}
-          camera={{ position: [0, 8, 28], fov: 50, near: 0.1, far: 200 }}
-          gl={{ antialias: quality !== "performance", powerPreference: "high-performance" }}
-          onPointerMissed={() => setSelectedNode(null)}
-        >
-          <Suspense fallback={null}>
-            <GalaxyScene
-              data={graphData}
-              selectedNode={selectedNode}
-              searchQuery={searchQuery}
-              domainFilter={domainFilter}
-              autoRotate={autoRotate}
-              quality={quality}
-              onSelectNode={setSelectedNode}
-            />
-          </Suspense>
-        </Canvas>
+        {contextLost ? (
+          <div className="h-full w-full flex flex-col items-center justify-center bg-black text-white p-6 font-mono text-center">
+            <p className="text-sm text-white/70 mb-4">
+              WebGL context paused. Tap below to resume 3D rendering.
+            </p>
+            <button
+              onClick={() => setContextLost(false)}
+              className="px-4 py-2 bg-white text-black text-xs font-semibold rounded-lg"
+            >
+              Resume 3D Galaxy
+            </button>
+          </div>
+        ) : (
+          <Canvas
+            dpr={dpr}
+            camera={{ position: [0, 8, 28], fov: isMobile ? 60 : 50, near: 0.1, far: 200 }}
+            gl={{
+              antialias: quality !== "performance",
+              powerPreference: "high-performance",
+              preserveDrawingBuffer: false,
+            }}
+            onPointerMissed={() => setSelectedNode(null)}
+          >
+            <Suspense fallback={null}>
+              <GalaxyScene
+                data={graphData}
+                selectedNode={selectedNode}
+                searchQuery={searchQuery}
+                domainFilter={domainFilter}
+                autoRotate={autoRotate}
+                quality={quality}
+                onSelectNode={setSelectedNode}
+              />
+            </Suspense>
+          </Canvas>
+        )}
         <Loader
-          containerStyles={{ background: "rgba(4,4,6,0.85)", backdropFilter: "blur(8px)" }}
-          innerStyles={{ backgroundColor: "#00F5D4" }}
-          barStyles={{ backgroundColor: "#00FFA3" }}
-          dataStyles={{ color: "#00F5D4", fontFamily: "monospace", fontSize: 11 }}
+          containerStyles={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)" }}
+          innerStyles={{ backgroundColor: "#FFFFFF" }}
+          barStyles={{ backgroundColor: "#71717A" }}
+          dataStyles={{ color: "#FFFFFF", fontFamily: "monospace", fontSize: 11 }}
           dataInterpolation={(p) => `GALAXY_BOOT ${(p * 100).toFixed(0)}%`}
         />
       </div>
 
+      {/* Responsive Node Inspector */}
       {selectedNode && (
-        <aside className="absolute top-24 right-4 z-20 w-full max-w-sm border border-gray-20 bg-[#090a0f]/95 backdrop-blur-xl p-5 pointer-events-auto md:right-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+        <aside
+          className={`z-30 border bg-black/95 backdrop-blur-xl p-5 pointer-events-auto overflow-y-auto transition-all duration-300 ${
+            isMobile
+              ? "fixed bottom-0 inset-x-0 max-h-[55vh] rounded-t-2xl border-white/25 border-b-0 shadow-[0_-8px_32px_rgba(0,0,0,0.9)]"
+              : "absolute top-24 right-4 md:right-6 w-full max-w-sm border-white/20 max-h-[calc(100vh-8rem)]"
+          }`}
+        >
+          {isMobile && <div className="w-10 h-1 bg-white/30 rounded-full mx-auto mb-3" />}
+
           <div className="flex items-start justify-between gap-3 mb-4">
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-[#00F5D4] mb-1">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-white/50 mb-1">
                 {selectedNode.type === "project" ? "WORLD NODE" : "TECHNOLOGY"}
               </div>
-              <h2 className="text-lg font-semibold leading-tight">{selectedNode.name}</h2>
+              <h2 className="text-base md:text-lg font-bold leading-tight text-white">
+                {selectedNode.name}
+              </h2>
             </div>
-            <button onClick={() => setSelectedNode(null)} className="text-gray-40 hover:text-white">
+            <button
+              onClick={() => setSelectedNode(null)}
+              aria-label="Close inspector"
+              className="text-white/50 hover:text-white p-1"
+            >
               <X className="size-4" />
             </button>
           </div>
 
           {selectedNode.description && (
-            <p className="text-sm text-gray-40 mb-4 leading-relaxed">{selectedNode.description}</p>
+            <p className="text-xs text-white/70 mb-4 leading-relaxed font-mono">
+              {selectedNode.description}
+            </p>
           )}
 
           <div className="grid grid-cols-2 gap-2 mb-4">
             {selectedNode.domain && (
-              <div className="border border-gray-20 bg-[#040406] p-3">
-                <span className="text-[10px] uppercase text-gray-40 block">Domain</span>
-                <span className="text-xs font-semibold mt-1 block">{selectedNode.domain}</span>
+              <div className="border border-white/10 bg-zinc-950 p-2.5">
+                <span className="text-[9px] uppercase text-white/40 block">Domain</span>
+                <span className="text-xs font-semibold mt-1 block text-white">{selectedNode.domain}</span>
               </div>
             )}
-            <div className="border border-gray-20 bg-[#040406] p-3">
-              <span className="text-[10px] uppercase text-gray-40 block">Language</span>
-              <span className="text-xs font-semibold mt-1 block">{selectedNode.language || "—"}</span>
+            <div className="border border-white/10 bg-zinc-950 p-2.5">
+              <span className="text-[9px] uppercase text-white/40 block">Language</span>
+              <span className="text-xs font-semibold mt-1 block text-white">{selectedNode.language || "—"}</span>
             </div>
             {typeof selectedNode.artifactCount === "number" && (
-              <div className="border border-gray-20 bg-[#040406] p-3">
-                <span className="text-[10px] uppercase text-gray-40 block">Artifacts</span>
-                <span className="text-xs font-semibold mt-1 block">{selectedNode.artifactCount}</span>
+              <div className="border border-white/10 bg-zinc-950 p-2.5">
+                <span className="text-[9px] uppercase text-white/40 block">Artifacts</span>
+                <span className="text-xs font-semibold mt-1 block text-white">{selectedNode.artifactCount}</span>
               </div>
             )}
           </div>
 
           {selectedNode.repository && (
-            <div className="border border-gray-20 bg-[#040406] p-3 mb-4">
-              <div className="flex items-center justify-between text-[10px] text-gray-40 mb-1">
+            <div className="border border-white/10 bg-zinc-950 p-2.5 mb-4">
+              <div className="flex items-center justify-between text-[9px] text-white/40 mb-1">
                 <span>Repository</span>
-                <ShieldCheck className="size-3.5 text-emerald-400" />
+                <ShieldCheck className="size-3.5 text-white/70" />
               </div>
-              <div className="font-mono text-xs text-emerald-400 break-all">{selectedNode.repository}</div>
+              <div className="font-mono text-xs text-white break-all">{selectedNode.repository}</div>
+            </div>
+          )}
+
+          {selectedNode.type === "project" && temporalEvents.length > 0 && (
+            <div className="border border-white/15 bg-zinc-950 p-3 mb-4 space-y-2">
+              <div className="flex items-center justify-between text-[10px] uppercase text-white/60 font-semibold tracking-wider">
+                <span>Temporal Lens</span>
+                {loadingTemporal && <RefreshCw className="size-3 animate-spin" />}
+              </div>
+              <div className="relative pt-2 pb-1">
+                <input
+                  type="range"
+                  min={0}
+                  max={temporalEvents.length - 1}
+                  step={1}
+                  value={
+                    selectedCommit
+                      ? Math.max(0, temporalEvents.findIndex((e) => e.commit === selectedCommit))
+                      : 0
+                  }
+                  onChange={(e) => {
+                    const idx = parseInt(e.target.value, 10);
+                    if (temporalEvents[idx]) {
+                      setSelectedCommit(temporalEvents[idx].commit);
+                    }
+                  }}
+                  className="w-full h-1 bg-zinc-800 appearance-none outline-none accent-white cursor-pointer"
+                />
+              </div>
+              <div className="flex justify-between text-[9px] font-mono text-white/40">
+                <span>{new Date(temporalEvents[0]?.timestamp).toLocaleDateString()}</span>
+                <span>{new Date(temporalEvents[temporalEvents.length - 1]?.timestamp).toLocaleDateString()}</span>
+              </div>
+              {selectedCommit && (
+                <div className="text-xs text-white/50 mt-1 font-mono">
+                  Snapshot: <span className="text-white">{selectedCommit.substring(0, 7)}</span>
+                  <br />
+                  <span className="text-[10px] truncate block mt-0.5 text-white/70">
+                    {temporalEvents.find((e) => e.commit === selectedCommit)?.message || "—"}
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
@@ -357,36 +559,40 @@ export default function SpatialWorld() {
             {selectedNode.type === "project" && (
               <Link
                 to={`/evidence?projectId=${encodeURIComponent(selectedNode.id)}`}
-                className="w-full h-10 border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 flex items-center justify-center gap-2 text-sm"
+                className="w-full h-9 border border-white/20 bg-white/5 hover:bg-white/10 text-white flex items-center justify-center gap-2 text-xs transition-colors"
               >
-                <FileCode className="size-4" /> Inspect Evidence
+                <FileCode className="size-3.5" /> Inspect Evidence
               </Link>
             )}
+
+            {/* Authenticated GitHub Source link (Intercepted for public users) */}
             {selectedNode.url && (
-              <a
-                href={selectedNode.url}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full h-10 bg-white hover:bg-gray-90 text-black font-semibold flex items-center justify-center gap-2 text-sm"
+              <button
+                onClick={() => handleGitHubClick(selectedNode.url!)}
+                className="w-full h-9 bg-white hover:bg-zinc-200 text-black font-semibold flex items-center justify-center gap-2 text-xs transition-colors"
               >
                 GitHub Source <ExternalLink className="size-3.5" />
-              </a>
+              </button>
             )}
+
             <Link
               to={`/navigator?q=${encodeURIComponent(selectedNode.name)}`}
-              className="w-full h-10 border border-gray-20 hover:bg-neutral-900 flex items-center justify-center gap-2 text-sm"
+              className="w-full h-9 border border-white/20 hover:bg-zinc-900 flex items-center justify-center gap-2 text-xs text-white transition-colors"
             >
-              <Compass className="size-4 text-[#00F5D4]" /> Query Navigator
+              <Compass className="size-3.5 text-white" /> Query Navigator
             </Link>
             <Link
               to={`/omni?q=${encodeURIComponent("Show architecture for " + selectedNode.name)}`}
-              className="w-full h-10 border border-[#00F5D4]/30 text-[#00F5D4] hover:bg-[#00F5D4]/10 flex items-center justify-center gap-2 text-sm"
+              className="w-full h-9 border border-white/30 text-white hover:bg-white/10 flex items-center justify-center gap-2 text-xs transition-colors"
             >
               Open in Omni-Command
             </Link>
           </div>
         </aside>
       )}
+
+      {/* GitHub Auth Required Modal */}
+      {GitHubAuthModal}
     </div>
   );
 }

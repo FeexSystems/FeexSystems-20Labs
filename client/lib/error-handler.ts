@@ -124,7 +124,11 @@ class GlobalErrorHandler {
     this.errorQueue.push(errorReport);
 
     // Log in development
-    if (process.env.NODE_ENV === 'development') {
+    const isDev = typeof process !== 'undefined' && process?.env?.NODE_ENV 
+      ? process.env.NODE_ENV === 'development' 
+      : Boolean(import.meta.env?.DEV);
+
+    if (isDev) {
       console.group('🚨 Global Error Report');
       console.error('Error ID:', errorReport.errorId);
       console.error('Type:', errorReport.type);
@@ -168,7 +172,7 @@ class GlobalErrorHandler {
       // });
 
       // For now, just simulate the API call
-      if (process.env.NODE_ENV === 'development') {
+      if (Boolean(import.meta.env?.DEV)) {
         console.log('📤 Error report would be sent to service:', errorReport.errorId);
       }
     } catch (error) {

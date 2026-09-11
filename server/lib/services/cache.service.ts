@@ -1,7 +1,7 @@
 import { createClient } from 'redis';
 import { logger } from '../logging';
 
-class CacheService {
+export class CacheService {
   private client;
   private readonly DEFAULT_TTL = 3600; // 1 hour in seconds
 

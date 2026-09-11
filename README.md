@@ -1,197 +1,411 @@
 # FEEXSYSTEMS — Living Engineering Intelligence
 
-**FeexSystems.codes** is the public SaaS experience for FEEXSYSTEMS: an evidence-backed engineering intelligence platform that turns the FeexSystems GitHub ecosystem into an explorable World Model.
+<div align="center">
 
-> **Building digital worlds, one system at a time.**
-
-## Product model
-
-FEEXSYSTEMS is the application. Projects such as Persona OS, Yurrheeler AI, 3WM Sonik and other FeexSystems repositories are projects/worlds showcased and continuously modeled inside the application.
-
-The canonical pipeline is:
-
-```text
-GitHub Organization / Profile
-        ↓
-Repository Discovery
-        ↓
-Persistent World Model
-        ↓
-Evidence Fabric
-        ↓
-Repository Tree · Artifacts · Technologies · Relationships
-        ↓
-Webhook + Maintenance · Embeddings
-        ↓
-Hybrid Navigator Retrieval · Temporal reconstruction
-        ↓
-Omni-Command (agent → Stage UI) · Voice input
+```
+███████╗███████╗███████╗██╗  ██╗███████╗██╗   ██╗███████╗████████╗███████╗███╗   ███╗███████╗
+██╔════╝██╔════╝██╔════╝╚██╗██╔╝██╔════╝╚██╗ ██╔╝██╔════╝╚══██╔══╝██╔════╝████╗ ████║██╔════╝
+█████╗  █████╗  █████╗   ╚███╔╝ ███████╗ ╚████╔╝ ███████╗   ██║   █████╗  ██╔████╔██║███████╗
+██╔══╝  ██╔══╝  ██╔══╝   ██╔██╗ ╚════██║  ╚██╔╝  ╚════██║   ██║   ██╔══╝  ██║╚██╔╝██║╚════██║
+██║     ███████╗███████╗██╔╝ ██╗███████║   ██║   ███████║   ██║   ███████╗██║ ╚═╝ ██║███████║
+╚═╝     ╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝   ╚══════╝   ╚═╝   ╚══════╝╚═╝     ╚═╝╚══════╝
 ```
 
-The World Model is authoritative. The LLM is an interpreter and reasoning layer; it does not silently create canonical facts.
+**The Autonomous, Evidence-Backed Engineering Intelligence Platform and 3D World Model**
 
-## MVP capabilities
+[![Production Status](https://img.shields.io/badge/Production-Live%20%26%20Operational-emerald?style=for-the-badge&logo=googlecloud)](https://feexsystems-prod-508304.web.app)
+[![Cloud Run](https://img.shields.io/badge/Google_Cloud_Run-Auto--Scaling-4285F4?style=for-the-badge&logo=googlecloud)](https://cloud.google.com/run)
+[![Firebase Edge](https://img.shields.io/badge/Firebase_Hosting-Global_Edge_CDN-FFCA28?style=for-the-badge&logo=firebase)](https://firebase.google.com)
+[![PostgreSQL & pgvector](https://img.shields.io/badge/Cloud_SQL-PostgreSQL_15_%2B_pgvector-336791?style=for-the-badge&logo=postgresql)](https://cloud.google.com/sql)
+[![Redis TLS](https://img.shields.io/badge/Memorystore-Redis_TLS_%2B_BullMQ-DC382D?style=for-the-badge&logo=redis)](https://redis.io)
+[![Gemini 2.5](https://img.shields.io/badge/AI_Director-Gemini_2.5_Flash_%2B_Live-8E75C2?style=for-the-badge&logo=google)](https://deepmind.google/technologies/gemini)
+[![Three.js WebGL](https://img.shields.io/badge/3D_Engine-Three.js_%26_WebGL-black?style=for-the-badge&logo=three.js)](https://threejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x_Strict-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org)
 
-- SaaS landing experience for FEEXSYSTEMS.CODES
-- Public project explorer
-- GitHub pinned-project discovery and automated webhook provisioning
-- Persistent repository/project records with event history
-- Repository tree and artifact discovery (SHA-backed)
-- Technology extraction and project → technology relationships
-- Incremental GitHub webhook ingestion with HMAC verification
-- pgvector embeddings + hybrid graph/vector ranking
-- Temporal reconstruction (state at commit / date)
-- Autonomous maintenance (re-sync, re-embed, orphan cleanup)
-- Grounded Navigator API and public Navigator experience
-- **Omni-Command Interface** — Orchestration Contract Stage (graph click-to-focus, CodeViewer, SSE reasoning)
-- **Voice navigation** — Web Speech API mic on the Omni command bar (browser-side STT → same pipeline)
-- Authentication, dashboard, billing, DevOps and security platform foundations
-
-## Architecture
-
-```text
-┌─────────────────────────────────────────────┐
-│ EXPERIENCE                                  │
-│ Landing · Projects · Navigator · Omni · 3D │
-├─────────────────────────────────────────────┤
-│ NAVIGATION                                  │
-│ Search · Graph · Command Stage · Voice     │
-├─────────────────────────────────────────────┤
-│ INTELLIGENCE                                │
-│ LLM director · Hybrid rank · Orchestration │
-├─────────────────────────────────────────────┤
-│ WORLD MODEL                                 │
-│ Projects · Artifacts · Technologies · Time │
-├─────────────────────────────────────────────┤
-│ EVIDENCE FABRIC                             │
-│ Files · SHAs · URLs · Events · Provenance │
-├─────────────────────────────────────────────┤
-│ SYNCHRONIZATION                             │
-│ Discovery · Webhooks · Maintenance jobs    │
-├─────────────────────────────────────────────┤
-│ PERSISTENCE                                 │
-│ PostgreSQL · Prisma · pgvector · Redis     │
-└─────────────────────────────────────────────┘
-```
-
-### Canonical principles
-
-1. **Canonical data + model reasoning** — the World Model is authoritative; models interpret it.
-2. **Graph, not list** — relationships are first-class information.
-3. **Evidence, not claims** — important facts must have traceable implementation evidence.
-4. **Provider-neutral intelligence** — model providers can change without replacing the World Model.
-5. **Progressive disclosure** — ecosystem → world → repository → artifact → technology → source → evidence.
-6. **Spatial meaning** — the 3D interface communicates relationships rather than acting as decoration.
-7. **Human + machine** — the Persona is the builder; AI is the navigation and reasoning interface.
-8. **Autonomous, not uncontrolled** — mutations follow validation and provenance rules.
-9. **Browser as projection** — persistent server state is canonical; client state is a read model/cache.
-10. **Agent-driven Stage** — Omni-Command returns an Orchestration Contract; the UI mounts components, it does not invent World Model facts.
-
-## Technology stack
-
-- **Frontend:** React 18, React Router 7, TypeScript, Vite, Tailwind CSS 3, Three.js, React Flow, Zustand, Web Speech API, Radix UI, Lucide Icons
-- **Backend:** Express 5, TypeScript
-- **Database & Retrieval:** PostgreSQL 15+, Prisma ORM, pgvector, hybrid ranking
-- **Cache & Queues:** Redis (ioredis), Bull queue
-- **Authentication:** JWT, refresh tokens, RBAC
-- **Testing:** Vitest, MSW, Playwright E2E
-- **Infrastructure:** Docker / Docker Compose
-- **Intelligence:** Gemini / OpenAI Omni director, Zod Orchestration Contract, embeddings
-
-## Project structure
-
-```text
-FeexSystems-Living-Intelligence-World/
-├── client/                 # SaaS UI, Omni Stage, 3D World
-│   ├── components/omni/
-│   ├── hooks/useSpeechNavigation.ts
-│   └── pages/
-├── server/
-│   ├── routes/world-model.ts
-│   ├── lib/services/       # github-pinned, embedding, hybrid, temporal, webhooks, maintenance, omni
-│   └── lib/world-model/    # discovery / sync / retrieve facades
-├── shared/                 # Orchestration contract + Zod
-├── prisma/
-├── docs/
-└── docker/
-```
-
-## Development
-
-```bash
-git clone https://github.com/FeexSystems/FeexSystems-Living-Intelligence-World.git
-cd FeexSystems-Living-Intelligence-World
-npm install && cp .env.example .env && npm run dev
-```
-
-Useful env:
-
-```bash
-GEMINI_API_KEY=...          # or OPENAI_API_KEY — Omni + embeddings
-GITHUB_TOKEN=...            # sync + webhook provisioning
-GITHUB_WEBHOOK_SECRET=...
-WORLD_MODEL_WEBHOOK_URL=https://your.host/api/world-model/webhook
-WORLD_MODEL_MAINTENANCE_HOURS=6
-WORLD_MODEL_MAINTENANCE_ON_BOOT=true
-```
-
-### Key UI routes
-
-| Route | Experience |
-|-------|------------|
-| `/` | Landing |
-| `/navigator` | Hybrid grounded Navigator |
-| `/omni` | Omni-Command (type or voice) |
-| `/omni?q=Show+architecture` | Deep-link auto-execute |
-| `/world` | 3D Knowledge Galaxy |
-| `/evidence` | Evidence explorer |
-
-### Key World Model APIs
-
-| Method | Path | Purpose |
-|--------|------|--------|
-| GET/POST | `/api/world-model/navigator` | Hybrid retrieval |
-| POST | `/api/world-model/embeddings/reindex` | Rebuild vectors |
-| GET | `/api/world-model/temporal/:projectId` | State at commit/date |
-| POST | `/api/world-model/webhooks/provision` | Create/update GitHub hooks |
-| POST | `/api/world-model/maintenance/run` | Re-sync + cleanup |
-| POST | `/api/world-model/omni-command` | Orchestration Contract |
-| POST | `/api/world-model/omni-command/stream` | SSE reasoning + result |
-
-## Roadmap
-
-### Phase III — Living Engineering Intelligence
-
-- [x] GitHub repository discovery
-- [x] Persistent World Model + Evidence Fabric
-- [x] Technology extraction & relationships
-- [x] Incremental webhook ingestion
-- [x] Grounded Navigator
-- [x] Omni-Command (Stage + SSE + multi-turn)
-- [x] Evidence explorer & Spatial World
-- [x] pgvector embeddings
-- [x] Hybrid graph/vector ranking
-- [x] Commit-level temporal reconstruction
-- [x] Automated GitHub webhook provisioning
-- [x] Autonomous World Model maintenance
-- [x] Omni polish (graph focus, CodeViewer, contract eval tests)
-- [x] Voice navigation (Web Speech API on Omni)
-
-Phase III Living Engineering Intelligence is **complete on main**.
-
-## Documentation
-
-- `docs/ARCHITECTURE.md` · `docs/WORLD_MODEL.md` · `docs/EVIDENCE_FABRIC.md`
-- `docs/GITHUB_INGESTION.md` · `docs/NAVIGATOR.md` · `docs/EMBEDDINGS.md`
-- `docs/OMNI_COMMAND.md` · `docs/VOICE_NAVIGATION.md`
-- `docs/TEMPORAL.md` · `docs/MAINTENANCE.md` · `docs/API.md`
-
-## License
-
-Proprietary software owned by FeexSystems. All rights reserved.
+[**Live Experience**](https://feexsystems-prod-508304.web.app) • [**API Health**](https://feexsystems-server-1098867692790.us-central1.run.app/health) • [**Spatial Galaxy**](https://feexsystems-prod-508304.web.app/world) • [**Omni-Command Stage**](https://feexsystems-prod-508304.web.app/omni) • [**Evidence Fabric**](https://feexsystems-prod-508304.web.app/evidence)
 
 ---
 
-**Product:** FEEXSYSTEMS — Living Engineering Intelligence  
-**Public domain:** FeexSystems.codes  
-**Repository:** FeexSystems/FeexSystems-Living-Intelligence-World
+</div>
+
+## 1. Executive Overview
+
+**FEEXSYSTEMS** (`feexsystems.codes`) is an enterprise-grade SaaS and cognitive engineering platform that transforms the FeexSystems GitHub ecosystem into a real-time, queryable, 3D Spatial World Model. 
+
+Unlike traditional code search engines or static documentation sites, FEEXSYSTEMS treats codebases, infrastructure configurations, dependency topologies, and deployment artifacts as living, interconnected nodes in an evidence-anchored knowledge graph.
+
+### The Mission
+> *"Building digital worlds, one system at a time."*
+
+FEEXSYSTEMS bridges the gap between human engineering intent and machine intelligence. Autonomous background workers continuously ingest and cryptographically verify ecosystem telemetry (commits, trees, releases, webhooks), synthesizing an authoritative World Model. Large Language Models (LLMs) act strictly as non-destructive reasoning directors and spatial navigators over this canonical truth—never hallucinating facts without provenance.
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                           FEEXSYSTEMS COGNITIVE PIPELINE                         │
+└──────────────────────────────────────────────────────────────────────────────────┘
+    GitHub Ecosystem (Orgs, Repos, Commits, PRs, Tree Manifests)
+                            │
+                            ▼
+    [Ingestion Worker] HMAC-SHA256 Webhook Verification & Discovery
+                            │
+                            ▼
+    [Evidence Fabric] Cryptographic Commit SHAs, Line Ranges & Artifact URLs
+                            │
+                            ▼
+    [World Model Graph] Entities: Projects ──(USES)──> Technologies
+                                  Projects ──(CONTAINS)─> Artifacts
+                            │
+                            ▼
+    [Hybrid Embeddings] 768-dim Vectors (pgvector) + Full-Text RRF Fusion
+                            │
+                            ▼
+    [Omni-Command Stage] Streaming SSE Reasoning Trace + Web Speech STT
+                            │
+                            ▼
+    [Spatial Galaxy (/world)] Three.js 3D WebGL Topological Knowledge Engine
+```
+
+---
+
+## 2. Core Canonical Invariants
+
+All architectural modules, background workers, and UI projections in FEEXSYSTEMS strictly obey the **Seven Canonical Invariants**:
+
+| # | Invariant | Architectural Contract |
+|---|---|---|
+| **1** | **World Model is Authoritative** | The database-backed World Model is the canonical reality. Models (LLMs) interpret, reason, and summarize; they **never** invent or mutate canonical facts without provenance. |
+| **2** | **Evidence Fabric Provenance** | Every claim, relationship, and technology node must be anchored in verifiable evidence (GitHub repo, branch, commit SHA, file path, artifact URL, or observation timestamp). |
+| **3** | **Non-Blocking Infrastructure Initialization** | Database, Redis, and third-party API connections must never hang the HTTP dev server, Cloud Run boot lifecycle, or container readiness probes. Services attach lazily and retry in background. |
+| **4** | **Provider-Neutral Intelligence** | AI model interactions leverage provider-agnostic abstractions (`aiService`), enabling transparent interchange between Google Gemini, OpenAI, and Anthropic models without breaking contract schemas. |
+| **5** | **Browser as Projection** | The client browser is a read model/view projection. Server state is canonical. State cache syncs unidirectionally through SSE and REST endpoints. |
+| **6** | **Dual Mode Routing** | Public routes (`/`, `/projects`, `/navigator`, `/world`, `/evidence`, `/omni`) are accessible to all users (both guests and authenticated). Only dedicated guest auth routes (`/login`, `/register`) redirect authenticated users. |
+| **7** | **3D Spatial Meaning** | WebGL 3D scenes (`/world`) communicate topological graph distance, cluster density, and dependency relationships rather than serving as mere visual decoration. |
+
+---
+
+## 3. High-Level System Architecture
+
+FEEXSYSTEMS implements a modern, resilient enterprise topology across Google Cloud Platform and Firebase:
+
+```text
+                                  ┌────────────────────────┐
+                                  │      Public User       │
+                                  └───────────┬────────────┘
+                                              │ HTTPS (TLS 1.3)
+                                              ▼
+                             ┌──────────────────────────────────┐
+                             │     Firebase Hosting (Edge)      │
+                             │  Global CDN · HTTP/2 · SPA Cache  │
+                             └────────────────┬─────────────────┘
+                                              │
+                      ┌───────────────────────┴───────────────────────┐
+                      │ Static Assets (/assets/*, HTML5)              │ Dynamic API (/api/**, /health)
+                      ▼                                               ▼
+        ┌───────────────────────────┐                   ┌───────────────────────────┐
+        │     React 18 SPA Dist     │                   │   Google Cloud Run v2     │
+        │  Vite · Three.js · Radix  │                   │  feexsystems-server:latest│
+        └───────────────────────────┘                   └─────────────┬─────────────┘
+                                                                      │
+                ┌──────────────────────────────┬──────────────────────┴───────────────────────┐
+                ▼                              ▼                                              ▼
+  ┌───────────────────────────┐  ┌───────────────────────────┐                  ┌───────────────────────────┐
+  │      Google Cloud SQL     │  │    Upstash Redis (TLS)    │                  │      Google Cloud AI      │
+  │  PostgreSQL 15 + pgvector │  │   Bull Queues · Sessions  │                  │  Gemini 2.5 Flash / Live  │
+  │   Private Service Connect │  │   Distributed Rate-Limit  │                  │  Embeddings & Multi-Turn  │
+  └───────────────────────────┘  └───────────────────────────┘                  └───────────────────────────┘
+                │                              │                                              │
+                └──────────────────────────────┼──────────────────────────────────────────────┘
+                                               │
+                                               ▼
+                                 ┌───────────────────────────┐
+                                 │ Google Cloud Observability│
+                                 │ BigQuery ML · GCS Artifact│
+                                 │ Cloud Logging · Secret Mgr│
+                                 └───────────────────────────┘
+```
+
+### Infrastructure Components
+- **Client Presentation Tier**: Vite + React 18 + React Router 7 + TailwindCSS 3, deployed to **Firebase Hosting** with global edge CDN caching and atomic deployments.
+- **Compute Tier**: Express 5 containerized runtime on **Google Cloud Run** (`us-central1`), configured with 2 vCPU, 2 GiB memory, concurrency 80, and `min-instances: 1` to eliminate cold-start latency.
+- **Primary Data Store**: **Google Cloud SQL** (PostgreSQL 15) with `pgvector` extension for 768-dimensional vector similarity search, connected via Private Service Connect (PSC).
+- **In-Memory Fabric**: Managed **Redis** with TLS encryption for Bull task queues, distributed session tokens, rate limiting, and real-time pub/sub.
+- **Analytics & Big Data**: **Google BigQuery** dataset (`feexsystems_analytics`) with streaming ingestion for telemetry, audit logs, and graph density metrics.
+- **Artifact Warehouse**: **Google Cloud Storage** (`feexsystems-evidence-artifacts`) with immutable object versioning for code manifests and evidence snapshots.
+- **Secrets Governance**: **Google Cloud Secret Manager** mounted directly into Cloud Run runtime containers without disk persistence.
+
+---
+
+## 4. Key Subsystems & Capabilities
+
+### 4.1 The World Model & Graph Topology
+The World Model continuously indexes repositories in the FeexSystems ecosystem (e.g. *Persona OS*, *Yurrheeler AI*, *3WM Sonik*, *Rental Paradise*, *KappaXChangeFin*).
+- **Node Classification**: Categorized into `PROJECT`, `REPOSITORY`, `ARTIFACT`, and `TECHNOLOGY`.
+- **Edge Semantics**: Strongly-typed relations (`HAS_REPOSITORY`, `CONTAINS`, `USES`, `DEPENDS_ON`).
+- **Graph Clustering**: Louvain community detection and force-directed algorithms compute coordinate clusters projected into 2D and 3D coordinate space.
+
+### 4.2 The Evidence Fabric Ledger
+The Evidence Fabric is an immutable audit log ensuring algorithmic honesty:
+- **Traceable Identifiers**: Every fact is linked to a cryptographic SHA-1 or SHA-256 commit hash, repository identifier, branch name, relative file path, and start/end line offsets.
+- **Webhook Ingestion**: Real-time GitHub events (`push`, `release`, `repository`) are verified using HMAC-SHA256 signatures before triggering graph delta updates.
+- **Temporal Reconstruction**: Supports querying the exact state of any world, repository, or artifact as it existed at any historical commit SHA or timestamp (`/api/world-model/temporal/:projectId`).
+
+### 4.3 Omni-Command Orchestration Stage
+The `/omni` interface is an agentic, multi-modal command stage:
+- **Orchestration Contract**: Natural language requests are translated by the Gemini AI Director into a strict, Zod-validated JSON Orchestration Contract.
+- **Streaming Execution Trace**: Real-time reasoning steps are streamed via Server-Sent Events (SSE) to the browser, displaying reasoning tokens before UI state transitions.
+- **Context-Aware Dynamic Stage**: Automatically mounts interactive components (Interactive CodeViewer, 3D Graph Focus, Evidence Audit Panel, Metrics Grids) based on the contract payload.
+- **Speech Navigation**: Built-in voice input powered by the Web Speech API enables hands-free voice exploration of the entire World Model.
+
+### 4.4 3D Spatial Knowledge Galaxy (`/world`)
+An interactive, high-performance WebGL environment powered by Three.js and `@react-three/fiber`:
+- **Spatial Topology**: Visualizes projects as central gravitational nodes with orbited technology satellites and artifact nodes.
+- **Node Inspector**: Click-to-focus camera interpolation (using smooth spherical lerp) with contextual HUD inspection cards.
+- **Particle Dynamics**: Real-time GPU particle fields responsive to user interaction, representing ecosystem activity.
+
+### 4.5 Bushfeexer — Living Intelligence Assistant
+A floating, ambient conversational interface accessible from every viewport:
+- **Grounded Retrieval**: Directly queries `/api/world-model/navigator` to deliver fact-anchored answers with live evidence counts.
+- **Graceful Fallback**: Intelligent local heuristic models handle offline or degraded network conditions without breaking UI responsiveness.
+
+---
+
+## 5. Production API Specification
+
+All endpoints return uniform enterprise envelopes `{ success: boolean, data?: T, error?: string, timestamp: string }`:
+
+### System Diagnostics & Health
+| Method | Path | Description | Access |
+|---|---|---|---|
+| `GET` | `/health` | Deep liveness & dependency readiness probe (Cloud SQL, Redis, Uptime) | Public |
+| `GET` | `/health/ready` | Quick Kubernetes/Cloud Run readiness probe | Public |
+| `GET` | `/api/ping` | Ecosystem status, node timestamp, and active environment metadata | Public |
+
+### World Model & Evidence Engine
+| Method | Path | Description | Access |
+|---|---|---|---|
+| `GET` | `/api/world-model/projects` | List all synchronized World Model projects with technology badges | Public |
+| `GET` | `/api/world-model/graph` | Fetch complete 2D/3D node and edge graph topology | Public |
+| `GET` | `/api/world-model/evidence/:projectId` | Retrieve cryptographic Evidence Fabric ledger for a project | Public |
+| `GET` | `/api/world-model/navigator?q=:query` | Grounded hybrid vector/graph retrieval with AI explanation | Public |
+| `GET` | `/api/world-model/temporal/:projectId` | Reconstruct project state at a specific historical commit SHA | Public |
+| `POST` | `/api/world-model/embeddings/reindex` | Trigger asynchronous pgvector embedding batch regeneration | Admin |
+| `POST` | `/api/world-model/maintenance/run` | Execute autonomous graph reconciliation and orphan cleanup | Admin |
+
+### Omni-Command Stage
+| Method | Path | Description | Access |
+|---|---|---|---|
+| `POST` | `/api/world-model/omni-command` | Synchronous Orchestration Contract generation | Public |
+| `POST` | `/api/world-model/omni-command/stream` | Streaming Server-Sent Events (SSE) reasoning trace | Public |
+
+### Ingestion & Webhooks
+| Method | Path | Description | Access |
+|---|---|---|---|
+| `POST` | `/api/world-model/webhook` | GitHub webhook receiver with HMAC-SHA256 cryptographic verification | GitHub Webhook |
+| `POST` | `/api/world-model/sync/github-pinned`| Trigger immediate ecosystem sync from pinned GitHub repositories | Authenticated |
+
+---
+
+## 6. Enterprise Security & Zero-Secrets Policy
+
+FEEXSYSTEMS implements a rigorous zero-trust security architecture.
+
+### Zero Hardcoded Secrets Invariant
+- **No plaintext secrets** (API keys, private keys, database passwords, webhook tokens) are ever stored in source code, committed to Git, or baked into Docker container layers.
+- Production credentials reside exclusively in **Google Cloud Secret Manager** and are resolved at runtime via environment bindings or Secret Manager APIs.
+- `.gitignore` and `.dockerignore` are enforced at the repository root to block credentials, certificates (`*.pem`, `*.crt`, `*.key`), local environment files, and scratch artifacts.
+
+### Security Architecture Highlights
+1. **Private Service Connect (PSC)**: Cloud SQL PostgreSQL instances reside inside a private VPC network without public IP exposure.
+2. **HMAC-SHA256 Webhook Verification**: Inbound GitHub webhooks calculate the HMAC signature against `GITHUB_WEBHOOK_SECRET` before processing the payload.
+3. **Dual-Layer Authentication**: Stateless high-entropy JSON Web Tokens (JWT) signed with 256-bit keys for API access, paired with Firebase Admin SDK token verification for federated identities.
+4. **Content Security Policy & Headers**: Production Express server applies strict Helmet policies (`X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`).
+5. **Non-Root Container Execution**: Production Docker images execute under an unprivileged user (`feexuser:feexgroup`, UID 1001) utilizing `dumb-init` for POSIX signal propagation.
+
+---
+
+## 7. Repository Structure
+
+```text
+FeexSystems-Living-Intelligence-World/
+├── client/                          # React 18 SPA Frontend
+│   ├── components/                  # UI Components & Design System
+│   │   ├── omni/                    # Omni-Command Stage & Command Bar
+│   │   ├── webgl/                   # Three.js 3D WebGL scenes & Particle Fields
+│   │   ├── ui/                      # Radix UI + Tailwind component library
+│   │   └── Bushfeexer.tsx           # Living Intelligence Assistant
+│   ├── hooks/                       # React hooks (useSpeechNavigation, useAuth)
+│   ├── lib/                         # Client utilities & Firebase client adapter
+│   ├── pages/                       # Application Routes
+│   │   ├── Index.tsx                # SaaS Hero & Living World Showcase
+│   │   ├── Projects.tsx             # Public Project Explorer
+│   │   ├── Navigator.tsx            # Grounded Navigator & Evidence Inspector
+│   │   ├── SpatialWorld.tsx         # Full-Screen 3D Knowledge Galaxy
+│   │   ├── EvidenceLedger.tsx       # Cryptographic Proof Explorer
+│   │   └── OmniStage.tsx            # Multi-Modal Command Stage
+│   ├── App.tsx                      # React Router 7 configuration
+│   └── global.css                   # Design tokens & Tailwind theme
+├── server/                          # Express 5 Backend Runtime
+│   ├── lib/                         # Backend Core Services
+│   │   ├── database.ts              # Resilient Prisma + non-blocking connection pool
+│   │   ├── middleware/              # Production security, rate-limiting & auth
+│   │   └── services/                # World Model, AI Director, BigQuery, GCS
+│   ├── routes/                      # API Route Controllers
+│   │   ├── world-model.ts           # World Model, Navigator, Graph & Omni routes
+│   │   ├── auth.ts                  # Authentication & session verification
+│   │   ├── devops.ts                # Build & deployment pipeline endpoints
+│   │   └── security.ts              # Audit logging & vulnerability scanning
+│   ├── node-build.ts                # Production SSR/Static bundle server
+│   └── index.ts                     # Main Express server entrypoint
+├── shared/                          # Universal TypeScript contracts & schemas
+│   ├── world-model.ts               # World Model entities, nodes & edge types
+│   ├── omni-schema.ts               # Zod Orchestration Contract validation
+│   └── api.ts                       # Shared API response interfaces
+├── prisma/                          # Prisma ORM Schema & Migrations
+│   └── schema.prisma                # PostgreSQL models + pgvector definitions
+├── pipelines/                       # Data Engineering & Orchestration
+│   └── airflow/                     # Cloud Composer / Apache Airflow DAGs
+├── scripts/                         # Enterprise DevOps & Deployment Scripts
+│   ├── deploy-cloud-run.ps1         # Automated Cloud Run deploy (PowerShell)
+│   ├── deploy-cloud-run.sh          # Automated Cloud Run deploy (Bash)
+│   ├── setup-gcp-secrets.ps1        # GCP Secret Manager setup (PowerShell)
+│   └── setup-gcp-secrets.sh         # GCP Secret Manager setup (Bash)
+├── docs/                            # Deep Technical Documentation
+│   ├── DEPLOYMENT_GUIDE.md          # Cloud Run & Firebase deployment runbook
+│   ├── brand-assets/screenshots/    # System showcase visual captures
+│   └── specs/                       # Architecture & feature specifications
+├── Dockerfile                       # Multi-stage production container build
+├── firebase.json                    # Firebase Hosting & Cloud Run rewrite rules
+├── cloudbuild.yaml                  # Google Cloud Build automated CI/CD pipeline
+└── package.json                     # Monorepo dependencies and scripts
+```
+
+---
+
+## 8. Local Development Quickstart
+
+### Prerequisites
+- **Node.js**: v20.x or v22.x LTS
+- **Package Manager**: `npm` (v10+)
+- **Database**: PostgreSQL 15+ (with `pgvector` extension)
+- **Cache**: Redis 7+
+
+### 1. Clone and Install Dependencies
+```bash
+git clone https://github.com/FeexSystems/FeexSystems-Living-Intelligence-World.git
+cd FeexSystems-Living-Intelligence-World
+npm install
+```
+
+### 2. Configure Environment Variables
+Copy the development template and configure your local credentials:
+```bash
+cp .env.example .env
+```
+
+Key environment configurations:
+```ini
+NODE_ENV="development"
+PORT=8080
+DATABASE_URL="postgresql://feexsystems:localpassword@localhost:5432/feexsystems_dev?schema=public"
+REDIS_URL="redis://localhost:6379"
+GEMINI_API_KEY="your-gemini-api-key"
+GITHUB_ACCESS_TOKEN="ghp_your-personal-access-token"
+GITHUB_WEBHOOK_SECRET="your-local-webhook-secret"
+USE_MOCK_AUTH="true"
+```
+
+### 3. Initialize the Database
+```bash
+# Generate Prisma client bindings
+npx prisma generate
+
+# Apply migrations to local PostgreSQL
+npm run db:init
+```
+
+### 4. Launch Development Server
+```bash
+npm run dev
+```
+The integrated Vite dev server and Express API will be accessible at:
+- **Local Application**: `http://localhost:8080`
+- **Health Diagnostic**: `http://localhost:8080/health`
+- **3D Spatial Galaxy**: `http://localhost:8080/world`
+
+### 5. Running Quality & Test Suites
+```bash
+# TypeScript strict typechecking
+npm run typecheck
+
+# Vitest unit and integration suite
+npm test
+
+# Production build validation
+npm run build
+```
+
+---
+
+## 9. Production Deployment Runbook
+
+### Continuous Deployment via Google Cloud Build
+Pushing to `main` triggers `cloudbuild.yaml`:
+1. Installs dependencies and compiles Prisma client.
+2. Executes strict TypeScript verification (`npm run typecheck`) and Vitest test suite.
+3. Builds container image with Kaniko caching (`gcr.io/$PROJECT_ID/feexsystems-server:$COMMIT_SHA`).
+4. Deploys container to **Google Cloud Run** with Secret Manager bindings.
+
+### Manual One-Click Deployment
+
+#### Deploy Backend to Google Cloud Run:
+```powershell
+# Windows PowerShell
+.\scripts\deploy-cloud-run.ps1 -ProjectId "feexsystems-prod-508304" -Region "us-central1"
+```
+```bash
+# Linux / macOS
+./scripts\deploy-cloud-run.sh feexsystems-prod-508304 us-central1
+```
+
+#### Deploy Frontend to Firebase Hosting:
+```bash
+npm run build
+firebase deploy --only hosting
+```
+
+---
+
+## 10. Visual Experience Showcase
+
+<div align="center">
+
+| 3D Spatial Knowledge Galaxy | AI Grounded Navigator |
+|:---:|:---:|
+| ![Spatial World](docs/brand-assets/screenshots/world-screenshot.png) | ![Navigator](docs/brand-assets/screenshots/navigator-screenshot.png) |
+| *Topological graph clustering and node inspector* | *Evidence-grounded semantic retrieval* |
+
+| Living Project Explorer | Multi-Modal Showcase |
+|:---:|:---:|
+| ![Project Explorer](docs/brand-assets/screenshots/projects-screenshot.png) | ![Showcase Carousel](docs/brand-assets/screenshots/showcase-carousel-slider.png) |
+| *Real-time GitHub sync & evidence ledger* | *Dynamic multimedia artifact cards* |
+
+</div>
+
+---
+
+## 11. Maintenance & Operations
+
+- **Autonomous Maintenance Cron**: Executes periodically or on boot to crawl pinned GitHub repositories, re-embed updated files with Gemini, and prune orphan nodes.
+- **Airflow Orchestration**: Managed Service for Apache Airflow (`pipelines/airflow/feex_world_model_crawl_dag.py`) triggers scheduled full-ecosystem reconciliation every 6 hours.
+- **BigQuery Event Streaming**: All user interactions, search queries, and navigation events stream to BigQuery table `world_model_events` for real-time analytics.
+
+---
+
+## 12. License & Intellectual Property
+
+Proprietary software owned by **FeexSystems**. All rights reserved.
+
+- **Product**: FEEXSYSTEMS — Living Engineering Intelligence
+- **Public Experience**: [feexsystems.codes](https://feexsystems.codes) / [feexsystems-prod-508304.web.app](https://feexsystems-prod-508304.web.app)
+- **Organization**: FeexSystems
+- **Engineering Contact**: `engineering@feexsystems.codes`

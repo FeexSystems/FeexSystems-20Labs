@@ -60,7 +60,7 @@ export const useErrorHandler = (options: ErrorHandlerOptions = {}) => {
       }
 
       // Log to console in development
-      if (process.env.NODE_ENV !== 'production') {
+      if (Boolean(import.meta.env?.DEV)) {
         console.error('[Error Handler]:', error);
         if (context || additionalContext) {
           console.error('[Error Context]:', {

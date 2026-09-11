@@ -70,7 +70,7 @@ export function Conduit({
         end={end}
         mid={mid}
         lineWidth={isHighlighted ? 2.8 : 1.4}
-        color={isHighlighted ? "#00FFA3" : "#00B4D8"}
+        color={isHighlighted ? "#FFFFFF" : "#71717A"}
         dashed
         dashScale={2.4}
         dashSize={1.3}
@@ -81,7 +81,7 @@ export function Conduit({
       {preset.trail && !isDimmed && (
         <AnimatedPulse
           curve={curve}
-          color={isHighlighted ? "#00FFA3" : "#00F5D4"}
+          color={isHighlighted ? "#FFFFFF" : "#A1A1AA"}
           speed={isHighlighted ? 1.35 : 0.6}
           size={isHighlighted ? 0.1 : 0.06}
         />

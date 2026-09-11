@@ -334,10 +334,10 @@ export class SecurityScanRequestService {
     return {
       id: scan.id,
       userId: scan.userId,
-      target: scan.targetData as ScanTarget,
+      target: scan.targetData as unknown as ScanTarget,
       scanType: scan.scanType.toLowerCase() as 'vulnerability' | 'penetration' | 'compliance',
       status: scan.status.toLowerCase() as 'queued' | 'running' | 'completed' | 'failed',
-      results: scan.results as ScanResults | undefined,
+      results: scan.results as unknown as ScanResults | undefined,
       scheduledAt: scan.scheduledAt || undefined,
       startedAt: scan.startedAt || undefined,
       completedAt: scan.completedAt || undefined,

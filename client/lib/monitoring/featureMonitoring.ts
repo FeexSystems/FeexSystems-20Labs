@@ -86,7 +86,7 @@ export const configurePerformanceMonitoring = () => {
         ),
       }),
     ],
-    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    tracesSampleRate: Boolean(import.meta.env?.PROD) ? 0.1 : 1.0,
     profilesSampleRate: 0.1,
   });
 };

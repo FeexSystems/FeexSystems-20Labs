@@ -27,6 +27,7 @@ import {
   getLastMaintenanceReport,
   isMaintenanceRunning,
 } from "../lib/services/world-model-maintenance.service";
+import { hardQueryRateLimiter } from "../lib/middleware/production-security";
 
 const router = Router();
 
@@ -61,7 +62,7 @@ router.get("/graph", async (_req: Request, res: Response) => {
   }
 });
 
-router.get("/evidence/projects", async (_req: Request, res: Response) => {
+router.get("/evidence/projects", hardQueryRateLimiter, async (_req: Request, res: Response) => {
   try {
     const projects = await getAllProjectsEvidenceSummary();
     res.json({ success: true, data: projects });
@@ -73,7 +74,7 @@ router.get("/evidence/projects", async (_req: Request, res: Response) => {
   }
 });
 
-router.get(["/evidence/content", "/evidence/:projectId/content"], async (req: Request, res: Response) => {
+router.get(["/evidence/content", "/evidence/:projectId/content"], hardQueryRateLimiter, async (req: Request, res: Response) => {
   try {
     const projectId = decodeURIComponent(String(req.query.projectId || req.params.projectId || "")).trim();
     const filePath = String(req.query.path || "").trim();
@@ -90,7 +91,7 @@ router.get(["/evidence/content", "/evidence/:projectId/content"], async (req: Re
   }
 });
 
-router.get(["/evidence/detail", "/evidence/:projectId"], async (req: Request, res: Response) => {
+router.get(["/evidence/detail", "/evidence/:projectId"], hardQueryRateLimiter, async (req: Request, res: Response) => {
   try {
     const projectId = decodeURIComponent(String(req.query.projectId || req.params.projectId || "")).trim();
     if (!projectId) {
@@ -141,7 +142,7 @@ router.get("/temporal/:projectId/events", async (req: Request, res: Response) =>
   }
 });
 
-router.get("/navigator", async (req: Request, res: Response) => {
+router.get("/navigator", hardQueryRateLimiter, async (req: Request, res: Response) => {
   try {
     const q = String(req.query.q || "").trim();
     if (!q) {
@@ -158,7 +159,7 @@ router.get("/navigator", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/navigator", async (req: Request, res: Response) => {
+router.post("/navigator", hardQueryRateLimiter, async (req: Request, res: Response) => {
   try {
     const q = String(req.body?.query || req.body?.q || "").trim();
     if (!q) {
