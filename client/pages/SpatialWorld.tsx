@@ -1,3 +1,7 @@
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { Canvas } from "@react-three/fiber";
+import { Loader } from "@react-three/drei";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
@@ -39,6 +43,10 @@ import {
   Cpu,
   Radio,
 } from "lucide-react";
+import { FeexHorizontalLockup, FeexWorldBadge } from "@/components/FeexLogo";
+import { GalaxyScene } from "@/components/galaxy/GalaxyScene";
+import type { GalaxyQuality, GraphData, GraphNode } from "@/components/galaxy/types";
+import { QUALITY_PRESETS } from "@/components/galaxy/types";
 import {
   PlanetaryCoreShaderMaterial,
   AtmosphereHalo,
@@ -115,7 +123,7 @@ const CANONICAL_INITIAL_GRAPH: GraphData = {
       name: "Persona Digital Operating Environment",
       type: "project",
       repository: "FeexSystems/FEEXSYSTEMS-Persona-Digital-Portfolio",
-      description: "A spatial digital environment for exploring the Persona, systems, technologies and engineering relationships.",
+      description: "Spatial digital environment for Persona, systems, and engineering relationships.",
       url: "https://github.com/FeexSystems/FEEXSYSTEMS-Persona-Digital-Portfolio",
       isPinned: true,
       domain: "Intelligence",
@@ -128,7 +136,7 @@ const CANONICAL_INITIAL_GRAPH: GraphData = {
       name: "Yurrheeler Med Advisor",
       type: "project",
       repository: "FeexSystems/yurrheeler-med-advisor",
-      description: "AI-oriented healthcare application and medical-advisor engineering project.",
+      description: "AI-oriented healthcare medical-advisor engineering project.",
       url: "https://github.com/FeexSystems/yurrheeler-med-advisor",
       isPinned: true,
       domain: "Healthcare",
@@ -141,7 +149,7 @@ const CANONICAL_INITIAL_GRAPH: GraphData = {
       name: "KappaXchangeFin",
       type: "project",
       repository: "FeexSystems/kappaxchangefin",
-      description: "Financial infrastructure project within the FEEXSYSTEMS engineering ecosystem.",
+      description: "Financial infrastructure within the FEEXSYSTEMS ecosystem.",
       url: "https://github.com/FeexSystems/kappaxchangefin",
       isPinned: true,
       domain: "Finance",
@@ -154,9 +162,8 @@ const CANONICAL_INITIAL_GRAPH: GraphData = {
       name: "HoloKai Systems Labs",
       type: "project",
       repository: "FeexSystems/HoloKai-Systems-Labs",
-      description: "Research and systems work exploring civilization intelligence and knowledge interfaces.",
+      description: "Civilization intelligence and knowledge interfaces.",
       url: "https://github.com/FeexSystems/HoloKai-Systems-Labs",
-      isPinned: false,
       domain: "Research",
       language: "TypeScript",
       artifactCount: 8,
@@ -167,9 +174,8 @@ const CANONICAL_INITIAL_GRAPH: GraphData = {
       name: "VYRA Labs",
       type: "project",
       repository: "FeexSystems/VYRA-LABS",
-      description: "Experimental systems laboratory within the broader FEEXSYSTEMS ecosystem.",
+      description: "Experimental systems laboratory.",
       url: "https://github.com/FeexSystems/VYRA-LABS",
-      isPinned: false,
       domain: "Research",
       language: "TypeScript",
       artifactCount: 8,
@@ -180,9 +186,8 @@ const CANONICAL_INITIAL_GRAPH: GraphData = {
       name: "3WM SONIK Labs",
       type: "project",
       repository: "FeexSystems/3WM-SONIK-LABS",
-      description: "Three-world-model research and engineering laboratory.",
+      description: "Three-world-model research laboratory.",
       url: "https://github.com/FeexSystems/3WM-SONIK-LABS",
-      isPinned: false,
       domain: "Intelligence",
       language: "TypeScript",
       artifactCount: 9,
@@ -206,13 +211,16 @@ const CANONICAL_INITIAL_GRAPH: GraphData = {
     { id: "rel:7", source: "github:FeexSystems/3WM-SONIK-LABS", target: "tech:ai", relation: "USES" },
     { id: "rel:8", source: "github:FeexSystems/HoloKai-Systems-Labs", target: "tech:ai", relation: "USES" },
   ],
-  stats: {
-    totalProjects: 6,
-    totalTechnologies: 7,
-    totalLinks: 8,
-  },
+  stats: { totalProjects: 6, totalTechnologies: 7, totalLinks: 8 },
 };
 
+function detectDefaultQuality(): GalaxyQuality {
+  if (typeof window === "undefined") return "balanced";
+  const cores = navigator.hardwareConcurrency || 4;
+  const mem = (navigator as any).deviceMemory || 4;
+  if (cores <= 4 || mem <= 4) return "performance";
+  if (cores >= 8 && mem >= 8) return "cinematic";
+  return "balanced";
 // ─────────────────────────────────────────────────────────────────────
 // GLSL: Stippled Nebula Environment Particles
 // ─────────────────────────────────────────────────────────────────────
@@ -1219,6 +1227,7 @@ export default function SpatialWorld() {
   const [domainFilter, setDomainFilter] = useState("all");
   const [autoRotate, setAutoRotate] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [quality, setQuality] = useState<GalaxyQuality>(() => detectDefaultQuality());
   const fps = useFpsCounter();
 
   const loadGraph = async () => {
@@ -1226,9 +1235,7 @@ export default function SpatialWorld() {
     try {
       const res = await fetch("/api/world-model/graph");
       const json = await res.json();
-      if (json.success && json.data) {
-        setGraphData(json.data);
-      }
+      if (json.success && json.data) setGraphData(json.data);
     } catch (e) {
       console.warn("Could not fetch live graph, using canonical fallback", e);
     } finally {
@@ -1252,7 +1259,6 @@ export default function SpatialWorld() {
   }, [searchParams, graphData]);
 
   const domains = useMemo(() => {
-    if (!graphData) return [];
     const set = new Set<string>();
     graphData.nodes.forEach((n) => {
       if (n.domain) set.add(n.domain);
@@ -1265,14 +1271,31 @@ export default function SpatialWorld() {
       document.documentElement.requestFullscreen();
       setIsFullscreen(true);
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-        setIsFullscreen(false);
-      }
+      document.exitFullscreen?.();
+      setIsFullscreen(false);
     }
   };
 
+  const dpr = QUALITY_PRESETS[quality].dpr;
+
   return (
+    <div className="relative h-screen w-screen overflow-hidden bg-[#040406] text-white select-none">
+      <div className="bg-diagonal-stripes absolute inset-0 z-10 opacity-10 pointer-events-none" />
+
+      <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4 md:p-6 pointer-events-none">
+        <div className="flex items-center gap-4 pointer-events-auto">
+          <Link
+            to="/"
+            className="flex items-center gap-3 border border-gray-20 bg-[#090a0f]/90 px-4 py-2 text-sm font-semibold backdrop-blur-xl transition hover:border-[#00F5D4]/50"
+          >
+            <FeexHorizontalLockup markSize={24} showSubtitle={false} />
+            <span className="text-gray-40 font-mono">/</span>
+            <span className="text-[#00F5D4] font-mono text-xs tracking-wider uppercase">
+              KNOWLEDGE_GALAXY_HQ
+            </span>
+          </Link>
+          <FeexWorldBadge sha="sha-galaxy-hq" status="HQ ACTIVE" className="hidden lg:inline-flex" />
+        </div>
     <div className="relative h-screen w-screen overflow-hidden bg-[#000000] text-white font-mono select-none selection:bg-white selection:text-black">
       {/* Interactive Cursor Trail */}
       <CursorDotTrail dotColor="rgba(0, 245, 212, 0.4)" trailColor="rgba(123, 44, 191, 0.2)" />
@@ -1315,19 +1338,44 @@ export default function SpatialWorld() {
 
         {/* Right: Controls */}
         <div className="flex items-center gap-2 pointer-events-auto font-mono text-xs">
+          <select
+            value={quality}
+            onChange={(e) => setQuality(e.target.value as GalaxyQuality)}
+            className="h-9 px-2 border border-gray-20 bg-[#090a0f]/90 text-[#00F5D4] outline-none"
+            title="Render quality"
+          >
+            {(Object.keys(QUALITY_PRESETS) as GalaxyQuality[]).map((k) => (
+              <option key={k} value={k}>
+                {QUALITY_PRESETS[k].label}
+              </option>
+            ))}
+          </select>
           <button
             onClick={() => setAutoRotate(!autoRotate)}
+            className={`h-9 px-3 border flex items-center gap-1.5 transition-colors ${
+              autoRotate
+                ? "bg-[#090a0f] text-[#00F5D4] border-[#00F5D4]/40"
+                : "bg-[#090a0f]/80 text-gray-40 border-gray-20"
             className={`h-9 px-3 rounded-[10px] border transition-colors flex items-center gap-1.5 ${
               autoRotate
                 ? "bg-white/10 text-white border-white/30"
                 : "bg-[#121212]/90 text-white/60 border-white/10 hover:text-white hover:border-white/20"
             }`}
           >
+            <RotateCw className={`size-3.5 ${autoRotate ? "animate-spin" : ""}`} style={{ animationDuration: "4s" }} />
+            <span className="hidden sm:inline">ORBIT</span>
+          </button>
+          <button
+            onClick={loadGraph}
+            className="h-9 px-3 border border-gray-20 bg-[#090a0f]/90 text-gray-40 hover:text-[#00F5D4] flex items-center gap-1.5"
+          >
+            <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
             <RotateCw className={`size-3.5 ${autoRotate ? "animate-spin text-white" : ""}`} style={autoRotate ? { animationDuration: "4s" } : undefined} />
             <span className="hidden md:inline">Orbit</span>
           </button>
           <button
             onClick={toggleFullscreen}
+            className="h-9 px-3 border border-gray-20 bg-[#090a0f]/90 text-gray-40 hover:text-white"
             className="h-9 px-3 rounded-[10px] bg-[#121212]/90 border border-white/10 text-white/60 hover:text-white hover:border-white/20 transition-colors flex items-center justify-center"
             title="Toggle Fullscreen"
           >
@@ -1366,6 +1414,9 @@ export default function SpatialWorld() {
         </div>
       </header>
 
+      <div className="absolute top-20 left-4 z-20 w-full max-w-xs space-y-2 pointer-events-auto md:left-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-gray-40" />
       {/* ═══════════════ SEARCH & FILTER TOOLBAR ═══════════════ */}
       <div className="absolute top-[72px] left-4 md:left-5 z-20 flex flex-col gap-2 pointer-events-auto max-w-sm w-full font-mono text-xs">
         <div className="relative border border-white/10 rounded-[20px] bg-[#121212]/90 backdrop-blur-xl shadow-2xl p-1.5 flex items-center">
@@ -1373,6 +1424,9 @@ export default function SpatialWorld() {
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Filter galaxy…"
+            className="w-full h-10 pl-9 pr-3 border border-gray-20 bg-[#090a0f]/90 text-sm font-mono text-white placeholder:text-gray-40 outline-none focus:border-[#00F5D4]/50"
+          />
             placeholder="search node // e.g. Persona..."
             className="w-full h-8 bg-transparent pl-2 pr-8 text-xs text-white placeholder:text-white/30 focus:outline-none font-mono caret-white"
           />
@@ -1385,19 +1439,34 @@ export default function SpatialWorld() {
             </button>
           )}
         </div>
+        <div className="flex flex-wrap gap-1.5">
 
         {/* Domain Filter Chips with signal bars */}
         <div className="flex flex-wrap gap-1.5 pt-0.5">
           <button
             onClick={() => setDomainFilter("all")}
+            className={`px-2 py-1 text-[10px] font-mono uppercase border ${
             className={`px-3 py-1 rounded-[10px] text-[11px] font-mono border transition-all ${
               domainFilter === "all"
+                ? "border-[#00F5D4] text-[#00F5D4]"
+                : "border-gray-20 text-gray-40"
                 ? "bg-white text-black font-bold border-white shadow-sm"
                 : "bg-[#121212]/90 text-white/60 border-white/10 hover:text-white hover:border-white/25"
             }`}
           >
-            All Systems
+            All
           </button>
+          {domains.map((d) => (
+            <button
+              key={d}
+              onClick={() => setDomainFilter(d)}
+              className={`px-2 py-1 text-[10px] font-mono uppercase border ${
+                domainFilter === d ? "border-[#00F5D4] text-[#00F5D4]" : "border-gray-20 text-gray-40"
+              }`}
+            >
+              {d}
+            </button>
+          ))}
           {domains.map((dom) => {
             const domCount = graphData?.nodes.filter((n) => n.domain === dom).length || 0;
             return (
@@ -1422,10 +1491,45 @@ export default function SpatialWorld() {
             );
           })}
         </div>
+        <div className="flex items-center gap-3 text-[10px] font-mono text-gray-40 border border-gray-20 bg-[#090a0f]/80 px-3 py-2">
+          <Boxes className="size-3 text-[#00F5D4]" />
+          <span>{graphData.stats.totalProjects} worlds</span>
+          <span>·</span>
+          <span>{graphData.stats.totalTechnologies} tech</span>
+          <span>·</span>
+          <span>{graphData.stats.totalLinks} links</span>
+          <Sparkles className="size-3 text-[#00FFA3] ml-auto" />
+          <span className="text-[#00FFA3]">{QUALITY_PRESETS[quality].label}</span>
+        </div>
       </div>
 
       {/* ═══════════════ 3D WEBGL CANVAS ═══════════════ */}
       <div className="absolute inset-0 z-0">
+        <Canvas
+          dpr={dpr}
+          camera={{ position: [0, 8, 28], fov: 50, near: 0.1, far: 200 }}
+          gl={{ antialias: quality !== "performance", powerPreference: "high-performance" }}
+          onPointerMissed={() => setSelectedNode(null)}
+        >
+          <Suspense fallback={null}>
+            <GalaxyScene
+              data={graphData}
+              selectedNode={selectedNode}
+              searchQuery={searchQuery}
+              domainFilter={domainFilter}
+              autoRotate={autoRotate}
+              quality={quality}
+              onSelectNode={setSelectedNode}
+            />
+          </Suspense>
+        </Canvas>
+        <Loader
+          containerStyles={{ background: "rgba(4,4,6,0.85)", backdropFilter: "blur(8px)" }}
+          innerStyles={{ backgroundColor: "#00F5D4" }}
+          barStyles={{ backgroundColor: "#00FFA3" }}
+          dataStyles={{ color: "#00F5D4", fontFamily: "monospace", fontSize: 11 }}
+          dataInterpolation={(p) => `GALAXY_BOOT ${(p * 100).toFixed(0)}%`}
+        />
         {graphData ? (
           <Canvas
             camera={{ position: [0, 14, 30], fov: 50 }}
@@ -1494,6 +1598,17 @@ export default function SpatialWorld() {
 
       {/* ═══════════════ NODE INSPECTOR DRAWER ═══════════════ */}
       {selectedNode && (
+        <aside className="absolute top-24 right-4 z-20 w-full max-w-sm border border-gray-20 bg-[#090a0f]/95 backdrop-blur-xl p-5 pointer-events-auto md:right-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+          <div className="flex items-start justify-between gap-3 mb-4">
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#00F5D4] mb-1">
+                {selectedNode.type === "project" ? "WORLD NODE" : "TECHNOLOGY"}
+              </div>
+              <h2 className="text-lg font-semibold leading-tight">{selectedNode.name}</h2>
+            </div>
+            <button onClick={() => setSelectedNode(null)} className="text-gray-40 hover:text-white">
+              <X className="size-4" />
+            </button>
         <aside className="absolute right-0 top-0 bottom-0 z-30 w-full max-w-md border-l border-white/10 bg-[#121212]/95 shadow-2xl backdrop-blur-3xl overflow-y-auto font-mono text-xs animate-in slide-in-from-right duration-300">
           {/* Inspector Header */}
           <div className="sticky top-0 z-10 bg-[#121212]/95 backdrop-blur-xl border-b border-white/10 p-5">
@@ -1530,6 +1645,16 @@ export default function SpatialWorld() {
             </div>
           </div>
 
+          {selectedNode.description && (
+            <p className="text-sm text-gray-40 mb-4 leading-relaxed">{selectedNode.description}</p>
+          )}
+
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            {selectedNode.domain && (
+              <div className="border border-gray-20 bg-[#040406] p-3">
+                <span className="text-[10px] uppercase text-gray-40 block">Domain</span>
+                <span className="text-xs font-semibold mt-1 block">{selectedNode.domain}</span>
+
           <div className="p-5 space-y-5">
             {/* Provenance SHA Badge with TextScrambleMorph */}
             <div className="rounded-[10px] border border-white/10 bg-black/60 px-4 py-2.5 flex items-center justify-between">
@@ -1542,6 +1667,18 @@ export default function SpatialWorld() {
                   speed={20}
                 />
               </div>
+            )}
+            <div className="border border-gray-20 bg-[#040406] p-3">
+              <span className="text-[10px] uppercase text-gray-40 block">Language</span>
+              <span className="text-xs font-semibold mt-1 block">{selectedNode.language || "—"}</span>
+            </div>
+            {typeof selectedNode.artifactCount === "number" && (
+              <div className="border border-gray-20 bg-[#040406] p-3">
+                <span className="text-[10px] uppercase text-gray-40 block">Artifacts</span>
+                <span className="text-xs font-semibold mt-1 block">{selectedNode.artifactCount}</span>
+              </div>
+            )}
+          </div>
             </div>
 
             {/* Domain + Language Grid */}
@@ -1568,6 +1705,15 @@ export default function SpatialWorld() {
                   </div>
                 </div>
 
+          {selectedNode.repository && (
+            <div className="border border-gray-20 bg-[#040406] p-3 mb-4">
+              <div className="flex items-center justify-between text-[10px] text-gray-40 mb-1">
+                <span>Repository</span>
+                <ShieldCheck className="size-3.5 text-emerald-400" />
+              </div>
+              <div className="font-mono text-xs text-emerald-400 break-all">{selectedNode.repository}</div>
+            </div>
+          )}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="rounded-[10px] border border-white/10 bg-black/60 p-3.5">
                     <span className="text-[10px] uppercase text-white/30 block">Artifacts</span>
@@ -1611,6 +1757,37 @@ export default function SpatialWorld() {
               </div>
             )}
 
+          <div className="space-y-2">
+            {selectedNode.type === "project" && (
+              <Link
+                to={`/evidence?projectId=${encodeURIComponent(selectedNode.id)}`}
+                className="w-full h-10 border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 flex items-center justify-center gap-2 text-sm"
+              >
+                <FileCode className="size-4" /> Inspect Evidence
+              </Link>
+            )}
+            {selectedNode.url && (
+              <a
+                href={selectedNode.url}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full h-10 bg-white hover:bg-gray-90 text-black font-semibold flex items-center justify-center gap-2 text-sm"
+              >
+                GitHub Source <ExternalLink className="size-3.5" />
+              </a>
+            )}
+            <Link
+              to={`/navigator?q=${encodeURIComponent(selectedNode.name)}`}
+              className="w-full h-10 border border-gray-20 hover:bg-neutral-900 flex items-center justify-center gap-2 text-sm"
+            >
+              <Compass className="size-4 text-[#00F5D4]" /> Query Navigator
+            </Link>
+            <Link
+              to={`/omni?q=${encodeURIComponent("Show architecture for " + selectedNode.name)}`}
+              className="w-full h-10 border border-[#00F5D4]/30 text-[#00F5D4] hover:bg-[#00F5D4]/10 flex items-center justify-center gap-2 text-sm"
+            >
+              Open in Omni-Command
+            </Link>
             {/* Action Buttons */}
             <div className="pt-3 space-y-2.5">
               {selectedNode.type === "project" && (

@@ -1,8 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import type { GraphVisualizerProps, GraphNode } from "@shared/orchestration";
+import { useOmniStore } from "@/stores/omniStore";
 import { Cpu, Database, Terminal, Cloud, Layers, Zap } from "lucide-react";
 
-// Optional reactflow — works when dependency is installed
 let ReactFlow: any = null;
 let Background: any = null;
 let Controls: any = null;
@@ -23,7 +23,6 @@ try {
   Position = rf.Position;
   useNodesState = rf.useNodesState;
   useEdgesState = rf.useEdgesState;
-  // CSS is imported by the page when reactflow is present
 } catch {
   /* grid fallback */
 }
@@ -44,8 +43,20 @@ const typeIcon = (type: string) => {
   }
 };
 
-function NodeCard({ node, focused }: { node: GraphNode; focused?: boolean }) {
+function NodeCard({
+  node,
+  focused,
+  onFocus,
+}: {
+  node: GraphNode;
+  focused?: boolean;
+  onFocus?: (id: string) => void;
+}) {
   return (
+    <button
+      type="button"
+      onClick={() => onFocus?.(node.id)}
+      className={`text-left px-3 py-2.5 rounded-xl bg-zinc-900 border w-44 transition-all ${
     <div
       className={`p-3.5 rounded-[20px] bg-[#121212] border transition-all duration-200 font-mono ${
         focused
@@ -62,12 +73,23 @@ function NodeCard({ node, focused }: { node: GraphNode; focused?: boolean }) {
           <div className="text-xs font-semibold text-white truncate mt-0.5">{node.label}</div>
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 
 function TechNode({ data }: { data: any }) {
   return (
+    <div
+      className={`px-3 py-2 shadow-xl rounded-xl bg-zinc-900 border w-44 hover:border-indigo-500 transition-all ${
+        data.focused ? "border-indigo-500" : "border-zinc-700"
+      }`}
+      onClick={() => data.onFocus?.(data.id)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") data.onFocus?.(data.id);
+      }}
+    >
     <div className="px-3.5 py-2.5 shadow-2xl rounded-[20px] bg-[#121212] border border-white/10 w-48 hover:border-white/30 transition-all font-mono">
       {Handle && Position && (
         <>
@@ -88,20 +110,32 @@ function TechNode({ data }: { data: any }) {
   );
 }
 
-function ReactFlowGraph({ nodes, edges, focusNodeId }: GraphVisualizerProps) {
+function ReactFlowGraph({
+  nodes,
+  edges,
+  focusNodeId,
+  onFocus,
+}: GraphVisualizerProps & { onFocus: (id: string) => void }) {
   const initialNodes = useMemo(
     () =>
       nodes.map((n, idx) => ({
         id: n.id,
         type: "techNode",
         position: n.position || { x: 80 + (idx % 5) * 220, y: 60 + Math.floor(idx / 5) * 160 },
-        data: { label: n.label, type: n.type, group: n.group },
+        data: {
+          id: n.id,
+          label: n.label,
+          type: n.type,
+          group: n.group,
+          focused: n.id === focusNodeId,
+          onFocus,
+        },
         style:
           n.id === focusNodeId
             ? { boxShadow: "0 0 0 2px rgba(255,255,255,0.8)" }
             : undefined,
       })),
-    [nodes, focusNodeId]
+    [nodes, focusNodeId, onFocus]
   );
 
   const initialEdges = useMemo(
@@ -123,6 +157,13 @@ function ReactFlowGraph({ nodes, edges, focusNodeId }: GraphVisualizerProps) {
   const [rfNodes, , onNodesChange] = useNodesState(initialNodes);
   const [rfEdges, , onEdgesChange] = useEdgesState(initialEdges);
 
+  const onNodeClick = useCallback(
+    (_: any, node: any) => {
+      if (node?.id) onFocus(node.id);
+    },
+    [onFocus]
+  );
+
   return (
     <div className="w-full h-full min-h-[420px]">
       <ReactFlow
@@ -130,6 +171,7 @@ function ReactFlowGraph({ nodes, edges, focusNodeId }: GraphVisualizerProps) {
         edges={rfEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onNodeClick={onNodeClick}
         nodeTypes={{ techNode: TechNode }}
         fitView
         className="bg-black"
@@ -143,6 +185,14 @@ function ReactFlowGraph({ nodes, edges, focusNodeId }: GraphVisualizerProps) {
 
 export function GraphVisualizer(props: GraphVisualizerProps) {
   const { nodes = [], edges = [], focusNodeId } = props;
+  const setContext = useOmniStore((s) => s.setContext);
+
+  const onFocus = useCallback(
+    (id: string) => {
+      setContext({ focusedNodeIds: [id] });
+    },
+    [setContext]
+  );
 
   if (!nodes.length) {
     return (
@@ -154,11 +204,18 @@ export function GraphVisualizer(props: GraphVisualizerProps) {
 
   if (ReactFlow && useNodesState) {
     return (
+      <div className="w-full h-full flex flex-col">
+        <div className="px-4 py-2 text-xs font-mono text-zinc-500 border-b border-zinc-900">
+          GraphVisualizer (React Flow) · {nodes.length} nodes · {edges.length} edges
+          {focusNodeId ? ` · focus ${focusNodeId}` : ""}
+          <span className="text-zinc-600"> · click node to focus</span>
       <div className="w-full h-full flex flex-col font-mono">
         <div className="px-5 py-2.5 text-xs text-white/50 border-b border-white/10 bg-[#121212] flex items-center justify-between">
           <span>//01 GRAPH TOPOLOGY · {nodes.length} NODES · {edges.length} EDGES</span>
           {focusNodeId && <span className="text-white">FOCUS: {focusNodeId}</span>}
         </div>
+        <div className="flex-1 min-h-0">
+          <ReactFlowGraph {...props} onFocus={onFocus} />
         <div className="flex-1 min-h-0 bg-black">
           <ReactFlowGraph {...props} />
         </div>
@@ -166,8 +223,13 @@ export function GraphVisualizer(props: GraphVisualizerProps) {
     );
   }
 
-  // Grid fallback when reactflow is not installed
   return (
+    <div className="w-full h-full overflow-auto p-6 md:p-10">
+      <div className="mb-4 flex items-center justify-between text-xs font-mono text-zinc-500">
+        <span>
+          GraphVisualizer (grid) · {nodes.length} nodes · {edges.length} edges · click to focus
+        </span>
+        {focusNodeId && <span className="text-indigo-400">focus: {focusNodeId}</span>}
     <div className="w-full h-full overflow-auto p-6 md:p-10 font-mono selection:bg-white selection:text-black">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
         <div>
@@ -184,7 +246,7 @@ export function GraphVisualizer(props: GraphVisualizerProps) {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
         {nodes.map((n) => (
-          <NodeCard key={n.id} node={n} focused={n.id === focusNodeId} />
+          <NodeCard key={n.id} node={n} focused={n.id === focusNodeId} onFocus={onFocus} />
         ))}
       </div>
       {edges.length > 0 && (

@@ -1,46 +1,42 @@
-# FeexSystems Enhanced Platform - Robots.txt
-# AI-Powered DevOps & Security Management Platform
+# FEEXSYSTEMS — Living Engineering Intelligence
+# Public discovery policy for FeexSystems.codes
 
 User-agent: *
 Allow: /
 
-# Disallow admin and sensitive areas
+# Private application surfaces
 Disallow: /admin/
-Disallow: /api/admin/
+Disallow: /api/
 Disallow: /dashboard/
-Disallow: /api/auth/
-Disallow: /api/users/
+Disallow: /settings/
+Disallow: /auth/
 Disallow: /uploads/
+Disallow: /internal/
 
-# Allow public assets
-Allow: /public/
+# Public product surfaces
+Allow: /projects
+Allow: /navigator
 Allow: /assets/
 Allow: /images/
-Allow: /css/
-Allow: /js/
 
-# Sitemap
-Sitemap: https://feexsystems.com/sitemap.xml
+Sitemap: https://FeexSystems.codes/sitemap.xml
 
-# Crawl delay for better server performance
-Crawl-delay: 1
-
-# Additional directives for AI and search engines
+# AI/search crawlers may index public product content.
 User-agent: GPTBot
 Allow: /
 
 User-agent: ChatGPT-User
 Allow: /
 
-User-agent: CCBot
+User-agent: ClaudeBot
 Allow: /
 
-# Block aggressive crawlers
+User-agent: Google-Extended
+Allow: /
+
+# Reduce load from aggressive crawlers.
 User-agent: AhrefsBot
 Crawl-delay: 10
 
 User-agent: SemrushBot
-Crawl-delay: 10
-
-User-agent: MJ12bot
 Crawl-delay: 10

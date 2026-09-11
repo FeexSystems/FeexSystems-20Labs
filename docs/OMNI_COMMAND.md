@@ -19,10 +19,11 @@ Principles preserved:
 |---------|-------------|
 | Command UI | `/omni` |
 | Deep link | `/omni?q=Show+me+the+backend+architecture` |
+| Voice | Mic button on command bar (Web Speech API) |
 | Sync API | `POST /api/world-model/omni-command` |
 | Streaming API | `POST /api/world-model/omni-command/stream` (SSE) |
 
-The persistent command bar accepts natural language. A live **Reasoning Trace** streams on the right. **Context chips** show focused node IDs and previous intent for multi-turn follow-ups.
+The persistent command bar accepts natural language (typed or spoken). A live **Reasoning Trace** streams on the right. **Context chips** show focused node IDs and previous intent for multi-turn follow-ups.
 
 Example commands:
 
@@ -37,7 +38,7 @@ Zoom into the focused node
 ## Pipeline
 
 ```text
-User query (+ optional context)
+User query (type or voice transcript) (+ optional context)
         ↓
 Intent classification (heuristic + context)
         ↓
@@ -56,6 +57,8 @@ Response (+ SSE trace events)
         ↓
 Stage mounts ComponentRegistry[component]
 ```
+
+Voice transcription is **browser-side only** (see `docs/VOICE_NAVIGATION.md`). Only the final text transcript is sent to the API.
 
 ## Orchestration Contract (v1.0)
 
@@ -153,6 +156,7 @@ Follow-ups such as “zoom into that node” bias retrieval and prefer `GraphVis
 | Service | `server/lib/services/omni-command.service.ts` |
 | Routes | `server/routes/omni-command.ts` |
 | Stage + registry | `client/components/omni/` |
+| Voice hook | `client/hooks/useSpeechNavigation.ts` |
 | Page | `client/pages/OmniCommand.tsx` |
 | Tests | `server/lib/__tests__/omni-command.schema.test.ts` |
 
@@ -173,6 +177,7 @@ Without either key, Omni still runs using deterministic heuristics grounded in t
 | Output | Text / structured retrieval | Orchestration Contract |
 | UI | Dedicated Navigator page | Dynamic Stage |
 | Grounding | Same World Model APIs | Same (`retrieveWorld`, graph) |
+| Input | Text / typed | Typed + voice |
 
 Omni reuses Navigator-grade retrieval; it adds the director layer and Stage mounting.
 
@@ -181,5 +186,5 @@ Omni reuses Navigator-grade retrieval; it adds the director layer and Stage moun
 - Click-to-focus graph nodes → update `focusedNodeIds`
 - Dedicated CodeViewer with syntax highlighting
 - Secondary directive (split layout)
-- Voice input into the command bar
+- Continuous voice mode / wake phrase
 - Hybrid graph/vector ranking for better grounding
