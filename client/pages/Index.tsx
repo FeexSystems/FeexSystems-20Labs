@@ -602,8 +602,8 @@ export default function Index() {
           <VideoOverlayBackground
             src="/media/feex/feex-humanoids.mp4"
             position="hero"
-            opacity={0.50}
-            blendMode="normal"
+            opacity={0.35}
+            blendMode="screen"
             label="FEEX Humanoids Feed"
             showToggle={true}
           />

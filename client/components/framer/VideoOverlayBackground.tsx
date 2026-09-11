@@ -107,20 +107,29 @@ export function VideoOverlayBackground({
         onError={() => setHasError(true)}
         style={{
           opacity: isLoaded ? opacity : 0,
-          mixBlendMode: blendMode,
+          mixBlendMode: position === "hero" ? "screen" : blendMode,
+          filter: position === "hero" ? "invert(1) contrast(1.1) brightness(0.85)" : undefined,
+          WebkitMaskImage:
+            position === "hero"
+              ? "linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.6) 70%, black 90%)"
+              : undefined,
+          maskImage:
+            position === "hero"
+              ? "linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.6) 70%, black 90%)"
+              : undefined,
         }}
         className={`w-full h-full object-cover transition-opacity duration-700 ${
-          position === "footer" ? "object-bottom" : "object-center"
+          position === "footer" ? "object-bottom" : "object-right"
         }`}
       />
 
       {/* Cybernetic Contrast Shield Gradient Overlays (WCAG AAA Compliance) */}
       {position === "hero" ? (
         <>
+          {/* Guaranteed pure black shield over left-hand hero text and CTAs */}
+          <div className="absolute inset-y-0 left-0 w-full sm:w-3/5 bg-gradient-to-r from-black via-black/90 to-transparent pointer-events-none" />
           {/* Top subtle vignette */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/35 to-black/80 pointer-events-none" />
-          {/* Radial spotlight shield to keep central text and CTAs razor sharp */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.72)_70%,rgba(0,0,0,0.92)_100%)] pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black to-transparent pointer-events-none" />
           {/* Bottom fade into next section */}
           <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none" />
         </>
