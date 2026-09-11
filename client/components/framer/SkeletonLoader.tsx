@@ -6,6 +6,7 @@ export interface SkeletonLoaderProps extends React.HTMLAttributes<HTMLDivElement
   glow?: boolean;
   className?: string;
   lines?: number;
+  count?: number;
 }
 
 export function SkeletonLoader({
@@ -13,8 +14,19 @@ export function SkeletonLoader({
   glow = true,
   className,
   lines = 3,
+  count,
   ...props
 }: SkeletonLoaderProps) {
+  if (count && count > 1) {
+    return (
+      <div className={cn("grid gap-4", className)}>
+        {Array.from({ length: count }).map((_, i) => (
+          <SkeletonLoader key={i} variant={variant} glow={glow} lines={lines} {...props} />
+        ))}
+      </div>
+    );
+  }
+
   const shimmerClasses =
     "relative overflow-hidden bg-white/[0.04] border border-white/[0.08] before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.8s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/[0.08] before:to-transparent";
 

@@ -8,6 +8,8 @@ export interface StrokeAnimationProps {
   duration?: number; // seconds
   autoPlay?: boolean;
   className?: string;
+  width?: number;
+  height?: number;
 }
 
 export function StrokeAnimation({
@@ -17,6 +19,8 @@ export function StrokeAnimation({
   duration = 3,
   autoPlay = true,
   className,
+  width,
+  height,
 }: StrokeAnimationProps) {
   const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);

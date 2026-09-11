@@ -28,35 +28,33 @@ export function preloadComponent(importFunc: ImportFunc) {
  * Lazy loaded routes configuration
  */
 export const routes = {
+  // Public & Showcase routes
+  Index: lazyLoad(() => import('@/pages/Index')),
+  Projects: lazyLoad(() => import('@/pages/Projects')),
+  Navigator: lazyLoad(() => import('@/pages/Navigator')),
+  SpatialWorld: lazyLoad(() => import('@/pages/SpatialWorld')),
+  OmniCommand: lazyLoad(() => import('@/pages/OmniCommand')),
+
   // Auth routes
-  Login: lazyLoad(() => import('@/pages/auth/Login')),
-  Register: lazyLoad(() => import('@/pages/auth/Register')),
-  ForgotPassword: lazyLoad(() => import('@/pages/auth/ForgotPassword')),
+  Login: lazyLoad(() => import('@/pages/Login')),
+  Register: lazyLoad(() => import('@/pages/Register')),
+  ForgotPassword: lazyLoad(() => import('@/pages/ForgotPassword')),
   
   // Dashboard routes
-  Dashboard: lazyLoad(() => import('@/pages/dashboard/Dashboard')),
-  Profile: lazyLoad(() => import('@/pages/dashboard/Profile')),
-  
-  // AI routes
-  AIServices: lazyLoad(() => import('@/pages/ai/Services')),
-  AIRequests: lazyLoad(() => import('@/pages/ai/Requests')),
-  
-  // Security routes
-  SecurityScans: lazyLoad(() => import('@/pages/security/Scans')),
-  Vulnerabilities: lazyLoad(() => import('@/pages/security/Vulnerabilities')),
-  
-  // Team routes
-  Teams: lazyLoad(() => import('@/pages/teams/Teams')),
-  TeamSettings: lazyLoad(() => import('@/pages/teams/Settings')),
+  Dashboard: lazyLoad(() => import('@/pages/dashboard/index')),
+  Profile: lazyLoad(() => import('@/pages/dashboard/profile')),
+  AIServices: lazyLoad(() => import('@/pages/dashboard/ai-services')),
+  DevOps: lazyLoad(() => import('@/pages/dashboard/devops')),
+  Security: lazyLoad(() => import('@/pages/dashboard/security')),
+  Teams: lazyLoad(() => import('@/pages/dashboard/teams')),
   
   // Admin routes
-  AdminDashboard: lazyLoad(() => import('@/pages/admin/Dashboard')),
-  AdminUsers: lazyLoad(() => import('@/pages/admin/Users')),
-  AdminSettings: lazyLoad(() => import('@/pages/admin/Settings')),
+  AdminDashboard: lazyLoad(() => import('@/pages/admin/index')),
+  AdminUsers: lazyLoad(() => import('@/pages/admin/users')),
 };
 
 // Preload critical routes
 export function preloadCriticalRoutes() {
-  preloadComponent(() => import('@/pages/dashboard/Dashboard'));
-  preloadComponent(() => import('@/pages/auth/Login'));
+  preloadComponent(() => import('@/pages/Index'));
+  preloadComponent(() => import('@/pages/Login'));
 }

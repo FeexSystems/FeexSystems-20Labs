@@ -9,6 +9,8 @@ const envSchema = z.object({
   SENTRY_DSN: z.string().url().optional(),
   AI_SERVICE_API_KEY: z.string().optional(),
   AI_SERVICE_URL: z.string().url().optional(),
+  PAYSTACK_SECRET_KEY: z.string().optional(),
+  PAYSTACK_PUBLIC_KEY: z.string().optional(),
   PORT: z.string().optional(),
 });
 

@@ -15,7 +15,7 @@ export class DatabaseService {
     });
 
     // Log slow queries
-    this.prisma.$on('query', (e: any) => {
+    (this.prisma.$on as any)('query', (e: any) => {
       if (e.duration > 500) { // Log queries taking more than 500ms
         logger.warn('Slow query detected:', {
           query: e.query,
@@ -30,7 +30,7 @@ export class DatabaseService {
    * Optimized user profile fetch with caching
    */
   async getUserProfile(userId: string) {
-    const cacheKey = cacheService.keys.userProfile(userId);
+    const cacheKey = CacheService.keys.userProfile(userId);
     
     return cacheService.getOrSet(cacheKey, async () => {
       const user = await this.prisma.user.findUnique({
@@ -168,7 +168,7 @@ export class DatabaseService {
    */
   async transaction<T>(operation: () => Promise<T>, retries = 3): Promise<T> {
     try {
-      return await this.prisma.$transaction(operation);
+      return await (this.prisma.$transaction as any)(operation);
     } catch (error) {
       if (retries > 0 && this.isRetryableError(error)) {
         await new Promise(resolve => setTimeout(resolve, 1000));

@@ -11,6 +11,7 @@ interface Point {
 }
 
 export interface CursorDotTrailProps {
+  dotColor?: string;
   trailColor?: string;
   maxPoints?: number;
   dotSize?: number;
@@ -18,6 +19,7 @@ export interface CursorDotTrailProps {
 }
 
 export function CursorDotTrail({
+  dotColor,
   trailColor = "#ffffff",
   maxPoints = 24,
   dotSize = 3,

@@ -282,7 +282,7 @@ export default function Projects() {
       <section className="container mx-auto max-w-7xl px-5 md:px-8 py-6 pb-24">
         {loading ? (
           <div className="py-12">
-            <SkeletonLoader variant="cyber" count={6} className="max-w-7xl mx-auto" />
+            <SkeletonLoader variant="card" count={6} className="max-w-7xl mx-auto" />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

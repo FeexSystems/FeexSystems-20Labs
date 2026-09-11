@@ -1,10 +1,12 @@
 import React, { useState, useCallback } from "react";
-import { useAuthStore } from "@/lib/auth-store";
+import { useAuthStore } from "@/store/auth";
 import { Lock, ArrowRight, X, ShieldAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function useGitHubAuthGuard() {
-  const { isAuthenticated } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+  const isAuthenticated = typeof isLoggedIn === "function" ? isLoggedIn() : Boolean(user);
   const [blockedUrl, setBlockedUrl] = useState<string | null>(null);
 
   const handleGitHubClick = useCallback(

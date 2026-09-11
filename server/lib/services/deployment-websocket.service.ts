@@ -37,6 +37,8 @@ export interface DeploymentWebSocketEvents {
       failedStages: number;
     };
   };
+  'deployment:health': any;
+  'deployment:alert': any;
 }
 
 export class DeploymentWebSocketService {

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
+  SubscriptionStatus,
+  PlanInterval,
   type Subscription, 
   type SubscriptionPlan, 
   type UsageMetrics, 
@@ -16,7 +18,7 @@ const mockApi = {
       id: 'sub_1',
       userId: 'user_1',
       planId: 'plan_pro',
-      status: 'ACTIVE' as const,
+      status: SubscriptionStatus.ACTIVE,
       currentPeriodStart: new Date('2024-02-15'),
       currentPeriodEnd: new Date('2024-03-15'),
       cancelAtPeriodEnd: false,
@@ -35,7 +37,7 @@ const mockApi = {
         name: 'Starter',
         description: 'Perfect for individuals',
         price: 9,
-        interval: 'MONTH' as const,
+        interval: PlanInterval.MONTH,
         currency: 'USD',
         features: [
           '1,000 AI requests/month',
@@ -58,7 +60,7 @@ const mockApi = {
         name: 'Pro',
         description: 'Perfect for growing teams',
         price: 29,
-        interval: 'MONTH' as const,
+        interval: PlanInterval.MONTH,
         currency: 'USD',
         features: [
           'Unlimited AI requests',
@@ -206,7 +208,7 @@ export function useBilling() {
         setSubscription({
           ...subscription,
           cancelAtPeriodEnd: data.cancelAtPeriodEnd,
-          status: data.cancelAtPeriodEnd ? subscription.status : 'CANCELED'
+          status: data.cancelAtPeriodEnd ? subscription.status : SubscriptionStatus.CANCELED
         });
       }
     } catch (err) {
@@ -225,7 +227,7 @@ export function useBilling() {
         setSubscription({
           ...subscription,
           cancelAtPeriodEnd: false,
-          status: 'ACTIVE'
+          status: SubscriptionStatus.ACTIVE
         });
       }
     } catch (err) {

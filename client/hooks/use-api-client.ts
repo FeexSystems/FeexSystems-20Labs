@@ -9,10 +9,13 @@ export function useApiClient() {
     // Initialize API client with auth functions
     apiClient.initialize(
       () => tokens,
-      refreshToken,
-      logout
+      (err) => {
+        if (err.status === 401) {
+          logout();
+        }
+      }
     );
-  }, [tokens, refreshToken, logout]);
+  }, [tokens, logout]);
 
   return apiClient;
 }

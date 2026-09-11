@@ -211,7 +211,7 @@ export class AIWebSocketService {
         // Check if completed or failed
         if (status.request?.status === 'completed') {
           // Get the full request with results
-          const fullRequest = await aiRequestService.getRequest(requestId);
+          const fullRequest: any = await aiRequestService.getRequest(requestId);
           
           socket.emit('ai:request-completed', {
             requestId,

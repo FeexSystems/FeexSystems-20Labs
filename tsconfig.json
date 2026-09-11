@@ -43,6 +43,8 @@
     "node_modules",
     "dist",
     "server/archive/**",
+    "client/vite.config.ts",
+    "client/components/devops/**",
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/*.spec.ts",

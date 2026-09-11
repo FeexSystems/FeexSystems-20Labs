@@ -43,7 +43,7 @@ interface AuthActions {
     lastName: string;
   }) => Promise<void>;
   logout: () => void;
-  refreshToken: () => Promise<void>;
+  refreshToken: () => Promise<any>;
   updateUser: (userData: Partial<User>) => void;
   clearError: () => void;
   setLoading: (loading: boolean) => void;
@@ -175,7 +175,7 @@ export function AuthStoreProvider({ children }: { children: ReactNode }) {
     updateState({ isLoading: true, error: null });
     
     try {
-      const data = await apiClient.post('/auth/login', 
+      const data: any = await apiClient.post('/auth/login', 
         { email, password },
         { requireAuth: false }
       );
@@ -212,7 +212,7 @@ export function AuthStoreProvider({ children }: { children: ReactNode }) {
     updateState({ isLoading: true, error: null });
     
     try {
-      const data = await apiClient.post('/auth/register', 
+      const data: any = await apiClient.post('/auth/register', 
         userData,
         { requireAuth: false }
       );
@@ -374,7 +374,7 @@ export function AuthStoreProvider({ children }: { children: ReactNode }) {
     updateState({ isLoading: true, error: null });
     
     try {
-      const data = await apiClient.upload('/users/upload-avatar', file, 'avatar');
+      const data: any = await apiClient.upload('/users/upload-avatar', file, 'avatar');
       updateState({ isLoading: false });
       return data.profileImageUrl;
     } catch (error) {

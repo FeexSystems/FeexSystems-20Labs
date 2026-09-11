@@ -501,7 +501,7 @@ const PRICING_TIERS = [
       "Priority Bull queue indexing & real-time telemetry",
     ],
     ctaText: "Deploy Engineer Pro",
-    ctaLink: "/register",
+    ctaLink: "/dashboard/billing?plan=professional",
     popular: true,
     highlight: true,
   },

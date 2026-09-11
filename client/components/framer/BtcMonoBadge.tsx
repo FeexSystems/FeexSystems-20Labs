@@ -4,28 +4,37 @@ import { cn } from "@/lib/utils";
 
 export interface BtcMonoBadgeProps {
   commitSha?: string;
+  hash?: string;
   blockHeight?: number;
   label?: string;
+  sublabel?: string;
+  status?: string;
+  size?: string;
   timestamp?: string;
   className?: string;
 }
 
 export function BtcMonoBadge({
-  commitSha = "4a9f2e7b8c1d5e3f6a0b9c8d7e6f5a4b3c2d1e0f",
+  commitSha,
+  hash,
   blockHeight = 840029,
   label = "IMMUTABLE PROOF",
+  sublabel,
+  status,
+  size,
   timestamp = "2026-09-10 18:42 UTC",
   className,
 }: BtcMonoBadgeProps) {
   const [copied, setCopied] = useState(false);
+  const activeSha = commitSha || hash || "4a9f2e7b8c1d5e3f6a0b9c8d7e6f5a4b3c2d1e0f";
 
   const copySha = () => {
-    navigator.clipboard.writeText(commitSha);
+    navigator.clipboard.writeText(activeSha);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const shortSha = `${commitSha.slice(0, 7)}...${commitSha.slice(-7)}`;
+  const shortSha = `${activeSha.slice(0, 7)}...${activeSha.slice(-7)}`;
 
   return (
     <div

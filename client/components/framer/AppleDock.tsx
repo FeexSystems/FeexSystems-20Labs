@@ -16,7 +16,7 @@ export interface DockItem {
   id: string;
   label: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
 }
 
 const DEFAULT_DOCK_ITEMS: DockItem[] = [

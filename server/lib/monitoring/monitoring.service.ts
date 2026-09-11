@@ -1,4 +1,4 @@
-import { Resource } from '@opentelemetry/resources';
+import * as otelResources from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
@@ -16,11 +16,11 @@ class MonitoringService {
   constructor() {
     // Create and configure TraceProvider
     this.tracerProvider = new (NodeTracerProvider as any)({
-      resource: new (Resource as any)({
+      resource: (otelResources as any).Resource ? new (otelResources as any).Resource({
         [SemanticResourceAttributes.SERVICE_NAME]: 'feexsystems-api',
         [SemanticResourceAttributes.SERVICE_VERSION]: process.env.npm_package_version || '1.0.0',
         environment: process.env.NODE_ENV || 'development'
-      })
+      }) : undefined
     });
 
     // Configure span processor and exporter

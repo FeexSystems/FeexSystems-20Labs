@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   AlertCircle,
   TrendingUp,
@@ -23,16 +25,126 @@ import {
   ArrowRight,
   Receipt,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  Loader2,
+  Sparkles,
+  Lock
 } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
+import { toast } from '@/hooks/use-toast';
+import { startPaystackCheckout, verifyPaystackReference } from '@/lib/services/paystack-client';
 
 export default function BillingPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState('professional');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [verificationSuccess, setVerificationSuccess] = useState<string | null>(null);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
+
+  // Handle Paystack callback on redirect
+  useEffect(() => {
+    const reference = searchParams.get('reference') || searchParams.get('trxref');
+    const status = searchParams.get('status');
+
+    if (reference) {
+      setVerifying(true);
+      verifyPaystackReference(reference)
+        .then((res) => {
+          if (res.success) {
+            setVerificationSuccess(
+              `Payment verified successfully! Reference: ${reference}. Your subscription is now active.`
+            );
+            toast({
+              title: "Payment Successful",
+              description: `Your ${res.data?.planId || 'subscription'} has been successfully activated.`,
+            });
+          } else {
+            setVerificationError(
+              res.error?.message || "Payment verification failed. Please contact support."
+            );
+            toast({
+              title: "Verification Failed",
+              description: res.error?.message || "Could not verify payment reference.",
+              variant: "destructive",
+            });
+          }
+        })
+        .catch((err) => {
+          setVerificationError(err.message || "Failed to verify payment reference.");
+        })
+        .finally(() => {
+          setVerifying(false);
+          // Clean up search params
+          const newParams = new URLSearchParams(searchParams);
+          newParams.delete('reference');
+          newParams.delete('trxref');
+          newParams.delete('status');
+          setSearchParams(newParams, { replace: true });
+        });
+    }
+  }, [searchParams, setSearchParams]);
+
+  // Handle plan checkout
+  const handleCheckout = async (planId: string) => {
+    if (planId === 'starter') {
+      toast({
+        title: "Free Starter Tier",
+        description: "You are already active on the Community Explorer / Starter tier.",
+      });
+      return;
+    }
+
+    const email = user?.email || prompt("Enter your billing email for Paystack receipt:") || "";
+    if (!email || !email.includes("@")) {
+      toast({
+        title: "Valid Email Required",
+        description: "Please provide a valid email address to proceed with Paystack checkout.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setCheckoutLoading(planId);
+      await startPaystackCheckout({
+        email,
+        planId,
+        billingCycle,
+        currency: "USD",
+        onSuccess: (ref) => {
+          setVerificationSuccess(`Payment completed! Reference: ${ref}. Subscription activated.`);
+          toast({
+            title: "Payment Approved",
+            description: `Paystack transaction ${ref} was successful.`,
+          });
+          setCheckoutLoading(null);
+        },
+        onCancel: () => {
+          setCheckoutLoading(null);
+          toast({
+            title: "Checkout Cancelled",
+            description: "Payment was not completed.",
+          });
+        },
+      });
+    } catch (err: any) {
+      toast({
+        title: "Checkout Error",
+        description: err.message || "Failed to initiate Paystack checkout.",
+        variant: "destructive",
+      });
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
 
   // Mock data
   const currentPlan = {
     name: 'Professional',
-    price: 49,
+    price: billingCycle === 'annual' ? 39 : 49,
     period: 'month',
     nextBilling: 'February 15, 2026',
     status: 'active'
@@ -121,12 +233,44 @@ export default function BillingPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        {/* Verification Alert Banners */}
+        {verifying && (
+          <Alert className="border-blue-500/50 bg-blue-500/10 text-blue-200">
+            <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+            <AlertTitle>Verifying Paystack Transaction</AlertTitle>
+            <AlertDescription>
+              Please wait while we confirm your payment reference and activate your subscription...
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {verificationSuccess && (
+          <Alert className="border-green-500/50 bg-green-500/10 text-green-200">
+            <CheckCircle className="w-4 h-4 text-green-400" />
+            <AlertTitle>Subscription Active</AlertTitle>
+            <AlertDescription>{verificationSuccess}</AlertDescription>
+          </Alert>
+        )}
+
+        {verificationError && (
+          <Alert className="border-red-500/50 bg-red-500/10 text-red-200">
+            <AlertCircle className="w-4 h-4 text-red-400" />
+            <AlertTitle>Payment Verification Error</AlertTitle>
+            <AlertDescription>{verificationError}</AlertDescription>
+          </Alert>
+        )}
+
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Billing & Subscription</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-3xl font-bold">Billing & Subscription</h1>
+              <Badge variant="outline" className="text-xs border-primary/40 text-primary">
+                <Lock className="w-3 h-3 mr-1" /> Paystack Secured
+              </Badge>
+            </div>
             <p className="text-muted-foreground">
-              Manage your subscription, view usage, and update payment methods
+              Manage your subscription, view usage, and upgrade your intelligence tier via Paystack
             </p>
           </div>
           <Button variant="outline">
@@ -154,7 +298,9 @@ export default function BillingPage() {
                 </div>
               </div>
               <div className="flex flex-wrap gap-3">
-                <Button variant="outline">Change Plan</Button>
+                <Button variant="outline" onClick={() => handleCheckout('enterprise')}>
+                  <Sparkles className="w-4 h-4 mr-2" /> Upgrade to Enterprise
+                </Button>
                 <Button variant="outline" className="text-red-500 hover:text-red-600">
                   Cancel Subscription
                 </Button>
@@ -377,44 +523,114 @@ export default function BillingPage() {
 
           {/* Plans Tab */}
           <TabsContent value="plans" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-3">
-              {plans.map((plan) => (
-                <Card
-                  key={plan.id}
-                  className={`relative ${plan.highlighted ? 'border-primary shadow-lg' : ''}`}
+            <div className="flex flex-col items-center justify-center space-y-4 py-4 text-center">
+              <h3 className="text-xl font-bold">Select Subscription Tier</h3>
+              <p className="text-sm text-muted-foreground max-w-md">
+                All subscriptions are processed securely via Paystack with instant activation and cryptographic audit verification.
+              </p>
+              {/* Billing Toggle */}
+              <div className="flex items-center gap-3 text-xs font-mono">
+                <span className={billingCycle === 'monthly' ? 'font-bold text-foreground' : 'text-muted-foreground'}>
+                  Monthly Billing
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
+                  className="w-12 h-6 rounded-full border border-primary/30 bg-muted p-0.5 relative transition-colors"
                 >
-                  {plan.badge && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <Badge className="bg-primary">{plan.badge}</Badge>
-                    </div>
-                  )}
-                  <CardHeader className="text-center pb-2">
-                    <CardTitle className="text-xl">{plan.name}</CardTitle>
-                    <CardDescription>{plan.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-center space-y-6">
-                    <div>
-                      <span className="text-4xl font-bold">${plan.price}</span>
-                      <span className="text-muted-foreground">/{plan.period}</span>
-                    </div>
-                    <ul className="space-y-2 text-left">
-                      {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-center gap-2 text-sm">
-                          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button
-                      variant={plan.id === 'professional' ? 'default' : 'outline'}
-                      className="w-full"
-                      disabled={plan.id === 'professional'}
-                    >
-                      {plan.id === 'professional' ? 'Current Plan' : 'Choose Plan'}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                  <div
+                    className={`size-4.5 rounded-full bg-primary transition-transform ${
+                      billingCycle === 'annual' ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+                <div className="flex items-center gap-1.5">
+                  <span className={billingCycle === 'annual' ? 'font-bold text-foreground' : 'text-muted-foreground'}>
+                    Annual Billing
+                  </span>
+                  <Badge className="bg-primary/20 text-primary hover:bg-primary/30 text-[10px]">
+                    SAVE 20%
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {plans.map((plan) => {
+                const planPrice =
+                  plan.price === 0
+                    ? 0
+                    : billingCycle === 'annual'
+                    ? Math.round(plan.price * 0.8)
+                    : plan.price;
+
+                const isCurrent = plan.id === 'professional';
+                const isLoading = checkoutLoading === plan.id;
+
+                return (
+                  <Card
+                    key={plan.id}
+                    className={`relative flex flex-col justify-between ${
+                      plan.highlighted ? 'border-primary shadow-lg ring-1 ring-primary/20' : ''
+                    }`}
+                  >
+                    {plan.badge && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <Badge className="bg-primary">{plan.badge}</Badge>
+                      </div>
+                    )}
+                    <CardHeader className="text-center pb-2">
+                      <CardTitle className="text-xl">{plan.name}</CardTitle>
+                      <CardDescription>{plan.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-center space-y-6 flex-1 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <div>
+                          <span className="text-4xl font-bold">${planPrice}</span>
+                          <span className="text-muted-foreground">/{plan.period}</span>
+                        </div>
+                        {billingCycle === 'annual' && planPrice > 0 && (
+                          <p className="text-[11px] text-muted-foreground font-mono">
+                            Billed annually (${planPrice * 12}/yr)
+                          </p>
+                        )}
+                      </div>
+
+                      <ul className="space-y-2.5 text-left text-sm flex-1">
+                        {plan.features.map((feature, i) => (
+                          <li key={i} className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <Button
+                        variant={plan.id === 'professional' ? 'default' : 'outline'}
+                        className="w-full mt-4"
+                        disabled={isLoading || isCurrent}
+                        onClick={() => handleCheckout(plan.id)}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Connecting Paystack...
+                          </>
+                        ) : isCurrent ? (
+                          'Current Active Tier'
+                        ) : plan.id === 'starter' ? (
+                          'Active Free Tier'
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            Pay with Paystack (${planPrice})
+                          </>
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
 

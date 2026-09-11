@@ -1,33 +1,31 @@
-import { createClient } from 'redis';
+import { getRedisClient } from '../redis';
 import { logger } from '../logging';
 
 export class CacheService {
-  private client;
+  private get client() {
+    return getRedisClient();
+  }
   private readonly DEFAULT_TTL = 3600; // 1 hour in seconds
 
-  constructor() {
-    this.client = createClient({
-      url: process.env.REDIS_URL
-    });
-
-    this.client.on('error', (err) => {
-      logger.error('Redis Client Error:', err);
-    });
-
-    this.client.on('connect', () => {
-      logger.info('Redis Client Connected');
-    });
-  }
+  constructor() {}
 
   async connect() {
-    if (!this.client.isOpen) {
-      await this.client.connect();
+    try {
+      if (this.client.status === 'wait') {
+        await this.client.connect();
+      }
+    } catch {
+      // Lazy connection fallback
     }
   }
 
   async disconnect() {
-    if (this.client.isOpen) {
-      await this.client.quit();
+    try {
+      if (this.client.status === 'ready' || this.client.status === 'connecting') {
+        await this.client.quit();
+      }
+    } catch {
+      // Ignored during shutdown
     }
   }
 
@@ -50,7 +48,11 @@ export class CacheService {
   async set(key: string, value: any, ttl: number = this.DEFAULT_TTL): Promise<void> {
     try {
       const stringValue = JSON.stringify(value);
-      await this.client.set(key, stringValue, { EX: ttl });
+      if (ttl) {
+        await this.client.setex(key, ttl, stringValue);
+      } else {
+        await this.client.set(key, stringValue);
+      }
     } catch (error) {
       logger.error('Cache set error:', error);
     }
@@ -72,7 +74,7 @@ export class CacheService {
    */
   async clear(): Promise<void> {
     try {
-      await this.client.flushAll();
+      await this.client.flushall();
     } catch (error) {
       logger.error('Cache clear error:', error);
     }

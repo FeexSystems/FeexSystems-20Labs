@@ -15,6 +15,7 @@ import mockAuthRoutes from "./routes/mock-auth";
 import userRoutes from "./routes/users";
 import usageRoutes from "./routes/usage";
 import billingRoutes from "./routes/billing";
+import paystackRoutes from "./routes/paystack";
 import aiRoutes from "./routes/ai";
 import devopsRoutes from "./routes/devops";
 import securityRoutes from "./routes/security";
@@ -88,6 +89,7 @@ export function createServer(): express.Application {
   app.use("/api/usage", usageRoutes);
   app.use("/api/billing", billingRoutes);
   app.use("/api/subscriptions", subscriptionRoutes);
+  app.use("/api/paystack", paystackRoutes);
 
   app.use("/api/ai", aiRoutes);
   app.use("/api/devops", devopsRoutes);

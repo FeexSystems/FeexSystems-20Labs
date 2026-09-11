@@ -92,7 +92,7 @@ class GlobalErrorHandler {
     const target = event.target as HTMLElement;
     
     // Only handle resource loading errors (img, script, link, etc.)
-    if (target && target !== window && 'src' in target) {
+    if (target && (target as any) !== window && 'src' in target) {
       console.error('Resource loading error:', target);
 
       this.reportError({

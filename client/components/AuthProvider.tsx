@@ -39,7 +39,7 @@ function AuthProviderInner({ children }: AuthProviderProps) {
   useEffect(() => {
     // Initialize token manager with callbacks
     tokenManager.initialize(
-      refreshToken,
+      refreshToken as any,
       logout,
       handleTimeoutWarning,
       120 // Warn 2 minutes before expiration

@@ -87,6 +87,12 @@ async function queryNavigator(query: string): Promise<{
     headers: { "Content-Type": "application/json" },
   });
 
+  if (res.status === 429) {
+    const rateLimitErr = new Error("RATE_LIMIT_EXCEEDED");
+    (rateLimitErr as any).status = 429;
+    throw rateLimitErr;
+  }
+
   if (!res.ok) throw new Error(`Navigator returned ${res.status}`);
 
   const json = await res.json();
@@ -178,20 +184,34 @@ export function Bushfeexer() {
             evidenceCount,
           },
         ]);
-      } catch {
-        // Graceful fallback — heuristic responses
-        const fallback = heuristicResponse(text);
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `b-${Date.now()}`,
-            text: fallback.text,
-            sender: "bot",
-            timestamp: new Date(),
-            suggestions: fallback.suggestions,
-            isError: true,
-          },
-        ]);
+      } catch (err: any) {
+        if (err?.status === 429 || err?.message === "RATE_LIMIT_EXCEEDED" || err?.message?.includes("429")) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `b-${Date.now()}`,
+              text: "⚠️ **Rate Limit Reached (Max 5 queries per 15 min)**: You have reached the query limit. Please wait a few minutes before querying again, or explore the interactive 3D Galaxy directly.",
+              sender: "bot",
+              timestamp: new Date(),
+              suggestions: ["Explore 3D Galaxy", "View Projects", "Return to Home"],
+              isError: true,
+            },
+          ]);
+        } else {
+          // Graceful fallback — heuristic responses
+          const fallback = heuristicResponse(text);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `b-${Date.now()}`,
+              text: fallback.text,
+              sender: "bot",
+              timestamp: new Date(),
+              suggestions: fallback.suggestions,
+              isError: true,
+            },
+          ]);
+        }
       } finally {
         setIsTyping(false);
       }

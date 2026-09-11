@@ -479,6 +479,68 @@ export interface GetInvoicesResponse {
   success: boolean;
 }
 
+// -----------------------------------------------------------------------------
+// Paystack Payment & Subscription API Contracts
+// -----------------------------------------------------------------------------
+export interface PaystackInitializeRequest {
+  email?: string;
+  planId?: string;
+  amount?: number; // In base currency (e.g. 29 for $29 or 29000 for NGN 29000)
+  currency?: string; // 'USD' | 'NGN' | 'GHS' | 'ZAR'
+  callbackUrl?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface PaystackInitializeResponse {
+  success: boolean;
+  data: {
+    authorizationUrl: string;
+    accessCode: string;
+    reference: string;
+    publicKey: string;
+  };
+}
+
+export interface PaystackVerifyResponse {
+  success: boolean;
+  data: {
+    reference: string;
+    status: 'success' | 'failed' | 'abandoned' | 'pending';
+    amount: number;
+    currency: string;
+    paidAt: string;
+    channel: string;
+    customer: {
+      id: number;
+      email: string;
+      customerCode?: string;
+    };
+    plan?: string;
+    subscription?: {
+      id: string;
+      status: string;
+      planId: string;
+      currentPeriodEnd: string;
+    };
+  };
+}
+
+export interface PaystackConfigResponse {
+  success: boolean;
+  data: {
+    publicKey: string;
+    isLive: boolean;
+    supportedCurrencies: string[];
+    plans: {
+      id: string;
+      name: string;
+      price: number;
+      currency: string;
+      interval: string;
+    }[];
+  };
+}
+
 export interface GetPaymentMethodsResponse {
   paymentMethods: PaymentMethod[];
   success: boolean;

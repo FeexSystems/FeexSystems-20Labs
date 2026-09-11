@@ -227,7 +227,7 @@ class WebSocketService {
     }
 
     // Send message to server
-    emit(event: string, data: any) {
+    emit(event: string, data?: any) {
         if (this.socket?.connected) {
             this.socket.emit(event, data);
         } else {
@@ -266,16 +266,13 @@ class WebSocketService {
 export const webSocketService = new WebSocketService();
 
 // Auto-connect when user is authenticated
-useAuthStore.subscribe(
-    (state) => state.isLoggedIn(),
-    (isLoggedIn) => {
-        if (isLoggedIn) {
-            webSocketService.connect();
-        } else {
-            webSocketService.disconnect();
-        }
+useAuthStore.subscribe((state) => {
+    if (state.isLoggedIn()) {
+        webSocketService.connect();
+    } else {
+        webSocketService.disconnect();
     }
-);
+});
 
 // Connect immediately if already logged in
 if (useAuthStore.getState().isLoggedIn()) {

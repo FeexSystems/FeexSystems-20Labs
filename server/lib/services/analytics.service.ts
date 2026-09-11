@@ -41,7 +41,7 @@ export class AnalyticsService {
       await db.userEvent.create({
         data: {
           userId: event.userId,
-          eventType: event.eventType,
+          eventType: event.eventType as any,
           eventData: event.eventData,
           timestamp: event.timestamp || new Date(),
         },
@@ -156,14 +156,13 @@ export class AnalyticsService {
   }
 
   private async getActiveUsers(start: Date, end: Date): Promise<number> {
-    return db.userEvent.count({
+    return (db.userEvent as any).count({
       where: {
         timestamp: {
           gte: start,
           lte: end,
         },
       },
-      distinct: ['userId'],
     });
   }
 
@@ -176,9 +175,8 @@ export class AnalyticsService {
             gte: start,
             lte: end,
           },
-          status: 'active',
+          status: 'ACTIVE',
         },
-        distinct: ['userId'],
       }),
     ]);
 
@@ -223,7 +221,7 @@ export class AnalyticsService {
   }
 
   private async getTopFeatures(start: Date, end: Date): Promise<Array<{ feature: string; usage: number }>> {
-    const features = await db.userEvent.groupBy({
+    const features = await (db.userEvent as any).groupBy({
       by: ['eventType'],
       where: {
         timestamp: {

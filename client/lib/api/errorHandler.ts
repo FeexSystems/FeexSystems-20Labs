@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios';
 import { logError } from '../logging/sentry';
 
 export class APIError extends Error {
@@ -15,7 +14,7 @@ export class APIError extends Error {
   }
 }
 
-export const handleAPIError = (error: AxiosError): never => {
+export const handleAPIError = (error: any): never => {
   const status = error.response?.status || 500;
   const data = error.response?.data as any;
   

@@ -182,7 +182,7 @@ export function RealtimeStatusIndicator({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  size={size}
+                  size={size === 'md' ? 'default' : size}
                   className={`flex items-center space-x-2 ${className}`}
                   onClick={onClick}
                 >

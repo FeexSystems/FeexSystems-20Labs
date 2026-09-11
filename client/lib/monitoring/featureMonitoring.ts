@@ -1,23 +1,14 @@
-import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
-
 // Performance monitoring for specific features
 export const startFeatureTransaction = (
   name: string,
   options: { data?: Record<string, any>; tags?: Record<string, string> } = {}
 ) => {
-  const transaction = Sentry.startTransaction({
-    name: `feature.${name}`,
-    op: 'feature',
-    ...options,
-  });
-
-  // Set transaction as current
-  Sentry.getCurrentHub().configureScope(scope => {
-    scope.setSpan(transaction);
-  });
-
-  return transaction;
+  return {
+    name,
+    options,
+    setStatus: (_status: string) => {},
+    finish: () => {},
+  };
 };
 
 // Error monitoring for specific features
@@ -33,12 +24,7 @@ export const monitorFeature = (featureName: string) => {
         transaction.setStatus('ok');
         return result;
       } catch (error) {
-        Sentry.withScope((scope) => {
-          scope.setTag('feature', featureName);
-          scope.setExtra('arguments', args);
-          scope.setExtra('context', this);
-          Sentry.captureException(error);
-        });
+        console.error(`[Feature Error in ${featureName}]:`, error);
         transaction.setStatus('error');
         throw error;
       } finally {
@@ -51,42 +37,11 @@ export const monitorFeature = (featureName: string) => {
 };
 
 // Custom error filters
-export const errorFilter = (event: Sentry.Event) => {
-  // Ignore certain network errors
-  if (event.exception?.values?.[0]?.type === 'NetworkError') {
-    return null;
-  }
-
-  // Rate limit certain frequent errors
-  if (event.exception?.values?.[0]?.type === 'ValidationError') {
-    const key = `validation-error-${Date.now()}`;
-    const count = parseInt(sessionStorage.getItem(key) || '0');
-    if (count > 5) {
-      return null;
-    }
-    sessionStorage.setItem(key, (count + 1).toString());
-  }
-
+export const errorFilter = (event: any) => {
   return event;
 };
 
 // Performance monitoring configuration
 export const configurePerformanceMonitoring = () => {
-  Sentry.init({
-    ...Sentry.init,
-    integrations: [
-      new BrowserTracing({
-        tracingOrigins: ['localhost', 'your-production-domain.com'],
-        routingInstrumentation: Sentry.reactRouterV6Instrumentation(
-          React.useEffect,
-          useLocation,
-          useNavigationType,
-          createRoutesFromChildren,
-          matchRoutes
-        ),
-      }),
-    ],
-    tracesSampleRate: Boolean(import.meta.env?.PROD) ? 0.1 : 1.0,
-    profilesSampleRate: 0.1,
-  });
+  // Graceful no-op when Sentry browser tracing is not attached
 };

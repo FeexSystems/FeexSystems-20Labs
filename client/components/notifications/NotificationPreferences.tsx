@@ -30,7 +30,7 @@ export function NotificationPreferences() {
     if (nested) {
       updatePreferences({
         [nested]: {
-          ...preferences[nested as keyof typeof preferences],
+          ...(preferences[nested as keyof typeof preferences] as Record<string, any>),
           [key]: value
         }
       });

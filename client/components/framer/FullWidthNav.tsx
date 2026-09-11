@@ -88,7 +88,8 @@ export function FullWidthNav({
   });
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { user, logout, isLoggedIn } = useAuthStore();
+  const isAuthenticated = isLoggedIn ? isLoggedIn() : !!user;
 
   // Update sliding pill position
   const updatePill = (index: number | null) => {
