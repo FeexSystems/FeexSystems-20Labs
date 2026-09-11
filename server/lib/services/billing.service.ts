@@ -236,7 +236,7 @@ export class BillingService {
         period: billing.period,
         type: 'overage',
       },
-    });
+    } as any);
 
     if (invoice) {
       await stripeService.finalizeInvoice(invoice.id);

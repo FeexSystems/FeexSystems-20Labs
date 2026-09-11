@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === 'development') {
   globalThis.__prisma = prisma;
 }
 
-export { prisma };
+export { prisma, prisma as db };
 
 // Database connection helper
 export async function connectDatabase() {

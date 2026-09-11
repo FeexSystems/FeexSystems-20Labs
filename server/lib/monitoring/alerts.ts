@@ -15,7 +15,7 @@ const ALERT_THRESHOLDS = {
 export const configureAlerts = () => {
   // Monitor error rates
   Sentry.addEventProcessor((event) => {
-    if (event.type === 'error') {
+    if ((event as any).type === 'error' || !event.type) {
       const errorType = event.exception?.values?.[0]?.type;
       
       // Check for critical errors

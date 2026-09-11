@@ -5,12 +5,14 @@ import { SessionService } from './session.service';
 import {
   RegisterUserInput,
   LoginUserInput,
+} from '../validations/user';
+import {
   RefreshTokenInput,
   PasswordResetRequestInput,
   PasswordResetInput,
   EmailVerificationInput,
   ChangePasswordInput
-} from '../validations/user';
+} from '../validations/auth';
 
 export interface AuthTokens {
   accessToken: string;
