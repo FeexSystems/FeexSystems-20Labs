@@ -602,7 +602,8 @@ export default function Index() {
           <VideoOverlayBackground
             src="/media/feex/feex-humanoids.mp4"
             position="hero"
-            opacity={0.30}
+            opacity={0.50}
+            blendMode="normal"
             label="FEEX Humanoids Feed"
             showToggle={true}
           />
@@ -2287,12 +2288,13 @@ export default function Index() {
       {/* ========================================================================= */}
       {/* GLOBAL TECHNICAL FOOTER                                                   */}
       {/* ========================================================================= */}
-      <footer className="w-full border-t border-white/10 bg-[#000000]/80 backdrop-blur-[2px] py-16 text-xs text-zinc-300 relative z-10 overflow-hidden">
+      <footer className="w-full border-t border-white/10 bg-[#000000]/30 backdrop-blur-[2px] py-16 text-xs text-zinc-300 relative z-10 overflow-hidden">
         {/* FEEX ROBOTICS AMBIENT VIDEO OVERLAY */}
         <VideoOverlayBackground
           src="/media/feex/feex-robotics.mp4"
           position="footer"
-          opacity={0.28}
+          opacity={0.65}
+          blendMode="normal"
           label="FEEX Robotics Stream"
           showToggle={true}
         />

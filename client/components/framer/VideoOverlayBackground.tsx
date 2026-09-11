@@ -15,11 +15,11 @@ export interface VideoOverlayBackgroundProps {
 export function VideoOverlayBackground({
   src,
   poster,
-  opacity = 0.28,
+  opacity = 0.55,
   className = "",
   position = "hero",
   label = "Ambient Video Stream",
-  blendMode = "screen",
+  blendMode = "normal",
   showToggle = true,
 }: VideoOverlayBackgroundProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -109,7 +109,7 @@ export function VideoOverlayBackground({
           opacity: isLoaded ? opacity : 0,
           mixBlendMode: blendMode,
         }}
-        className={`w-full h-full object-cover transition-opacity duration-1000 ${
+        className={`w-full h-full object-cover transition-opacity duration-700 ${
           position === "footer" ? "object-bottom" : "object-center"
         }`}
       />
@@ -118,22 +118,21 @@ export function VideoOverlayBackground({
       {position === "hero" ? (
         <>
           {/* Top subtle vignette */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/85 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/35 to-black/80 pointer-events-none" />
           {/* Radial spotlight shield to keep central text and CTAs razor sharp */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(0,0,0,0.6)_0%,rgba(0,0,0,0.88)_70%,rgba(0,0,0,0.98)_100%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.72)_70%,rgba(0,0,0,0.92)_100%)] pointer-events-none" />
           {/* Bottom fade into next section */}
-          <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none" />
         </>
       ) : position === "footer" ? (
         <>
           {/* Top fade from previous section */}
-          <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-black via-black/80 to-transparent pointer-events-none" />
-          {/* Dense ambient gradient shield for footer links and copyright */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/75 pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.92)_80%)] pointer-events-none" />
+          <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-black via-black/70 to-transparent pointer-events-none" />
+          {/* High-visibility contrast shield: dark enough for crisp typography, transparent enough for vivid robotics video */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/65 pointer-events-none" />
         </>
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/80 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/40 to-black/75 pointer-events-none" />
       )}
 
       {/* Discrete Cyberpunk Play/Pause Toggle Badge */}
