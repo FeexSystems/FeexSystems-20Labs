@@ -1,197 +1,37 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import * as THREE from "three";
 
 export interface HeroTunnelProps {
   isDarkMode?: boolean;
   transparent?: boolean;
-  customImages?: string[];
   opacity?: number;
   tunnelSpeed?: number;
   className?: string;
   style?: React.CSSProperties;
 }
 
-const DEFAULT_IMAGES = [
-  "/media/feex/ai-neural-core.jpg",
-  "/media/feex/sonik-audio-dsp.jpg",
-  "/media/feex/holokai-guardians-armor.jpeg",
-  "/media/feex/holokai-guardians-with-names.jpeg",
-  "/media/feex/yurrhealer-lab.jpg",
-  "/media/feex/kappaxchangefin-ledger.jpg",
-  "/media/feex/rental-paradise-architecture.jpg",
-  "/media/feex/holokai-civilization-artifact.jpg",
-  "/media/feex/civilization-architecture.jpg",
-  "/media/feex/genomics-research.jpg",
-  "/media/feex/fintech-trading.jpg",
-  "/media/feex/synthesizer-dsp.jpg",
-  "/media/feex/engineering-systems.jpg",
-  "/media/feex/robotics-biomechanics.jpg",
-  "/media/feex/manifesto-journal.jpg",
-  "/media/feex/feex-architecture-board.jpeg",
-];
-
 export function HeroTunnel({
   isDarkMode = true,
   transparent = true,
-  customImages = DEFAULT_IMAGES,
   opacity = 1,
-  tunnelSpeed = 0.05,
+  tunnelSpeed = 0.045,
   className = "",
   style = {},
 }: HeroTunnelProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const segmentsRef = useRef<THREE.Group[]>([]);
   const scrollPosRef = useRef<number>(0);
-  const [imageUrls] = useState<string[]>(customImages);
 
-  const TUNNEL_WIDTH = 24;
-  const TUNNEL_HEIGHT = 16;
-  const SEGMENT_DEPTH = 6;
-  const NUM_SEGMENTS = 14;
-  const FLOOR_COLS = 6;
-  const WALL_ROWS = 4;
+  const TUNNEL_WIDTH = 22;
+  const TUNNEL_HEIGHT = 14;
+  const SEGMENT_DEPTH = 8;
+  const NUM_SEGMENTS = 8;
+  const FLOOR_COLS = 5;
+  const WALL_ROWS = 3;
   const COL_WIDTH = TUNNEL_WIDTH / FLOOR_COLS;
   const ROW_HEIGHT = TUNNEL_HEIGHT / WALL_ROWS;
-
-  const populateImages = (
-    group: THREE.Group,
-    w: number,
-    h: number,
-    d: number,
-    pool: string[] = imageUrls
-  ) => {
-    const textureLoader = new THREE.TextureLoader();
-    const cellMargin = 0.4;
-    const activePool = pool.length > 0 ? pool : imageUrls;
-
-    const addImg = (pos: THREE.Vector3, rot: THREE.Euler, wd: number, ht: number) => {
-      const url = activePool[Math.floor(Math.random() * activePool.length)];
-      const geom = new THREE.PlaneGeometry(wd - cellMargin, ht - cellMargin);
-      const mat = new THREE.MeshBasicMaterial({
-        transparent: true,
-        opacity: 0,
-        side: THREE.DoubleSide,
-      });
-
-      textureLoader.load(
-        url,
-        (tex) => {
-          tex.minFilter = THREE.LinearFilter;
-          mat.map = tex;
-          mat.opacity = 0.85;
-          mat.needsUpdate = true;
-        },
-        undefined,
-        () => {
-          // Fallback if image fails to load: keep subtle wireframe slab
-          mat.color = new THREE.Color(0x222222);
-          mat.opacity = 0.4;
-        }
-      );
-
-      const m = new THREE.Mesh(geom, mat);
-      m.position.copy(pos);
-      m.rotation.copy(rot);
-      m.name = "slab_image";
-      group.add(m);
-    };
-
-    let lastFloorIdx = -999;
-    for (let i = 0; i < FLOOR_COLS; i++) {
-      if (i > lastFloorIdx + 1 && Math.random() > 0.75) {
-        addImg(
-          new THREE.Vector3(-w + i * COL_WIDTH + COL_WIDTH / 2, -h, -d / 2),
-          new THREE.Euler(-Math.PI / 2, 0, 0),
-          COL_WIDTH,
-          d
-        );
-        lastFloorIdx = i;
-      }
-    }
-
-    let lastCeilIdx = -999;
-    for (let i = 0; i < FLOOR_COLS; i++) {
-      if (i > lastCeilIdx + 1 && Math.random() > 0.85) {
-        addImg(
-          new THREE.Vector3(-w + i * COL_WIDTH + COL_WIDTH / 2, h, -d / 2),
-          new THREE.Euler(Math.PI / 2, 0, 0),
-          COL_WIDTH,
-          d
-        );
-        lastCeilIdx = i;
-      }
-    }
-
-    let lastLeftIdx = -999;
-    for (let i = 0; i < WALL_ROWS; i++) {
-      if (i > lastLeftIdx + 1 && Math.random() > 0.75) {
-        addImg(
-          new THREE.Vector3(-w, -h + i * ROW_HEIGHT + ROW_HEIGHT / 2, -d / 2),
-          new THREE.Euler(0, Math.PI / 2, 0),
-          d,
-          ROW_HEIGHT
-        );
-        lastLeftIdx = i;
-      }
-    }
-
-    let lastRightIdx = -999;
-    for (let i = 0; i < WALL_ROWS; i++) {
-      if (i > lastRightIdx + 1 && Math.random() > 0.75) {
-        addImg(
-          new THREE.Vector3(w, -h + i * ROW_HEIGHT + ROW_HEIGHT / 2, -d / 2),
-          new THREE.Euler(0, -Math.PI / 2, 0),
-          d,
-          ROW_HEIGHT
-        );
-        lastRightIdx = i;
-      }
-    }
-  };
-
-  const createSegment = (zPos: number) => {
-    const group = new THREE.Group();
-    group.position.z = zPos;
-    const w = TUNNEL_WIDTH / 2;
-    const h = TUNNEL_HEIGHT / 2;
-    const d = SEGMENT_DEPTH;
-
-    // Strict monochrome wireframe line aesthetics
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: isDarkMode ? 0.22 : 0.4,
-    });
-
-    const lineGeo = new THREE.BufferGeometry();
-    const vertices: number[] = [];
-
-    for (let i = 0; i <= FLOOR_COLS; i++) {
-      const x = -w + i * COL_WIDTH;
-      vertices.push(x, -h, 0, x, -h, -d);
-      vertices.push(x, h, 0, x, h, -d);
-    }
-    for (let i = 1; i < WALL_ROWS; i++) {
-      const y = -h + i * ROW_HEIGHT;
-      vertices.push(-w, y, 0, -w, y, -d);
-      vertices.push(w, y, 0, w, y, -d);
-    }
-    vertices.push(-w, -h, 0, w, -h, 0);
-    vertices.push(-w, h, 0, w, h, 0);
-    vertices.push(-w, -h, 0, -w, h, 0);
-    vertices.push(w, -h, 0, w, h, 0);
-
-    lineGeo.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-    const lines = new THREE.LineSegments(lineGeo, lineMaterial);
-    group.add(lines);
-
-    populateImages(group, w, h, d);
-    return group;
-  };
 
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
@@ -199,8 +39,13 @@ export function HeroTunnel({
     let renderer: THREE.WebGLRenderer | null = null;
     let frameId: number;
     let isVisible = true;
+    let isContextLost = false;
     const cleanupFns: (() => void)[] = [];
     const segments: THREE.Group[] = [];
+
+    // Shared geometry and materials to avoid texture allocation leaks
+    const sharedGeometries: THREE.BufferGeometry[] = [];
+    const sharedMaterials: THREE.Material[] = [];
 
     try {
       const scene = new THREE.Scene();
@@ -209,26 +54,124 @@ export function HeroTunnel({
       }
       scene.fog = new THREE.FogExp2(
         isDarkMode ? 0x000000 : 0xffffff,
-        transparent ? 0.025 : 0.035
+        transparent ? 0.02 : 0.03
       );
-      sceneRef.current = scene;
 
       const width = containerRef.current.clientWidth || window.innerWidth;
       const height = containerRef.current.clientHeight || window.innerHeight;
 
-      const camera = new THREE.PerspectiveCamera(70, width / height, 0.1, 1000);
+      const camera = new THREE.PerspectiveCamera(65, width / height, 0.1, 800);
       camera.position.set(0, 0, 0);
       cameraRef.current = camera;
 
       renderer = new THREE.WebGLRenderer({
         canvas: canvasRef.current,
-        antialias: true,
+        antialias: false, // Low memory footprint, prevents D3D11 Texture2D allocation spikes
         alpha: transparent,
-        powerPreference: "high-performance",
+        powerPreference: "default",
+        precision: "mediump",
       });
       renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
       rendererRef.current = renderer;
+
+      // Handle WebGL context lost gracefully (prevent unhandled browser crashes)
+      const onContextLost = (e: Event) => {
+        e.preventDefault();
+        isContextLost = true;
+        cancelAnimationFrame(frameId);
+        console.warn("[HeroTunnel] WebGL Context Lost gracefully handled.");
+      };
+
+      const onContextRestored = () => {
+        isContextLost = false;
+        console.log("[HeroTunnel] WebGL Context Restored.");
+      };
+
+      const canvasEl = canvasRef.current;
+      canvasEl.addEventListener("webglcontextlost", onContextLost, false);
+      canvasEl.addEventListener("webglcontextrestored", onContextRestored, false);
+      cleanupFns.push(() => {
+        canvasEl.removeEventListener("webglcontextlost", onContextLost);
+        canvasEl.removeEventListener("webglcontextrestored", onContextRestored);
+      });
+
+      // Wireframe line material
+      const lineMaterial = new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: isDarkMode ? 0.2 : 0.35,
+      });
+      sharedMaterials.push(lineMaterial);
+
+      // Procedural architectural data slab material (zero dynamic textures)
+      const slabMaterial = new THREE.MeshBasicMaterial({
+        color: isDarkMode ? 0x161618 : 0xeeeeee,
+        transparent: true,
+        opacity: isDarkMode ? 0.35 : 0.25,
+        side: THREE.DoubleSide,
+      });
+      sharedMaterials.push(slabMaterial);
+
+      const slabEdgeMaterial = new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.18,
+      });
+      sharedMaterials.push(slabEdgeMaterial);
+
+      // Shared slab plane geometry
+      const slabGeom = new THREE.PlaneGeometry(COL_WIDTH - 0.5, SEGMENT_DEPTH - 0.5);
+      sharedGeometries.push(slabGeom);
+
+      const slabEdgesGeom = new THREE.EdgesGeometry(slabGeom);
+      sharedGeometries.push(slabEdgesGeom);
+
+      const createSegment = (zPos: number) => {
+        const group = new THREE.Group();
+        group.position.z = zPos;
+        const w = TUNNEL_WIDTH / 2;
+        const h = TUNNEL_HEIGHT / 2;
+        const d = SEGMENT_DEPTH;
+
+        const vertices: number[] = [];
+        for (let i = 0; i <= FLOOR_COLS; i++) {
+          const x = -w + i * COL_WIDTH;
+          vertices.push(x, -h, 0, x, -h, -d);
+          vertices.push(x, h, 0, x, h, -d);
+        }
+        for (let i = 1; i < WALL_ROWS; i++) {
+          const y = -h + i * ROW_HEIGHT;
+          vertices.push(-w, y, 0, -w, y, -d);
+          vertices.push(w, y, 0, w, y, -d);
+        }
+        vertices.push(-w, -h, 0, w, -h, 0);
+        vertices.push(-w, h, 0, w, h, 0);
+        vertices.push(-w, -h, 0, -w, h, 0);
+        vertices.push(w, -h, 0, w, h, 0);
+
+        const lineGeo = new THREE.BufferGeometry();
+        lineGeo.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+        sharedGeometries.push(lineGeo);
+
+        const lines = new THREE.LineSegments(lineGeo, lineMaterial);
+        group.add(lines);
+
+        // Add static architectural slabs (reused across loop, zero texture allocations)
+        for (let i = 0; i < FLOOR_COLS; i++) {
+          if ((i + Math.abs(zPos / SEGMENT_DEPTH)) % 3 === 0) {
+            const slab = new THREE.Mesh(slabGeom, slabMaterial);
+            slab.position.set(-w + i * COL_WIDTH + COL_WIDTH / 2, -h, -d / 2);
+            slab.rotation.set(-Math.PI / 2, 0, 0);
+
+            const slabWire = new THREE.LineSegments(slabEdgesGeom, slabEdgeMaterial);
+            slab.add(slabWire);
+            group.add(slab);
+          }
+        }
+
+        return group;
+      };
 
       for (let i = 0; i < NUM_SEGMENTS; i++) {
         const z = -i * SEGMENT_DEPTH;
@@ -236,80 +179,55 @@ export function HeroTunnel({
         scene.add(segment);
         segments.push(segment);
       }
-      segmentsRef.current = segments;
+
+      const tunnelLength = NUM_SEGMENTS * SEGMENT_DEPTH;
 
       const animate = () => {
-        if (!isVisible) return;
+        if (!isVisible || isContextLost) return;
         frameId = requestAnimationFrame(animate);
 
-        if (!cameraRef.current || !sceneRef.current || !rendererRef.current) return;
+        if (!cameraRef.current || !rendererRef.current) return;
+        const glCtx = rendererRef.current.getContext();
+        if (!glCtx || glCtx.isContextLost()) return;
 
-        // Scroll-driven target position with smooth inertial lerp
+        // Smooth scroll interpolation
         const targetZ = -scrollPosRef.current * tunnelSpeed;
         const currentZ = cameraRef.current.position.z;
         cameraRef.current.position.z += (targetZ - currentZ) * 0.1;
 
-        const tunnelLength = NUM_SEGMENTS * SEGMENT_DEPTH;
         const camZ = cameraRef.current.position.z;
 
-        segmentsRef.current.forEach((segment) => {
-          // Recycle segments that have fallen behind the camera
+        // Recycle segments efficiently WITHOUT memory allocations or mesh reconstruction
+        segments.forEach((segment) => {
           if (segment.position.z > camZ + SEGMENT_DEPTH) {
             let minZ = 0;
-            segmentsRef.current.forEach((s) => (minZ = Math.min(minZ, s.position.z)));
+            segments.forEach((s) => (minZ = Math.min(minZ, s.position.z)));
             segment.position.z = minZ - SEGMENT_DEPTH;
-
-            const toRemove: THREE.Object3D[] = [];
-            segment.traverse((c) => {
-              if (c.name === "slab_image") toRemove.push(c);
-            });
-            toRemove.forEach((c) => {
-              segment.remove(c);
-              if (c instanceof THREE.Mesh) {
-                c.geometry.dispose();
-                if (c.material.map) c.material.map.dispose();
-                c.material.dispose();
-              }
-            });
-            populateImages(segment, TUNNEL_WIDTH / 2, TUNNEL_HEIGHT / 2, SEGMENT_DEPTH);
-          }
-
-          // Recycle segments if scrolling backwards
-          if (segment.position.z < camZ - tunnelLength - SEGMENT_DEPTH) {
+          } else if (segment.position.z < camZ - tunnelLength - SEGMENT_DEPTH) {
             let maxZ = -999999;
-            segmentsRef.current.forEach((s) => (maxZ = Math.max(maxZ, s.position.z)));
+            segments.forEach((s) => (maxZ = Math.max(maxZ, s.position.z)));
             segment.position.z = maxZ + SEGMENT_DEPTH;
-
-            const toRemove: THREE.Object3D[] = [];
-            segment.traverse((c) => {
-              if (c.name === "slab_image") toRemove.push(c);
-            });
-            toRemove.forEach((c) => {
-              segment.remove(c);
-              if (c instanceof THREE.Mesh) {
-                c.geometry.dispose();
-                if (c.material.map) c.material.map.dispose();
-                c.material.dispose();
-              }
-            });
-            populateImages(segment, TUNNEL_WIDTH / 2, TUNNEL_HEIGHT / 2, SEGMENT_DEPTH);
           }
         });
 
-        rendererRef.current.render(sceneRef.current, cameraRef.current);
+        try {
+          rendererRef.current.render(scene, cameraRef.current);
+        } catch {
+          // Catch and absorb any render frame errors
+        }
       };
 
       const observer = new IntersectionObserver(
         ([entry]) => {
           isVisible = entry.isIntersecting;
-          if (isVisible) {
+          if (isVisible && !isContextLost) {
             cancelAnimationFrame(frameId);
             animate();
           } else {
             cancelAnimationFrame(frameId);
           }
         },
-        { threshold: 0 }
+        { threshold: 0.05 }
       );
 
       if (containerRef.current) {
@@ -332,6 +250,8 @@ export function HeroTunnel({
       };
 
       window.addEventListener("resize", handleResize);
+
+      // Start animation loop
       animate();
 
       cleanupFns.push(() => {
@@ -340,25 +260,22 @@ export function HeroTunnel({
         window.removeEventListener("resize", handleResize);
         cancelAnimationFrame(frameId);
 
-        // Clean up Three.js scene & geometries
+        // Dispose geometries and materials cleanly
+        sharedGeometries.forEach((g) => g.dispose());
+        sharedMaterials.forEach((m) => m.dispose());
+
         segments.forEach((seg) => {
-          seg.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-              child.geometry.dispose();
-              if (child.material.map) child.material.map.dispose();
-              child.material.dispose();
-            } else if (child instanceof THREE.LineSegments) {
-              child.geometry.dispose();
-              child.material.dispose();
-            }
-          });
+          scene.remove(seg);
         });
 
-        if (renderer) renderer.dispose();
+        if (renderer) {
+          try {
+            renderer.dispose();
+            renderer.forceContextLoss();
+          } catch {}
+        }
       });
     } catch (err) {
-      // Graceful degradation: WebGL not supported or Three.js init failed
-      // The tunnel is purely decorative, so we silently skip rendering
       console.warn("[HeroTunnel] WebGL initialization failed, skipping 3D tunnel:", err);
       if (renderer) {
         try { renderer.dispose(); } catch {}
@@ -388,6 +305,5 @@ export function HeroTunnel({
   );
 }
 
-// Named alias matching Framer url export naming
 export { HeroTunnel as InfiniteScrollTunnel };
 export default HeroTunnel;
