@@ -57,14 +57,16 @@ interface NavigatorResult {
   technologies: NavigatorTechnology[];
   artifacts?: NavigatorArtifact[];
   groundedEvidenceCount?: number;
+  suggestions?: string[];
+  aiModel?: string;
 }
 
 const SUGGESTED_QUERIES = [
   "Which projects use PostgreSQL?",
+  "Write an LRU Cache in TypeScript",
+  "Explain FeexSystems World Model & 3D Galaxy",
+  "How does Docker containerization work?",
   "What technologies power Persona OS?",
-  "Three.js and WebGL systems",
-  "TypeScript projects in Healthcare",
-  "AI and knowledge architecture",
 ];
 
 export default function Navigator() {
@@ -249,20 +251,38 @@ export default function Navigator() {
           <div className="space-y-8">
             {/* Grounded AI Explanation Panel */}
             {result.explanation && (
-              <div className="rounded-[20px] border border-white/10 bg-[#121212] p-6 lg:p-8 relative shadow-2xl overflow-hidden">
+              <div className="rounded-[20px] border border-white/10 bg-[#121212]/90 backdrop-blur-md p-6 lg:p-8 relative shadow-2xl overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-                <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+                <div className="flex flex-wrap items-center justify-between border-b border-white/10 pb-4 mb-4 gap-2">
                   <div className="flex items-center gap-2 text-white font-mono text-xs font-bold tracking-wider uppercase">
-                    <BrainCircuit className="size-4 text-white/80" />
-                    <span>// GROUNDED MODEL EXPLANATION</span>
+                    <BrainCircuit className="size-4 text-emerald-400" />
+                    <span>// DEEP REASONING INTELLIGENCE</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-normal">
+                      Gemini 3.7 Flash · Deep Reasoning
+                    </span>
                   </div>
                   <span className="text-[11px] font-mono rounded-[10px] border border-white/10 bg-white/5 px-2.5 py-0.5 text-white/70">
                     {result.groundedEvidenceCount || 0} Evidence Anchors
                   </span>
                 </div>
-                <p className="text-sm sm:text-base text-white/80 leading-relaxed font-mono">
+                <div className="text-sm sm:text-base text-white/90 leading-relaxed font-mono whitespace-pre-wrap">
                   {result.explanation}
-                </p>
+                </div>
+                {result.suggestions && result.suggestions.length > 0 && (
+                  <div className="mt-6 pt-4 border-t border-white/10 flex flex-wrap gap-2 items-center">
+                    <span className="text-xs text-white/40">Suggested queries:</span>
+                    {result.suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => handleSelectSuggestion(s)}
+                        className="px-3 py-1 text-xs rounded-full border border-white/20 bg-white/5 hover:bg-white/10 hover:border-white text-white/80 transition-all font-mono"
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

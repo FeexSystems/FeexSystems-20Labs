@@ -28,6 +28,7 @@ import {
   isMaintenanceRunning,
 } from "../lib/services/world-model-maintenance.service";
 import { hardQueryRateLimiter } from "../lib/middleware/production-security";
+import { geminiService } from "../lib/services/gemini.service";
 
 const router = Router();
 
@@ -150,6 +151,31 @@ router.get("/navigator", hardQueryRateLimiter, async (req: Request, res: Respons
     }
     const hybrid = String(req.query.hybrid || "true") !== "false";
     const result = hybrid ? await retrieveWorldHybrid(q) : await retrieveWorld(q);
+
+    // Deep interactive reasoning with Gemini Interactions API (gemini-3.7-flash)
+    try {
+      const interactive = await geminiService.generateInteractiveResponse({
+        prompt: q,
+        groundedEntities: (result.projects || []).map((p: any) => ({
+          name: p.name,
+          type: "project",
+          description: p.description,
+          repository: p.repository,
+        })),
+        technologies: result.technologies,
+        artifacts: result.artifacts,
+      });
+
+      if (interactive.explanation) {
+        result.explanation = interactive.explanation;
+      }
+      (result as any).suggestions = interactive.suggestions;
+      (result as any).aiModel = interactive.model;
+      (result as any).aiMode = interactive.mode;
+    } catch (aiErr) {
+      console.warn("[Navigator GET] Gemini reasoning fallback:", aiErr);
+    }
+
     res.json({ success: true, data: result });
   } catch (error) {
     res.status(500).json({
@@ -167,6 +193,33 @@ router.post("/navigator", hardQueryRateLimiter, async (req: Request, res: Respon
     }
     const hybrid = req.body?.hybrid !== false;
     const result = hybrid ? await retrieveWorldHybrid(q) : await retrieveWorld(q);
+    const history = Array.isArray(req.body?.history) ? req.body.history : undefined;
+
+    // Deep interactive reasoning with Gemini Interactions API & multi-turn history
+    try {
+      const interactive = await geminiService.generateInteractiveResponse({
+        prompt: q,
+        history,
+        groundedEntities: (result.projects || []).map((p: any) => ({
+          name: p.name,
+          type: "project",
+          description: p.description,
+          repository: p.repository,
+        })),
+        technologies: result.technologies,
+        artifacts: result.artifacts,
+      });
+
+      if (interactive.explanation) {
+        result.explanation = interactive.explanation;
+      }
+      (result as any).suggestions = interactive.suggestions;
+      (result as any).aiModel = interactive.model;
+      (result as any).aiMode = interactive.mode;
+    } catch (aiErr) {
+      console.warn("[Navigator POST] Gemini reasoning fallback:", aiErr);
+    }
+
     res.json({ success: true, data: result });
   } catch (error) {
     res.status(500).json({

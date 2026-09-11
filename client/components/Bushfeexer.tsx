@@ -24,65 +24,158 @@ interface NavigatorResult {
   groundedEvidenceCount?: number;
 }
 
+/* ─── Rich Code Block & Message Renderer ─── */
+function MessageContent({ text }: { text: string }) {
+  const codeBlockRegex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
+  const parts: Array<{ type: "text" | "code"; content: string; lang?: string }> = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = codeBlockRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({ type: "text", content: text.slice(lastIndex, match.index) });
+    }
+    parts.push({ type: "code", lang: match[1] || "code", content: match[2].trimEnd() });
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push({ type: "text", content: text.slice(lastIndex) });
+  }
+
+  if (parts.length === 0) {
+    return <span className="whitespace-pre-wrap">{text}</span>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {parts.map((part, idx) => {
+        if (part.type === "code") {
+          return (
+            <div key={idx} className="my-2 rounded-xl border border-white/20 bg-black/90 overflow-hidden font-mono text-[11px]">
+              <div className="flex items-center justify-between px-3 py-1 bg-white/10 border-b border-white/10 text-white/60 text-[10px]">
+                <span className="uppercase font-semibold tracking-wider">{part.lang}</span>
+                <button
+                  type="button"
+                  onClick={() => navigator.clipboard?.writeText(part.content)}
+                  className="text-[10px] text-zinc-300 hover:text-white transition-colors"
+                >
+                  Copy
+                </button>
+              </div>
+              <pre className="p-3 overflow-x-auto text-emerald-400 font-mono text-xs leading-relaxed">
+                <code>{part.content}</code>
+              </pre>
+            </div>
+          );
+        }
+        return (
+          <div key={idx} className="whitespace-pre-wrap leading-relaxed">
+            {part.content}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ─── Heuristic fallback (no-server / graceful degrade) ─── */
 function heuristicResponse(query: string): { text: string; suggestions: string[] } {
   const q = query.toLowerCase();
 
-  if (q.match(/pric|cost|plan|\$/)) {
+  if (q.match(/hello|hi|hey|greetings|start/)) {
     return {
-      text: "💡 FeexSystems offers Starter, Professional, and Enterprise plans. For live pricing backed by the World Model, make sure the server is running so I can fetch the latest data.",
-      suggestions: ["Compare plans", "Enterprise features", "Start free trial", "Contact sales"],
+      text: "👋 Hi! I'm **Bushfeexer**, your FeexSystems Living Intelligence Director.\n\nI can help you explore the World Model, explain system architecture, write or review code, inspect live repository evidence, or navigate our 3D Galaxy. What are you working on today?",
+      suggestions: ["Tell me about FeexSystems", "Show me the projects in the World Model", "Write a code example", "Explain the 3D Galaxy"],
     };
   }
-  if (q.match(/demo|show|tour/)) {
+
+  if (q.match(/who are you|what is bushfeexer|what can you do/)) {
     return {
-      text: "🚀 I'd love to show you FeexSystems in action — AI analytics, real-time threat detection, and automated DevOps workflows. Connect the server for a live, evidence-grounded walkthrough.",
-      suggestions: ["Book live demo", "Self-guided tour", "Technical deep-dive"],
+      text: "🤖 I am **Bushfeexer**, the autonomous Living Intelligence Director of **FEEXSYSTEMS**.\n\nI combine deep-reasoning AI with our canonical World Model—a real-time, evidence-backed knowledge graph of our GitHub ecosystem, repositories, commits, and dependencies. I can write production code, answer technical questions, and ground claims in verifiable evidence.",
+      suggestions: ["What is the World Model?", "Show me projects", "How does Evidence Fabric work?", "Compare subscription plans"],
     };
   }
-  if (q.match(/feature|capabilit|what can/)) {
+
+  if (q.match(/code|function|typescript|react|python|algorithm|sql|rust|go|debug|write/)) {
     return {
-      text: "⚡ FeexSystems covers AI Intelligence, DevOps Automation, Security Shield, and Analytics Dashboards. Ask me about any specific area — when the server is live I'll pull real project evidence.",
-      suggestions: ["AI features", "DevOps tools", "Security features", "View all features"],
+      text: "💻 **Engineering & Code Reasoning**:\n\n```typescript\n// Example: Type-Safe Async Ingestion in FeexSystems\nexport async function ingestEntity<T extends { id: string }>(\n  entity: T,\n  evidenceSha: string\n): Promise<{ success: boolean; recordedAt: string }> {\n  console.log(`Ingesting entity ${entity.id} anchored to SHA: ${evidenceSha}`);\n  return { success: true, recordedAt: new Date().toISOString() };\n}\n```\n\nAsk me for any specific function, algorithm, or component in TypeScript, Python, React, Go, Rust, or SQL, and I'll generate the complete, tested implementation.",
+      suggestions: ["Write an LRU Cache in TypeScript", "Explain React Server Components", "Show database schema patterns", "How do we write unit tests with Vitest?"],
     };
   }
-  if (q.match(/security|safe|privacy|soc|iso|gdpr/)) {
+
+  if (q.match(/feex|world model|ecosystem|galaxy|spatial/)) {
     return {
-      text: "🔒 Security is our top priority — SOC 2 Type II, ISO 27001, GDPR ready, end-to-end encrypted. Connect the server for evidence-anchored compliance details.",
-      suggestions: ["Security whitepaper", "Compliance details", "Data privacy"],
+      text: "🌐 **FEEXSYSTEMS World Model & 3D Spatial Galaxy**:\n\n- **Canonical Graph**: Authoritative mapping of repositories (`FEEXSYSTEMS-Persona-Digital-Portfolio`, `yurrheeler-med-advisor`), dependencies, and artifacts.\n- **Evidence Fabric**: Cryptographic commit SHAs proving every claimed architectural capability.\n- **Spatial Galaxy (`/world`)**: Three.js WebGL scene visualizing domains and system relationships.\n- **Omni-Command (`/omni`)**: Multi-agent directive orchestration.",
+      suggestions: ["Open 3D Galaxy at /world", "View Projects at /projects", "Explore Evidence Fabric", "See pricing tiers"],
     };
   }
-  if (q.match(/integrat|connect|api|webhook/)) {
+
+  if (q.match(/tech|docker|kubernetes|cloud|aws|gcp|database|prisma|redis|vector/)) {
     return {
-      text: "🔗 FeexSystems integrates with GitHub, AWS, Docker, Slack, and 100+ more via REST API and webhooks. I can pull live integration evidence once the server is reachable.",
-      suggestions: ["View all integrations", "API documentation", "Custom integration"],
+      text: "⚡ **Technology Stack & Architecture**:\n\n- **Core Runtime**: React 18, React Router 7, Vite, Express 5, Node 24\n- **Data Architecture**: PostgreSQL 15 + pgvector, Prisma ORM, Redis (ioredis) + Bull queue\n- **Intelligence**: Google Gemini Interactions API (gemini-3.7-flash) with deep thinking & multi-provider routing\n- **Security**: SOC 2 Type II, ISO 27001 ready, HMAC SHA-256 webhook signatures, JWT sessions",
+      suggestions: ["Explain pgvector semantic search", "How does Redis Bull queue work?", "Explain Gemini Interactions API", "Tell me about Paystack billing"],
     };
   }
-  if (q.match(/support|help|contact/)) {
+
+  if (q.match(/pric|cost|plan|subscri|\$/)) {
     return {
-      text: "🛟 Support is available 24/7. Reach us at technical@feexsystems.com or via chat. Premium tiers get <2 hr response time.",
-      suggestions: ["Technical support", "Billing question", "Report a bug"],
-    };
-  }
-  if (q.match(/hello|hi|hey|start/)) {
-    return {
-      text: "👋 Hi! I'm Bushfeexer, the FeexSystems Living Intelligence assistant. I'm grounded in the World Model — our live GitHub ecosystem. What would you like to explore?",
-      suggestions: ["Tell me about FeexSystems", "Show me pricing plans", "Book a demo", "Technical documentation"],
+      text: "💳 **FeexSystems Subscription Tiers** (Backed by Paystack):\n\n- **Starter ($29/mo)**: Individual developers, 10 World Model projects, basic AI queries.\n- **Professional ($99/mo)**: Scaling engineering teams, unlimited project nodes, priority AI reasoning, evidence exports.\n- **Enterprise ($299/mo)**: Dedicated infrastructure, SOC 2 compliance, custom AI director agent, 24/7 SLA.",
+      suggestions: ["Upgrade to Professional", "Explore Starter features", "Enterprise deployment", "Contact sales"],
     };
   }
 
   return {
-    text: "🤔 Great question! I'll give you the most accurate answer when the FeexSystems server is reachable so I can ground my response in real project evidence. In the meantime, here are some popular topics:",
-    suggestions: ["Platform overview", "See pricing", "Book demo", "Talk to sales"],
+    text: "💡 **FEEXSYSTEMS Living Intelligence**:\n\nI can answer questions on code, architecture, FeexSystems, and technology. What would you like to explore?",
+    suggestions: ["Explore World Model", "Write a TypeScript function", "Explain cloud architecture", "View pricing plans"],
   };
 }
 
-/* ─── API call to World Model navigator ─── */
-async function queryNavigator(query: string): Promise<{
+/* ─── API call to World Model navigator with Multi-Turn History ─── */
+async function queryNavigator(
+  query: string,
+  history?: Array<{ role: "user" | "assistant"; text: string }>
+): Promise<{
   text: string;
   suggestions: string[];
   evidenceCount?: number;
 }> {
+  // 1. Try POST with history
+  try {
+    const postRes = await fetch("/api/world-model/navigator", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, history }),
+    });
+
+    if (postRes.status === 429) {
+      const rateLimitErr = new Error("RATE_LIMIT_EXCEEDED");
+      (rateLimitErr as any).status = 429;
+      throw rateLimitErr;
+    }
+
+    if (postRes.ok) {
+      const json = await postRes.json();
+      if (json.success && json.data) {
+        const data = json.data;
+        const suggestions = (data.suggestions && data.suggestions.length > 0)
+          ? data.suggestions
+          : (data.projects || []).slice(0, 2).map((p: any) => `Tell me about ${p.name}`);
+        if (!suggestions.length) {
+          suggestions.push("Tell me more", "Explain the architecture", "Show code examples");
+        }
+        return {
+          text: data.explanation || "Analyzed query against the FeexSystems Living Intelligence engine.",
+          suggestions,
+          evidenceCount: data.groundedEvidenceCount,
+        };
+      }
+    }
+  } catch (err: any) {
+    if (err?.status === 429) throw err;
+  }
+
+  // 2. Fallback to GET
   const res = await fetch(`/api/world-model/navigator?q=${encodeURIComponent(query)}`, {
     headers: { "Content-Type": "application/json" },
   });
@@ -99,16 +192,10 @@ async function queryNavigator(query: string): Promise<{
   if (!json.success) throw new Error(json.error || "Navigator query failed");
 
   const data: NavigatorResult = json.data;
-
-  // Build dynamic suggestion chips from returned project / tech names
-  const projSuggestions = (data.projects || [])
-    .slice(0, 2)
-    .map((p) => `Tell me about ${p.name}`);
-  const techSuggestions = (data.technologies || [])
-    .slice(0, 2)
-    .map((t) => `How does ${t} fit in?`);
-  const suggestions = [...projSuggestions, ...techSuggestions].slice(0, 4);
-  if (!suggestions.length) suggestions.push("Tell me more", "See all projects", "Book a demo");
+  const suggestions = (json.data?.suggestions && json.data.suggestions.length > 0)
+    ? json.data.suggestions
+    : (data.projects || []).slice(0, 2).map((p) => `Tell me about ${p.name}`);
+  if (!suggestions.length) suggestions.push("Tell me more", "Show code examples", "Explore 3D Galaxy");
 
   return {
     text: data.explanation || "Here's what I found in the FeexSystems World Model.",
@@ -172,7 +259,11 @@ export function Bushfeexer() {
       setIsTyping(true);
 
       try {
-        const { text: responseText, suggestions, evidenceCount } = await queryNavigator(text);
+        const history = messages
+          .slice(-6)
+          .map(m => ({ role: m.sender === "user" ? ("user" as const) : ("assistant" as const), text: m.text }));
+
+        const { text: responseText, suggestions, evidenceCount } = await queryNavigator(text, history);
         setMessages((prev) => [
           ...prev,
           {
@@ -301,16 +392,16 @@ export function Bushfeexer() {
               <div key={msg.id} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
                 <div className="max-w-[84%] space-y-1.5">
                   <div
-                    className={`p-3 rounded-2xl text-xs leading-relaxed whitespace-pre-line
+                    className={`p-3 rounded-2xl text-xs leading-relaxed
                       ${
                         msg.sender === "user"
-                          ? "bg-white text-black font-medium rounded-br-sm shadow"
+                          ? "bg-white text-black font-medium rounded-br-sm shadow whitespace-pre-wrap"
                           : msg.isError
                           ? "bg-zinc-900 text-white/90 border border-white/30 rounded-bl-sm"
                           : "bg-zinc-900/90 text-white/90 border border-white/10 rounded-bl-sm"
                       }`}
                   >
-                    {msg.text}
+                    <MessageContent text={msg.text} />
                   </div>
 
                   {/* Evidence badge */}

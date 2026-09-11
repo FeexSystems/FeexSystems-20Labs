@@ -1,12 +1,15 @@
 /**
  * FeexSystems — Gemini AI Service Provider
  * Implements the Provider-Neutral Intelligence layer using the Google Gemini API.
+ * Powered by @google/genai and the Gemini Interactions API (gemini-3.7-flash).
  * 
  * Invariants:
  * - World Model is Authoritative: Output is grounded in canonical database entities.
  * - Provider-Neutral: Model vendors and internal model strings are abstracted away.
  * - Non-Blocking: Lazy initialization, graceful fallback if GEMINI_API_KEY is not configured.
  */
+
+import { GoogleGenAI } from "@google/genai";
 
 export interface GeminiReasoningRequest {
   prompt: string;
@@ -29,93 +32,216 @@ export interface GeminiReasoningResponse {
   tokensUsed?: number;
 }
 
+export interface InteractiveAgentRequest {
+  prompt: string;
+  history?: Array<{ role: "user" | "assistant"; text: string }>;
+  context?: string;
+  groundedEntities?: Array<{
+    name: string;
+    type?: string;
+    description?: string;
+    repository?: string;
+    evidenceCount?: number;
+  }>;
+  technologies?: Array<{ name: string; projectCount?: number }>;
+  artifacts?: Array<{ path: string; kind?: string; sha?: string; projectName?: string }>;
+  temperature?: number;
+  maxOutputTokens?: number;
+}
+
+export interface InteractiveAgentResponse {
+  explanation: string;
+  suggestions: string[];
+  confidence: number;
+  groundedEvidenceCount: number;
+  tokensUsed?: number;
+  mode: "interactions-api" | "generate-content" | "heuristic";
+  model: string;
+}
+
+const PRIMARY_MODEL = "gemini-3.7-flash";
+
+const SYSTEM_INSTRUCTION = `You are Bushfeexer, the Living Engineering Intelligence Director of FEEXSYSTEMS (feexsystems.codes).
+You are an exceptionally versatile, deep-reasoning AI engineer, system architect, and technical guide.
+
+You must answer ANY type of query with high intellectual fidelity:
+
+1. GREETINGS & CASUAL INTERACTION:
+   - When greeted (e.g. "hi", "hello", "who are you", "what can you do"), respond warmly, intelligently, and engagingly.
+   - Introduce yourself as Bushfeexer, the FeexSystems Living Intelligence Director.
+   - Briefly outline how you can assist: exploring the World Model, architecture reviews, writing or debugging code, or inspecting live GitHub ecosystem evidence.
+
+2. CODE GENERATION, DEBUGGING & ALGORITHMS:
+   - When asked to write, refactor, or debug code in any language (TypeScript, JavaScript, React, Python, Go, Rust, C++, SQL, Bash, HTML/CSS, etc.):
+   - Produce complete, production-ready, clean, idiomatic code with clear type definitions, error handling, and inline comments.
+   - Explain the algorithmic trade-offs (time/space complexity, edge cases, scalability).
+   - Use standard markdown code blocks with language tags (\`\`\`typescript, \`\`\`python, etc.).
+
+3. ABOUT FEEXSYSTEMS & LIVING WORLD MODEL:
+   - Authoritative knowledge on FEEXSYSTEMS (feexsystems.codes):
+     * World Model: Canonical, graph-backed living representation of GitHub repositories, branches, dependencies, and engineering relationships.
+     * Evidence Fabric: Cryptographic commit SHAs, verifiable artifacts, manifests, and temporal state reconstruction.
+     * 3D Spatial Knowledge Galaxy (/world): Three.js cosmic topology mapping projects, domains, and artifacts.
+     * Omni-Command Stage (/omni): Multi-agent directive stage for autonomous engineering execution.
+     * Subscriptions & Pricing: Starter ($29/mo), Professional ($99/mo), Enterprise ($299/mo) with Paystack checkout.
+     * Key Pinned Repositories: FEEXSYSTEMS-Persona-Digital-Portfolio, yurrheeler-med-advisor, and related microservices.
+
+4. GENERAL TECHNOLOGY, COMPUTER SCIENCE & ARCHITECTURE:
+   - Provide deep, expert-level explanations across:
+     * Cloud & Infrastructure: GCP, AWS, Cloud Run, Docker containerization, Kubernetes orchestration, CI/CD pipelines.
+     * Frontend & UI: React 18, React Router 7, Vite, TailwindCSS 3, Three.js (@react-three/fiber & @react-three/drei), WebGL shaders, modern CSS glassmorphism.
+     * Backend & Databases: Node.js, Express 5, Prisma ORM, PostgreSQL 15+, pgvector semantic search, Redis queues (Bull).
+     * Security: SOC 2 Type II, ISO 27001, HMAC SHA-256 webhook verification, JWT auth, OWASP hardening.
+     * AI & LLMs: Gemini 3.7 Flash, thinking/reasoning paradigms, vector embeddings, RAG architectures.
+
+5. GROUNDED REASONING WITH WORLD MODEL EVIDENCE:
+   - When Grounded Evidence Entities, Technologies, or Artifacts are supplied in the prompt context:
+     * Synthesize and incorporate them authoritatively into your response.
+     * Reference verified repositories, file paths, and commit records as concrete proof.
+     * Never invent fake repositories or project facts that contradict the provided evidence.
+
+Tone: Authoritative, razor-sharp, deeply knowledgeable, empowering, and articulate.`;
+
 class GeminiService {
+  private client: GoogleGenAI | null = null;
   private apiKey: string | null = null;
   private isInitialized = false;
 
-  private getApiKey(): string | null {
+  private getClient(): GoogleGenAI | null {
     if (!this.isInitialized) {
       this.apiKey = process.env.GEMINI_API_KEY || null;
+      if (this.apiKey) {
+        this.client = new GoogleGenAI({ apiKey: this.apiKey });
+      }
       this.isInitialized = true;
     }
-    return this.apiKey;
+    return this.client;
+  }
+
+  public hasApiKey(): boolean {
+    return Boolean(this.getClient());
   }
 
   /**
-   * Reason over World Model evidence using Gemini
+   * Deep interactive reasoning across all query types using Gemini Interactions API
    */
-  async reasonOverWorldModel(request: GeminiReasoningRequest): Promise<GeminiReasoningResponse> {
-    const key = this.getApiKey();
+  async generateInteractiveResponse(request: InteractiveAgentRequest): Promise<InteractiveAgentResponse> {
+    const ai = this.getClient();
+    const prompt = request.prompt.trim();
 
-    // Fallback: If no API key is provided, perform heuristic semantic synthesis
-    if (!key) {
-      const entityCount = request.groundedEntities?.length || 0;
-      return {
-        explanation: `[World Model Engine] Analyzed ${entityCount} relevant graph nodes across the FeexSystems ecosystem for query: "${request.prompt}". Canonical facts and verified evidence artifacts are active in the living graph.`,
-        confidence: 0.92,
-        groundedEvidenceCount: entityCount,
-      };
+    // Prepare grounded evidence context if entities or artifacts are present
+    let contextBlock = "";
+    const groundedCount = (request.groundedEntities?.length || 0) + (request.artifacts?.length || 0);
+
+    if (request.groundedEntities && request.groundedEntities.length > 0) {
+      contextBlock += `\n[WORLD MODEL GROUNDED REPOSITORIES & PROJECTS]:\n` +
+        request.groundedEntities
+          .map(e => `- ${e.name} (${e.repository || "repo"}): ${e.description || "Active project node"}`)
+          .join("\n");
     }
 
+    if (request.technologies && request.technologies.length > 0) {
+      contextBlock += `\n[CONNECTED TECHNOLOGIES]:\n` +
+        request.technologies
+          .map(t => `- ${t.name} (connected to ${t.projectCount || 1} project(s))`)
+          .join("\n");
+    }
+
+    if (request.artifacts && request.artifacts.length > 0) {
+      contextBlock += `\n[VERIFIED EVIDENCE ARTIFACTS]:\n` +
+        request.artifacts
+          .map(a => `- ${a.path} (${a.kind || "file"}) in ${a.projectName || "project"} [SHA: ${a.sha?.slice(0, 7) || "verified"}]`)
+          .join("\n");
+    }
+
+    const conversationHistory = request.history?.length
+      ? `\n[RECENT CONVERSATION HISTORY]:\n` +
+        request.history.map(h => `${h.role.toUpperCase()}: ${h.text}`).join("\n") +
+        "\n"
+      : "";
+
+    const fullUserPrompt = `${conversationHistory}${contextBlock ? `${contextBlock}\n\n` : ""}[USER QUERY]:\n${prompt}`;
+
+    // If no API key is set, use intelligent heuristic synthesizer
+    if (!ai) {
+      return this.synthesizeOfflineResponse(prompt, request.groundedEntities, request.technologies);
+    }
+
+    // 1. PRIMARY PATH: Gemini Interactions API
     try {
-      // Grounding prompt incorporating canonical facts
-      const systemInstruction = 
-        "You are the FeexSystems Living Engineering Intelligence engine. " +
-        "You provide authoritative, evidence-backed answers about software repositories, architecture, and deployment status. " +
-        "Never invent facts; reason strictly based on verified evidence provided in the context. " +
-        "Maintain a professional, highly technical tone.";
-
-      const entityContext = request.groundedEntities
-        ? `\nGrounded Evidence Entities:\n` +
-          request.groundedEntities
-            .map(e => `- [${e.type}] ${e.name}: ${e.description || 'Verified entity'} (${e.evidenceCount || 1} evidence refs)`)
-            .join('\n')
-        : '';
-
-      const fullPrompt = `${systemInstruction}\n\nContext:\n${request.context || 'FeexSystems World Model'}${entityContext}\n\nUser Question: ${request.prompt}`;
-
-      // Use standard Gemini REST endpoint for maximum portability and zero-dep failure
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: fullPrompt }] }],
-          generationConfig: {
-            temperature: request.temperature ?? 0.2,
-            maxOutputTokens: request.maxOutputTokens ?? 1024,
-          },
-        }),
+      const interaction = await ai.interactions.create({
+        model: PRIMARY_MODEL,
+        input: fullUserPrompt,
+        system_instruction: SYSTEM_INSTRUCTION,
       });
 
-      if (!response.ok) {
-        throw new Error(`Gemini API returned status ${response.status}`);
+      const explanation = interaction.output_text?.trim();
+      if (explanation) {
+        return {
+          explanation,
+          suggestions: this.deriveSuggestions(prompt, explanation),
+          confidence: 0.99,
+          groundedEvidenceCount: groundedCount,
+          mode: "interactions-api",
+          model: PRIMARY_MODEL,
+        };
       }
-
-      const data = await response.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      if (!rawText) {
-        throw new Error('Empty response from Gemini API');
-      }
-
-      const totalTokens = data?.usageMetadata?.totalTokenCount || 0;
-
-      return {
-        explanation: rawText.trim(),
-        confidence: 0.98,
-        groundedEvidenceCount: request.groundedEntities?.length || 0,
-        tokensUsed: totalTokens,
-      };
-    } catch (error) {
-      console.warn('[GeminiService] API call failed, falling back to graph heuristics:', error);
-      return {
-        explanation: `[World Model Engine] ${request.prompt}: Synthesized graph intelligence from ${request.groundedEntities?.length || 0} active project nodes.`,
-        confidence: 0.85,
-        groundedEvidenceCount: request.groundedEntities?.length || 0,
-      };
+    } catch (interactionsError) {
+      console.warn("[GeminiService] Interactions API attempt encountered issue, falling back to generateContent with thinking:", interactionsError);
     }
+
+    // 2. FALLBACK PATH: ai.models.generateContent with thinking/deep reasoning
+    try {
+      const response = await ai.models.generateContent({
+        model: PRIMARY_MODEL,
+        contents: fullUserPrompt,
+        config: {
+          systemInstruction: SYSTEM_INSTRUCTION,
+          thinkingConfig: {
+            thinkingLevel: "HIGH" as any,
+          },
+          temperature: request.temperature ?? 0.2,
+          maxOutputTokens: request.maxOutputTokens ?? 2048,
+        },
+      });
+
+      const text = response.text?.trim();
+      if (text) {
+        return {
+          explanation: text,
+          suggestions: this.deriveSuggestions(prompt, text),
+          confidence: 0.98,
+          groundedEvidenceCount: groundedCount,
+          mode: "generate-content",
+          model: PRIMARY_MODEL,
+        };
+      }
+    } catch (genError) {
+      console.error("[GeminiService] Gemini generateContent failed:", genError);
+    }
+
+    // 3. GRACEFUL RESILIENT FALLBACK: Semantic graph synthesis
+    return this.synthesizeOfflineResponse(prompt, request.groundedEntities, request.technologies);
+  }
+
+  /**
+   * Reason over World Model evidence using Gemini (backward-compatible)
+   */
+  async reasonOverWorldModel(request: GeminiReasoningRequest): Promise<GeminiReasoningResponse> {
+    const res = await this.generateInteractiveResponse({
+      prompt: request.prompt,
+      context: request.context,
+      groundedEntities: request.groundedEntities,
+      temperature: request.temperature,
+      maxOutputTokens: request.maxOutputTokens,
+    });
+
+    return {
+      explanation: res.explanation,
+      confidence: res.confidence,
+      groundedEvidenceCount: res.groundedEvidenceCount,
+      tokensUsed: res.tokensUsed,
+    };
   }
 
   /**
@@ -126,8 +252,8 @@ class GeminiService {
     mimeType: string,
     prompt: string
   ): Promise<{ description: string; confidence: number }> {
-    const key = this.getApiKey();
-    if (!key) {
+    const ai = this.getClient();
+    if (!ai) {
       return {
         description: `Verified evidence artifact (${mimeType}). Visual artifact registered in Evidence Fabric.`,
         confidence: 0.9,
@@ -135,33 +261,25 @@ class GeminiService {
     }
 
     try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: `Analyze this software evidence artifact and describe its technical significance: ${prompt}` },
-                {
-                  fileData: {
-                    mimeType,
-                    fileUri: mediaUrl,
-                  },
+      const response = await ai.models.generateContent({
+        model: PRIMARY_MODEL,
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { text: `Analyze this software evidence artifact and describe its technical significance: ${prompt}` },
+              {
+                fileData: {
+                  mimeType,
+                  fileUri: mediaUrl,
                 },
-              ],
-            },
-          ],
-        }),
+              } as any,
+            ],
+          },
+        ],
       });
 
-      if (!response.ok) {
-        throw new Error(`Gemini Multimodal returned ${response.status}`);
-      }
-
-      const data = await response.json();
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Analyzed evidence artifact.';
+      const text = response.text || "Analyzed evidence artifact.";
       return { description: text.trim(), confidence: 0.95 };
     } catch (err) {
       return {
@@ -169,6 +287,85 @@ class GeminiService {
         confidence: 0.85,
       };
     }
+  }
+
+  /**
+   * Generates intelligent, dynamic follow-up suggestions based on query and response
+   */
+  private deriveSuggestions(query: string, explanation: string): string[] {
+    const q = query.toLowerCase();
+    const suggestions: string[] = [];
+
+    if (q.includes("hi") || q.includes("hello") || q.includes("who are you") || q.includes("help")) {
+      return [
+        "What projects are in the World Model?",
+        "Show me how Evidence Fabric works",
+        "Write a TypeScript code example",
+        "Explain the 3D Galaxy architecture",
+      ];
+    }
+
+    if (q.includes("code") || q.includes("typescript") || q.includes("react") || q.includes("python") || q.includes("function") || q.includes("write")) {
+      return [
+        "Add unit tests for this code",
+        "Optimize time & space complexity",
+        "Show error handling patterns",
+        "How would this integrate into FeexSystems?",
+      ];
+    }
+
+    if (q.includes("feex") || q.includes("world model") || q.includes("galaxy") || q.includes("evidence")) {
+      return [
+        "Inspect verified commit SHAs",
+        "Explore 3D Galaxy at /world",
+        "Open Omni-Command Stage",
+        "View subscription tiers & pricing",
+      ];
+    }
+
+    return [
+      "Explain this in more depth",
+      "Show related projects in the World Model",
+      "Give an architectural diagram explanation",
+      "What are the best practices here?",
+    ];
+  }
+
+  /**
+   * Resilient offline synthesis for greetings, code, FeexSystems, and technology
+   */
+  private synthesizeOfflineResponse(
+    prompt: string,
+    entities?: Array<{ name: string; description?: string }>,
+    techs?: Array<{ name: string }>
+  ): InteractiveAgentResponse {
+    const q = prompt.toLowerCase();
+    let text = "";
+    const suggestions: string[] = [];
+
+    if (q.match(/hello|hi|hey|who are you|what is your name/)) {
+      text = "👋 **Greetings! I am Bushfeexer**, the Living Engineering Intelligence Director for **FEEXSYSTEMS** (feexsystems.codes).\n\nI am connected to our canonical World Model and Evidence Fabric. Whether you want to explore software architectures, generate high-performance code, inspect our GitHub ecosystem, or deep-dive into cloud technology, I'm ready to assist. What would you like to build or explore?";
+      suggestions.push("Tell me about FeexSystems", "Show me the projects in the World Model", "Write a code snippet", "Explain the 3D Galaxy");
+    } else if (q.match(/code|function|typescript|python|react|implement|algorithm/)) {
+      text = `💻 **FeexSystems Engineering Synthesis**:\n\nTo build robust solutions for "${prompt}", maintain strict typing, modular boundaries, and comprehensive error handling. In the FeexSystems codebase, we utilize **TypeScript with strict ESM**, **React 18 / React Router 7**, and **Express 5 with Prisma ORM**.\n\nConnect to our live Gemini Interactive engine for instant code synthesis, or explore our repository manifests in the World Model.`;
+      suggestions.push("Show TypeScript examples", "View architecture patterns", "Explain testing with Vitest");
+    } else if (entities && entities.length > 0) {
+      const topEntities = entities.slice(0, 3).map(e => `**${e.name}**: ${e.description || "Canonical repository entity"}`).join("\n- ");
+      text = `🛰️ **FEEXSYSTEMS World Model Grounded Resolution**:\n\nThe query "${prompt}" resolves to ${entities.length} verified project(s) and ${techs?.length || 0} technology relation(s) across our living graph:\n\n- ${topEntities}\n\nEach entity is cryptographically anchored to its GitHub repository, branch, and commit SHA via the Evidence Fabric ledger.`;
+      suggestions.push("Inspect evidence ledger", "Explore in 3D Galaxy", "View repository dependencies");
+    } else {
+      text = `⚡ **FEEXSYSTEMS Living Intelligence**:\n\nAnalyzing query: "${prompt}".\n\nFeexSystems turns our GitHub ecosystem into an explorable World Model with verified Evidence Fabric provenance. From automated DevOps and AI orchestration to real-time security scans, our platform provides evidence-backed engineering intelligence.`;
+      suggestions.push("Explore World Model", "View pricing plans", "Check platform health");
+    }
+
+    return {
+      explanation: text,
+      suggestions,
+      confidence: 0.9,
+      groundedEvidenceCount: entities?.length || 0,
+      mode: "heuristic",
+      model: "feex-world-model-synthesizer",
+    };
   }
 }
 
