@@ -4,12 +4,33 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // CRITICAL: base must be "/" for Firebase Hosting / SPA routing
+  // Without this, assets use relative paths that break on deep routes
+  base: "/",
   server: {
     host: "::",
     port: 8080,
   },
   build: {
     outDir: "dist/spa",
+    sourcemap: false, // Disable sourcemaps in prod to reduce bundle size
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React core — always loaded first
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          // Three.js is huge — split it to its own chunk
+          "three-vendor": ["three"],
+          // React Three Fiber ecosystem
+          "r3f-vendor": ["@react-three/fiber", "@react-three/drei"],
+          // UI component libraries
+          "ui-vendor": ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu", "@radix-ui/react-tooltip", "@radix-ui/react-accordion", "lucide-react"],
+          // TanStack Query
+          "query-vendor": ["@tanstack/react-query"],
+        },
+      },
+    },
   },
   plugins: [react(), expressPlugin()],
   define: {

@@ -196,25 +196,30 @@ export function HeroTunnel({
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
 
-    const scene = new THREE.Scene();
-    if (!transparent) {
-      scene.background = new THREE.Color(isDarkMode ? 0x050505 : 0xffffff);
-    }
-    scene.fog = new THREE.FogExp2(
-      isDarkMode ? 0x000000 : 0xffffff,
-      transparent ? 0.025 : 0.035
-    );
-    sceneRef.current = scene;
+    let renderer: THREE.WebGLRenderer | null = null;
+    let frameId: number;
+    let isVisible = true;
+    const cleanupFns: (() => void)[] = [];
+    const segments: THREE.Group[] = [];
 
-    const width = containerRef.current.clientWidth || window.innerWidth;
-    const height = containerRef.current.clientHeight || window.innerHeight;
-
-    const camera = new THREE.PerspectiveCamera(70, width / height, 0.1, 1000);
-    camera.position.set(0, 0, 0);
-    cameraRef.current = camera;
-
-    let renderer: THREE.WebGLRenderer;
     try {
+      const scene = new THREE.Scene();
+      if (!transparent) {
+        scene.background = new THREE.Color(isDarkMode ? 0x050505 : 0xffffff);
+      }
+      scene.fog = new THREE.FogExp2(
+        isDarkMode ? 0x000000 : 0xffffff,
+        transparent ? 0.025 : 0.035
+      );
+      sceneRef.current = scene;
+
+      const width = containerRef.current.clientWidth || window.innerWidth;
+      const height = containerRef.current.clientHeight || window.innerHeight;
+
+      const camera = new THREE.PerspectiveCamera(70, width / height, 0.1, 1000);
+      camera.position.set(0, 0, 0);
+      cameraRef.current = camera;
+
       renderer = new THREE.WebGLRenderer({
         canvas: canvasRef.current,
         antialias: true,
@@ -224,139 +229,145 @@ export function HeroTunnel({
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       rendererRef.current = renderer;
-    } catch {
-      return;
-    }
 
-    const segments: THREE.Group[] = [];
-    for (let i = 0; i < NUM_SEGMENTS; i++) {
-      const z = -i * SEGMENT_DEPTH;
-      const segment = createSegment(z);
-      scene.add(segment);
-      segments.push(segment);
-    }
-    segmentsRef.current = segments;
+      for (let i = 0; i < NUM_SEGMENTS; i++) {
+        const z = -i * SEGMENT_DEPTH;
+        const segment = createSegment(z);
+        scene.add(segment);
+        segments.push(segment);
+      }
+      segmentsRef.current = segments;
 
-    let frameId: number;
-    let isVisible = true;
+      const animate = () => {
+        if (!isVisible) return;
+        frameId = requestAnimationFrame(animate);
 
-    const animate = () => {
-      if (!isVisible) return;
-      frameId = requestAnimationFrame(animate);
+        if (!cameraRef.current || !sceneRef.current || !rendererRef.current) return;
 
-      if (!cameraRef.current || !sceneRef.current || !rendererRef.current) return;
+        // Scroll-driven target position with smooth inertial lerp
+        const targetZ = -scrollPosRef.current * tunnelSpeed;
+        const currentZ = cameraRef.current.position.z;
+        cameraRef.current.position.z += (targetZ - currentZ) * 0.1;
 
-      // Scroll-driven target position with smooth inertial lerp
-      const targetZ = -scrollPosRef.current * tunnelSpeed;
-      const currentZ = cameraRef.current.position.z;
-      cameraRef.current.position.z += (targetZ - currentZ) * 0.1;
+        const tunnelLength = NUM_SEGMENTS * SEGMENT_DEPTH;
+        const camZ = cameraRef.current.position.z;
 
-      const tunnelLength = NUM_SEGMENTS * SEGMENT_DEPTH;
-      const camZ = cameraRef.current.position.z;
+        segmentsRef.current.forEach((segment) => {
+          // Recycle segments that have fallen behind the camera
+          if (segment.position.z > camZ + SEGMENT_DEPTH) {
+            let minZ = 0;
+            segmentsRef.current.forEach((s) => (minZ = Math.min(minZ, s.position.z)));
+            segment.position.z = minZ - SEGMENT_DEPTH;
 
-      segmentsRef.current.forEach((segment) => {
-        // Recycle segments that have fallen behind the camera
-        if (segment.position.z > camZ + SEGMENT_DEPTH) {
-          let minZ = 0;
-          segmentsRef.current.forEach((s) => (minZ = Math.min(minZ, s.position.z)));
-          segment.position.z = minZ - SEGMENT_DEPTH;
+            const toRemove: THREE.Object3D[] = [];
+            segment.traverse((c) => {
+              if (c.name === "slab_image") toRemove.push(c);
+            });
+            toRemove.forEach((c) => {
+              segment.remove(c);
+              if (c instanceof THREE.Mesh) {
+                c.geometry.dispose();
+                if (c.material.map) c.material.map.dispose();
+                c.material.dispose();
+              }
+            });
+            populateImages(segment, TUNNEL_WIDTH / 2, TUNNEL_HEIGHT / 2, SEGMENT_DEPTH);
+          }
 
-          const toRemove: THREE.Object3D[] = [];
-          segment.traverse((c) => {
-            if (c.name === "slab_image") toRemove.push(c);
-          });
-          toRemove.forEach((c) => {
-            segment.remove(c);
-            if (c instanceof THREE.Mesh) {
-              c.geometry.dispose();
-              if (c.material.map) c.material.map.dispose();
-              c.material.dispose();
-            }
-          });
-          populateImages(segment, TUNNEL_WIDTH / 2, TUNNEL_HEIGHT / 2, SEGMENT_DEPTH);
-        }
+          // Recycle segments if scrolling backwards
+          if (segment.position.z < camZ - tunnelLength - SEGMENT_DEPTH) {
+            let maxZ = -999999;
+            segmentsRef.current.forEach((s) => (maxZ = Math.max(maxZ, s.position.z)));
+            segment.position.z = maxZ + SEGMENT_DEPTH;
 
-        // Recycle segments if scrolling backwards
-        if (segment.position.z < camZ - tunnelLength - SEGMENT_DEPTH) {
-          let maxZ = -999999;
-          segmentsRef.current.forEach((s) => (maxZ = Math.max(maxZ, s.position.z)));
-          segment.position.z = maxZ + SEGMENT_DEPTH;
-
-          const toRemove: THREE.Object3D[] = [];
-          segment.traverse((c) => {
-            if (c.name === "slab_image") toRemove.push(c);
-          });
-          toRemove.forEach((c) => {
-            segment.remove(c);
-            if (c instanceof THREE.Mesh) {
-              c.geometry.dispose();
-              if (c.material.map) c.material.map.dispose();
-              c.material.dispose();
-            }
-          });
-          populateImages(segment, TUNNEL_WIDTH / 2, TUNNEL_HEIGHT / 2, SEGMENT_DEPTH);
-        }
-      });
-
-      rendererRef.current.render(sceneRef.current, cameraRef.current);
-    };
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        isVisible = entry.isIntersecting;
-        if (isVisible) {
-          cancelAnimationFrame(frameId);
-          animate();
-        } else {
-          cancelAnimationFrame(frameId);
-        }
-      },
-      { threshold: 0 }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    const onScroll = () => {
-      scrollPosRef.current = window.scrollY || document.documentElement.scrollTop;
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-
-    const handleResize = () => {
-      if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
-      const w = containerRef.current.clientWidth || window.innerWidth;
-      const h = containerRef.current.clientHeight || window.innerHeight;
-      cameraRef.current.aspect = w / h;
-      cameraRef.current.updateProjectionMatrix();
-      rendererRef.current.setSize(w, h);
-    };
-
-    window.addEventListener("resize", handleResize);
-    animate();
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", handleResize);
-      cancelAnimationFrame(frameId);
-
-      // Clean up Three.js scene & geometries
-      segments.forEach((seg) => {
-        seg.traverse((child) => {
-          if (child instanceof THREE.Mesh) {
-            child.geometry.dispose();
-            if (child.material.map) child.material.map.dispose();
-            child.material.dispose();
-          } else if (child instanceof THREE.LineSegments) {
-            child.geometry.dispose();
-            child.material.dispose();
+            const toRemove: THREE.Object3D[] = [];
+            segment.traverse((c) => {
+              if (c.name === "slab_image") toRemove.push(c);
+            });
+            toRemove.forEach((c) => {
+              segment.remove(c);
+              if (c instanceof THREE.Mesh) {
+                c.geometry.dispose();
+                if (c.material.map) c.material.map.dispose();
+                c.material.dispose();
+              }
+            });
+            populateImages(segment, TUNNEL_WIDTH / 2, TUNNEL_HEIGHT / 2, SEGMENT_DEPTH);
           }
         });
-      });
 
-      renderer.dispose();
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      };
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible) {
+            cancelAnimationFrame(frameId);
+            animate();
+          } else {
+            cancelAnimationFrame(frameId);
+          }
+        },
+        { threshold: 0 }
+      );
+
+      if (containerRef.current) {
+        observer.observe(containerRef.current);
+      }
+
+      const onScroll = () => {
+        scrollPosRef.current = window.scrollY || document.documentElement.scrollTop;
+      };
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+
+      const handleResize = () => {
+        if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
+        const w = containerRef.current.clientWidth || window.innerWidth;
+        const h = containerRef.current.clientHeight || window.innerHeight;
+        cameraRef.current.aspect = w / h;
+        cameraRef.current.updateProjectionMatrix();
+        rendererRef.current.setSize(w, h);
+      };
+
+      window.addEventListener("resize", handleResize);
+      animate();
+
+      cleanupFns.push(() => {
+        observer.disconnect();
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("resize", handleResize);
+        cancelAnimationFrame(frameId);
+
+        // Clean up Three.js scene & geometries
+        segments.forEach((seg) => {
+          seg.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.geometry.dispose();
+              if (child.material.map) child.material.map.dispose();
+              child.material.dispose();
+            } else if (child instanceof THREE.LineSegments) {
+              child.geometry.dispose();
+              child.material.dispose();
+            }
+          });
+        });
+
+        if (renderer) renderer.dispose();
+      });
+    } catch (err) {
+      // Graceful degradation: WebGL not supported or Three.js init failed
+      // The tunnel is purely decorative, so we silently skip rendering
+      console.warn("[HeroTunnel] WebGL initialization failed, skipping 3D tunnel:", err);
+      if (renderer) {
+        try { renderer.dispose(); } catch {}
+      }
+    }
+
+    return () => {
+      isVisible = false;
+      cleanupFns.forEach((fn) => fn());
     };
   }, [isDarkMode, transparent, tunnelSpeed]);
 

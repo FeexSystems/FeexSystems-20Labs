@@ -2,8 +2,8 @@
 # Usage: .\scripts\deploy-cloud-run.ps1 -ProjectId "feexsystems-prod-508304" -Region "us-central1"
 
 param (
-    [Parameter(Mandatory=$true)]
-    [string]$ProjectId,
+    [Parameter(Mandatory=$false)]
+    [string]$ProjectId = "feexsystems-prod-508304",
 
     [Parameter(Mandatory=$false)]
     [string]$Region = "us-central1",
@@ -37,7 +37,6 @@ $services = @(
     "secretmanager.googleapis.com",
     "sqladmin.googleapis.com",
     "redis.googleapis.com",
-    "bigquery.googleapis.com",
     "storage.googleapis.com"
 )
 gcloud services enable $services
@@ -60,9 +59,9 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-# Step 5: Deploy to Cloud Run using argument array (no backticks)
+# Step 5: Deploy to Cloud Run
 Write-Host "[5/5] Deploying container image to Cloud Run..." -ForegroundColor Green
-$secretsMapping = "DATABASE_URL=DATABASE_URL:latest,REDIS_URL=REDIS_URL:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,GITHUB_ACCESS_TOKEN=GITHUB_ACCESS_TOKEN:latest,GITHUB_WEBHOOK_SECRET=GITHUB_WEBHOOK_SECRET:latest"
+$secretsMapping = "DATABASE_URL=DATABASE_URL:latest,REDIS_URL=REDIS_URL:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,GITHUB_ACCESS_TOKEN=GITHUB_ACCESS_TOKEN:latest,GITHUB_WEBHOOK_SECRET=GITHUB_WEBHOOK_SECRET:latest,PAYSTACK_SECRET_KEY=PAYSTACK_SECRET_KEY:latest,PAYSTACK_PUBLIC_KEY=PAYSTACK_PUBLIC_KEY:latest"
 $envVars = "NODE_ENV=production,PORT=8080"
 
 $deployArgs = @(

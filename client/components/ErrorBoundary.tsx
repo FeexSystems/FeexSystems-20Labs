@@ -173,11 +173,11 @@ class ErrorBoundary extends Component<Props, State> {
                 </Button>
               </div>
 
-              {isDev && this.state.error && (
-                <details className="mt-6">
-                  <summary className="cursor-pointer text-sm font-medium mb-2 flex items-center gap-2">
+              {this.state.error && (
+                <details className="mt-6" open={!isDev}>
+                  <summary className="cursor-pointer text-sm font-medium mb-2 flex items-center gap-2 text-destructive">
                     <Bug className="h-4 w-4" />
-                    Error Details (Development Only)
+                    Diagnostic Details ({this.state.error.name || 'Error'})
                   </summary>
 
                   <div className="bg-muted p-4 rounded-md space-y-3">
