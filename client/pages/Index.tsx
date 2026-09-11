@@ -74,6 +74,7 @@ import {
   FullscreenScrollSlider,
   HeroTunnel,
   AmbientLivingBackground,
+  VideoOverlayBackground,
 } from "@/components/framer";
 
 // ---------------------------------------------------------------------------
@@ -597,6 +598,15 @@ export default function Index() {
         {/* HERO SECTION: PROFESSIONAL PROFILE & CANONICAL PRINCIPLE                  */}
         {/* ========================================================================= */}
         <section className="relative w-full overflow-hidden border-b border-white/10 bg-[#000000]/80 backdrop-blur-[2px] pt-14 pb-20 md:pt-20 md:pb-28">
+          {/* 00. FEEX HUMANOIDS AMBIENT VIDEO OVERLAY */}
+          <VideoOverlayBackground
+            src="/media/feex/feex-humanoids.mp4"
+            position="hero"
+            opacity={0.30}
+            label="FEEX Humanoids Feed"
+            showToggle={true}
+          />
+
           {/* 01. THREE.JS INFINITE 3D SCROLL PERSPECTIVE TUNNEL (UPSTREAM FRAMER) */}
           <div className="absolute inset-0 z-0 pointer-events-none opacity-40 overflow-hidden">
             <HeroTunnel
@@ -2277,8 +2287,17 @@ export default function Index() {
       {/* ========================================================================= */}
       {/* GLOBAL TECHNICAL FOOTER                                                   */}
       {/* ========================================================================= */}
-      <footer className="w-full border-t border-white/10 bg-[#000000] py-16 text-xs text-zinc-300 relative z-10">
-        <div className="container mx-auto max-w-7xl px-5 md:px-8">
+      <footer className="w-full border-t border-white/10 bg-[#000000]/80 backdrop-blur-[2px] py-16 text-xs text-zinc-300 relative z-10 overflow-hidden">
+        {/* FEEX ROBOTICS AMBIENT VIDEO OVERLAY */}
+        <VideoOverlayBackground
+          src="/media/feex/feex-robotics.mp4"
+          position="footer"
+          opacity={0.28}
+          label="FEEX Robotics Stream"
+          showToggle={true}
+        />
+
+        <div className="container mx-auto max-w-7xl px-5 md:px-8 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
             {/* Brand Column */}
             <div className="md:col-span-2 space-y-4">
