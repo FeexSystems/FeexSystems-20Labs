@@ -42,6 +42,7 @@ type WorldProject = {
   name: string;
   description: string | null;
   url: string;
+  image?: string;
   metadata?: { language?: string; topics?: string[]; stars?: number };
   lastObservedAt?: string;
 };
@@ -93,6 +94,7 @@ export default function Projects() {
           name: p.name,
           description: p.description,
           url: `https://github.com/FeexSystems/${p.repository}`,
+          image: p.image,
           metadata: { language: p.technologies[0], topics: p.technologies },
         }));
   }, [projects]);
@@ -300,6 +302,21 @@ export default function Projects() {
                       </div>
                       <span className="text-[11px] text-white/40">0{idx + 1} // REPO</span>
                     </div>
+
+                    {p.image && (
+                      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[12px] border border-white/10 bg-black/60 mb-4">
+                        <img
+                          src={p.image}
+                          alt={p.name}
+                          className="w-full h-full object-cover grayscale contrast-125 group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                        <div className="absolute bottom-2 left-2.5 px-2 py-0.5 rounded text-[9px] font-mono bg-black/80 border border-white/20 text-white/80 backdrop-blur-sm">
+                          VERIFIED ASSET // {p.id}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Project Name with Rich Link Preview Card */}
                     <LinkPreviewCard

@@ -10,6 +10,7 @@ export interface FeexProject {
   visibility: ProjectVisibility;
   technologies: string[];
   featured?: boolean;
+  image?: string;
 }
 
 /**
@@ -28,6 +29,7 @@ export const feexProjects: FeexProject[] = [
     visibility: "public",
     technologies: ["JavaScript", "Three.js", "WebGL"],
     featured: true,
+    image: "/media/feex/feex-architecture-board.jpeg",
   },
   {
     id: "yurrheeler-med-advisor",
@@ -39,6 +41,7 @@ export const feexProjects: FeexProject[] = [
     visibility: "public",
     technologies: ["TypeScript", "React", "AI"],
     featured: true,
+    image: "/media/feex/yurrhealer-lab.jpg",
   },
   {
     id: "kappaxchangefin",
@@ -50,6 +53,7 @@ export const feexProjects: FeexProject[] = [
     visibility: "public",
     technologies: ["TypeScript", "Finance", "APIs"],
     featured: true,
+    image: "/media/feex/kappaxchangefin-ledger.jpg",
   },
   {
     id: "holokai-systems-labs",
@@ -60,6 +64,7 @@ export const feexProjects: FeexProject[] = [
     status: "research",
     visibility: "public",
     technologies: ["TypeScript", "AI", "Knowledge Systems"],
+    image: "/media/feex/holokai-guardians-armor.jpeg",
   },
   {
     id: "vyra-labs",
@@ -70,6 +75,7 @@ export const feexProjects: FeexProject[] = [
     status: "research",
     visibility: "public",
     technologies: ["TypeScript", "AI", "Systems"],
+    image: "/media/feex/ai-neural-core.jpg",
   },
   {
     id: "3wm-sonik-labs",
@@ -80,6 +86,7 @@ export const feexProjects: FeexProject[] = [
     status: "research",
     visibility: "public",
     technologies: ["TypeScript", "World Models", "AI"],
+    image: "/media/feex/sonik-audio-dsp.jpg",
   },
 ];
 

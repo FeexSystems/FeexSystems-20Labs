@@ -21,3 +21,6 @@ export * from "./GlobeMorph";
 export * from "./AsciiArtEffect";
 export * from "./TransitionVisualizer";
 export * from "./BtcMonoBadge";
+export * from "./WarpStarfield";
+export * from "./FullscreenScrollSlider";
+export * from "./HeroTunnel";

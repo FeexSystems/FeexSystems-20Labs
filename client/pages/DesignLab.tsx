@@ -36,6 +36,9 @@ import {
   AsciiArtEffect,
   TransitionVisualizer,
   BtcMonoBadge,
+  WarpStarfield,
+  FullscreenScrollSlider,
+  HeroTunnel,
 } from "@/components/framer";
 
 type CategoryKey = "all" | "nav" | "backgrounds" | "typography" | "carousels" | "3d" | "primitives";
@@ -48,12 +51,12 @@ export default function DesignLab() {
   const [bgTheme, setBgTheme] = useState<"cyber" | "matrix" | "violet" | "aurora">("cyber");
 
   const categories: { key: CategoryKey; label: string; count: number }[] = [
-    { key: "all", label: "All Modules", count: 23 },
+    { key: "all", label: "All Modules", count: 26 },
     { key: "nav", label: "Navigation & Docks", count: 3 },
-    { key: "backgrounds", label: "Backgrounds & Shaders", count: 4 },
+    { key: "backgrounds", label: "Backgrounds & Shaders", count: 5 },
     { key: "typography", label: "Typography & Vectors", count: 4 },
-    { key: "carousels", label: "Carousels & Media", count: 5 },
-    { key: "3d", label: "3D & State Graphs", count: 3 },
+    { key: "carousels", label: "Carousels & Media", count: 6 },
+    { key: "3d", label: "3D & State Graphs", count: 4 },
     { key: "primitives", label: "Primitives & Badges", count: 4 },
   ];
 
@@ -72,7 +75,7 @@ export default function DesignLab() {
 
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs font-mono text-cyan-300 mb-6">
           <Sparkles className="w-3.5 h-3.5" />
-          FEEXSYSTEMS MOTION LAB • 23 NATIVE MODULES
+          FEEXSYSTEMS MOTION LAB • 26 NATIVE MODULES
         </div>
 
         <h1 className="text-4xl sm:text-6xl font-extrabold font-mono tracking-tight text-white mb-4">
@@ -80,7 +83,7 @@ export default function DesignLab() {
         </h1>
 
         <p className="max-w-2xl mx-auto text-gray-400 text-sm sm:text-base leading-relaxed">
-          Explore all 23 native TypeScript Framer-inspired interaction, shader, and 3D visualization modules engineered for the FeexSystems Living Intelligence platform.
+          Explore all 26 native TypeScript Framer-inspired interaction, shader, and 3D visualization modules engineered for the FeexSystems Living Intelligence platform.
         </p>
 
         {/* Category Filter Pills */}
@@ -174,7 +177,7 @@ export default function DesignLab() {
               <h2 className="text-xl font-bold font-mono text-white flex items-center gap-2">
                 <span className="text-cyan-400">02.</span> Backgrounds & Mathematical Shaders
               </h2>
-              <span className="text-xs font-mono text-gray-400">4 MODULES</span>
+              <span className="text-xs font-mono text-gray-400">5 MODULES</span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -236,6 +239,26 @@ export default function DesignLab() {
                 </div>
                 <div className="w-full">
                   <TsunamiWave height={140} />
+                </div>
+              </div>
+
+              {/* Module 8: WarpStarfield */}
+              <div className="relative h-[300px] rounded-2xl bg-black border border-white/15 p-6 backdrop-blur-xl overflow-hidden flex flex-col justify-between">
+                <WarpStarfield
+                  starCount={450}
+                  speed={0.4}
+                  streak={0.7}
+                  twinkle={true}
+                  mouseParallax={0.08}
+                  className="opacity-70"
+                />
+                <div className="relative z-10 space-y-1">
+                  <span className="text-[10px] font-mono text-cyan-400 font-bold">MODULE 08</span>
+                  <h3 className="text-lg font-bold font-mono text-white">Warp Starfield Hyperdrive</h3>
+                  <p className="text-xs text-gray-400">Upstream Framer 3D relativistic star trails with cursor parallax & focal perspective.</p>
+                </div>
+                <div className="relative z-10 text-[11px] font-mono text-cyan-400/80">
+                  Relativistic Streaks • 3D Canvas Projection • 60fps
                 </div>
               </div>
             </div>
@@ -339,7 +362,7 @@ export default function DesignLab() {
               <h2 className="text-xl font-bold font-mono text-white flex items-center gap-2">
                 <span className="text-cyan-400">04.</span> Carousels & Video Stages
               </h2>
-              <span className="text-xs font-mono text-gray-400">5 MODULES</span>
+              <span className="text-xs font-mono text-gray-400">6 MODULES</span>
             </div>
 
             <div className="space-y-8">
@@ -383,6 +406,23 @@ export default function DesignLab() {
                   <YoutubeEmbedCard videoId="dQw4w9WgXcQ" />
                 </div>
               </div>
+
+              {/* Module 17: FullscreenScrollSlider */}
+              <div className="rounded-2xl bg-black/60 border border-white/15 p-6 backdrop-blur-xl space-y-4">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono text-cyan-400 font-bold">MODULE 17</span>
+                  <h3 className="text-lg font-bold font-mono text-white">Fullscreen Velocity Scroll Slider</h3>
+                  <p className="text-xs text-gray-400">Upstream Framer full-screen pinned scroll narrative with word-by-word reveal, background zoom crossfades & numeric index telemetry.</p>
+                </div>
+                <div className="rounded-xl border border-white/10 overflow-hidden relative">
+                  <FullscreenScrollSlider
+                    showIntroOutro={false}
+                    vhPerSlide={70}
+                    overlayOpacity={0.65}
+                    className="w-full"
+                  />
+                </div>
+              </div>
             </div>
           </section>
         )}
@@ -394,31 +434,48 @@ export default function DesignLab() {
               <h2 className="text-xl font-bold font-mono text-white flex items-center gap-2">
                 <span className="text-cyan-400">05.</span> 3D Particle Globes & State Graphs
               </h2>
-              <span className="text-xs font-mono text-gray-400">3 MODULES</span>
+              <span className="text-xs font-mono text-gray-400">4 MODULES</span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Module 17: ParticleGlobe3D */}
+              {/* Module 18: ParticleGlobe3D */}
               <div className="rounded-2xl bg-black/60 border border-white/15 p-6 backdrop-blur-xl">
                 <div className="space-y-1 mb-2">
-                  <span className="text-[10px] font-mono text-cyan-400 font-bold">MODULE 17</span>
+                  <span className="text-[10px] font-mono text-cyan-400 font-bold">MODULE 18</span>
                   <h3 className="text-lg font-bold font-mono text-white">Interactive 3D Particle Globe</h3>
                   <p className="text-xs text-gray-400">Drag to rotate the 3D Fibonacci sphere in real-time.</p>
                 </div>
                 <ParticleGlobe3D />
               </div>
 
-              {/* Module 18: GlobeMorph */}
+              {/* Module 19: HeroTunnel */}
+              <div className="rounded-2xl bg-black/60 border border-white/15 p-6 backdrop-blur-xl flex flex-col justify-between">
+                <div className="space-y-1 mb-2">
+                  <span className="text-[10px] font-mono text-cyan-400 font-bold">MODULE 19</span>
+                  <h3 className="text-lg font-bold font-mono text-white">3D Infinite Scroll Perspective Tunnel</h3>
+                  <p className="text-xs text-gray-400">Three.js infinite wireframe tunnel with recycling image slabs driven by scroll position.</p>
+                </div>
+                <div className="h-[220px] rounded-xl border border-white/10 overflow-hidden relative">
+                  <HeroTunnel
+                    isDarkMode={true}
+                    transparent={true}
+                    tunnelSpeed={0.05}
+                    className="w-full h-full"
+                  />
+                </div>
+              </div>
+
+              {/* Module 20: GlobeMorph */}
               <div className="rounded-2xl bg-black/60 border border-white/15 p-6 backdrop-blur-xl">
                 <div className="space-y-1 mb-2">
-                  <span className="text-[10px] font-mono text-cyan-400 font-bold">MODULE 18</span>
+                  <span className="text-[10px] font-mono text-cyan-400 font-bold">MODULE 20</span>
                   <h3 className="text-lg font-bold font-mono text-white">3D Vertex Geometry Morph</h3>
                   <p className="text-xs text-gray-400">Smooth interpolation across Sphere, Torus, Cube, and Cylinder.</p>
                 </div>
                 <GlobeMorph />
               </div>
 
-              {/* Module 19: TransitionVisualizer */}
+              {/* Module 21: TransitionVisualizer */}
               <div className="lg:col-span-2">
                 <TransitionVisualizer />
               </div>
