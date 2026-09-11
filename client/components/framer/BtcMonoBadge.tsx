@@ -49,9 +49,9 @@ export function BtcMonoBadge({
       <div className="flex items-center gap-1.5">
         <span className="relative flex h-2 w-2">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-gray-300" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-zinc-200" />
         </span>
-        <span className="text-[10px] text-gray-300 font-bold uppercase tracking-wider">
+        <span className="text-[10px] text-zinc-200 font-bold uppercase tracking-wider">
           {label}
         </span>
       </div>
@@ -59,19 +59,19 @@ export function BtcMonoBadge({
       <div className="w-[1px] h-3.5 bg-white/15" />
 
       {/* Block & SHA */}
-      <div className="flex items-center gap-2 text-gray-300">
-        <span className="text-gray-400 text-[11px]">#{blockHeight}</span>
-        <span className="text-white font-semibold group-hover:text-gray-300 transition-colors">
+      <div className="flex items-center gap-2 text-zinc-200">
+        <span className="text-zinc-300 text-[11px]">#{blockHeight}</span>
+        <span className="text-white font-semibold group-hover:text-zinc-200 transition-colors">
           {shortSha}
         </span>
       </div>
 
       {/* Copy / Verified Glyph */}
-      <div className="pl-1 text-gray-400 group-hover:text-white transition-colors">
+      <div className="pl-1 text-zinc-300 group-hover:text-white transition-colors">
         {copied ? (
-          <Check className="w-3.5 h-3.5 text-gray-300" />
+          <Check className="w-3.5 h-3.5 text-zinc-200" />
         ) : (
-          <Copy className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
+          <Copy className="w-3.5 h-3.5 opacity-80 group-hover:opacity-100" />
         )}
       </div>
     </div>

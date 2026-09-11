@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
 import { Camera, Save, User, Shield, Upload, X } from 'lucide-react';
+import { AmbientLivingBackground } from '@/components/framer';
 
 const profileSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -176,19 +177,21 @@ export default function UserProfile() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
+        <AmbientLivingBackground fixed={true} opacity={25} linesOpacity={12} />
+        <div className="relative z-10 animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className="relative min-h-screen bg-black/90 text-white p-4 overflow-hidden">
+      <AmbientLivingBackground fixed={true} opacity={25} linesOpacity={12} />
+      <div className="relative z-10 max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center">
           <h1 className="text-3xl font-bold">Profile Settings</h1>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-zinc-400 mt-2">
             Manage your account information and preferences
           </p>
         </div>

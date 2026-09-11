@@ -81,8 +81,8 @@ export function TransitionVisualizer({
                   isActive
                     ? "bg-white/10 border-white shadow-[0_0_20px_rgba(255,255,255,0.1)] ring-1 ring-white/50"
                     : isPassed
-                    ? "bg-white/5 border-white/30 text-gray-300"
-                    : "bg-black/50 border-white/10 text-gray-400 opacity-60"
+                    ? "bg-white/5 border-white/30 text-zinc-200"
+                    : "bg-black/50 border-white/10 text-zinc-300"
                 )}
               >
                 <div className="flex items-center justify-between w-full">
@@ -101,7 +101,7 @@ export function TransitionVisualizer({
                 <div className="font-mono text-xs font-bold text-white">
                   {st.name}
                 </div>
-                <div className="text-[9px] font-mono text-gray-400 uppercase tracking-widest">
+                <div className="text-[9px] font-mono text-zinc-300 uppercase tracking-widest">
                   {st.domain}
                 </div>
               </div>
@@ -117,7 +117,7 @@ export function TransitionVisualizer({
                   <ArrowRight
                     className={cn(
                       "w-3.5 h-3.5 transition-colors -ml-1",
-                      i === activeStep ? "text-white" : "text-white/20"
+                      i === activeStep ? "text-white" : "text-zinc-400"
                     )}
                   />
                 </div>
@@ -128,12 +128,12 @@ export function TransitionVisualizer({
       </div>
 
       {/* Active State Telemetry Footer */}
-      <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-gray-400">
+      <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-zinc-300">
         <div className="flex items-center gap-2">
-          <span className="text-gray-400">ACTIVE PROJECTION:</span>
+          <span className="text-zinc-300">ACTIVE PROJECTION:</span>
           <span className="text-white font-bold">{states[activeStep]?.name}</span>
         </div>
-        <div className="text-[11px] text-gray-400">
+        <div className="text-[11px] text-zinc-300">
           PROVENANCE VALIDATED • 0 ERRORS
         </div>
       </div>

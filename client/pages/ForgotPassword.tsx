@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 import { Mail } from 'lucide-react';
+import { AmbientLivingBackground } from '@/components/framer';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -59,8 +60,9 @@ export default function ForgotPassword() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-black text-white p-4 relative overflow-hidden font-mono">
+        <AmbientLivingBackground fixed={true} opacity={38} linesOpacity={18} />
+        <Card className="w-full max-w-md relative z-10 border-white/15 bg-black/85 backdrop-blur-xl shadow-2xl">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4">
               <Mail className="h-12 w-12 text-primary" />
@@ -96,8 +98,9 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-black text-white p-4 relative overflow-hidden font-mono">
+      <AmbientLivingBackground fixed={true} opacity={38} linesOpacity={18} />
+      <Card className="w-full max-w-md relative z-10 border-white/15 bg-black/85 backdrop-blur-xl shadow-2xl">
         <CardHeader>
           <CardTitle>Reset Password</CardTitle>
           <CardDescription>

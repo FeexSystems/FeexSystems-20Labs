@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { ConnectionStatusIndicator } from '@/components/realtime/RealtimeStatusIndicator';
+import { AmbientLivingBackground } from '@/components/framer';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -111,7 +112,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background overflow-hidden">
+      <AmbientLivingBackground fixed={true} opacity={18} linesOpacity={10} />
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -122,7 +124,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Sidebar */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 bg-card border-r border-border transform transition-all duration-300 ease-in-out
+        fixed inset-y-0 left-0 z-50 bg-card/90 backdrop-blur-md border-r border-border transform transition-all duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         ${sidebarCollapsed ? 'w-16' : 'w-64'}
       `}>
@@ -406,7 +408,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
 
         {/* Page content */}
-        <main className="py-4 sm:py-6">
+        <main className="relative z-10 py-4 sm:py-6">
           <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
             {children}
           </div>

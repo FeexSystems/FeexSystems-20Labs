@@ -117,6 +117,7 @@ export function SushCinematicCarousel({
             <div
               key={item.id}
               onClick={() => setActiveIndex(idx)}
+              aria-hidden={!isActive}
               className={cn(
                 "absolute w-[320px] sm:w-[380px] h-[340px] rounded-2xl p-6 transition-all duration-500 ease-out cursor-pointer flex flex-col justify-between border backdrop-blur-xl",
                 isActive
@@ -132,11 +133,11 @@ export function SushCinematicCarousel({
               {/* Header */}
               <div>
                 <div className="flex items-center justify-between text-xs font-mono mb-2">
-                  <span className="text-gray-300 font-semibold uppercase tracking-wider">
+                  <span className="text-zinc-100 font-semibold uppercase tracking-wider">
                     {item.category}
                   </span>
                   {item.metric && (
-                    <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-gray-300">
+                    <span className="px-2 py-0.5 rounded bg-white/10 border border-white/20 text-zinc-100 font-mono text-[11px]">
                       {item.metric}
                     </span>
                   )}
@@ -144,7 +145,7 @@ export function SushCinematicCarousel({
                 <h3 className="text-xl font-bold font-mono text-white mb-2 leading-tight">
                   {item.title}
                 </h3>
-                <p className="text-sm text-gray-400 leading-relaxed line-clamp-3">
+                <p className="text-sm text-zinc-300 leading-relaxed line-clamp-3">
                   {item.description}
                 </p>
               </div>
@@ -155,7 +156,7 @@ export function SushCinematicCarousel({
                   {item.tags?.map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-0.5 text-[10px] font-mono rounded bg-white/5 text-gray-400 border border-white/5"
+                      className="px-2 py-0.5 text-[10px] font-mono rounded bg-white/10 text-zinc-200 border border-white/10"
                     >
                       {tag}
                     </span>
@@ -166,7 +167,7 @@ export function SushCinematicCarousel({
                     "p-2 rounded-full border transition-colors",
                     isActive
                       ? "bg-white text-black border-white"
-                      : "bg-white/5 text-gray-400 border-white/10"
+                      : "bg-white/10 text-zinc-200 border-white/20"
                   )}
                 >
                   <ArrowUpRight className="w-4 h-4" />

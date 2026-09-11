@@ -6,7 +6,7 @@ import { ReasoningTrace } from "@/components/omni/ReasoningTrace";
 import { useOmniStore } from "@/stores/omniStore";
 import type { OmniCommandResponse, ReasoningStep } from "@shared/orchestration";
 import { Globe, Compass, Boxes, FileCode } from "lucide-react";
-import { FullWidthNav } from "@/components/framer";
+import { FullWidthNav, AmbientLivingBackground } from "@/components/framer";
 
 async function streamOmniCommand(
   query: string,
@@ -174,6 +174,9 @@ export default function OmniCommandPage() {
 
   return (
     <div className="relative w-full h-screen bg-[#000000] text-white antialiased font-mono overflow-hidden flex flex-col selection:bg-white selection:text-black">
+      {/* Ambient Living Starfield & Vector Background */}
+      <AmbientLivingBackground fixed={true} opacity={28} linesOpacity={14} />
+
       {/* Global Technical Header */}
       <FullWidthNav />
 

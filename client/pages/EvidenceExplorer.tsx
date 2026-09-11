@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { feexProjects } from "@/lib/feex-ecosystem";
 import { FeexWorldBadge } from "@/components/FeexLogo";
-import { FullWidthNav, AppleDock } from "@/components/framer";
+import { FullWidthNav, AppleDock, AmbientLivingBackground } from "@/components/framer";
 
 interface ProjectSummary {
   id: string;
@@ -232,13 +232,16 @@ export default function EvidenceExplorer() {
 
   return (
     <main className="min-h-screen bg-[#000000] text-white antialiased font-mono selection:bg-white selection:text-black flex flex-col relative pb-28">
+      {/* 0. AMBIENT LIVING INTELLIGENCE BACKGROUND */}
+      <AmbientLivingBackground fixed={true} opacity={28} linesOpacity={14} />
+
       {/* 1. TECHNICAL CANONICAL NAVIGATION */}
       <FullWidthNav />
 
       {/* 2. MAIN WORKBENCH LAYOUT: 3 COLUMNS */}
       <div className="flex-1 mx-auto max-w-7xl w-full grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] divide-y lg:divide-y-0 lg:divide-x divide-white/10 pt-20">
         {/* Left Column: Project Selector & File Tree */}
-        <aside className="p-5 flex flex-col gap-4 bg-[#000000] overflow-y-auto max-h-[calc(100vh-65px)]">
+        <aside className="p-5 flex flex-col gap-4 bg-[#000000]/75 backdrop-blur-md overflow-y-auto max-h-[calc(100vh-65px)]">
           {/* Project Selector Dropdown */}
           <div>
             <label className="text-xs uppercase tracking-wider text-white/40 font-semibold block mb-2">
@@ -403,7 +406,7 @@ export default function EvidenceExplorer() {
         </aside>
 
         {/* Center Column: Code & Integrity Inspector */}
-        <main className="p-6 flex flex-col gap-4 bg-[#000000] overflow-y-auto max-h-[calc(100vh-65px)]">
+        <main className="p-6 flex flex-col gap-4 bg-[#000000]/60 backdrop-blur-md overflow-y-auto max-h-[calc(100vh-65px)]">
           {/* Cryptographic SHA Integrity Header */}
           {artifactContent ? (
             <div className="rounded-[20px] border border-white/10 bg-[#121212] p-6 space-y-4 shadow-2xl">
@@ -497,7 +500,7 @@ export default function EvidenceExplorer() {
         </main>
 
         {/* Right Column: Evidence Ledger & Event Timeline */}
-        <aside className="p-5 flex flex-col gap-6 bg-[#000000] overflow-y-auto max-h-[calc(100vh-65px)]">
+        <aside className="p-5 flex flex-col gap-6 bg-[#000000]/75 backdrop-blur-md overflow-y-auto max-h-[calc(100vh-65px)]">
           {/* Discovery Evidence */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-white/40 mb-3 flex items-center gap-1.5">

@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 import { CheckCircle, AlertCircle } from 'lucide-react';
+import { AmbientLivingBackground } from '@/components/framer';
 
 const resetPasswordSchema = z.object({
   password: z.string()
@@ -87,8 +88,9 @@ export default function ResetPassword() {
   // Show loading state while validating token
   if (isTokenValid === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-black text-white p-4 relative overflow-hidden font-mono">
+        <AmbientLivingBackground fixed={true} opacity={38} linesOpacity={18} />
+        <Card className="w-full max-w-md relative z-10 border-white/15 bg-black/85 backdrop-blur-xl shadow-2xl">
           <CardContent className="pt-6">
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -105,8 +107,9 @@ export default function ResetPassword() {
   // Show error state for invalid token
   if (isTokenValid === false) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-black text-white p-4 relative overflow-hidden font-mono">
+        <AmbientLivingBackground fixed={true} opacity={38} linesOpacity={18} />
+        <Card className="w-full max-w-md relative z-10 border-white/15 bg-black/85 backdrop-blur-xl shadow-2xl">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4">
               <AlertCircle className="h-12 w-12 text-destructive" />
@@ -145,8 +148,9 @@ export default function ResetPassword() {
   // Show success state after password reset
   if (isResetComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-black text-white p-4 relative overflow-hidden font-mono">
+        <AmbientLivingBackground fixed={true} opacity={38} linesOpacity={18} />
+        <Card className="w-full max-w-md relative z-10 border-white/15 bg-black/85 backdrop-blur-xl shadow-2xl">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4">
               <CheckCircle className="h-12 w-12 text-green-500" />
@@ -177,8 +181,9 @@ export default function ResetPassword() {
 
   // Show password reset form
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-black text-white p-4 relative overflow-hidden font-mono">
+      <AmbientLivingBackground fixed={true} opacity={38} linesOpacity={18} />
+      <Card className="w-full max-w-md relative z-10 border-white/15 bg-black/85 backdrop-blur-xl shadow-2xl">
         <CardHeader>
           <CardTitle>Set New Password</CardTitle>
           <CardDescription>

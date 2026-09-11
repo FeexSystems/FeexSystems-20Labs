@@ -74,10 +74,10 @@ export function InfiniteMarqueeTicker({
             )}
 
             <span className="font-bold text-white tracking-tight">{item.label}</span>
-            {item.sublabel && <span className="text-white/40 text-[11px]">[{item.sublabel}]</span>}
+            {item.sublabel && <span className="text-zinc-300 text-[11px] font-medium">[{item.sublabel}]</span>}
 
             {item.status && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded-[6px] bg-white/5 border border-white/10 text-white/70">
+              <span className="text-[9px] px-1.5 py-0.5 rounded-[6px] bg-white/5 border border-white/10 text-white/80">
                 {item.status}
               </span>
             )}

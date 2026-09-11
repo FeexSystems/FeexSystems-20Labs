@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { AmbientLivingBackground } from '@/components/framer';
 
 export default function EmailVerification() {
   const [searchParams] = useSearchParams();
@@ -167,8 +168,9 @@ export default function EmailVerification() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-black text-white p-4 relative overflow-hidden font-mono">
+      <AmbientLivingBackground fixed={true} opacity={38} linesOpacity={18} />
+      <Card className="w-full max-w-md relative z-10 border-white/15 bg-black/85 backdrop-blur-xl shadow-2xl">
         {renderContent()}
       </Card>
     </div>

@@ -20,6 +20,7 @@ import {
   MagneticGlowButton,
   BtcMonoBadge,
   AppleDock,
+  AmbientLivingBackground,
 } from "@/components/framer";
 
 // Lazy-load Drei 3D Navigator Hero
@@ -114,6 +115,9 @@ export default function Navigator() {
 
   return (
     <main className="min-h-screen bg-[#000000] text-white antialiased font-mono selection:bg-white selection:text-black relative">
+      {/* 0. AMBIENT LIVING INTELLIGENCE BACKGROUND */}
+      <AmbientLivingBackground fixed={true} opacity={32} linesOpacity={16} />
+
       {/* Interactive Cursor Trail */}
       <CursorDotTrail dotColor="rgba(0, 245, 212, 0.6)" trailColor="rgba(123, 44, 191, 0.3)" />
 

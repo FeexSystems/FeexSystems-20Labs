@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, ArrowLeft, Home } from 'lucide-react';
 import { globalErrorHandler } from '@/lib/error-handler';
+import { AmbientLivingBackground } from '@/components/framer';
 
 const NotFound = () => {
   const location = useLocation();
@@ -31,8 +32,9 @@ const NotFound = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md text-center">
+    <div className="min-h-screen flex items-center justify-center bg-black text-white p-4 relative overflow-hidden font-mono">
+      <AmbientLivingBackground fixed={true} opacity={38} linesOpacity={18} />
+      <Card className="w-full max-w-md text-center relative z-10 border-white/15 bg-black/85 backdrop-blur-xl shadow-2xl">
         <CardHeader>
           <div className="mx-auto mb-4">
             <Search className="h-16 w-16 text-muted-foreground" />

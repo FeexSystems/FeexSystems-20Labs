@@ -24,3 +24,4 @@ export * from "./BtcMonoBadge";
 export * from "./WarpStarfield";
 export * from "./FullscreenScrollSlider";
 export * from "./HeroTunnel";
+export * from "./AmbientLivingBackground";

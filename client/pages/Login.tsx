@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AuthFormSkeleton } from '@/components/LoadingSkeletons';
 import { Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
+import { AmbientLivingBackground } from '@/components/framer';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -59,8 +60,9 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-black text-white p-4 relative overflow-hidden font-mono">
+      <AmbientLivingBackground fixed={true} opacity={38} linesOpacity={18} />
+      <Card className="w-full max-w-md relative z-10 border-white/15 bg-black/85 backdrop-blur-xl shadow-2xl">
         <CardHeader>
           <CardTitle id="login-title">Welcome Back</CardTitle>
           <CardDescription id="login-description">

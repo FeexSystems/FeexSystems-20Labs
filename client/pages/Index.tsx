@@ -73,6 +73,7 @@ import {
   WarpStarfield,
   FullscreenScrollSlider,
   HeroTunnel,
+  AmbientLivingBackground,
 } from "@/components/framer";
 
 // ---------------------------------------------------------------------------
@@ -576,6 +577,9 @@ export default function Index() {
       {/* 01. GLOBAL INTERACTIVE CURSOR DOT TRAIL */}
       <CursorDotTrail />
 
+      {/* 01.5. GLOBAL AMBIENT LIVING INTELLIGENCE CYBERNETIC BACKGROUND */}
+      <AmbientLivingBackground fixed={true} opacity={32} linesOpacity={18} />
+
       {/* 02. FULL-WIDTH TECHNICAL NAVIGATION */}
       <FullWidthNav />
 
@@ -592,7 +596,7 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* HERO SECTION: PROFESSIONAL PROFILE & CANONICAL PRINCIPLE                  */}
         {/* ========================================================================= */}
-        <section className="relative w-full overflow-hidden border-b border-white/10 bg-[#000000] pt-14 pb-20 md:pt-20 md:pb-28">
+        <section className="relative w-full overflow-hidden border-b border-white/10 bg-[#000000]/80 backdrop-blur-[2px] pt-14 pb-20 md:pt-20 md:pb-28">
           {/* 01. THREE.JS INFINITE 3D SCROLL PERSPECTIVE TUNNEL (UPSTREAM FRAMER) */}
           <div className="absolute inset-0 z-0 pointer-events-none opacity-40 overflow-hidden">
             <HeroTunnel
@@ -650,25 +654,25 @@ export default function Index() {
               </p>
 
               {/* Core Attributes Pills */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-2 text-xs text-white/60 font-mono">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-2 text-xs text-zinc-300 font-mono">
                 <div className="border border-white/10 rounded-lg p-3 bg-white/[0.02]">
-                  <div className="text-white/40 text-[10px] uppercase">Portfolio</div>
+                  <div className="text-zinc-300 text-[10px] uppercase font-semibold">Portfolio</div>
                   <div className="text-white font-medium truncate mt-1">Persona Digital OS</div>
                 </div>
                 <div className="border border-white/10 rounded-lg p-3 bg-white/[0.02]">
-                  <div className="text-white/40 text-[10px] uppercase">GitHub</div>
+                  <div className="text-zinc-300 text-[10px] uppercase font-semibold">GitHub</div>
                   <GitHubGuardLink href="https://github.com/FeexSystems" className="text-white font-medium hover:underline truncate mt-1 block">
                     github.com/FeexSystems
                   </GitHubGuardLink>
                 </div>
                 <div className="border border-white/10 rounded-lg p-3 bg-white/[0.02]">
-                  <div className="text-white/40 text-[10px] uppercase">Email</div>
+                  <div className="text-zinc-300 text-[10px] uppercase font-semibold">Email</div>
                   <a href="mailto:contact@feexsystems.com" className="text-white font-medium hover:underline truncate mt-1 block">
                     contact@feexsystems.com
                   </a>
                 </div>
                 <div className="border border-white/10 rounded-lg p-3 bg-white/[0.02]">
-                  <div className="text-white/40 text-[10px] uppercase">Location</div>
+                  <div className="text-zinc-300 text-[10px] uppercase font-semibold">Location</div>
                   <div className="text-white font-medium truncate mt-1">Global / Remote</div>
                 </div>
               </div>
@@ -721,7 +725,7 @@ export default function Index() {
               </div>
 
               {/* Enterprise Trust Metrics Bar */}
-              <div className="pt-4 border-t border-white/10 flex flex-wrap items-center gap-y-2 gap-x-6 text-[11px] font-mono text-white/50">
+              <div className="pt-4 border-t border-white/10 flex flex-wrap items-center gap-y-2 gap-x-6 text-[11px] font-mono text-zinc-300">
                 <span className="flex items-center gap-1.5 text-white/80">
                   <CheckCircle className="w-3.5 h-3.5 text-white" />
                   100% Deterministic Grounding
@@ -746,9 +750,9 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* EDITORIAL NARRATIVE STATEMENT (SCROLL-SYNCED PROVENANCE)                  */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#050505] py-20 md:py-28 relative overflow-hidden">
+        <section className="w-full border-b border-white/10 bg-[#050505]/85 backdrop-blur-[2px] py-20 md:py-28 relative overflow-hidden">
           <div className="container mx-auto max-w-5xl px-5 md:px-8 text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-white/50">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-zinc-300">
               <span className="size-1.5 rounded-full bg-white" />
               <span>// 00 CANONICAL INTELLIGENCE THESIS</span>
             </div>
@@ -763,11 +767,11 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 01 — THE PROBLEM: WHY TRADITIONAL ENGINEERING KNOWLEDGE FAILS   */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#000000] py-24 relative overflow-hidden">
+        <section className="w-full border-b border-white/10 bg-[#000000]/80 backdrop-blur-[2px] py-24 relative overflow-hidden">
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-12">
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div className="max-w-3xl space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-white/70">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-zinc-300">
                   <AlertTriangle className="w-3.5 h-3.5 text-white" />
                   <span>// 01 THE PROBLEM: ENGINEERING KNOWLEDGE DECAY</span>
                 </div>
@@ -779,7 +783,7 @@ export default function Index() {
                 </p>
               </div>
 
-              <div className="font-mono text-xs text-white/40 border border-white/10 rounded-lg p-3 bg-white/[0.02]">
+              <div className="font-mono text-xs text-zinc-200 font-semibold border border-white/20 rounded-lg p-3 bg-white/[0.04]">
                 STATUS: CRITICAL INDUSTRY BOTTLENECK
               </div>
             </div>
@@ -793,7 +797,7 @@ export default function Index() {
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[10px] font-mono">
-                      <span className="text-white/40">PAIN POINT // {prob.id}</span>
+                      <span className="text-zinc-300 font-semibold">PAIN POINT // {prob.id}</span>
                       <span className="px-2 py-0.5 rounded bg-white/10 text-white font-semibold">
                         {prob.badge}
                       </span>
@@ -801,13 +805,13 @@ export default function Index() {
                     <h3 className="text-base font-bold text-white group-hover:text-white/90 transition-colors">
                       {prob.title}
                     </h3>
-                    <p className="text-xs text-white/70 font-sans leading-relaxed">
+                    <p className="text-xs text-zinc-300 font-sans leading-relaxed">
                       {prob.desc}
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-white/10 text-[11px] font-mono text-white/40">
-                    <span className="text-white/20 block text-[9px] uppercase">Telemetry Impact</span>
+                  <div className="pt-4 border-t border-white/10 text-[11px] font-mono text-zinc-300">
+                    <span className="text-zinc-400 block text-[9px] uppercase font-semibold">Telemetry Impact</span>
                     <span className="text-white/80">{prob.metric}</span>
                   </div>
                 </div>
@@ -819,11 +823,11 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 02 — THE SOLUTION: THE LIVING WORLD MODEL                       */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#050505] py-24 relative overflow-hidden">
+        <section className="w-full border-b border-white/10 bg-[#050505]/85 backdrop-blur-[2px] py-24 relative overflow-hidden">
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-12">
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div className="max-w-3xl space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-white/70">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-zinc-300">
                   <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                   <span>// 02 THE SOLUTION: VERIFIABLE WORLD MODEL</span>
                 </div>
@@ -863,17 +867,17 @@ export default function Index() {
                       </span>
                     </div>
                     <div className="space-y-1">
-                      <div className="text-[11px] font-mono text-white/50 uppercase">{sol.name}</div>
+                      <div className="text-[11px] font-mono text-zinc-300 uppercase font-semibold">{sol.name}</div>
                       <h3 className="text-lg font-bold text-white group-hover:text-white/90">
                         {sol.title}
                       </h3>
                     </div>
-                    <p className="text-xs text-white/70 font-sans leading-relaxed">
+                    <p className="text-xs text-zinc-300 font-sans leading-relaxed">
                       {sol.desc}
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-white/10 flex items-center justify-between font-mono text-[11px] text-white/40">
+                  <div className="pt-4 border-t border-white/10 flex items-center justify-between font-mono text-[11px] text-zinc-300 font-semibold">
                     <span>STATE: AUTONOMOUS</span>
                     <span className="text-white group-hover:translate-x-1 transition-transform">0{idx + 1} →</span>
                   </div>
@@ -886,10 +890,10 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 03 — ARCHITECTURE SPECIALIZATION & PERSONA OPERATING SYSTEM     */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#050505] py-24 relative overflow-hidden">
+        <section className="w-full border-b border-white/10 bg-[#050505]/85 backdrop-blur-[2px] py-24 relative overflow-hidden">
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-16">
             <div className="max-w-3xl space-y-4">
-              <div className="text-xs tracking-widest text-white/50 uppercase">
+              <div className="text-xs tracking-widest text-zinc-300 font-semibold uppercase">
                 // 01 ARCHITECTURE SPECIALIZATION
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
@@ -903,7 +907,7 @@ export default function Index() {
             {/* 10. SCROLL ZOOM REVEAL WRAPPER */}
             <ScrollZoomReveal>
               <div className="rounded-2xl border border-white/15 bg-black/80 p-8 backdrop-blur-xl shadow-2xl">
-                <div className="text-xs font-mono text-white/40 mb-6 uppercase tracking-wider flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="text-xs font-mono text-zinc-300 mb-6 uppercase tracking-wider font-semibold flex items-center justify-between border-b border-white/10 pb-3">
                   <span className="flex items-center gap-2">
                     <Workflow className="w-4 h-4 text-white" />
                     CANONICAL EXECUTION PIPELINE
@@ -923,11 +927,11 @@ export default function Index() {
                     { step: "07", name: "3D PLANETARY", desc: "Spatial WebGL" },
                   ].map((node, idx) => (
                     <div key={node.name} className="relative p-4 rounded-xl border border-white/10 bg-white/[0.02] flex flex-col items-center justify-center space-y-2 group hover:border-white/30 transition-all">
-                      <span className="text-[10px] text-white/40 font-bold">{node.step}</span>
+                      <span className="text-[10px] text-zinc-200 font-bold">{node.step}</span>
                       <span className="text-xs font-bold text-white tracking-wider">{node.name}</span>
-                      <span className="text-[10px] text-white/50 font-sans">{node.desc}</span>
+                      <span className="text-[10px] text-zinc-300 font-sans font-medium">{node.desc}</span>
                       {idx < 6 && (
-                        <div className="hidden lg:block absolute -right-2 top-1/2 -translate-y-1/2 z-10 text-white/30">
+                        <div className="hidden lg:block absolute -right-2 top-1/2 -translate-y-1/2 z-10 text-zinc-400">
                           →
                         </div>
                       )}
@@ -946,7 +950,7 @@ export default function Index() {
                     <Database className="w-4 h-4" />
                     Intelligent World Model Entities
                   </h3>
-                  <span className="text-[10px] text-white/40">8 TYPES</span>
+                  <span className="text-[10px] text-zinc-300 font-semibold">8 TYPES</span>
                 </div>
                 <p className="text-xs text-white/60 font-sans">
                   Structured portfolio knowledge organized into strictly typed entities:
@@ -967,7 +971,7 @@ export default function Index() {
                     <Network className="w-4 h-4" />
                     Typed Relationships
                   </h3>
-                  <span className="text-[10px] text-white/40">8 EDGES</span>
+                  <span className="text-[10px] text-zinc-300 font-semibold">8 EDGES</span>
                 </div>
                 <p className="text-xs text-white/60 font-sans">
                   First-class directional graph edges explaining architectural connectivity:
@@ -988,7 +992,7 @@ export default function Index() {
                     <Cpu className="w-4 h-4" />
                     Model-Backed Intelligence
                   </h3>
-                  <span className="text-[10px] text-white/40">7 CAPABILITIES</span>
+                  <span className="text-[10px] text-zinc-300 font-semibold">7 CAPABILITIES</span>
                 </div>
                 <p className="text-xs text-white/60 font-sans">
                   Designed the AI layer as an interpreter over canonical facts:
@@ -1004,7 +1008,7 @@ export default function Index() {
 
             {/* 11. STATE MACHINE TRANSITION VISUALIZER */}
             <div className="space-y-4 pt-6">
-              <div className="flex items-center justify-between text-xs text-white/50 font-mono uppercase">
+              <div className="flex items-center justify-between text-xs text-zinc-300 font-mono uppercase font-semibold">
                 <span>// LIVE STATE MACHINE TRANSITION ENGINE</span>
                 <span>VERIFIABLE RUNTIME PIPELINE</span>
               </div>
@@ -1016,11 +1020,11 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 02 — CORE COMPETENCIES & INTERACTIVE PILL REGISTRY             */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#000000] py-24 relative">
+        <section className="w-full border-b border-white/10 bg-[#000000]/80 backdrop-blur-[2px] py-24 relative">
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-12">
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div className="max-w-3xl space-y-4">
-                <div className="text-xs tracking-widest text-white/50 uppercase">
+                <div className="text-xs tracking-widest text-zinc-300 font-semibold uppercase">
                   // 02 ARCHITECTURAL PROFILE
                 </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
@@ -1062,14 +1066,14 @@ export default function Index() {
                       <ul className="space-y-2 text-xs text-white/70 font-sans leading-relaxed">
                         {comp.items.map((item) => (
                           <li key={item} className="flex items-start gap-2">
-                            <span className="text-white/30 font-mono mt-0.5">›</span>
+                            <span className="text-zinc-400 font-mono mt-0.5 font-bold">›</span>
                             <span>{item}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
 
-                    <div className="pt-4 border-t border-white/5 text-[11px] font-mono text-white/40 flex items-center justify-between">
+                    <div className="pt-4 border-t border-white/5 text-[11px] font-mono text-zinc-300 font-semibold flex items-center justify-between">
                       <span>STATUS: VERIFIED</span>
                       <span>FEEX-SPEC</span>
                     </div>
@@ -1083,11 +1087,11 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 03 — SELECTED SYSTEM WORLDS                                    */}
         {/* ========================================================================= */}
-        <section id="worlds" className="w-full border-b border-white/10 bg-[#050505] py-24 relative overflow-hidden">
+        <section id="worlds" className="w-full border-b border-white/10 bg-[#050505]/85 backdrop-blur-[2px] py-24 relative overflow-hidden">
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-12">
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div className="max-w-3xl space-y-4">
-                <div className="text-xs tracking-widest text-white/50 uppercase">
+                <div className="text-xs tracking-widest text-zinc-300 font-semibold uppercase">
                   // 03 PROJECT PORTFOLIO
                 </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
@@ -1111,7 +1115,7 @@ export default function Index() {
 
             {/* 13. SUSH CINEMATIC 3D PERSPECTIVE CAROUSEL */}
             <div className="rounded-2xl border border-white/10 bg-black/60 p-6 backdrop-blur-md shadow-2xl">
-              <div className="text-xs font-mono text-white/40 mb-4 uppercase tracking-wider flex items-center justify-between">
+              <div className="text-xs font-mono text-zinc-300 mb-4 uppercase tracking-wider font-semibold flex items-center justify-between">
                 <span>3D PERSPECTIVE CYLINDER // DRAGGABLE SHOWCASE</span>
                 <span>INTERACTION ENABLED</span>
               </div>
@@ -1127,7 +1131,7 @@ export default function Index() {
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between border-b border-white/10 pb-2 text-xs font-mono">
-                      <span className="text-white/40 font-bold">{world.id}</span>
+                      <span className="text-zinc-200 font-bold">{world.id}</span>
                       <span className="px-2 py-0.5 rounded text-[10px] bg-white/5 border border-white/10 text-white/80">
                         {world.status}
                       </span>
@@ -1152,7 +1156,7 @@ export default function Index() {
                       <h3 className="text-lg font-bold text-white group-hover:text-white/90 transition-colors">
                         {world.name}
                       </h3>
-                      <div className="text-xs text-white/50 font-sans mt-0.5">{world.domain}</div>
+                      <div className="text-xs text-zinc-300 font-sans mt-0.5 font-medium">{world.domain}</div>
                       {world.tagline && (
                         <div className="text-xs italic text-white/70 font-sans mt-1">
                           "{world.tagline}"
@@ -1166,7 +1170,7 @@ export default function Index() {
 
                     {world.canonicalArtifact && (
                       <div className="p-2.5 rounded bg-white/[0.03] border border-white/10 text-[11px] font-mono text-white/80">
-                        <span className="text-white/40 block text-[9px] uppercase">Canonical Artifact</span>
+                        <span className="text-zinc-300 font-semibold block text-[9px] uppercase">Canonical Artifact</span>
                         {world.canonicalArtifact}
                       </div>
                     )}
@@ -1190,7 +1194,7 @@ export default function Index() {
                       <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                       <span className="truncate">{world.repo}</span>
                     </a>
-                    <Link to="/world" className="text-white/40 hover:text-white transition-colors">
+                    <Link to="/world" className="text-zinc-300 hover:text-white transition-colors font-semibold">
                       Inspect →
                     </Link>
                   </div>
@@ -1218,14 +1222,14 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 04 — KINETIC VECTOR CONDUIT & SHADER MATRIX                     */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#000000] py-24 relative overflow-hidden">
+        <section className="w-full border-b border-white/10 bg-[#000000]/80 backdrop-blur-[2px] py-24 relative overflow-hidden">
           {/* 14. REAL-TIME SHADER MATRIX BACKGROUND */}
           <AnimatedBackground theme={bgTheme} className="opacity-30 pointer-events-none" />
 
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-12 relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div className="max-w-3xl space-y-4">
-                <div className="text-xs tracking-widest text-white/50 uppercase">
+                <div className="text-xs tracking-widest text-zinc-300 font-semibold uppercase">
                   // 04 INTERACTIVE SHADER & VECTOR LAB
                 </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
@@ -1239,7 +1243,7 @@ export default function Index() {
               {/* Theme & Variant Switchers */}
               <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
                 <div className="flex items-center gap-1 p-1 rounded-lg border border-white/15 bg-black/60">
-                  <span className="text-white/40 px-2 text-[10px]">THEME:</span>
+                  <span className="text-zinc-300 font-semibold px-2 text-[10px]">THEME:</span>
                   {(['cyber', 'matrix', 'violet', 'aurora'] as const).map((t) => (
                     <button
                       key={t}
@@ -1261,7 +1265,7 @@ export default function Index() {
                 <div>
                   <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
                     <div>
-                      <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider block">VECTOR CONDUIT ENGINE</span>
+                      <span className="text-[10px] font-mono text-zinc-300 font-semibold uppercase tracking-wider block">VECTOR CONDUIT ENGINE</span>
                       <h3 className="text-lg font-bold text-white">Mathematical Path Synthesis</h3>
                     </div>
                     {/* Stroke Selector Switcher */}
@@ -1271,7 +1275,7 @@ export default function Index() {
                           key={v}
                           onClick={() => setStrokeVariant(v)}
                           className={`px-2 py-1 rounded transition-colors text-[10px] ${
-                            strokeVariant === v ? 'bg-white text-black font-bold' : 'text-white/50 hover:text-white'
+                            strokeVariant === v ? 'bg-white text-black font-bold' : 'text-zinc-300 hover:text-white'
                           }`}
                         >
                           [{v.toUpperCase()}]
@@ -1292,7 +1296,7 @@ export default function Index() {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-white/10 text-xs font-mono text-white/50 flex items-center justify-between">
+                <div className="pt-4 border-t border-white/10 text-xs font-mono text-zinc-300 font-semibold flex items-center justify-between">
                   <span>ACTIVE VARIANT: {strokeVariant.toUpperCase()}</span>
                   <span>100% VECTOR PRECISION</span>
                 </div>
@@ -1303,10 +1307,10 @@ export default function Index() {
                 <div>
                   <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
                     <div>
-                      <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider block">GRAPH TOPOLOGY SIMULATION</span>
+                      <span className="text-[10px] font-mono text-zinc-300 font-semibold uppercase tracking-wider block">GRAPH TOPOLOGY SIMULATION</span>
                       <h3 className="text-lg font-bold text-white">Interactive Knowledge Mesh</h3>
                     </div>
-                    <span className="text-xs font-mono text-white/40">55 NODES</span>
+                    <span className="text-xs font-mono text-zinc-300 font-semibold">55 NODES</span>
                   </div>
 
                   <div className="min-h-[260px] h-[260px] w-full rounded-xl bg-black border border-white/5 relative overflow-hidden">
@@ -1314,7 +1318,7 @@ export default function Index() {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-white/10 text-xs font-mono text-white/50 flex items-center justify-between">
+                <div className="pt-4 border-t border-white/10 text-xs font-mono text-zinc-300 font-semibold flex items-center justify-between">
                   <span>HOVER TO REPEL PARTICLES</span>
                   <span>PROVABLY BOUND EDGES</span>
                 </div>
@@ -1326,7 +1330,7 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 05 — 3D SPATIAL GALAXY & REPOSITORY INTELLIGENCE               */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#050505] py-24 relative overflow-hidden">
+        <section className="w-full border-b border-white/10 bg-[#050505]/85 backdrop-blur-[2px] py-24 relative overflow-hidden">
           {/* WARP STARFIELD AMBIENT GALAXY BACKGROUND */}
           <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
             <WarpStarfield
@@ -1344,7 +1348,7 @@ export default function Index() {
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-12 relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div className="max-w-3xl space-y-4">
-                <div className="text-xs tracking-widest text-white/50 uppercase">
+                <div className="text-xs tracking-widest text-zinc-300 font-semibold uppercase">
                   // 05 SPATIAL COMPUTING
                 </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
@@ -1369,7 +1373,7 @@ export default function Index() {
             {/* 17. SKELETON LOADER DEMONSTRATION */}
             {showTelemetrySkeleton ? (
               <div className="rounded-2xl border border-white/10 bg-black/80 p-8 space-y-6">
-                <div className="text-xs font-mono text-white/40 uppercase">
+                <div className="text-xs font-mono text-zinc-300 font-semibold uppercase">
                   NON-BLOCKING INFRASTRUCTURE HYDRATION TELEMETRY
                 </div>
                 <SkeletonLoader variant="stats" />
@@ -1382,13 +1386,13 @@ export default function Index() {
                   <div>
                     <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6 font-mono text-xs">
                       <span className="text-white font-bold">WebGL Particle Sphere Engine</span>
-                      <span className="text-white/40">380 VERTICES</span>
+                      <span className="text-zinc-300 font-semibold">380 VERTICES</span>
                     </div>
                     <div className="min-h-[300px] h-[300px] w-full flex items-center justify-center rounded-xl bg-black border border-white/5 overflow-hidden">
                       <ParticleGlobe3D radius={140} autoRotateSpeed={0.005} />
                     </div>
                   </div>
-                  <div className="pt-4 border-t border-white/10 text-xs font-mono text-white/50 flex items-center justify-between">
+                  <div className="pt-4 border-t border-white/10 text-xs font-mono text-zinc-300 font-semibold flex items-center justify-between">
                     <span>DRAG TO ROTATE SPHERE</span>
                     <span>THREE.JS KERNEL</span>
                   </div>
@@ -1399,13 +1403,13 @@ export default function Index() {
                   <div>
                     <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6 font-mono text-xs">
                       <span className="text-white font-bold">Dynamic Geometry Morphing Core</span>
-                      <span className="text-white/40">SPHERE ⇄ TORUS ⇄ CUBE</span>
+                      <span className="text-zinc-300 font-semibold">SPHERE ⇄ TORUS ⇄ CUBE</span>
                     </div>
                     <div className="min-h-[300px] h-[300px] w-full flex items-center justify-center rounded-xl bg-black border border-white/5 overflow-hidden">
                       <GlobeMorph autoMorph={true} />
                     </div>
                   </div>
-                  <div className="pt-4 border-t border-white/10 text-xs font-mono text-white/50 flex items-center justify-between">
+                  <div className="pt-4 border-t border-white/10 text-xs font-mono text-zinc-300 font-semibold flex items-center justify-between">
                     <span>CONTINUOUS TOPOLOGICAL INTERPOLATION</span>
                     <span>ZERO CPU DRIFT</span>
                   </div>
@@ -1418,11 +1422,11 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 06 — LIGHTWEIGHT TERMINAL INTELLIGENCE                         */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#000000] py-24 relative overflow-hidden">
+        <section className="w-full border-b border-white/10 bg-[#000000]/80 backdrop-blur-[2px] py-24 relative overflow-hidden">
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div className="max-w-3xl space-y-4">
-                <div className="text-xs tracking-widest text-white/50 uppercase">
+                <div className="text-xs tracking-widest text-zinc-300 font-semibold uppercase">
                   // 06 ZERO-DEPENDENCY MONOLITHIC RUNTIME
                 </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
@@ -1457,7 +1461,7 @@ export default function Index() {
                   <span>feex-cli // offline mathematical engine</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] text-white/40">100% OFFLINE • 0 CDN DEPENDENCIES</span>
+                  <span className="text-[10px] text-zinc-300 font-semibold">100% OFFLINE • 0 CDN DEPENDENCIES</span>
                   <button
                     onClick={() => handleCopyCmd('curl -s https://feexsystems.codes/install.sh | bash')}
                     className="flex items-center gap-1 text-white hover:text-white/80 bg-white/10 border border-white/20 px-2 py-0.5 rounded transition-colors"
@@ -1476,10 +1480,10 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 07 — MULTIMEDIA SHOWCASE & VIDEO TOUR                          */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#050505] py-24 relative overflow-hidden">
+        <section className="w-full border-b border-white/10 bg-[#050505]/85 backdrop-blur-[2px] py-24 relative overflow-hidden">
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-12">
             <div className="max-w-3xl space-y-4">
-              <div className="text-xs tracking-widest text-white/50 uppercase">
+              <div className="text-xs tracking-widest text-zinc-300 font-semibold uppercase">
                 // 07 MEDIA & CINEMATIC SHOWCASE
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
@@ -1494,9 +1498,9 @@ export default function Index() {
               {/* 21. CINEMATIC VIDEO WITH MODAL TRIGGER */}
               <div className="rounded-2xl border border-white/15 bg-black/80 p-6 backdrop-blur-xl flex flex-col justify-between shadow-2xl">
                 <div className="space-y-1 mb-4 font-mono">
-                  <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider">HUD VIDEO STAGE</span>
+                  <span className="text-[10px] text-zinc-200 font-bold uppercase tracking-wider">HUD VIDEO STAGE</span>
                   <h3 className="text-base font-bold text-white">System Architecture & Spatial Galaxy Tour</h3>
-                  <p className="text-xs text-white/50 font-sans">Click the maximize button to launch fullscreen theater mode.</p>
+                  <p className="text-xs text-zinc-300 font-sans font-medium">Click the maximize button to launch fullscreen theater mode.</p>
                 </div>
                 <CinematicVideo
                   videoUrl="/media/feex/feexsystems-pitch-deck.mp4"
@@ -1511,7 +1515,7 @@ export default function Index() {
               <div className="rounded-2xl border border-white/15 bg-black/80 p-6 backdrop-blur-xl flex flex-col justify-between shadow-2xl space-y-4">
                 <div className="space-y-1 font-mono">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider">LIVE PRODUCT INTERFACE SIMULATOR</span>
+                    <span className="text-[10px] text-zinc-200 font-bold uppercase tracking-wider">LIVE PRODUCT INTERFACE SIMULATOR</span>
                     <span className="flex items-center gap-1.5 text-[10px] text-white/70">
                       <span className="size-1.5 rounded-full bg-white animate-pulse" />
                       GROUNDED RUNTIME
@@ -1550,7 +1554,7 @@ export default function Index() {
                 <div className="rounded-xl border border-white/10 bg-black/90 p-4 font-mono text-xs space-y-3 min-h-[220px] flex flex-col justify-between">
                   {activeDemoTab === "navigator" && (
                     <div className="space-y-2.5">
-                      <div className="flex items-center justify-between text-[10px] text-white/40 border-b border-white/10 pb-2">
+                      <div className="flex items-center justify-between text-[10px] text-zinc-300 font-semibold border-b border-white/10 pb-2">
                         <span>QUERY RETRIEVAL: &ldquo;How does HoloKai maintain memory?&rdquo;</span>
                         <span className="text-white font-semibold">99.8% RELEVANCE</span>
                       </div>
@@ -1574,17 +1578,17 @@ export default function Index() {
 
                   {activeDemoTab === "galaxy" && (
                     <div className="space-y-2.5">
-                      <div className="flex items-center justify-between text-[10px] text-white/40 border-b border-white/10 pb-2">
+                      <div className="flex items-center justify-between text-[10px] text-zinc-300 font-semibold border-b border-white/10 pb-2">
                         <span>SPATIAL COMPUTING VIEWPORT: THREE.JS KERNEL</span>
                         <span className="text-white">6 WORLDS // 380 EDGES</span>
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-[11px]">
                         <div className="p-2 rounded bg-white/[0.02] border border-white/10 space-y-1">
-                          <span className="text-white/40 text-[9px] uppercase">Orbit Topology</span>
+                          <span className="text-zinc-400 font-bold text-[9px] uppercase">Orbit Topology</span>
                           <div className="text-white font-bold">Planetary Keystone</div>
                         </div>
                         <div className="p-2 rounded bg-white/[0.02] border border-white/10 space-y-1">
-                          <span className="text-white/40 text-[9px] uppercase">Shader Render</span>
+                          <span className="text-zinc-400 font-bold text-[9px] uppercase">Shader Render</span>
                           <div className="text-white font-bold">60 FPS Hardware Gl</div>
                         </div>
                       </div>
@@ -1596,16 +1600,16 @@ export default function Index() {
 
                   {activeDemoTab === "omni" && (
                     <div className="space-y-2.5">
-                      <div className="flex items-center justify-between text-[10px] text-white/40 border-b border-white/10 pb-2">
+                      <div className="flex items-center justify-between text-[10px] text-zinc-300 font-semibold border-b border-white/10 pb-2">
                         <span>MULTI-AGENT ORCHESTRATION TERMINAL</span>
                         <span className="text-white animate-pulse">STREAMING SSE</span>
                       </div>
                       <div className="space-y-1 text-[11px] font-mono text-white/70">
                         <div className="text-white flex items-center gap-1">
-                          <span className="text-white/40">&gt;</span> feex run --pipeline sync-ecosystem --verify-sha
+                          <span className="text-zinc-400 font-bold">&gt;</span> feex run --pipeline sync-ecosystem --verify-sha
                         </div>
-                        <div className="text-white/50 pl-3">↳ Ingesting 6 repos from GitHub webhook queue...</div>
-                        <div className="text-white/50 pl-3">↳ Running AST symbol parser on 48 source files...</div>
+                        <div className="text-zinc-300 font-medium pl-3">↳ Ingesting 6 repos from GitHub webhook queue...</div>
+                        <div className="text-zinc-300 font-medium pl-3">↳ Running AST symbol parser on 48 source files...</div>
                         <div className="text-white/90 pl-3 font-semibold">✓ World Model synchronized: 8 entities, 14 edges</div>
                       </div>
                     </div>
@@ -1613,12 +1617,12 @@ export default function Index() {
 
                   {activeDemoTab === "evidence" && (
                     <div className="space-y-2.5">
-                      <div className="flex items-center justify-between text-[10px] text-white/40 border-b border-white/10 pb-2">
+                      <div className="flex items-center justify-between text-[10px] text-zinc-300 font-semibold border-b border-white/10 pb-2">
                         <span>IMMUTABLE EVIDENCE FABRIC</span>
                         <span className="text-white font-semibold">HMAC SHA-256 VERIFIED</span>
                       </div>
                       <div className="p-2 rounded bg-white/[0.03] border border-white/10 space-y-1 text-[11px]">
-                        <div className="flex justify-between text-[10px] text-white/50">
+                        <div className="flex justify-between text-[10px] text-zinc-300 font-medium">
                           <span>REPO: FeexSystems/3WM-SONIK-LABS</span>
                           <span>BRANCH: main</span>
                         </div>
@@ -1632,7 +1636,7 @@ export default function Index() {
                     </div>
                   )}
 
-                  <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-white/50">
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-zinc-300 font-semibold">
                     <span>LIVE DEMO PROJECTION</span>
                     <Link
                       to={
@@ -1659,10 +1663,10 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 08 — ENGINEERING PHILOSOPHY & SEQUENTIAL PIPELINE              */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#000000] py-24 relative">
+        <section className="w-full border-b border-white/10 bg-[#000000]/80 backdrop-blur-[2px] py-24 relative">
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-12">
             <div className="max-w-3xl space-y-4">
-              <div className="text-xs tracking-widest text-white/50 uppercase">
+              <div className="text-xs tracking-widest text-zinc-300 font-semibold uppercase">
                 // 08 ENGINEERING PHILOSOPHY
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
@@ -1680,7 +1684,7 @@ export default function Index() {
                   key={inv.title}
                   className="rounded-xl border border-white/10 bg-black/60 p-6 space-y-3 hover:border-white/20 transition-all"
                 >
-                  <div className="text-xs font-mono text-white/40 flex items-center justify-between border-b border-white/10 pb-2">
+                  <div className="text-xs font-mono text-zinc-300 font-semibold flex items-center justify-between border-b border-white/10 pb-2">
                     <span>INVARIANT // 0{idx + 1}</span>
                     <CheckCircle2 className="w-3.5 h-3.5 text-white/60" />
                   </div>
@@ -1692,7 +1696,7 @@ export default function Index() {
 
             {/* 23. SEQUENTIAL CAROUSEL */}
             <div className="space-y-4 pt-6">
-              <div className="text-xs font-mono text-white/40 uppercase tracking-wider flex items-center justify-between">
+              <div className="text-xs font-mono text-zinc-300 font-semibold uppercase tracking-wider flex items-center justify-between">
                 <span>// STEP-BY-STEP CANONICAL INGESTION & GROUNDING SEQUENCE</span>
                 <span>AUTOMATED EXECUTION</span>
               </div>
@@ -1704,10 +1708,10 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 09 — DEVELOPMENT FOCUS                                         */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#050505] py-24 relative">
+        <section className="w-full border-b border-white/10 bg-[#050505]/85 backdrop-blur-[2px] py-24 relative">
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-12">
             <div className="max-w-3xl space-y-4">
-              <div className="text-xs tracking-widest text-white/50 uppercase">
+              <div className="text-xs tracking-widest text-zinc-300 font-semibold uppercase">
                 // 09 ACTIVE ROADMAP
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
@@ -1724,7 +1728,7 @@ export default function Index() {
                   key={focus}
                   className="p-4 rounded-lg border border-white/10 bg-black/40 flex items-start gap-3 hover:border-white/20 transition-all"
                 >
-                  <span className="text-white/30 shrink-0 mt-0.5">{String(i + 1).padStart(2, '0')}.</span>
+                  <span className="text-zinc-400 font-semibold shrink-0 mt-0.5">{String(i + 1).padStart(2, '0')}.</span>
                   <span className="text-white/90 font-sans">{focus}</span>
                 </div>
               ))}
@@ -1735,10 +1739,10 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 10 — KNOWLEDGE JOURNAL: WORLD MODEL MANIFEST                    */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#000000] py-24 relative">
+        <section className="w-full border-b border-white/10 bg-[#000000]/80 backdrop-blur-[2px] py-24 relative">
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-16">
             <div className="max-w-3xl space-y-4">
-              <div className="text-xs tracking-widest text-white/50 uppercase">
+              <div className="text-xs tracking-widest text-zinc-300 font-semibold uppercase">
                 // 10 KNOWLEDGE JOURNAL
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
@@ -1750,7 +1754,7 @@ export default function Index() {
 
               {/* Editorial Thesis Box */}
               <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02] text-xs font-mono text-white/80 space-y-2">
-                <span className="text-white/40 block uppercase text-[10px]">EDITORIAL THESIS</span>
+                <span className="text-zinc-300 font-semibold block uppercase text-[10px]">EDITORIAL THESIS</span>
                 <div className="text-white font-bold leading-relaxed">
                   OBSERVATION → EVIDENCE → ARCHITECTURE → IMPLEMENTATION → LESSON → WORLD-MODEL RELATION
                 </div>
@@ -1759,7 +1763,7 @@ export default function Index() {
 
             {/* Featured Articles Grid */}
             <div className="space-y-6">
-              <div className="text-xs font-mono text-white/40 uppercase tracking-wider">
+              <div className="text-xs font-mono text-zinc-300 font-semibold uppercase tracking-wider">
                 FEATURED IN-DEPTH ARTICLES
               </div>
 
@@ -1767,7 +1771,7 @@ export default function Index() {
                 {/* Article 1 */}
                 <div className="rounded-xl border border-white/10 bg-[#070707] p-6 space-y-4 flex flex-col justify-between">
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between text-[11px] font-mono text-white/40 border-b border-white/10 pb-2">
+                    <div className="flex items-center justify-between text-[11px] font-mono text-zinc-300 font-semibold border-b border-white/10 pb-2">
                       <span>SERIES 01 // PERSONA OS</span>
                       <span>10 MIN READ</span>
                     </div>
@@ -1783,7 +1787,7 @@ export default function Index() {
                       UI = EXPERIENCE
                     </div>
                   </div>
-                  <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-white/50">
+                  <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-zinc-300 font-semibold">
                     <span>STATUS: IMPLEMENTED</span>
                     <span className="text-white">SEP 2026</span>
                   </div>
@@ -1792,7 +1796,7 @@ export default function Index() {
                 {/* Article 2 */}
                 <div className="rounded-xl border border-white/10 bg-[#070707] p-6 space-y-4 flex flex-col justify-between">
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between text-[11px] font-mono text-white/40 border-b border-white/10 pb-2">
+                    <div className="flex items-center justify-between text-[11px] font-mono text-zinc-300 font-semibold border-b border-white/10 pb-2">
                       <span>SERIES 02 // WORLD MODEL</span>
                       <span>12 MIN READ</span>
                     </div>
@@ -1808,7 +1812,7 @@ export default function Index() {
                       ARTIFACT ──EVOLVED_FROM──&gt; TIMELINE
                     </div>
                   </div>
-                  <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-white/50">
+                  <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-zinc-300 font-semibold">
                     <span>STATUS: PHASE III-D</span>
                     <span className="text-white">SEP 2026</span>
                   </div>
@@ -1817,7 +1821,7 @@ export default function Index() {
                 {/* Article 3 */}
                 <div className="rounded-xl border border-white/10 bg-[#070707] p-6 space-y-4 flex flex-col justify-between">
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between text-[11px] font-mono text-white/40 border-b border-white/10 pb-2">
+                    <div className="flex items-center justify-between text-[11px] font-mono text-zinc-300 font-semibold border-b border-white/10 pb-2">
                       <span>SERIES 03 // MODEL INTELLIGENCE</span>
                       <span>12 MIN READ</span>
                     </div>
@@ -1834,7 +1838,7 @@ export default function Index() {
                       &nbsp;&nbsp;↓ GROUNDED ANSWER
                     </div>
                   </div>
-                  <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-white/50">
+                  <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-zinc-300 font-semibold">
                     <span>STATUS: PHASE III-E</span>
                     <span className="text-white">SEP 2026</span>
                   </div>
@@ -1844,7 +1848,7 @@ export default function Index() {
 
             {/* Full 30-Article Core Series Accordion */}
             <div className="space-y-4 pt-6">
-              <div className="text-xs font-mono text-white/40 uppercase tracking-wider">
+              <div className="text-xs font-mono text-zinc-300 font-semibold uppercase tracking-wider">
                 COMPLETE 30-ARTICLE CORE SERIES ROADMAP
               </div>
 
@@ -1857,7 +1861,7 @@ export default function Index() {
                   >
                     <AccordionTrigger className="text-sm font-semibold text-white hover:text-white/80 py-4 hover:no-underline">
                       <div className="flex items-center gap-3">
-                        <span className="text-white/40">SERIES {series.id}</span>
+                        <span className="text-zinc-300 font-semibold">SERIES {series.id}</span>
                         <span>{series.title}</span>
                       </div>
                     </AccordionTrigger>
@@ -1865,7 +1869,7 @@ export default function Index() {
                       <ul className="space-y-2 border-t border-white/10 pt-3 font-mono text-xs">
                         {series.articles.map((art, idx) => (
                           <li key={art} className="flex items-start gap-2 text-white/80">
-                            <span className="text-white/40 mt-0.5">{String(idx + 1).padStart(2, '0')}.</span>
+                            <span className="text-zinc-300 font-semibold mt-0.5">{String(idx + 1).padStart(2, '0')}.</span>
                             <span>{art}</span>
                           </li>
                         ))}
@@ -1881,7 +1885,7 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 11 — AUTHENTICATED INTELLIGENCE SUITE                           */}
         {/* ========================================================================= */}
-        <section id="services-suite" className="w-full border-b border-white/10 bg-[#050505] py-24 relative">
+        <section id="services-suite" className="w-full border-b border-white/10 bg-[#050505]/85 backdrop-blur-[2px] py-24 relative">
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-12">
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div className="max-w-3xl space-y-4">
@@ -1973,8 +1977,8 @@ export default function Index() {
                   >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[10px] font-mono">
-                        <span className="text-white/40">{svc.badge}</span>
-                        <Lock className="w-3 h-3 text-white/40 group-hover:text-white transition-colors" />
+                        <span className="text-zinc-300 font-semibold">{svc.badge}</span>
+                        <Lock className="w-3 h-3 text-zinc-300 group-hover:text-white transition-colors" />
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="size-8 rounded bg-white/5 border border-white/10 flex items-center justify-center text-white">
@@ -1988,7 +1992,7 @@ export default function Index() {
                     </div>
 
                     <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono">
-                      <span className="text-white/40">ROLE: ADMIN / OWNER</span>
+                      <span className="text-zinc-300 font-semibold">ROLE: ADMIN / OWNER</span>
                       <Link to={svc.route} className="text-white/70 hover:text-white flex items-center gap-1">
                         <span>Access Suite</span>
                         <ArrowRight className="w-3 h-3" />
@@ -2004,7 +2008,7 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 12 — PRICING & SUBSCRIPTION SOVEREIGNTY                         */}
         {/* ========================================================================= */}
-        <section id="pricing" className="w-full border-b border-white/10 bg-[#000000] py-24 relative overflow-hidden">
+        <section id="pricing" className="w-full border-b border-white/10 bg-[#000000]/80 backdrop-blur-[2px] py-24 relative overflow-hidden">
           <div className="container mx-auto max-w-7xl px-5 md:px-8 space-y-16">
             <div className="flex flex-col items-center text-center max-w-3xl mx-auto space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-mono text-white">
@@ -2020,7 +2024,7 @@ export default function Index() {
 
               {/* Monthly / Annual Billing Toggle */}
               <div className="pt-4 flex items-center gap-3 font-mono text-xs">
-                <span className={billingCycle === "monthly" ? "text-white font-bold" : "text-white/40"}>
+                <span className={billingCycle === "monthly" ? "text-white font-bold" : "text-zinc-400 font-medium"}>
                   MONTHLY
                 </span>
                 <button
@@ -2035,7 +2039,7 @@ export default function Index() {
                   />
                 </button>
                 <div className="flex items-center gap-1.5">
-                  <span className={billingCycle === "annual" ? "text-white font-bold" : "text-white/40"}>
+                  <span className={billingCycle === "annual" ? "text-white font-bold" : "text-zinc-400 font-medium"}>
                     ANNUAL BILLING
                   </span>
                   <span className="px-2 py-0.5 rounded-full text-[10px] bg-white text-black font-bold">
@@ -2067,7 +2071,7 @@ export default function Index() {
                     <div className="space-y-6">
                       <div className="flex items-center justify-between border-b border-white/10 pb-4">
                         <div>
-                          <div className="text-[10px] font-mono text-white/50 uppercase tracking-wider">
+                          <div className="text-[10px] font-mono text-zinc-300 uppercase tracking-wider font-semibold">
                             {tier.badge}
                           </div>
                           <h3 className="text-xl font-bold text-white mt-1">{tier.name}</h3>
@@ -2077,25 +2081,25 @@ export default function Index() {
                       <div className="space-y-1">
                         <div className="flex items-baseline gap-1">
                           <span className="text-4xl sm:text-5xl font-light text-white">${price}</span>
-                          <span className="text-xs font-mono text-white/40">
+                          <span className="text-xs font-mono text-zinc-300">
                             {price === 0 ? "forever" : "/ month"}
                           </span>
                         </div>
                         {billingCycle === "annual" && price > 0 && (
-                          <div className="text-[11px] font-mono text-white/40">
+                          <div className="text-[11px] font-mono text-zinc-300">
                             Billed annually (${price * 12}/yr)
                           </div>
                         )}
-                        <p className="text-xs text-white/60 font-sans pt-2 leading-relaxed">
+                        <p className="text-xs text-zinc-300 font-sans pt-2 leading-relaxed">
                           {tier.desc}
                         </p>
                       </div>
 
                       <div className="space-y-3 pt-4 border-t border-white/10">
-                        <div className="text-[10px] font-mono text-white/40 uppercase tracking-wider">
+                        <div className="text-[10px] font-mono text-zinc-300 uppercase tracking-wider font-semibold">
                           INCLUDED CAPABILITIES
                         </div>
-                        <ul className="space-y-2.5 text-xs text-white/80 font-sans">
+                        <ul className="space-y-2.5 text-xs text-zinc-200 font-sans">
                           {tier.features.map((feat) => (
                             <li key={feat} className="flex items-start gap-2.5">
                               <Check className="w-3.5 h-3.5 text-white shrink-0 mt-0.5" />
@@ -2131,7 +2135,7 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 13 — FREQUENTLY ANSWERED OBJECTIONS (FAQ)                       */}
         {/* ========================================================================= */}
-        <section id="faq" className="w-full border-b border-white/10 bg-[#050505] py-24 relative">
+        <section id="faq" className="w-full border-b border-white/10 bg-[#050505]/85 backdrop-blur-[2px] py-24 relative">
           <div className="container mx-auto max-w-5xl px-5 md:px-8 space-y-12">
             <div className="max-w-3xl space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-mono text-white">
@@ -2141,7 +2145,7 @@ export default function Index() {
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
                 Frequently Answered Objections
               </h2>
-              <p className="text-base sm:text-lg text-white/60 font-sans leading-relaxed">
+              <p className="text-base sm:text-lg text-zinc-300 font-sans leading-relaxed">
                 Clear answers regarding security boundaries, hallucination protection, model neutrality, and infrastructure sovereignty.
               </p>
             </div>
@@ -2157,11 +2161,11 @@ export default function Index() {
                   >
                     <AccordionTrigger className="text-sm font-semibold text-white hover:text-white/80 py-5 hover:no-underline text-left">
                       <div className="flex items-center gap-3 pr-4">
-                        <span className="text-white/40 font-mono text-xs">0{idx + 1}.</span>
+                        <span className="text-zinc-300 font-mono text-xs font-semibold">0{idx + 1}.</span>
                         <span>{faq.q}</span>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="pb-6 pt-1 text-xs text-white/70 font-sans leading-relaxed border-t border-white/10">
+                    <AccordionContent className="pb-6 pt-1 text-xs text-zinc-200 font-sans leading-relaxed border-t border-white/10">
                       <p className="pt-3">{faq.a}</p>
                     </AccordionContent>
                   </AccordionItem>
@@ -2174,7 +2178,7 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* SECTION // 14 — FINAL CLOSING CONVERSION STAGE (REPEAT BUY BUTTON)         */}
         {/* ========================================================================= */}
-        <section className="w-full border-b border-white/10 bg-[#000000] py-28 relative overflow-hidden">
+        <section className="w-full border-b border-white/10 bg-[#000000]/80 backdrop-blur-[2px] py-28 relative overflow-hidden">
           {/* Subtle Ambient Warp Backdrop */}
           <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
             <WarpStarfield
@@ -2197,10 +2201,10 @@ export default function Index() {
 
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-white max-w-4xl mx-auto leading-[1.1]">
               Stop relying on hallucinated architecture. <br />
-              <span className="font-semibold text-white/60">Ground your engineering in verifiable truth.</span>
+              <span className="font-semibold text-zinc-300">Ground your engineering in verifiable truth.</span>
             </h2>
 
-            <p className="text-base sm:text-lg text-white/70 font-sans max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-zinc-200 font-sans max-w-2xl mx-auto leading-relaxed">
               Deploy your living World Model in under three minutes. Connect your GitHub repositories and turn your code, commits, and artifacts into an authoritative spatial intelligence platform.
             </p>
 
@@ -2229,11 +2233,11 @@ export default function Index() {
 
             {/* Terminal One-Liner Quick-Start */}
             <div className="pt-6 max-w-md mx-auto">
-              <div className="rounded-xl border border-white/15 bg-black/90 p-3 font-mono text-xs flex items-center justify-between text-white/70">
+              <div className="rounded-xl border border-white/15 bg-black/90 p-3 font-mono text-xs flex items-center justify-between text-zinc-200">
                 <span className="truncate mr-2">curl -fsSL https://feexsystems.codes/install.sh | bash</span>
                 <button
                   onClick={() => handleCopyCmd("curl -fsSL https://feexsystems.codes/install.sh | bash")}
-                  className="hover:text-white p-1 rounded bg-white/5 border border-white/10 text-white/50 hover:bg-white/10 transition-colors"
+                  className="hover:text-white p-1 rounded bg-white/5 border border-white/10 text-zinc-300 hover:bg-white/10 transition-colors"
                   aria-label="Copy terminal install command"
                 >
                   {copiedTerminal ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
@@ -2242,7 +2246,7 @@ export default function Index() {
             </div>
 
             {/* Trust and Conversion Guarantee Badges */}
-            <div className="pt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs font-mono text-white/40">
+            <div className="pt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs font-mono text-zinc-300 font-medium">
               <span className="flex items-center gap-1.5">
                 <CheckCircle className="w-3.5 h-3.5 text-white/70" />
                 No credit card required
@@ -2263,7 +2267,7 @@ export default function Index() {
         {/* SECTION // 15 — KINETIC TSUNAMI WAVE DIVIDER                              */}
         {/* ========================================================================= */}
         <div className="w-full border-t border-white/10 bg-[#000000] relative overflow-hidden pt-8">
-          <div className="text-center font-mono text-[10px] text-white/30 tracking-widest uppercase mb-2">
+          <div className="text-center font-mono text-[10px] text-zinc-300 tracking-widest uppercase mb-2 font-semibold">
             VERIFIABLE MATHEMATICAL FLUID MOTION
           </div>
           <TsunamiWave height={120} className="opacity-30" />
@@ -2273,7 +2277,7 @@ export default function Index() {
       {/* ========================================================================= */}
       {/* GLOBAL TECHNICAL FOOTER                                                   */}
       {/* ========================================================================= */}
-      <footer className="w-full border-t border-white/10 bg-[#000000] py-16 text-xs text-white/50 relative z-10">
+      <footer className="w-full border-t border-white/10 bg-[#000000] py-16 text-xs text-zinc-300 relative z-10">
         <div className="container mx-auto max-w-7xl px-5 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
             {/* Brand Column */}
@@ -2282,10 +2286,10 @@ export default function Index() {
                 <span className="size-2.5 bg-white" />
                 <span>FEEXSYSTEMS</span>
               </div>
-              <p className="text-xs text-white/60 max-w-sm leading-relaxed font-sans">
+              <p className="text-xs text-zinc-300 max-w-sm leading-relaxed font-sans">
                 Evidence-backed engineering intelligence platform turning the FeexSystems GitHub ecosystem into an explorable World Model.
               </p>
-              <div className="flex items-center gap-2 text-[11px] text-white/40 font-mono">
+              <div className="flex items-center gap-2 text-[11px] text-zinc-300 font-mono font-medium">
                 <span className="size-2 rounded-full bg-white animate-pulse" />
                 <span>ALL CANONICAL SYSTEMS ACTIVE • LAST UPDATED SEP 2026</span>
               </div>
@@ -2294,7 +2298,7 @@ export default function Index() {
             {/* Platform Links */}
             <div className="space-y-3 font-mono">
               <div className="text-white font-semibold text-xs tracking-wider uppercase">Platform</div>
-              <ul className="space-y-2 text-xs">
+              <ul className="space-y-2 text-xs text-zinc-300">
                 <li>
                   <Link to="/world" className="hover:text-white transition-colors">
                     3D Spatial World
@@ -2326,7 +2330,7 @@ export default function Index() {
             {/* Resources Links */}
             <div className="space-y-3 font-mono">
               <div className="text-white font-semibold text-xs tracking-wider uppercase">Resources</div>
-              <ul className="space-y-2 text-xs">
+              <ul className="space-y-2 text-xs text-zinc-300">
                 <li>
                   <GitHubGuardLink
                     href="https://github.com/FeexSystems"
@@ -2361,7 +2365,7 @@ export default function Index() {
             {/* The 6 Worlds */}
             <div className="space-y-3 font-mono">
               <div className="text-white font-semibold text-xs tracking-wider uppercase">System Worlds</div>
-              <ul className="space-y-2 text-xs text-white/40">
+              <ul className="space-y-2 text-xs text-zinc-300">
                 <li>01 3WM SONIK LABS</li>
                 <li>02 HoloKai</li>
                 <li>03 Yurrheeler AI</li>
@@ -2372,7 +2376,7 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="mt-14 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-white/40 font-mono">
+          <div className="mt-14 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-zinc-300 font-mono">
             <div>© 2026 FEEXSYSTEMS. Build better systems faster. Canonical reality holds facts.</div>
             <div className="flex items-center gap-6">
               <span>Persona Digital OS</span>

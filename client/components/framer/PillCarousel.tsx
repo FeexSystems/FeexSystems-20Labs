@@ -49,7 +49,7 @@ export function PillCarousel({
       {/* Scroll Left Button */}
       <button
         onClick={() => scroll("left")}
-        className="shrink-0 p-1.5 rounded-full bg-black/60 border border-white/10 hover:bg-white/10 text-gray-400 hover:text-white transition-colors backdrop-blur-md"
+        className="shrink-0 p-1.5 rounded-full bg-black/60 border border-white/10 hover:bg-white/10 text-zinc-200 hover:text-white transition-colors backdrop-blur-md"
         aria-label="Scroll left"
       >
         <ChevronLeft className="w-4 h-4" />
@@ -73,7 +73,7 @@ export function PillCarousel({
                 "shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full font-mono text-xs tracking-wider transition-all duration-200 border whitespace-nowrap",
                 isSelected
                   ? "bg-white/10 border-white text-white shadow-[0_0_15px_rgba(255,255,255,0.25)] font-semibold"
-                  : "bg-black/40 border-white/10 text-gray-400 hover:text-white hover:border-white/25 hover:bg-white/5"
+                  : "bg-black/40 border-white/10 text-zinc-300 hover:text-white hover:border-white/25 hover:bg-white/5"
               )}
             >
               {Icon && <Icon className="w-3.5 h-3.5" />}
@@ -84,7 +84,7 @@ export function PillCarousel({
                     "px-1.5 py-0.2 rounded-full text-[10px] font-mono",
                     isSelected
                       ? "bg-white text-black font-bold"
-                      : "bg-white/10 text-gray-400"
+                      : "bg-white/10 text-zinc-300"
                   )}
                 >
                   {pill.count}
@@ -98,7 +98,7 @@ export function PillCarousel({
       {/* Scroll Right Button */}
       <button
         onClick={() => scroll("right")}
-        className="shrink-0 p-1.5 rounded-full bg-black/60 border border-white/10 hover:bg-white/10 text-gray-400 hover:text-white transition-colors backdrop-blur-md"
+        className="shrink-0 p-1.5 rounded-full bg-black/60 border border-white/10 hover:bg-white/10 text-zinc-200 hover:text-white transition-colors backdrop-blur-md"
         aria-label="Scroll right"
       >
         <ChevronRight className="w-4 h-4" />
