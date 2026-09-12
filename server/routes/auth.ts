@@ -97,6 +97,10 @@ router.post(
       res.json({
         success: true,
         message: 'Login successful',
+        // Flat keys — forward-compatible contract for clients that read top-level tokens
+        user: result.user,
+        tokens: result.tokens,
+        // Nested — backwards-compatible for existing clients that read data.user / data.tokens
         data: {
           user: result.user,
           tokens: result.tokens,
@@ -645,5 +649,29 @@ router.get(
     }
   }
 );
+
+/**
+ * @route GET /api/auth/health
+ * @desc Check auth subsystem health, database connectivity, and configuration
+ * @access Public
+ */
+router.get('/health', async (_req: Request, res: Response) => {
+  let db = false;
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    db = true;
+  } catch {
+    db = false;
+  }
+
+  res.json({
+    success: true,
+    authMode: process.env.USE_MOCK_AUTH === 'true' ? 'mock' : 'jwt',
+    database: db,
+    jwtConfigured: Boolean(process.env.JWT_SECRET && process.env.JWT_REFRESH_SECRET),
+    mockAuth: process.env.USE_MOCK_AUTH === 'true',
+    timestamp: new Date().toISOString(),
+  });
+});
 
 export default router;

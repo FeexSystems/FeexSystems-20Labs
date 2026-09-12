@@ -29,6 +29,10 @@ import {
 } from "../lib/services/world-model-maintenance.service";
 import { hardQueryRateLimiter } from "../lib/middleware/production-security";
 import { geminiService } from "../lib/services/gemini.service";
+import {
+  generateGroundedAnswer,
+  getLlmProviderStatus,
+} from "../lib/services/llm-grounded.service";
 
 const router = Router();
 
@@ -176,6 +180,35 @@ router.get("/navigator", hardQueryRateLimiter, async (req: Request, res: Respons
       console.warn("[Navigator GET] Gemini reasoning fallback:", aiErr);
     }
 
+    // Grounded-answer layer — attaches standardized llm metadata block
+    try {
+      const grounded = await generateGroundedAnswer({
+        query: q,
+        explanation: result.explanation,
+        projects: result.projects,
+        technologies: result.technologies,
+        artifacts: result.artifacts,
+        ranking: (result as any).ranking,
+      });
+      // Use grounded prose only if Interactions API didn't already set a rich explanation
+      if (!result.explanation || grounded.provider !== "none") {
+        result.explanation = grounded.text;
+      }
+      (result as any).llm = {
+        provider: grounded.provider,
+        model: grounded.model,
+        usedFallback: grounded.usedFallback,
+        suggestions: grounded.suggestions,
+      };
+      // Prefer grounded suggestions if navigator didn't already have them
+      if (!(result as any).suggestions?.length) {
+        (result as any).suggestions = grounded.suggestions;
+      }
+    } catch (groundedErr) {
+      console.warn("[Navigator GET] Grounded answer fallback:", groundedErr);
+      (result as any).llm = { provider: "none", usedFallback: true, suggestions: [] };
+    }
+
     res.json({ success: true, data: result });
   } catch (error) {
     res.status(500).json({
@@ -220,11 +253,55 @@ router.post("/navigator", hardQueryRateLimiter, async (req: Request, res: Respon
       console.warn("[Navigator POST] Gemini reasoning fallback:", aiErr);
     }
 
+    // Grounded-answer layer — attaches standardized llm metadata block
+    try {
+      const grounded = await generateGroundedAnswer({
+        query: q,
+        explanation: result.explanation,
+        projects: result.projects,
+        technologies: result.technologies,
+        artifacts: result.artifacts,
+        ranking: (result as any).ranking,
+      });
+      if (!result.explanation || grounded.provider !== "none") {
+        result.explanation = grounded.text;
+      }
+      (result as any).llm = {
+        provider: grounded.provider,
+        model: grounded.model,
+        usedFallback: grounded.usedFallback,
+        suggestions: grounded.suggestions,
+      };
+      if (!(result as any).suggestions?.length) {
+        (result as any).suggestions = grounded.suggestions;
+      }
+    } catch (groundedErr) {
+      console.warn("[Navigator POST] Grounded answer fallback:", groundedErr);
+      (result as any).llm = { provider: "none", usedFallback: true, suggestions: [] };
+    }
+
     res.json({ success: true, data: result });
   } catch (error) {
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : "Navigator retrieval failed",
+    });
+  }
+});
+
+/**
+ * GET /api/world-model/providers/status
+ * Public (no auth) — returns which LLM providers are configured.
+ * Used by Bushfeexer and Omni to show honest UI warnings.
+ */
+router.get("/providers/status", async (_req: Request, res: Response) => {
+  try {
+    const status = await getLlmProviderStatus();
+    res.json({ success: true, data: status });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Provider status check failed",
     });
   }
 });

@@ -21,6 +21,7 @@ import { createEmptyStageResponse } from "../../../shared/orchestration";
 import { validateOmniResponse } from "../../../shared/orchestration-schema";
 import { getWorldModelGraph } from "./github-pinned.service";
 import { retrieveWorldHybrid } from "./hybrid-retrieval.service";
+import { generateGroundedAnswer } from "./llm-grounded.service";
 
 function nowIso() {
   return new Date().toISOString();
@@ -338,9 +339,64 @@ export async function executeOmniCommand(
         response.context.focusedNodeIds = [props.focusNodeId];
       }
     } else {
-      const explanation =
+      // MarkdownViewer — use grounded prose from LLM
+      let explanation =
         navigatorResult?.explanation ||
         "No grounded explanation available yet. The World Model is still being synchronized.";
+
+      try {
+        const grounded = await generateGroundedAnswer({
+          query,
+          explanation: navigatorResult?.explanation,
+          projects: navigatorResult?.projects,
+          technologies: navigatorResult?.technologies,
+          artifacts: navigatorResult?.artifacts,
+          ranking: navigatorResult?.ranking,
+        });
+        explanation = grounded.text;
+        push(
+          step(
+            "decide",
+            `Grounded prose via ${grounded.provider}${grounded.usedFallback ? " (template fallback)" : ""}`
+          )
+        );
+        // Merge grounded suggestions into contextual suggestions if not already set
+        if (grounded.suggestions?.length) {
+          response = baseResponse(
+            requestId,
+            classified.intent,
+            llmChoice?.confidence ?? 0.8,
+            evidence_anchors,
+            trace,
+            req,
+            {
+              component: "MarkdownViewer",
+              props: {
+                title: `Navigator · ${query}`,
+                content: [
+                  "## Grounded Explanation",
+                  "",
+                  explanation,
+                  "",
+                  "### Projects",
+                  (navigatorResult?.projects ?? []).map((p: any) => `- **${p.name}** (\`${p.repository}\`)`).join("\n") || "_None_",
+                  "",
+                  "### Technologies",
+                  (navigatorResult?.technologies ?? []).map((t: any) => `- ${t.name} (${t.projectCount} projects)`).join("\n") || "_None_",
+                ].join("\n"),
+                evidence_anchors,
+              } as MarkdownViewerProps,
+              layoutHint: "full",
+            }
+          );
+          push(step("render", "Rendering MarkdownViewer with grounded explanation"));
+          return response;
+        }
+      } catch (groundedErr) {
+        console.warn("[omni] Grounded answer fallback:", groundedErr);
+        push(step("decide", "Grounded answer failed — using template explanation"));
+      }
+
       const props: MarkdownViewerProps = {
         title: `Navigator · ${query}`,
         content: [

@@ -15,6 +15,10 @@ interface ChatMessage {
   suggestions?: string[];
   evidenceCount?: number;
   isError?: boolean;
+  /** LLM provider that generated this message */
+  provider?: "gemini" | "openai" | "none";
+  /** True if the response fell back to template (no live LLM key) */
+  usedFallback?: boolean;
 }
 
 interface NavigatorResult {
@@ -139,6 +143,8 @@ async function queryNavigator(
   text: string;
   suggestions: string[];
   evidenceCount?: number;
+  provider?: "gemini" | "openai" | "none";
+  usedFallback?: boolean;
 }> {
   // 1. Try POST with history
   try {
@@ -158,9 +164,11 @@ async function queryNavigator(
       const json = await postRes.json();
       if (json.success && json.data) {
         const data = json.data;
+        const llm = data.llm;
         const suggestions = (data.suggestions && data.suggestions.length > 0)
           ? data.suggestions
-          : (data.projects || []).slice(0, 2).map((p: any) => `Tell me about ${p.name}`);
+          : (llm?.suggestions?.length ? llm.suggestions : null)
+          ?? (data.projects || []).slice(0, 2).map((p: any) => `Tell me about ${p.name}`);
         if (!suggestions.length) {
           suggestions.push("Tell me more", "Explain the architecture", "Show code examples");
         }
@@ -168,6 +176,8 @@ async function queryNavigator(
           text: data.explanation || "Analyzed query against the FeexSystems Living Intelligence engine.",
           suggestions,
           evidenceCount: data.groundedEvidenceCount,
+          provider: llm?.provider,
+          usedFallback: llm?.usedFallback,
         };
       }
     }
@@ -192,15 +202,19 @@ async function queryNavigator(
   if (!json.success) throw new Error(json.error || "Navigator query failed");
 
   const data: NavigatorResult = json.data;
+  const llm = (json.data as any)?.llm;
   const suggestions = (json.data?.suggestions && json.data.suggestions.length > 0)
     ? json.data.suggestions
-    : (data.projects || []).slice(0, 2).map((p) => `Tell me about ${p.name}`);
+    : (llm?.suggestions?.length ? llm.suggestions : null)
+    ?? (data.projects || []).slice(0, 2).map((p) => `Tell me about ${p.name}`);
   if (!suggestions.length) suggestions.push("Tell me more", "Show code examples", "Explore 3D Galaxy");
 
   return {
     text: data.explanation || "Here's what I found in the FeexSystems World Model.",
     suggestions,
     evidenceCount: data.groundedEvidenceCount,
+    provider: llm?.provider,
+    usedFallback: llm?.usedFallback,
   };
 }
 
@@ -211,8 +225,25 @@ export function Bushfeexer() {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [hasGreeted, setHasGreeted] = useState(false);
+  const [aiWarning, setAiWarning] = useState<string | null>(null);
+  const [warningDismissed, setWarningDismissed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Track provider status on mount
+  useEffect(() => {
+    fetch("/api/world-model/providers/status")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success && json.data) {
+          const { gemini, openai } = json.data;
+          if (!gemini && !openai) {
+            setAiWarning("No LLM keys configured. Responses use template fallback (provider: none).");
+          }
+        }
+      })
+      .catch(() => { /* non-fatal */ });
+  }, []);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -263,7 +294,7 @@ export function Bushfeexer() {
           .slice(-6)
           .map(m => ({ role: m.sender === "user" ? ("user" as const) : ("assistant" as const), text: m.text }));
 
-        const { text: responseText, suggestions, evidenceCount } = await queryNavigator(text, history);
+        const { text: responseText, suggestions, evidenceCount, provider, usedFallback } = await queryNavigator(text, history);
         setMessages((prev) => [
           ...prev,
           {
@@ -273,6 +304,8 @@ export function Bushfeexer() {
             timestamp: new Date(),
             suggestions,
             evidenceCount,
+            provider,
+            usedFallback,
           },
         ]);
       } catch (err: any) {
@@ -386,6 +419,21 @@ export function Bushfeexer() {
             </button>
           </div>
 
+          {/* AI Warning Banner — shown when no LLM keys configured */}
+          {aiWarning && !warningDismissed && (
+            <div role="alert" className="flex items-start gap-2 px-3 py-2 bg-amber-950/60 border-b border-amber-500/30 text-[10px] font-mono text-amber-300">
+              <span className="shrink-0 mt-0.5">⚠</span>
+              <span className="flex-1">{aiWarning}</span>
+              <button
+                onClick={() => setWarningDismissed(true)}
+                aria-label="Dismiss AI warning"
+                className="shrink-0 text-amber-400 hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((msg) => (
@@ -409,6 +457,13 @@ export function Bushfeexer() {
                     <p className="text-[10px] text-white/40 flex items-center gap-1.5 pl-1 font-mono">
                       <span className="w-1.5 h-1.5 rounded-full bg-white inline-block" />
                       {msg.evidenceCount} evidence source{msg.evidenceCount !== 1 ? "s" : ""}
+                    </p>
+                  )}
+                  {/* Provider badge — shows which LLM (or template) answered */}
+                  {msg.sender === "bot" && msg.provider && (
+                    <p className="text-[9px] text-white/30 pl-1 font-mono uppercase tracking-wider">
+                      [{msg.provider === "none" ? "TEMPLATE" : msg.provider.toUpperCase()}]
+                      {msg.usedFallback && msg.provider !== "none" ? " (fallback)" : ""}
                     </p>
                   )}
                   {msg.isError && (

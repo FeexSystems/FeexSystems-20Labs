@@ -28,6 +28,7 @@
     "db:init": "tsx scripts/migrate.ts init",
     "db:reset": "tsx scripts/migrate.ts reset",
     "db:seed": "tsx scripts/migrate.ts seed",
+    "db:seed:auth": "tsx prisma/seed-auth.ts",
     "db:studio": "tsx scripts/migrate.ts studio",
     "db:status": "tsx scripts/migrate.ts status",
     "docker:dev": "docker-compose --profile dev up --build",

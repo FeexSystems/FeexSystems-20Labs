@@ -598,13 +598,13 @@ export default function Index() {
         {/* HERO SECTION: PROFESSIONAL PROFILE & CANONICAL PRINCIPLE                  */}
         {/* ========================================================================= */}
         <section className="relative w-full overflow-hidden border-b border-white/10 bg-[#000000]/80 backdrop-blur-[2px] pt-14 pb-20 md:pt-20 md:pb-28">
-          {/* 00. FEEX HUMANOIDS AMBIENT VIDEO OVERLAY */}
+          {/* 00. FEEX ROBOTICS AMBIENT VIDEO OVERLAY */}
           <VideoOverlayBackground
-            src="/media/feex/feex-humanoids.mp4"
+            src="/media/feex/feex-robotics.mp4"
             position="hero"
-            opacity={0.35}
+            opacity={0.75}
             blendMode="screen"
-            label="FEEX Humanoids Feed"
+            label="FEEX Robotics Feed"
             showToggle={true}
           />
 
@@ -1223,8 +1223,10 @@ export default function Index() {
           showIntroOutro={true}
           introSubtitle="FEEXSYSTEMS // FULLSCREEN SCROLL RUNWAY"
           introText="Scroll into the living ecosystem of autonomous digital system worlds."
+          introVideo="/media/feex/feex-humanoids.mp4"
           outroSubtitle="FEEXSYSTEMS // SIX WORLDS VERIFIED"
           outroText="All six worlds are backed by active GitHub repositories and verifiable evidence."
+          outroVideo="/media/feex/feex-humanoid-fullbody.mp4"
           navLabel="[ FULLSCREEN SCROLL MOTION SLIDER // SYSTEM WORLDS ]"
           vhPerSlide={120}
           overlayOpacity={0.65}

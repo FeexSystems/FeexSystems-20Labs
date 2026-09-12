@@ -32,6 +32,8 @@ export class AIProviderService {
         return this.processOpenAIRequest(service, request, provider);
       case 'anthropic':
         return this.processAnthropicRequest(service, request, provider);
+      case 'gemini':
+        return this.processGeminiRequest(service, request, provider);
       default:
         throw new Error(`Unsupported provider: ${service.provider}`);
     }
@@ -298,6 +300,52 @@ export class AIProviderService {
   }
 
   /**
+   * Process request using Google Gemini API
+   */
+  private async processGeminiRequest(
+    service: AIService,
+    request: ProviderRequest,
+    provider: AIProviderConfig
+  ): Promise<ProviderResponse> {
+    if (!provider.apiKey) {
+      throw new Error('GEMINI_API_KEY not configured');
+    }
+
+    const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    const input =
+      typeof request.input === 'string'
+        ? request.input
+        : JSON.stringify(request.input);
+
+    const url = `${provider.baseUrl}/models/${model}:generateContent?key=${provider.apiKey}`;
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: input }] }],
+        generationConfig: {
+          temperature: request.parameters.temperature ?? 0.3,
+          maxOutputTokens: request.parameters.max_tokens ?? 1024,
+        },
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => res.statusText);
+      throw new Error(`Gemini API error: ${res.status} — ${errText}`);
+    }
+
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      throw new Error('Empty Gemini response');
+    }
+
+    return { result: text, model, confidence: 0.85 };
+  }
+
+  /**
    * Test provider connection
    */
   async testProvider(providerId: string): Promise<{ success: boolean; error?: string }> {
@@ -312,6 +360,8 @@ export class AIProviderService {
           return this.testOpenAIConnection(provider);
         case 'anthropic':
           return this.testAnthropicConnection(provider);
+        case 'gemini':
+          return this.testGeminiConnection(provider);
         default:
           return { success: false, error: 'Unsupported provider' };
       }
@@ -353,6 +403,28 @@ export class AIProviderService {
   private async testAnthropicConnection(provider: AIProviderConfig): Promise<{ success: boolean; error?: string }> {
     // Placeholder for Anthropic connection test
     return { success: false, error: 'Anthropic provider not yet implemented' };
+  }
+
+  /**
+   * Test Gemini connection via model list endpoint
+   */
+  private async testGeminiConnection(provider: AIProviderConfig): Promise<{ success: boolean; error?: string }> {
+    if (!provider.apiKey) {
+      return { success: false, error: 'GEMINI_API_KEY not configured' };
+    }
+    try {
+      const url = `${provider.baseUrl}/models?key=${provider.apiKey}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        return { success: true };
+      }
+      return { success: false, error: `HTTP ${res.status}: ${res.statusText}` };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Gemini connection failed',
+      };
+    }
   }
 }
 

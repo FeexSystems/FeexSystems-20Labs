@@ -14,8 +14,10 @@ export interface FullscreenScrollSliderProps {
   showIntroOutro?: boolean;
   introText?: string;
   introSubtitle?: string;
+  introVideo?: string;
   outroText?: string;
   outroSubtitle?: string;
+  outroVideo?: string;
   navLabel?: string;
   showIndices?: boolean;
   vhPerSlide?: number;
@@ -69,8 +71,10 @@ export function FullscreenScrollSlider({
   showIntroOutro = true,
   introText = "Scroll to explore the architecture of living engineering intelligence.",
   introSubtitle = "FEEXSYSTEMS // FULLSCREEN SCROLL NARRATIVE",
+  introVideo = "/media/feex/feex-humanoids.mp4",
   outroText = "Canonical foundations. Living models. Uncompromising engineering rigor.",
   outroSubtitle = "FEEXSYSTEMS // END OF SCROLL RUNWAY",
+  outroVideo = "/media/feex/feex-humanoid-fullbody.mp4",
   navLabel = "[ FULLSCREEN SCROLL MOTION SLIDER // SYSTEM NARRATIVE ]",
   showIndices = true,
   vhPerSlide = 120,
@@ -138,9 +142,27 @@ export function FullscreenScrollSlider({
     >
       {/* ---------------- INTRO SECTION (OPTIONAL) ---------------- */}
       {showIntroOutro && (
-        <section className="relative w-full h-[85vh] sm:h-[95vh] flex flex-col items-center justify-center px-6 text-center border-b border-white/10 bg-[#020202]">
-          <div className="max-w-4xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 tracking-widest uppercase">
+        <section className="relative w-full h-[85vh] sm:h-[95vh] flex flex-col items-center justify-center px-6 text-center border-b border-white/10 bg-[#020202] overflow-hidden">
+          {introVideo && (
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
+              <video
+                src={introVideo}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                className="w-full h-full object-cover transition-opacity duration-700"
+                style={{ opacity: 0.75 }}
+              />
+              {/* Cybernetic Dark Contrast Shield Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/55 to-black/85 pointer-events-none" />
+              <div className="absolute inset-0 bg-black/35 pointer-events-none" />
+            </div>
+          )}
+
+          <div className="max-w-4xl space-y-6 relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 tracking-widest uppercase backdrop-blur-md">
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
               {introSubtitle}
             </div>
@@ -343,9 +365,27 @@ export function FullscreenScrollSlider({
 
       {/* ---------------- OUTRO SECTION (OPTIONAL) ---------------- */}
       {showIntroOutro && (
-        <section className="relative w-full h-[80vh] flex flex-col items-center justify-center px-6 text-center border-t border-white/10 bg-[#020202]">
-          <div className="max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 tracking-widest uppercase">
+        <section className="relative w-full h-[80vh] flex flex-col items-center justify-center px-6 text-center border-t border-white/10 bg-[#020202] overflow-hidden">
+          {outroVideo && (
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
+              <video
+                src={outroVideo}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                className="w-full h-full object-cover transition-opacity duration-700"
+                style={{ opacity: 0.75 }}
+              />
+              {/* Cybernetic Dark Contrast Shield Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/55 to-black/85 pointer-events-none" />
+              <div className="absolute inset-0 bg-black/35 pointer-events-none" />
+            </div>
+          )}
+
+          <div className="max-w-3xl space-y-6 relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 tracking-widest uppercase backdrop-blur-md">
               <span className="w-1.5 h-1.5 rounded-full bg-white" />
               {outroSubtitle}
             </div>

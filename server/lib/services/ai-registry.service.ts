@@ -32,8 +32,55 @@ export class AIServiceRegistry {
       retries: 3
     });
 
+    this.providers.set('gemini', {
+      name: 'Google Gemini',
+      apiKey: process.env.GEMINI_API_KEY || '',
+      baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+      timeout: 30000,
+      retries: 2
+    });
+
     // Default services
-  const defaultServices: AIService[] = [
+    const defaultServices: AIService[] = [
+      {
+        id: 'chat-gemini-flash',
+        name: 'Google Gemini Flash',
+        description: 'Fast, multimodal, high-intelligence reasoning model from Google',
+        category: 'chat',
+        pricing: {
+          type: 'per_token',
+          cost: 0.0005,
+          currency: 'usd'
+        },
+        limits: {
+          maxRequestsPerHour: 120,
+          maxRequestsPerDay: 2000,
+          maxTokensPerRequest: 8192,
+          maxRequestSize: 2 * 1024 * 1024
+        },
+        isActive: Boolean(process.env.GEMINI_API_KEY),
+        provider: 'gemini',
+        parameters: {
+          temperature: {
+            name: 'temperature',
+            type: 'number',
+            required: false,
+            default: 0.7,
+            min: 0,
+            max: 2,
+            description: 'Controls randomness in the response'
+          },
+          max_tokens: {
+            name: 'max_tokens',
+            type: 'number',
+            required: false,
+            default: 2048,
+            min: 1,
+            max: 8192,
+            description: 'Maximum number of tokens to generate'
+          }
+        }
+      },
       {
         id: 'chat-gpt-3.5',
         name: 'ChatGPT 3.5 Turbo',
@@ -262,6 +309,46 @@ export class AIServiceRegistry {
             options: ['professional', 'casual', 'technical', 'creative'],
             default: 'professional',
             description: 'Tone of the generated content'
+          }
+        }
+      },
+      // Gemini — grounded chat over World Model
+      {
+        id: 'chat-gemini-flash',
+        name: 'Gemini Flash Chat',
+        description: 'Grounded / general chat via Google Gemini Flash. Used by Bushfeexer and Navigator.',
+        category: 'chat',
+        pricing: {
+          type: 'per_token',
+          cost: 0,
+          currency: 'usd'
+        },
+        limits: {
+          maxRequestsPerHour: 120,
+          maxRequestsPerDay: 2000,
+          maxTokensPerRequest: 8192,
+          maxRequestSize: 1024 * 1024
+        },
+        isActive: Boolean(process.env.GEMINI_API_KEY),
+        provider: 'gemini',
+        parameters: {
+          temperature: {
+            name: 'temperature',
+            type: 'number',
+            required: false,
+            default: 0.3,
+            min: 0,
+            max: 1,
+            description: 'Controls randomness in the response'
+          },
+          max_tokens: {
+            name: 'max_tokens',
+            type: 'number',
+            required: false,
+            default: 1024,
+            min: 1,
+            max: 8192,
+            description: 'Maximum number of tokens to generate'
           }
         }
       }
