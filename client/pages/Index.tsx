@@ -78,90 +78,196 @@ import {
 } from "@/components/framer";
 
 // ---------------------------------------------------------------------------
-// CANONICAL FEEXSYSTEMS DATASETS
+// CORE DASHBOARD CAPABILITIES (3D CAROUSEL SHOWCASE)
+// ---------------------------------------------------------------------------
+const DASHBOARD_CAROUSEL_ITEMS = [
+  {
+    id: "01",
+    title: "AI Services & Orchestration",
+    category: "Neural Adapters / Model Routing",
+    link: "/dashboard/ai-services",
+    image: "/media/feex/ai-neural-core.jpg",
+    description: "Provider-neutral model routing. Orchestrate OpenAI, Anthropic, and Gemini models with custom fallback adapters.",
+    tags: ["Provider-Neutral", "Model Adapters", "Fallback Routing", "Inference Scaling", "Token Telemetry"],
+    metric: "MULTI-MODEL ROUTING",
+  },
+  {
+    id: "02",
+    title: "Evidence Fabric Ledger",
+    category: "Cryptographic Provenance",
+    link: "/evidence",
+    image: "/media/feex/kappaxchangefin-ledger.jpg",
+    description: "Immutable ledger tracking structural facts. Inspect cryptographic commit SHAs, file paths, and observation timestamps.",
+    tags: ["Cryptographic Proof", "SHA-256 Hashes", "Audit Trail", "World Model Truth", "Fact Resolution"],
+    metric: "100% VERIFIED PROVENANCE",
+  },
+  {
+    id: "03",
+    title: "Omni Command Stage",
+    category: "Agentic Execution / Telemetry",
+    link: "/omni",
+    image: "/media/feex/sonik-audio-dsp.jpg",
+    description: "Multi-agent task orchestration environment. Stream live reasoning traces and inspect tool-calling payloads in real-time.",
+    tags: ["Multi-Agent Execution", "Live Streaming", "Tool-Calling", "Execution Telemetry", "Task Queues"],
+    metric: "SUB-50MS SSE STREAM",
+  },
+  {
+    id: "04",
+    title: "Spatial Knowledge Galaxy",
+    category: "3D Topology / Data Visualization",
+    link: "/world",
+    image: "/media/feex/holokai-guardians-armor.jpeg",
+    description: "Immersive WebGL data visualization. Explore nodes, edges, relationships, and artifact domains in a fully spatial UI.",
+    tags: ["3D Data Vis", "WebGL", "Node Inspection", "Relationship Graphs", "Progressive Disclosure"],
+    metric: "60 FPS SPATIAL TOPOLOGY",
+  },
+  {
+    id: "05",
+    title: "DevOps & Security Scans",
+    category: "Infrastructure / Pipelines",
+    link: "/dashboard/devops",
+    image: "/media/feex/rental-paradise-architecture.jpg",
+    description: "Continuous synchronization health checks. Monitor GitHub webhooks, pipeline deployments, and automated security scans.",
+    tags: ["HMAC Validation", "Webhook Ingestion", "CI/CD Monitor", "Security Audits", "Health Checks"],
+    metric: "AUTOMATED CI/CD & AUDIT",
+  },
+  {
+    id: "06",
+    title: "Intelligent Navigator",
+    category: "Semantic Search / Retrieval",
+    link: "/navigator",
+    image: "/media/feex/yurrhealer-lab.jpg",
+    description: "Grounded retrieval engine with AI-generated explanations. Combines pgvector semantic search with deterministic graph traversal.",
+    tags: ["Semantic Search", "pgvector", "Graph Traversal", "RAG Pipeline", "Explainable AI"],
+    metric: "ZERO-HALLUCINATION RAG",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// CANONICAL FEEXSYSTEMS DATASETS (THE 6 PINNED SYSTEM WORLDS)
 // ---------------------------------------------------------------------------
 
 const SYSTEM_WORLDS = [
   {
     id: "01",
-    name: "AI Services & Orchestration",
-    domain: "Neural Adapters / Model Routing",
-    repoUrl: "/dashboard/ai-services",
-    image: "/media/feex/ai-neural-core.jpg",
-    description: "Provider-neutral model routing. Orchestrate OpenAI, Anthropic, and Gemini models with custom fallback adapters.",
-    capabilities: ["Provider-Neutral", "Model Adapters", "Fallback Routing", "Inference Scaling", "Token Telemetry"],
-    status: "SYSTEM ACTIVE",
+    name: "3WM SONIK LABS",
+    domain: "Audio / Creative Technology",
+    repo: "FeexSystems/3WM-SONIK-LABS",
+    repoUrl: "https://github.com/FeexSystems/3WM-SONIK-LABS",
+    image: "/media/feex/sonik-audio-dsp.jpg",
+    description:
+      "AI-native audio and DSP exploration connecting intelligent systems with music-production workflows.",
+    capabilities: ["AI / ML", "DSP", "Audio Processing", "Interactive UI", "Creative Technology"],
+    status: "ACTIVE WORLD",
   },
   {
     id: "02",
-    name: "Evidence Fabric Ledger",
-    domain: "Cryptographic Provenance",
-    repoUrl: "/evidence",
-    image: "/media/feex/kappaxchangefin-ledger.jpg",
-    description: "Immutable ledger tracking structural facts. Inspect cryptographic commit SHAs, file paths, and observation timestamps.",
-    capabilities: ["Cryptographic Proof", "SHA-256 Hashes", "Audit Trail", "World Model Truth", "Fact Resolution"],
-    status: "SYSTEM ACTIVE",
+    name: "HoloKai",
+    domain: "Culture / World Models / 3D",
+    repo: "FeexSystems/HoloKai-Systems-Labs",
+    repoUrl: "https://github.com/FeexSystems/HoloKai-Systems-Labs",
+    image: "/media/feex/holokai-guardians-armor.jpeg",
+    tagline: "Where Civilisations Remember.",
+    description:
+      "Exploration of cultural intelligence, knowledge representation, artifact intelligence and immersive world-model experiences.",
+    capabilities: ["World Models", "Knowledge Graphs", "AI", "3D", "Artifact Intelligence"],
+    status: "ACTIVE WORLD",
   },
   {
     id: "03",
-    name: "Omni Command Stage",
-    domain: "Agentic Execution / Telemetry",
-    repoUrl: "/omni",
-    image: "/media/feex/sonik-audio-dsp.jpg",
-    description: "Multi-agent task orchestration environment. Stream live reasoning traces and inspect tool-calling payloads in real-time.",
-    capabilities: ["Multi-Agent Execution", "Live Streaming", "Tool-Calling", "Execution Telemetry", "Task Queues"],
-    status: "SYSTEM ACTIVE",
+    name: "Yurrheeler AI",
+    domain: "Healthcare Intelligence",
+    repo: "FeexSystems/yurrhealer-med-advisor",
+    repoUrl: "https://github.com/FeexSystems/yurrhealer-med-advisor",
+    image: "/media/feex/yurrhealer-lab.jpg",
+    description:
+      "Multi-agent healthcare intelligence architecture focused on coordinated expert reasoning, retrieval and structured interaction.",
+    capabilities: ["Agents", "RAG", "AI / ML", "Knowledge Systems", "Full-Stack"],
+    status: "ACTIVE WORLD",
   },
   {
     id: "04",
-    name: "Spatial Knowledge Galaxy",
-    domain: "3D Topology / Data Visualization",
-    repoUrl: "/world",
-    image: "/media/feex/holokai-guardians-armor.jpeg",
-    description: "Immersive WebGL data visualization. Explore nodes, edges, relationships, and artifact domains in a fully spatial UI.",
-    capabilities: ["3D Data Vis", "WebGL", "Node Inspection", "Relationship Graphs", "Progressive Disclosure"],
-    status: "SYSTEM ACTIVE",
+    name: "KappaXchangefin",
+    domain: "Fintech / Payments / Financial Infrastructure",
+    repo: "Pending canonical repository connection",
+    repoUrl: "https://github.com/FeexSystems",
+    image: "/media/feex/kappaxchangefin-ledger.jpg",
+    canonicalArtifact: "ISO 20022 Financial Infrastructure",
+    description:
+      "Financial technology world covering payment infrastructure, intelligent financial services, APIs, security and standards-oriented messaging.",
+    capabilities: ["Fintech", "Payments", "ISO 20022", "API Gateway", "Financial Security"],
+    status: "PENDING REPO",
   },
   {
     id: "05",
-    name: "DevOps & Security Scans",
-    domain: "Infrastructure / Pipelines",
-    repoUrl: "/dashboard/devops",
-    image: "/media/feex/rental-paradise-architecture.jpg",
-    description: "Continuous synchronization health checks. Monitor GitHub webhooks, pipeline deployments, and automated security scans.",
-    capabilities: ["HMAC Validation", "Webhook Ingestion", "CI/CD Monitor", "Security Audits", "Health Checks"],
-    status: "SYSTEM ACTIVE",
+    name: "VYRA LABS",
+    domain: "Interfaces / Intelligent Media",
+    repo: "FeexSystems/VYRA-LABS",
+    repoUrl: "https://github.com/FeexSystems/VYRA-LABS",
+    image: "/media/feex/ai-neural-core.jpg",
+    description: "Conversational and intelligent-media interface experimentation.",
+    capabilities: ["Conversational UI", "Intelligent Media", "Full-Stack", "Interaction Design"],
+    status: "ACTIVE WORLD",
   },
   {
     id: "06",
-    name: "Intelligent Navigator",
-    domain: "Semantic Search / Retrieval",
-    repoUrl: "/navigator",
-    image: "/media/feex/yurrhealer-lab.jpg",
-    description: "Grounded retrieval engine with AI-generated explanations. Combines pgvector semantic search with deterministic graph traversal.",
-    capabilities: ["Semantic Search", "pgvector", "Graph Traversal", "RAG Pipeline", "Explainable AI"],
-    status: "SYSTEM ACTIVE",
+    name: "Rental Paradise",
+    domain: "Real Estate / Digital Commerce",
+    repo: "FeexSystems/Rental-Paradise",
+    repoUrl: "https://github.com/FeexSystems/Rental-Paradise",
+    image: "/media/feex/rental-paradise-architecture.jpg",
+    description: "Property discovery and digital rental experience architecture.",
+    capabilities: ["Digital Commerce", "Discovery Engine", "PostgreSQL", "Modern Web"],
+    status: "ACTIVE WORLD",
   },
 ];
 
-const WORLD_CAROUSEL_ITEMS = SYSTEM_WORLDS.map((w) => ({
-  id: w.id,
-  title: w.name,
-  category: w.domain,
-  description: w.description,
-  metric: w.status,
-  tags: w.capabilities,
-  link: w.repoUrl,
-  image: w.image,
-}));
+const WORLD_CAROUSEL_ITEMS = DASHBOARD_CAROUSEL_ITEMS;
 
-const SYSTEM_WORLD_SLIDES = SYSTEM_WORLDS.map((w, i) => ({
-  image: w.image,
-  title: w.name,
-  subtitle: `FEATURE 0${i + 1} // ${w.domain.toUpperCase()}`,
-  category: `0${i + 1} // ${w.name.toUpperCase()}`,
-  tagline: w.description,
-}));
+const SYSTEM_WORLD_SLIDES = [
+  {
+    image: "/media/feex/sonik-audio-dsp.jpg",
+    title: "3WM SONIK LABS: Neural DSP Audio Architecture",
+    subtitle: "WORLD 01 // AUDIO & CREATIVE TECHNOLOGY",
+    category: "01 // DSP & SYNTHESIS",
+    tagline: "Connecting neural audio pipelines, intelligent parameter synthesis, and music production workflows.",
+  },
+  {
+    image: "/media/feex/holokai-guardians-armor.jpeg",
+    title: "HoloKai: Where Civilisations Remember",
+    subtitle: "WORLD 02 // WORLD MODELS & SPATIAL KNOWLEDGE",
+    category: "02 // ARTIFACT INTELLIGENCE",
+    tagline: "Deep cultural intelligence, immutable knowledge representation, and immersive 3D world-model environments.",
+  },
+  {
+    image: "/media/feex/yurrhealer-lab.jpg",
+    title: "Yurrheeler AI: Coordinated Healthcare Multi-Agents",
+    subtitle: "WORLD 03 // CLINICAL INTELLIGENCE ARCHITECTURE",
+    category: "03 // AGENTIC REASONING",
+    tagline: "Multi-agent clinical reasoning engine with grounded retrieval, medical triage protocols, and structured memory.",
+  },
+  {
+    image: "/media/feex/kappaxchangefin-ledger.jpg",
+    title: "KappaXchangefin: ISO 20022 Financial Telemetry",
+    subtitle: "WORLD 04 // CRYPTOGRAPHIC LEDGER & BANKING",
+    category: "04 // FINANCIAL TELEMETRY",
+    tagline: "High-frequency financial telemetry, ISO 20022 message compliance, and verifiable asset validation fabrics.",
+  },
+  {
+    image: "/media/feex/ai-neural-core.jpg",
+    title: "VYRA LABS: Conversational AI & FanDNA Profiling",
+    subtitle: "WORLD 05 // DIGITAL TWINS & SOCIAL INTELLIGENCE",
+    category: "05 // CONVERSATIONAL SYSTEMS",
+    tagline: "High-concurrency real-time conversational agents, multi-provider model routing, and creator digital twins.",
+  },
+  {
+    image: "/media/feex/rental-paradise-architecture.jpg",
+    title: "Rental Paradise: Spatial Real Estate & Commerce",
+    subtitle: "WORLD 06 // DIGITAL COMMERCE & SPATIAL DISCOVERY",
+    category: "06 // SPATIAL COMMERCE",
+    tagline: "High-fidelity spatial property inspection, automated reservation state machines, and booking infrastructure.",
+  },
+];
 
 const COMPETENCIES = [
   {
@@ -1080,10 +1186,10 @@ export default function Index() {
             {/* 13. SUSH CINEMATIC 3D PERSPECTIVE CAROUSEL */}
             <div className="rounded-2xl border border-white/10 bg-black/60 p-6 backdrop-blur-md shadow-2xl">
               <div className="text-xs font-mono text-zinc-300 mb-4 uppercase tracking-wider font-semibold flex items-center justify-between">
-                <span>3D PERSPECTIVE CYLINDER // DRAGGABLE SHOWCASE</span>
+                <span>3D PERSPECTIVE CYLINDER // CORE DASHBOARD ARCHITECTURE</span>
                 <span>INTERACTION ENABLED</span>
               </div>
-              <SushCinematicCarousel items={WORLD_CAROUSEL_ITEMS} />
+              <SushCinematicCarousel items={DASHBOARD_CAROUSEL_ITEMS} />
             </div>
 
             {/* The 6 Worlds Grid Dossiers */}
