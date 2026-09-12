@@ -84,75 +84,63 @@ import {
 const SYSTEM_WORLDS = [
   {
     id: "01",
-    name: "3WM SONIK LABS",
-    domain: "Audio / Creative Technology",
-    repo: "FeexSystems/3WM-SONIK-LABS",
-    repoUrl: "https://github.com/FeexSystems/3WM-SONIK-LABS",
-    image: "/media/feex/sonik-audio-dsp.jpg",
-    description:
-      "AI-native audio and DSP exploration connecting intelligent systems with music-production workflows.",
-    capabilities: ["AI / ML", "DSP", "Audio Processing", "Interactive UI", "Creative Technology"],
-    status: "ACTIVE WORLD",
+    name: "AI Services & Orchestration",
+    domain: "Neural Adapters / Model Routing",
+    repoUrl: "/dashboard/ai-services",
+    image: "/media/feex/ai-neural-core.jpg",
+    description: "Provider-neutral model routing. Orchestrate OpenAI, Anthropic, and Gemini models with custom fallback adapters.",
+    capabilities: ["Provider-Neutral", "Model Adapters", "Fallback Routing", "Inference Scaling", "Token Telemetry"],
+    status: "SYSTEM ACTIVE",
   },
   {
     id: "02",
-    name: "HoloKai",
-    domain: "Culture / World Models / 3D",
-    repo: "FeexSystems/HoloKai-Systems-Labs",
-    repoUrl: "https://github.com/FeexSystems/HoloKai-Systems-Labs",
-    image: "/media/feex/holokai-guardians-armor.jpeg",
-    tagline: "Where Civilisations Remember.",
-    description:
-      "Exploration of cultural intelligence, knowledge representation, artifact intelligence and immersive world-model experiences.",
-    capabilities: ["World Models", "Knowledge Graphs", "AI", "3D", "Artifact Intelligence"],
-    status: "ACTIVE WORLD",
+    name: "Evidence Fabric Ledger",
+    domain: "Cryptographic Provenance",
+    repoUrl: "/evidence",
+    image: "/media/feex/kappaxchangefin-ledger.jpg",
+    description: "Immutable ledger tracking structural facts. Inspect cryptographic commit SHAs, file paths, and observation timestamps.",
+    capabilities: ["Cryptographic Proof", "SHA-256 Hashes", "Audit Trail", "World Model Truth", "Fact Resolution"],
+    status: "SYSTEM ACTIVE",
   },
   {
     id: "03",
-    name: "Yurrheeler AI",
-    domain: "Healthcare Intelligence",
-    repo: "FeexSystems/yurrhealer-med-advisor",
-    repoUrl: "https://github.com/FeexSystems/yurrhealer-med-advisor",
-    image: "/media/feex/yurrhealer-lab.jpg",
-    description:
-      "Multi-agent healthcare intelligence architecture focused on coordinated expert reasoning, retrieval and structured interaction.",
-    capabilities: ["Agents", "RAG", "AI / ML", "Knowledge Systems", "Full-Stack"],
-    status: "ACTIVE WORLD",
+    name: "Omni Command Stage",
+    domain: "Agentic Execution / Telemetry",
+    repoUrl: "/omni",
+    image: "/media/feex/sonik-audio-dsp.jpg",
+    description: "Multi-agent task orchestration environment. Stream live reasoning traces and inspect tool-calling payloads in real-time.",
+    capabilities: ["Multi-Agent Execution", "Live Streaming", "Tool-Calling", "Execution Telemetry", "Task Queues"],
+    status: "SYSTEM ACTIVE",
   },
   {
     id: "04",
-    name: "KappaXchangefin",
-    domain: "Fintech / Payments / Financial Infrastructure",
-    repo: "Pending canonical repository connection",
-    repoUrl: "https://github.com/FeexSystems",
-    image: "/media/feex/kappaxchangefin-ledger.jpg",
-    canonicalArtifact: "ISO 20022 Financial Infrastructure",
-    description:
-      "Financial technology world covering payment infrastructure, intelligent financial services, APIs, security and standards-oriented messaging.",
-    capabilities: ["Fintech", "Payments", "ISO 20022", "API Gateway", "Financial Security"],
-    status: "PENDING REPO",
+    name: "Spatial Knowledge Galaxy",
+    domain: "3D Topology / Data Visualization",
+    repoUrl: "/world",
+    image: "/media/feex/holokai-guardians-armor.jpeg",
+    description: "Immersive WebGL data visualization. Explore nodes, edges, relationships, and artifact domains in a fully spatial UI.",
+    capabilities: ["3D Data Vis", "WebGL", "Node Inspection", "Relationship Graphs", "Progressive Disclosure"],
+    status: "SYSTEM ACTIVE",
   },
   {
     id: "05",
-    name: "VYRA LABS",
-    domain: "Interfaces / Intelligent Media",
-    repo: "FeexSystems/VYRA-LABS",
-    repoUrl: "https://github.com/FeexSystems/VYRA-LABS",
-    image: "/media/feex/ai-neural-core.jpg",
-    description: "Conversational and intelligent-media interface experimentation.",
-    capabilities: ["Conversational UI", "Intelligent Media", "Full-Stack", "Interaction Design"],
-    status: "ACTIVE WORLD",
+    name: "DevOps & Security Scans",
+    domain: "Infrastructure / Pipelines",
+    repoUrl: "/dashboard/devops",
+    image: "/media/feex/rental-paradise-architecture.jpg",
+    description: "Continuous synchronization health checks. Monitor GitHub webhooks, pipeline deployments, and automated security scans.",
+    capabilities: ["HMAC Validation", "Webhook Ingestion", "CI/CD Monitor", "Security Audits", "Health Checks"],
+    status: "SYSTEM ACTIVE",
   },
   {
     id: "06",
-    name: "Rental Paradise",
-    domain: "Real Estate / Digital Commerce",
-    repo: "FeexSystems/Rental-Paradise",
-    repoUrl: "https://github.com/FeexSystems/Rental-Paradise",
-    image: "/media/feex/rental-paradise-architecture.jpg",
-    description: "Property discovery and digital rental experience architecture.",
-    capabilities: ["Digital Commerce", "Discovery Engine", "PostgreSQL", "Modern Web"],
-    status: "ACTIVE WORLD",
+    name: "Intelligent Navigator",
+    domain: "Semantic Search / Retrieval",
+    repoUrl: "/navigator",
+    image: "/media/feex/yurrhealer-lab.jpg",
+    description: "Grounded retrieval engine with AI-generated explanations. Combines pgvector semantic search with deterministic graph traversal.",
+    capabilities: ["Semantic Search", "pgvector", "Graph Traversal", "RAG Pipeline", "Explainable AI"],
+    status: "SYSTEM ACTIVE",
   },
 ];
 
@@ -167,50 +155,13 @@ const WORLD_CAROUSEL_ITEMS = SYSTEM_WORLDS.map((w) => ({
   image: w.image,
 }));
 
-const SYSTEM_WORLD_SLIDES = [
-  {
-    image: "/media/feex/sonik-audio-dsp.jpg",
-    title: "3WM SONIK LABS: Neural DSP Audio Architecture",
-    subtitle: "WORLD 01 // AUDIO & CREATIVE TECHNOLOGY",
-    category: "01 // DSP & SYNTHESIS",
-    tagline: "Connecting neural audio pipelines, intelligent parameter synthesis, and music production workflows.",
-  },
-  {
-    image: "/media/feex/holokai-guardians-armor.jpeg",
-    title: "HoloKai: Where Civilisations Remember",
-    subtitle: "WORLD 02 // WORLD MODELS & SPATIAL KNOWLEDGE",
-    category: "02 // ARTIFACT INTELLIGENCE",
-    tagline: "Deep cultural intelligence, immutable knowledge representation, and immersive 3D world-model environments.",
-  },
-  {
-    image: "/media/feex/yurrhealer-lab.jpg",
-    title: "Yurrheeler AI: Coordinated Healthcare Multi-Agents",
-    subtitle: "WORLD 03 // CLINICAL INTELLIGENCE ARCHITECTURE",
-    category: "03 // AGENTIC REASONING",
-    tagline: "Multi-agent clinical reasoning engine with grounded retrieval, medical triage protocols, and structured memory.",
-  },
-  {
-    image: "/media/feex/kappaxchangefin-ledger.jpg",
-    title: "KappaXchangefin: ISO 20022 Financial Telemetry",
-    subtitle: "WORLD 04 // CRYPTOGRAPHIC LEDGER & BANKING",
-    category: "04 // FINANCIAL TELEMETRY",
-    tagline: "High-frequency financial telemetry, ISO 20022 message compliance, and verifiable asset validation fabrics.",
-  },
-  {
-    image: "/media/feex/ai-neural-core.jpg",
-    title: "VYRA LABS: Conversational AI & FanDNA Profiling",
-    subtitle: "WORLD 05 // DIGITAL TWINS & SOCIAL INTELLIGENCE",
-    category: "05 // CONVERSATIONAL SYSTEMS",
-    tagline: "High-concurrency real-time conversational agents, multi-provider model routing, and creator digital twins.",
-  },
-  {
-    image: "/media/feex/rental-paradise-architecture.jpg",
-    title: "Rental Paradise: Spatial Real Estate & Commerce",
-    subtitle: "WORLD 06 // DIGITAL COMMERCE & SPATIAL DISCOVERY",
-    category: "06 // SPATIAL COMMERCE",
-    tagline: "High-fidelity spatial property inspection, automated reservation state machines, and booking infrastructure.",
-  },
-];
+const SYSTEM_WORLD_SLIDES = SYSTEM_WORLDS.map((w, i) => ({
+  image: w.image,
+  title: w.name,
+  subtitle: `FEATURE 0${i + 1} // ${w.domain.toUpperCase()}`,
+  category: `0${i + 1} // ${w.name.toUpperCase()}`,
+  tagline: w.description,
+}));
 
 const COMPETENCIES = [
   {
@@ -597,19 +548,19 @@ export default function Index() {
         {/* ========================================================================= */}
         {/* HERO SECTION: PROFESSIONAL PROFILE & CANONICAL PRINCIPLE                  */}
         {/* ========================================================================= */}
-        <section className="relative w-full overflow-hidden border-b border-white/10 bg-[#000000]/80 backdrop-blur-[2px] pt-14 pb-20 md:pt-20 md:pb-28">
+        <section className="relative w-full overflow-hidden border-b border-white/10 bg-[#000000]/95 pt-14 pb-20 md:pt-20 md:pb-28">
           {/* 00. FEEX ROBOTICS AMBIENT VIDEO OVERLAY */}
           <VideoOverlayBackground
             src="/media/feex/feex-robotics.mp4"
             position="hero"
-            opacity={0.75}
-            blendMode="screen"
+            opacity={0.4}
+            blendMode="normal"
             label="FEEX Robotics Feed"
             showToggle={true}
           />
 
-          {/* 01. THREE.JS INFINITE 3D SCROLL PERSPECTIVE TUNNEL (UPSTREAM FRAMER) */}
-          <div className="absolute inset-0 z-0 pointer-events-none opacity-40 overflow-hidden">
+          {/* 01. THREE.JS INFINITE 3D SCROLL PERSPECTIVE TUNNEL (UPSTREAM FRAMER) - HIDDEN TO PREVENT WHITE WASH */}
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-40 overflow-hidden hidden">
             <HeroTunnel
               isDarkMode={true}
               transparent={true}
@@ -632,8 +583,10 @@ export default function Index() {
             />
           </div>
 
-          {/* 03. VECTOR INTERACTION LINES BACKGROUND */}
-          <InteractionLinesBackground className="opacity-25" />
+          {/* 03. VECTOR INTERACTION LINES BACKGROUND - HIDDEN TO PREVENT WHITE WASH */}
+          <div className="hidden">
+            <InteractionLinesBackground className="opacity-25" />
+          </div>
 
           <div className="container mx-auto max-w-7xl px-5 md:px-8 relative z-10">
             <div className="max-w-4xl space-y-8">

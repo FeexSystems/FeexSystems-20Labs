@@ -160,8 +160,10 @@ class ApiClient {
       const contentType = response.headers?.get ? response.headers.get('content-type') : null;
       if (contentType && contentType.includes('application/json')) {
         const errorData = await response.json();
-        errorMessage = errorData.message || errorData.error || errorMessage;
-        errorCode = errorData.code;
+        errorMessage = errorData.message || 
+                       (errorData.error && typeof errorData.error === 'object' ? errorData.error.message : errorData.error) || 
+                       errorMessage;
+        errorCode = errorData.code || (errorData.error && typeof errorData.error === 'object' ? errorData.error.code : undefined);
         errorDetails = errorData.details;
       }
     } catch (parseError) {

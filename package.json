@@ -68,6 +68,7 @@
     "node-cron": "^3.0.3",
     "postprocessing": "^6.39.5",
     "prisma": "^5.7.1",
+    "reactflow": "^11.11.4",
     "sharp": "^0.35.4",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",

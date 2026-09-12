@@ -100,6 +100,7 @@ export function VideoOverlayBackground({
         poster={poster}
         autoPlay
         muted
+        defaultMuted
         loop
         playsInline
         preload="auto"
@@ -107,8 +108,7 @@ export function VideoOverlayBackground({
         onError={() => setHasError(true)}
         style={{
           opacity: isLoaded ? opacity : 0,
-          mixBlendMode: position === "hero" ? "screen" : blendMode,
-          filter: position === "hero" ? "invert(1) contrast(1.1) brightness(0.85)" : undefined,
+          mixBlendMode: blendMode,
           WebkitMaskImage:
             position === "hero"
               ? "linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.6) 70%, black 90%)"
